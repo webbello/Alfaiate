@@ -1,6 +1,6 @@
 # Tasks: Phase 2
 
-- [ ] **T1 Test runtime: Vitest 4.1.12 + Workers pool**
+- [x] **T1 Test runtime: Vitest 4.1.12 + Workers pool**
   - Acceptance: Vitest pinned 4.1.12, `@cloudflare/vitest-pool-workers` pinned 0.23.0; two Vitest projects (Astro container tests, Workers/D1 tests); Zod 4.6.7 installed; Phase 1 smoke test still passes.
   - Verify: `npm test` runs both projects green, including a trivial D1 `SELECT 1` test that failed first.
   - Files: `package.json`, `package-lock.json`, `vitest.config.ts`, `tests/d1-smoke.test.ts`, `docs/DECISIONS.md`

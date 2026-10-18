@@ -1,4 +1,7 @@
-/// <reference types="vitest/config" />
-import { getViteConfig } from 'astro/config';
+import { defineConfig } from 'vitest/config';
 
-export default getViteConfig({ test: { include: ['tests/**/*.test.ts'] } });
+export default defineConfig({
+  test: {
+    projects: ['vitest.container.config.ts', 'vitest.workers.config.ts'],
+  },
+});

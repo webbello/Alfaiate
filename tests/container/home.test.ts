@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
-import Home from '../src/pages/index.astro';
-import { en } from '../src/i18n/en';
+import Home from '../../src/pages/index.astro';
+import { en } from '../../src/i18n/en';
 
 describe('home page', () => {
   it('returns 200 with a single h1 and mobile viewport meta', async () => {
