@@ -1,0 +1,76 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import { z } from 'zod';
+import Base from '../../layouts/Base.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { login } from '../../modules/auth/login';
+import { SESSION_COOKIE } from '../../modules/auth/session';
+
+const schema = z.object({
+  email: z.string().trim().max(254),
+  password: z.string().max(1024),
+});
+
+let email = '';
+let message = '';
+if (Astro.request.method === 'POST') {
+  const parsed = schema.safeParse(
+    Object.fromEntries(
+      await Astro.request.formData().catch(() => new FormData()),
+    ),
+  );
+  email = parsed.success ? parsed.data.email : '';
+  const result = parsed.success
+    ? await login(requireBindings(env).DB, {
+        ...parsed.data,
+        ip: Astro.request.headers.get('cf-connecting-ip') ?? 'unknown',
+        previousToken: Astro.cookies.get(SESSION_COOKIE)?.value,
+      })
+    : { ok: false as const, limited: false };
+  if (result.ok) {
+    Astro.cookies.set(SESSION_COOKIE, result.token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      path: '/',
+      expires: result.expiresAt,
+    });
+    return Astro.redirect('/admin', 303);
+  }
+  message = result.limited ? en.adminLoginLimited : en.adminLoginFailed;
+  Astro.response.status = result.limited ? 429 : 401;
+}
+---
+
+<Base title={en.adminLoginTitle} description={en.adminLoginTitle} noindex>
+  <h1>{en.adminLoginHeading}</h1>
+  {message && <p role="alert">{message}</p>}
+  <form method="post">
+    <p>
+      <label for="email">{en.adminEmail}</label>
+      <br />
+      <input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="username"
+        required
+        value={email}
+      />
+    </p>
+    <p>
+      <label for="password">{en.adminPassword}</label>
+      <br />
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="current-password"
+        required
+      />
+    </p>
+    <button type="submit">{en.adminSignIn}</button>
+  </form>
+</Base>

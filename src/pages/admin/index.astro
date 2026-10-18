@@ -1,0 +1,20 @@
+---
+export const prerender = false;
+import Base from '../../layouts/Base.astro';
+import { en } from '../../i18n/en';
+import { requirePermission } from '../../modules/auth/require';
+
+const auth = await requirePermission(Astro, 'dashboard.view');
+if (auth instanceof Response) return auth;
+---
+
+<Base title={en.adminTitle} description={en.adminTitle} noindex>
+  <h1>{en.adminDashboardHeading}</h1>
+  <p>
+    {en.adminSignedInAs} {auth.email} ({auth.role})
+  </p>
+  <form method="post" action="/admin/logout">
+    <input type="hidden" name="csrf" value={auth.csrfToken} />
+    <button type="submit">{en.adminSignOut}</button>
+  </form>
+</Base>

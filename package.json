@@ -13,12 +13,13 @@
     "format": "prettier --write .",
     "typecheck": "astro check",
     "format:check": "prettier --check .",
-    "test": "vitest run",
-    "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "test": "vitest run --project container --project workers",
+    "check": "npm run lint && npm run typecheck && npm test && npm run test:integration",
     "types": "wrangler types",
     "db:migrate": "wrangler d1 migrations apply DB --local",
     "db:seed": "wrangler d1 execute DB --local --file=seeds/placeholders.sql",
-    "bench:hash": "node scripts/bench-hash.mjs"
+    "bench:hash": "node scripts/bench-hash.mjs",
+    "test:integration": "npm run build && vitest run --project integration"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.4.0",

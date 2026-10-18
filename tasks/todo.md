@@ -55,7 +55,7 @@
   - Verify: tests: anonymous, each role allowed/denied for a sample permission, headers present on `/` and `/admin`.
   - Files: `src/modules/auth/guard.ts`, `src/middleware.ts`, `tests/guard.test.ts`, `tests/headers.test.ts`
 
-- [ ] **T12 Admin shell and route inventory**
+- [x] **T12 Admin shell and route inventory**
   - Acceptance: `/admin/login`, `/admin/logout`, `/admin` (shows email, role, permitted nav only); a route-inventory test fails if any file under `src/pages/admin` is not in the guarded list.
   - Verify: tests: anonymous redirected on every admin route; login/logout flow; inventory test fails when a stray route file is added (proved once, then removed).
   - Files: `src/pages/admin/login.astro`, `src/pages/admin/logout.ts`, `src/pages/admin/index.astro`, `src/i18n/en.ts`, `tests/admin-routes.test.ts`
