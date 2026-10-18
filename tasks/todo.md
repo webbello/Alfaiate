@@ -65,7 +65,7 @@
   - Verify: AC-09 role matrix across all admin routes and handlers (anonymous 302/401, owner ok, manager/editor/viewer 403 on `/admin/users`); last-owner protection through the UI handlers.
   - Files: `src/pages/admin/users.astro`, `src/pages/admin/users/actions.ts`, `src/pages/admin/account.astro`, `tests/admin-users.test.ts`, `tests/ac09-matrix.test.ts`
 
-- [ ] **T14 Owner scripts**
+- [x] **T14 Owner scripts**
   - Acceptance: `owner:create` and `owner:reset` prompt for credentials without echo, write to local D1 only unless an explicit flag is given, never print or store the password.
   - Verify: run against a throwaway local DB; user can log in via the login function in a test; grep shows no credential in repo or logs.
   - Files: `scripts/create-owner.mjs`, `scripts/reset-owner.mjs`, `package.json`, `README.md`
