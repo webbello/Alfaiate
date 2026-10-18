@@ -9,3 +9,4 @@ dist/
 *.db
 uploads/
 .claude/settings.local.json
+.astro/

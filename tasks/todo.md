@@ -1,6 +1,6 @@
 # Tasks: Phase 1
 
-- [ ] **T1 Scaffold Astro 7.4.0**
+- [x] **T1 Scaffold Astro 7.4.0**
   - Acceptance: minimal Astro project in repo root; `astro`, `@astrojs/cloudflare`, `wrangler` pinned to exact versions from the spec; `package-lock.json` committed; `engines.node >=22.22.0`.
   - Verify: `npm ci && npx astro --version` prints 7.4.0.
   - Files: `package.json`, `package-lock.json`, `astro.config.mjs`, `tsconfig.json`, `src/pages/index.astro`, `src/env.d.ts`
