@@ -20,7 +20,7 @@
   - Verify: `npm run build`; page source shows one `<h1>` and the viewport meta.
   - Files: `src/layouts/Base.astro`, `src/styles/tokens.css`, `src/i18n/en.ts`, `src/pages/index.astro`, `src/modules/*/README.md`
 
-- [ ] **T5 Smoke test and `check` script**
+- [x] **T5 Smoke test and `check` script**
   - Acceptance: Vitest 5 configured; smoke test asserts the home page renders with the expected `<h1>` (and 200 if the Workers pool works); `check` = lint + typecheck + test + build; pool-workers outcome recorded.
   - Verify: `npm run check` exits 0; also green from a fresh `git clone` in a temp dir with `npm ci`.
   - Files: `package.json`, `vitest.config.ts`, `tests/home.test.ts`, `docs/DECISIONS.md`
