@@ -25,7 +25,7 @@
   - Verify: test counts rows and checks every name carries the placeholder marker; migrations apply in order on an empty DB.
   - Files: `seeds/placeholders.sql`, `tests/workers/seed.test.ts`, `package.json`
 
-- [ ] **T6 Permissions and last-owner rule**
+- [x] **T6 Permissions and last-owner rule**
   - Acceptance: `permissions.ts` with the nine named permissions and four role bundles from SPEC-phase-2; unmapped role/permission denied; last-owner demote/deactivate refused.
   - Verify: unit tests: full role x permission matrix, unknown role denied, last-owner rule (both paths).
   - Files: `src/modules/auth/permissions.ts`, `src/modules/auth/users.ts`, `tests/permissions.test.ts`, `tests/last-owner.test.ts`
