@@ -30,7 +30,7 @@
   - Verify: unit tests: full role x permission matrix, unknown role denied, last-owner rule (both paths).
   - Files: `src/modules/auth/permissions.ts`, `src/modules/auth/users.ts`, `tests/permissions.test.ts`, `tests/last-owner.test.ts`
 
-- [ ] **T7 Password hashing and benchmark**
+- [x] **T7 Password hashing and benchmark**
   - Acceptance: PBKDF2-SHA-256 via WebCrypto; hash string stores algorithm, iterations, salt; verify is constant-shape on bad input; `bench:hash` prints ms per iteration count; chosen count recorded in DECISIONS.md with margin under the Worker CPU limit.
   - Verify: unit tests (round trip, wrong password, tampered hash, params stored); benchmark output pasted into DECISIONS.md.
   - Files: `src/modules/auth/password.ts`, `scripts/bench-hash.mjs`, `tests/password.test.ts`, `package.json`, `docs/DECISIONS.md`
