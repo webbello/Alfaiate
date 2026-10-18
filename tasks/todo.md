@@ -15,7 +15,7 @@
   - Verify: `npm run build` succeeds; `npm run dev` + `curl -s -o /dev/null -w '%{http_code}' localhost:4321/` returns 200 with no Cloudflare login.
   - Files: `astro.config.mjs`, `wrangler.jsonc`, `.dev.vars.example`, `migrations/.gitkeep`, `package.json`
 
-- [ ] **T4 Base layout, tokens, i18n map, module folders**
+- [x] **T4 Base layout, tokens, i18n map, module folders**
   - Acceptance: `Base.astro` (lang, viewport, title/description props), `tokens.css` (mobile-first custom properties), `src/i18n/en.ts` with the placeholder page strings, home page uses both; the eight module folders from ARCHITECTURE §3 each hold a one-line responsibility README. No other routes.
   - Verify: `npm run build`; page source shows one `<h1>` and the viewport meta.
   - Files: `src/layouts/Base.astro`, `src/styles/tokens.css`, `src/i18n/en.ts`, `src/pages/index.astro`, `src/modules/*/README.md`
