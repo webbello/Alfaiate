@@ -14,7 +14,7 @@ Phases 1–5 produce a publicly usable directory with a working request form and
 - **Dependencies:** owner answers to AD-01, AD-02 (stack/hosting) — default proposed stack applies if unanswered.
 - **Deliverables:** re-run of the repo assessment (update ARCHITECTURE §1 if changed); verify Astro 7.4 and adapter compatibility (AD-01); project scaffold per ARCHITECTURE §2 (Astro, Cloudflare adapter, Wrangler config with local D1 and R2 bindings, staging/production environments); lint/format/typecheck/test scripts; `.dev.vars.example` (placeholders only); `.gitignore` (excludes `.env`, DB, uploads); git repo initialised; README with run instructions; CI or a single check script; module folder layout (ARCHITECTURE §3); base layout with mobile-first CSS tokens and a placeholder home page.
 - **Acceptance:** app starts locally; `check` script (lint + typecheck + tests + build) passes; secrets absent from version control.
-- **Tests:** one smoke test (home returns 200); build succeeds.
+- **Tests:** one smoke test (home renders its h1 via Astro's container; HTTP 200 on the Workers runtime and the Workers/D1 test pool are deferred to Phase 2); build succeeds.
 
 ## Phase 2 — Data model and administrative foundations
 
@@ -23,7 +23,7 @@ Phases 1–5 produce a publicly usable directory with a working request form and
 - **Deliverables:** schema and migrations per DATA_MODEL (all MVP entities, constraints, indexes); seed script for categories/areas placeholders (owner's real lists per OQ-10 later); D1 migrations; first-owner seed script; auth (login/logout, hashed-token sessions, CSRF, rate limiting); RBAC (role column, permission map in code, `can()` guard on every admin route and handler, user management for owners, last-owner protection, audit log); `/admin` guard and shell; security headers; noindex/no-store on admin; config validation.
 - **Requirements:** FR-ADM-01, SEC-01/02/03/06/08/09.
 - **Acceptance:** AC-09 (incl. 403 per role); password never stored in plaintext; session expires; failed logins are rate limited.
-- **Tests:** unit (password hashing, permission map, last-owner rule, phone normalisation, schema constraints such as publish-requires-permission); integration (unauthenticated access to every admin route is refused, login/logout, CSRF rejection, each role allowed/denied on each protected route); migration up on a clean DB.
+- **Tests:** set up the Workers/D1 test pool (deferred from Phase 1); unit (password hashing, permission map, last-owner rule, phone normalisation, schema constraints such as publish-requires-permission); integration (unauthenticated access to every admin route is refused, login/logout, CSRF rejection, each role allowed/denied on each protected route); migration up on a clean DB.
 
 ## Phase 3 — Tailor profiles and directory (admin side first)
 

@@ -96,5 +96,5 @@ export const telLink = (e164: string) => `tel:${e164}`;
 
 1. **TypeScript:** latest is 7.0.2. I have not verified that `astro check` and the Astro/Cloudflare toolchain work with it. Proposed: try it, fall back to the newest TypeScript that `astro check` supports, and record which in DECISIONS.md. OK?
 2. **Lint/format:** proposed ESLint (astro plugin) + Prettier. Alternative is Biome (fewer dependencies, weaker `.astro` support). Which do you want?
-3. **Local D1 test runtime:** ARCHITECTURE §2 says "verify in Phase 1." Proposed: try `@cloudflare/vitest-pool-workers` with Vitest 5; compatibility is unverified. Phase 1 only needs the smoke test, so if it does not work, defer D1 tests to Phase 2 and note it. OK?
+3. **Local D1 test runtime:** ARCHITECTURE §2 says "verify in Phase 1." Proposed: try `@cloudflare/vitest-pool-workers` with Vitest 5; compatibility is unverified. Phase 1 only needs the smoke test, so if it does not work, defer D1 tests to Phase 2 and note it. OK? **Resolved 2026-10-18:** see DECISIONS.md.
 4. **CI:** no remote exists, so Phase 1 ships only the local `check` script. Add a GitHub Actions file later when a remote exists?

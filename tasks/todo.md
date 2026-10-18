@@ -25,7 +25,7 @@
   - Verify: `npm run check` exits 0; also green from a fresh `git clone` in a temp dir with `npm ci`.
   - Files: `package.json`, `vitest.config.ts`, `tests/home.test.ts`, `docs/DECISIONS.md`
 
-- [ ] **T6 Docs and status**
+- [x] **T6 Docs and status**
   - Acceptance: `README.md` (install, dev, check); ARCHITECTURE §1 updated with the real toolchain and versions; AGENTS.md names `npm run check`; STATUS.md shows Phase 1 complete and Phase 2 next; `git ls-files` has no secret/DB/upload files.
   - Verify: run `docs-sync` and `privacy-scope-reviewer` agents, fix blockers; `git ls-files | grep -E '\.env|dev\.vars$|\.sqlite|\.db$'` is empty.
   - Files: `README.md`, `docs/ARCHITECTURE.md`, `AGENTS.md`, `docs/STATUS.md`

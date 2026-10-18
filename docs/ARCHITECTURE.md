@@ -1,18 +1,18 @@
 # Alfaiate TL — Architecture
 
-Status: Draft v0.2 · 2026-10-16 · Requirements: [PRD.md](PRD.md) · Data: [DATA_MODEL.md](DATA_MODEL.md) · Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
+Status: Draft v0.3 · 2026-10-18 · Requirements: [PRD.md](PRD.md) · Data: [DATA_MODEL.md](DATA_MODEL.md) · Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
 
-**Owner-selected stack (confirmed 2026-10-16):** Astro 7.4, Cloudflare Workers, Cloudflare D1, Cloudflare R2 (or another image store), and a custom admin interface with role-based access control (RBAC). Everything else below is **proposed** unless marked confirmed. Nothing is implemented.
+**Owner-selected stack (confirmed 2026-10-16):** Astro 7.4, Cloudflare Workers, Cloudflare D1, Cloudflare R2 (or another image store), and a custom admin interface with role-based access control (RBAC). Everything else below is **proposed** unless marked confirmed. Only the Phase 1 skeleton is implemented (see §1); all product features are unimplemented.
 
 ## 1. Existing repository assessment
 
-Inspected 2026-10-16 at `/Users/apple/Sites/AlfaiateTL`: empty directory — no files, no `.git`, no framework, package manager, database, auth, UI components, routing, tests or deployment config. No conventions exist to follow. Phase 1 must re-check this and record the actual toolchain.
+Inspected 2026-10-16 at `/Users/apple/Sites/AlfaiateTL`: empty directory, no conventions. **Phase 1 completed 2026-10-18** (verified on npm and by running `npm run check`): npm; Astro 7.4.0 with `@astrojs/cloudflare` 14.4.0 and Wrangler 4.151.1 (exact pins); TypeScript 6.0.3 (7.x unsupported by `@astrojs/check` and `typescript-eslint` peers); ESLint 10 + Prettier 3; Vitest 5.0.5 with components rendered through Astro's container (the Workers/D1 test pool is deferred to Phase 2). Node >= 22.22.0. Toolchain decisions are in [DECISIONS.md](DECISIONS.md); the check command is `npm run check`.
 
 ## 2. Stack
 
 | Concern | Choice | Status | Notes |
 |---|---|---|---|
-| Web framework | **Astro 7.4**, TypeScript | Confirmed by owner | The version was supplied by the owner; confirm it resolves on the package registry and read its release notes at setup (AD-01). If unavailable, use the nearest release and update this file. |
+| Web framework | **Astro 7.4.0**, TypeScript 6.0.3 | Confirmed by owner; AD-01 resolved 2026-10-18 | Astro 7.4.0 + `@astrojs/cloudflare` 14.4.0 + Wrangler 4.151.1, exact pins. TypeScript 7 is unsupported by `@astrojs/check` and `typescript-eslint` peers (DECISIONS.md). |
 | Runtime | **Cloudflare Workers** via the Astro Cloudflare adapter | Confirmed | One Worker serves public pages, form handlers, media delivery and the admin. Mostly server-rendered; static prerendering is used where content is stable and no per-request data is needed. |
 | Database | **Cloudflare D1** | Confirmed | All structured data (see DATA_MODEL). SQL migrations via the Wrangler migration tooling. |
 | Image storage | **Cloudflare R2** | Confirmed, "or another image store" kept open (AD-04) | Separate from the database; D1 stores only keys and metadata. |
@@ -188,7 +188,7 @@ Language routing and translated content; tailor notifications via WhatsApp Busin
 
 | ID | Decision | Default if unanswered |
 |---|---|---|
-| AD-01 | Confirm Astro 7.4 availability and the adapter/Wrangler versions that support it | Use the nearest available version and record it |
+| AD-01 | Confirm Astro 7.4 availability and the adapter/Wrangler versions that support it | **Resolved 2026-10-18**, see DECISIONS.md |
 | AD-02 | Cloudflare plan, budget, and a check of free-tier limits against expected use | Start on the plan that supports D1 backups and Worker CPU needs; measure |
 | AD-03 | Password-hashing method that fits Worker CPU limits | Benchmark in Phase 2 |
 | AD-04 | R2 vs another image store; public delivery via Worker route vs R2 custom domain; client-side resizing vs Cloudflare Images | R2, Worker route, client-side resizing |

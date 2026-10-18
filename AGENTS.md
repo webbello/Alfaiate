@@ -6,7 +6,7 @@ Tailor discovery and referral platform for Dili, Timor-Leste. Current state live
 
 1. Start: read [docs/STATUS.md](docs/STATUS.md), [docs/DECISIONS.md](docs/DECISIONS.md) and the Lessons section below.
 2. Work one phase: `/plan` then `/build` (agent-skills). Tests alongside code.
-3. Before finishing: run the `check` command (once it exists), then run the `privacy-scope-reviewer` and `docs-sync` agents on the change and fix what they find.
+3. Before finishing: run `npm run check`, then run the `privacy-scope-reviewer` and `docs-sync` agents on the change and fix what they find.
 4. End: update STATUS.md; log any decision in DECISIONS.md; add a lesson if you were corrected or surprised.
 
 ## Read first
