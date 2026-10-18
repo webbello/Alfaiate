@@ -1,4 +1,6 @@
 ---
+// Rendered per request so the middleware adds security headers (SEC-08).
+export const prerender = false;
 import Base from '../layouts/Base.astro';
 import { en } from '../i18n/en';
 ---

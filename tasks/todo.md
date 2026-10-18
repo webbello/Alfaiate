@@ -50,7 +50,7 @@
   - Verify: tests: 6th failure limited, window reset, generic error identical in all failure cases, inactive user refused.
   - Files: `src/modules/auth/rate-limit.ts`, `src/modules/auth/login.ts`, `tests/rate-limit.test.ts`, `tests/login.test.ts`
 
-- [ ] **T11 Guard and middleware**
+- [x] **T11 Guard and middleware**
   - Acceptance: `requirePermission` redirects anonymous, returns 403 for missing permission, denies by default; `src/middleware.ts` adds security headers on all responses and `noindex` + `no-store` on `/admin`.
   - Verify: tests: anonymous, each role allowed/denied for a sample permission, headers present on `/` and `/admin`.
   - Files: `src/modules/auth/guard.ts`, `src/middleware.ts`, `tests/guard.test.ts`, `tests/headers.test.ts`
