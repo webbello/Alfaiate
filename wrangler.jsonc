@@ -1,0 +1,35 @@
+{
+  "name": "alfaiate-tl",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // Local dev uses simulated D1/R2. Replace placeholder IDs in Phase 8; never put secrets here.
+  "d1_databases": [
+    { "binding": "DB", "database_name": "alfaiate-tl-local", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
+  ],
+  "r2_buckets": [
+    { "binding": "MEDIA_PUBLIC", "bucket_name": "alfaiate-tl-media-public" },
+    { "binding": "MEDIA_PRIVATE", "bucket_name": "alfaiate-tl-media-private" }
+  ],
+  "env": {
+    "staging": {
+      "name": "alfaiate-tl-staging",
+      "d1_databases": [
+        { "binding": "DB", "database_name": "alfaiate-tl-staging", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
+      ],
+      "r2_buckets": [
+        { "binding": "MEDIA_PUBLIC", "bucket_name": "alfaiate-tl-staging-media-public" },
+        { "binding": "MEDIA_PRIVATE", "bucket_name": "alfaiate-tl-staging-media-private" }
+      ]
+    },
+    "production": {
+      "name": "alfaiate-tl-production",
+      "d1_databases": [
+        { "binding": "DB", "database_name": "alfaiate-tl-production", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
+      ],
+      "r2_buckets": [
+        { "binding": "MEDIA_PUBLIC", "bucket_name": "alfaiate-tl-production-media-public" },
+        { "binding": "MEDIA_PRIVATE", "bucket_name": "alfaiate-tl-production-media-private" }
+      ]
+    }
+  }
+}

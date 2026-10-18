@@ -10,7 +10,7 @@
   - Verify: `npm run lint && npm run typecheck` exit 0; DECISIONS.md updated with the TypeScript outcome.
   - Files: `package.json`, `eslint.config.js`, `.prettierrc`, `tsconfig.json`, `docs/DECISIONS.md`
 
-- [ ] **T3 Cloudflare adapter and Wrangler config**
+- [x] **T3 Cloudflare adapter and Wrangler config**
   - Acceptance: adapter set in `astro.config.mjs`; `wrangler.jsonc` with local D1 + R2 bindings and staging/production stanzas (placeholder IDs, no secrets); `.dev.vars.example` with placeholders; `migrations/` exists (empty, with `.gitkeep`).
   - Verify: `npm run build` succeeds; `npm run dev` + `curl -s -o /dev/null -w '%{http_code}' localhost:4321/` returns 200 with no Cloudflare login.
   - Files: `astro.config.mjs`, `wrangler.jsonc`, `.dev.vars.example`, `migrations/.gitkeep`, `package.json`
