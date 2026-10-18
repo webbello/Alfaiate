@@ -1,6 +1,6 @@
 # Spec: Phase 2 — Data model and administrative foundations
 
-Status: Draft for owner approval · 2026-10-18 · Source: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 2 · [DATA_MODEL.md](DATA_MODEL.md) · [ARCHITECTURE.md](ARCHITECTURE.md) §6, §9, §10
+Status: Approved 2026-10-18 (AD-10 phone format pending) · Source: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 2 · [DATA_MODEL.md](DATA_MODEL.md) · [ARCHITECTURE.md](ARCHITECTURE.md) §6, §9, §10
 
 **Scope check.** Phase 2 covers two things that could ship separately: (a) the database schema and (b) admin auth/RBAC. They share the `admin_user`/`session`/`audit_log` tables, so one spec with ordered slices (S1–S6 below) is enough. No capability map needed.
 
