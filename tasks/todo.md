@@ -45,7 +45,7 @@
   - Verify: tests: expiry both ways, rotation, revoked refused, CSRF mismatch rejected, token never stored raw.
   - Files: `src/modules/auth/session.ts`, `src/modules/auth/csrf.ts`, `src/modules/auth/audit.ts`, `tests/session.test.ts`, `tests/csrf.test.ts`
 
-- [ ] **T10 Rate limit and login logic**
+- [x] **T10 Rate limit and login logic**
   - Acceptance: D1-backed counter; login function returns the same generic error for unknown user, wrong password, inactive user and rate-limited; success writes audit + new session.
   - Verify: tests: 6th failure limited, window reset, generic error identical in all failure cases, inactive user refused.
   - Files: `src/modules/auth/rate-limit.ts`, `src/modules/auth/login.ts`, `tests/rate-limit.test.ts`, `tests/login.test.ts`
