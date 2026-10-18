@@ -10,13 +10,13 @@
   - Verify: unit test: missing `DB` throws, present returns; `npm run build` output has no `SESSION`/`IMAGES` binding (or decision recorded why).
   - Files: `src/modules/config/index.ts`, `astro.config.mjs`, `wrangler.jsonc`, `tests/config.test.ts`, `docs/DECISIONS.md`
 
-- [ ] **T3 Schema A: admin and tailor-side tables**
-  - Acceptance: `0001_schema.sql` creates `admin_user`, `session`, `audit_log`, `tailor`, `garment_category`, `tailor_category`, `service_area`, `tailor_area`, `portfolio_image`, `internal_note` with FKs, UNIQUEs, CHECK enums and the publish rule (published requires approved + permission recorded), indexes from DATA_MODEL §7.
+- [x] **T3 Schema A: admin and tailor-side tables**
+  - Acceptance: `0001_schema.sql` creates `admin_user`, `session`, `audit_log`, `tailor`, `garment_category`, `tailor_category`, `service_area`, `tailor_area`, `portfolio_image` with FKs, UNIQUEs, CHECK enums and the publish rule (published requires approved + permission recorded), indexes from DATA_MODEL §7.
   - Verify: migration applies to empty D1; one test per constraint, each seen failing before the constraint exists.
   - Files: `migrations/0001_schema.sql`, `tests/schema-admin-tailor.test.ts`, `package.json` (db:migrate)
 
 - [ ] **T4 Schema B: enquiry, referral and operational tables**
-  - Acceptance: `0002_enquiry_referral.sql` creates `enquiry`, `enquiry_status_log`, `referral`, `enquiry_attachment`, `contact_click_daily`, `rate_limit`; constraints: consent must be true, reference unique, `fee_status = paid` requires `fee_paid_at`, `fee_amount` only with completion reported, exactly one owner FK on `internal_note`, status enum.
+  - Acceptance: `0002_enquiry_referral.sql` creates `enquiry`, `enquiry_status_log`, `referral`, `enquiry_attachment`, `internal_note` (needs enquiry/referral FKs, moved here from T3), `contact_click_daily`, `rate_limit`; constraints: consent must be true, reference unique, `fee_status = paid` requires `fee_paid_at`, `fee_amount` only with completion reported, exactly one owner FK on `internal_note`, status enum.
   - Verify: constraint tests as in T3; DATA_MODEL updated if any field changes.
   - Files: `migrations/0002_enquiry_referral.sql`, `tests/schema-enquiry-referral.test.ts`, `docs/DATA_MODEL.md` (only if changed)
 
