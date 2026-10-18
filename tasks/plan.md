@@ -1,36 +1,44 @@
-# Plan: Phase 1 — Project setup
+# Plan: Phase 2 — Data model and admin foundations
 
-Spec: [docs/SPEC-phase-1.md](../docs/SPEC-phase-1.md) (approved 2026-10-18). Tasks: [todo.md](todo.md).
+Spec: [docs/SPEC-phase-2.md](../docs/SPEC-phase-2.md) (approved 2026-10-18; AD-10 pending). Tasks: [todo.md](todo.md). Phase 1's plan is in git history (`0bf8b9d`).
 
 ## Order and dependencies
 
-Strictly sequential; each task leaves `git status` clean after commit.
-
 ```
-T1 scaffold + pinned deps ──> T2 tooling (lint/format/typecheck) ──> T3 Workers config ──┐
-                                                                                          ├─> T5 smoke test + check ──> T6 docs + status
-T4 layout, tokens, i18n, module folders (needs T1) ──────────────────────────────────────┘
+T1 test runtime ──> T2 bindings/config ──> T3 schema A ──> T4 schema B ──> T5 seed
+                                    │
+                                    ├──> T6 permissions + last-owner ──┐
+                                    ├──> T7 password hashing + bench ──┤
+                                    └──> T8 phone (BLOCKED on AD-10)   │ (nothing depends on T8 until Phase 5)
+T3 + T6 + T7 ──> T9 sessions + CSRF + audit ──> T10 rate limit + login logic
+T6 + T9 ──> T11 guard + middleware headers ──> T12 admin shell + route inventory ──> T13 user management
+T3 + T7 ──> T14 owner scripts
+all ──> T15 docs, reviewers, security audit
 ```
 
-T3 and T4 are independent of each other but run one at a time (small, shared `package.json`).
+Strictly one task at a time, one commit each. T8 is skipped until the owner gives the phone rule; the phase can finish without it only if the owner agrees (phone is first used in Phase 5).
 
 ## Risks
 
 | Risk | Mitigation |
 |---|---|
-| TypeScript 7 breaks `astro check` | T2 tries it first; falls back to newest working TS; record in DECISIONS.md |
-| `@cloudflare/vitest-pool-workers` incompatible with Vitest 5 | T5 tries it; else plain Vitest with a Node-side render test and defer D1 pool to Phase 2; record it |
-| Astro scaffold pulls extra deps/files | T1 uses the minimal template and removes anything outside the spec |
-| `astro dev` on Workers runtime needs a Cloudflare login | T3 checks local-only mode; if login is required, stop and ask |
-| Stop hook starts running `check` mid-phase | Expected once the `check` script exists; fix failures rather than bypass |
+| Downgrading to Vitest 4.1.12 breaks the Phase 1 container test or pool-workers cannot run Astro code | T1 proves both a container test and a D1 test pass before anything else; if not, stop and ask |
+| `DB` binding access differs in Astro 7 + adapter 14 | T2 reads the installed adapter and records the verified pattern |
+| Adapter auto-enables `IMAGES` and `SESSION` KV | T2 disables via adapter options or proves unused; decision recorded |
+| PBKDF2 too slow for Worker CPU limit | T7 benchmarks; choose iteration count with margin; record the number |
+| D1 CHECK constraints cannot express a rule (e.g. cross-table publish rule) | Use triggers for cross-column/cross-table rules, test them; flag if a rule must live in code instead |
+| Admin route added without a guard | T12 route-inventory test fails the build |
+| Scripts handle passwords | Prompt at run time, never echo or log, never write to files |
 
 ## Verification checkpoints
 
-- After T2: `npm run lint && npm run typecheck` pass.
-- After T3: `npm run dev` serves `/` with 200 (curl).
-- After T5: `npm ci && npm run check` pass on a fresh clone (temp dir).
-- After T6: `docs-sync` and `privacy-scope-reviewer` agents report no blockers.
+- After T1: container test and a trivial D1 test pass under `npm test`.
+- After T4: every DATA_MODEL constraint has a failing-then-passing test.
+- After T7: hash timing recorded in DECISIONS.md.
+- After T12: AC-09 anonymous cases pass; route inventory complete.
+- After T13: AC-09 full role matrix passes.
+- After T15: `npm ci && npm run check` from a fresh clone; `privacy-scope-reviewer`, `docs-sync`, `security-auditor` report no blockers.
 
-## Out of scope for this phase
+## Out of scope
 
-Auth, schema, migrations contents, routes other than `/`, Zod, Playwright, CI, deploy, Cloudflare account setup.
+Tailor/enquiry/referral admin screens, public pages, customer or tailor logins, email password reset, Cloudflare Access, deploy, remote D1.
