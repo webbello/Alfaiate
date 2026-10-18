@@ -20,10 +20,10 @@
   - Verify: constraint tests as in T3; DATA_MODEL updated if any field changes.
   - Files: `migrations/0002_enquiry_referral.sql`, `tests/schema-enquiry-referral.test.ts`, `docs/DATA_MODEL.md` (only if changed)
 
-- [ ] **T5 Placeholder seed**
-  - Acceptance: `0003_seed_placeholders.sql` inserts clearly marked placeholder categories and areas (OQ-10 pending); no personal data.
+- [x] **T5 Placeholder seed**
+  - Acceptance: `seeds/placeholders.sql` (applied by `npm run db:seed`, not a migration, so production never gets it) inserts clearly marked placeholder categories and areas (OQ-10 pending); no personal data.
   - Verify: test counts rows and checks every name carries the placeholder marker; migrations apply in order on an empty DB.
-  - Files: `migrations/0003_seed_placeholders.sql`, `tests/seed.test.ts`
+  - Files: `seeds/placeholders.sql`, `tests/workers/seed.test.ts`, `package.json`
 
 - [ ] **T6 Permissions and last-owner rule**
   - Acceptance: `permissions.ts` with the nine named permissions and four role bundles from SPEC-phase-2; unmapped role/permission denied; last-owner demote/deactivate refused.
