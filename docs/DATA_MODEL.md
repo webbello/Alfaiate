@@ -1,8 +1,8 @@
 # Alfaiate TL — Conceptual Data Model
 
-Status: Draft v0.1 · 2026-10-16 · Requirements: [PRD.md](PRD.md) · Architecture: [ARCHITECTURE.md](ARCHITECTURE.md)
+Status: Draft v0.2 · 2026-10-18 · Requirements: [PRD.md](PRD.md) · Architecture: [ARCHITECTURE.md](ARCHITECTURE.md)
 
-This is a conceptual model: names and types guide the schema in Phase 2 and may be adjusted there; changes must be reflected here. Nothing is implemented. All tables carry `id`, `created_at`, `updated_at` unless stated.
+This is a conceptual model: names and types guide the schema in Phase 2 and may be adjusted there; changes must be reflected here. Phase 2 implemented the schema as migrations 0001 and 0002; section 9 lists where they differ from this model. All tables carry `id`, `created_at`, `updated_at` unless stated.
 
 ## 1. Key distinctions
 
@@ -211,3 +211,12 @@ Where the migrations refine the conceptual model above, the migrations win; this
 - `internal_note`: exactly one of `enquiry_id`, `tailor_id`, `referral_id` (CHECK); `author_id` is required and users are deactivated, never deleted.
 - `audit_log` and `enquiry_status_log` are append-only by convention (the code has no update path); no database triggers enforce it.
 - `rate_limit` uses an integer `window_start` (epoch seconds).
+- **Files:** `0001_schema.sql` holds `admin_user`, `session`, `audit_log`, `tailor`, `garment_category`, `tailor_category`, `service_area`, `tailor_area`, `portfolio_image`. `0002_enquiry_referral.sql` holds `enquiry`, `enquiry_status_log`, `enquiry_attachment`, `referral`, `internal_note` (moved here because it references enquiry and referral), `contact_click_daily`, `rate_limit`.
+- **Last owner:** "at least one active owner" (§3.11) is not a database constraint. It is enforced by one guarded UPDATE in `src/modules/auth/users.ts`, so a direct SQL edit can bypass it.
+- **Password hash:** `admin_user.password_hash` holds the whole `pbkdf2-sha256$iterations$salt$hash` string; there are no separate KDF columns. `admin_user.email` is unique, case-insensitive (`COLLATE NOCASE`), length > 3.
+- **Phone shape:** `whatsapp_e164`, `phone_e164` and `contact_number_e164` have a CHECK for E.164 shape (leading `+`, non-zero first digit, digits only, 8-16 characters). The Timor-Leste rule (AD-10) is not encoded yet.
+- **Dates** (`price_confirmed_on`, `permission_date`, `fee_paid_at`, `contact_click_daily.date`, ...) are plain text. `tailor.verified_fields` defaults to `'[]'` and is `json_valid`-checked.
+- **Referral triggers** run on INSERT and on UPDATE of `tailor_id` / `enquiry_id`, so a referral cannot be moved to an unapproved tailor or an anonymised enquiry.
+- **Anonymising** (CHECK) requires `customer_name`, `contact_number_e164`, `notes`, `service_description`, `area_text` and `preferred_datetime_text` to be NULL. The anonymise routine (FR-ADM-09, Phase 5/6) must also clear `internal_note.body` and `referral.fields_shared_note` for that enquiry and delete its `enquiry_attachment` rows and their private R2 objects; the schema does not do that by itself.
+- **Delete behaviour:** CASCADE for `session`, `tailor_category`, `tailor_area`, `portfolio_image`, `referral.enquiry_id`, `enquiry_status_log`, `enquiry_attachment`, `internal_note`, `contact_click_daily`. RESTRICT for `tailor_category.category_id`, `tailor_area.area_id`, `referral.tailor_id`, `internal_note.author_id`, `enquiry.garment_category_id`, `enquiry.area_id`. SET NULL for `audit_log.admin_user_id`, `enquiry_status_log.changed_by`, `enquiry.preferred_tailor_id`, `tailor.profile_photo_id`.
+- **Indexes** beyond §7: `session_user`, `tailor_category_category`, `tailor_area_area`, `portfolio_image_tailor`, `enquiry_status_log_enquiry`, `internal_note_*`.

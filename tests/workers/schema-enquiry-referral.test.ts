@@ -130,6 +130,19 @@ describe('enquiry', () => {
     expect(row?.anonymised_at).toBe('2026-02-01T00:00:00Z');
   });
 
+  it('also requires the free-text location and time fields to be cleared when anonymising', async () => {
+    const id = await addEnquiry({
+      area_text: 'near the market',
+      preferred_datetime_text: 'Friday morning',
+    });
+    await expect(
+      run(
+        "UPDATE enquiry SET customer_name = NULL, contact_number_e164 = NULL, notes = NULL, service_description = NULL, anonymised_at = '2026-02-01T00:00:00Z' WHERE id = ?",
+        id,
+      ),
+    ).rejects.toThrow();
+  });
+
   it('refuses to mark an enquiry anonymised while personal data remains', async () => {
     const id = await addEnquiry({ notes: 'still here' });
     await expect(
@@ -203,6 +216,32 @@ describe('referral', () => {
       enquiry,
     );
     await expect(addReferral(enquiry, tailor)).rejects.toThrow();
+  });
+
+  it('also refuses to move an existing referral to an unapproved tailor or an anonymised enquiry (BR-08)', async () => {
+    const enquiry = await addEnquiry();
+    const approved = await addTailor('approved');
+    const draft = await addTailor('draft');
+    await addReferral(enquiry, approved);
+    await expect(
+      run(
+        'UPDATE referral SET tailor_id = ? WHERE enquiry_id = ?',
+        draft,
+        enquiry,
+      ),
+    ).rejects.toThrow();
+    const gone = await addEnquiry();
+    await run(
+      "UPDATE enquiry SET customer_name = NULL, contact_number_e164 = NULL, notes = NULL, service_description = NULL, anonymised_at = '2026-02-01T00:00:00Z' WHERE id = ?",
+      gone,
+    );
+    await expect(
+      run(
+        'UPDATE referral SET enquiry_id = ? WHERE enquiry_id = ?',
+        gone,
+        enquiry,
+      ),
+    ).rejects.toThrow();
   });
 
   it('allows a second referral after a decline, keeping history (FR-REF-07)', async () => {

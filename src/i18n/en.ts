@@ -44,6 +44,7 @@ export const en = {
     last_owner: 'The last active owner cannot be demoted or deactivated.',
     not_found: 'That user no longer exists.',
     wrong_password: 'The current password is incorrect.',
+    limited: 'Too many attempts. Try again in a few minutes.',
     password_changed: 'Password changed. Other sessions were signed out.',
   },
 } as const;

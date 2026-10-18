@@ -207,3 +207,24 @@ describe('changeOwnPassword', () => {
     expect(await auditActions(user.id)).toContain('password_changed');
   });
 });
+
+describe('changeOwnPassword rate limit (SEC-01)', () => {
+  it('stops guessing the current password after five wrong tries, even with the right one', async () => {
+    const user = await addUser();
+    const { token } = await createSession(db, user.id);
+    for (let i = 0; i < 5; i++) {
+      expect(
+        await changeOwnPassword(db, user.id, token, {
+          current: 'wrong-wrong-wrong',
+          next: 'a-brand-new-passphrase',
+        }),
+      ).toEqual({ ok: false, error: 'wrong_password' });
+    }
+    expect(
+      await changeOwnPassword(db, user.id, token, {
+        current: GOOD,
+        next: 'a-brand-new-passphrase',
+      }),
+    ).toEqual({ ok: false, error: 'limited' });
+  });
+});

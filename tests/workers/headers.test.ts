@@ -22,7 +22,15 @@ describe('security headers on every response (SEC-08)', () => {
 });
 
 describe('admin pages are never indexed or cached (SEC-06)', () => {
-  for (const path of ['/admin', '/admin/', '/admin/login', '/admin/users/3']) {
+  for (const path of [
+    '/admin',
+    '/admin/',
+    '/admin/login',
+    '/admin/users/3',
+    '/%61dmin/users',
+    '/%41DMIN',
+    '/ADMIN/users',
+  ]) {
     it(`sets noindex and no-store on ${path}`, () => {
       const h = get(path).headers;
       expect(h.get('x-robots-tag')).toBe('noindex, nofollow');
@@ -60,5 +68,12 @@ describe('applySecurityHeaders', () => {
 
   it('keeps the body', async () => {
     expect(await get('/x', { status: 404 }).text()).toBe('body');
+  });
+});
+
+describe('responses that set a cookie are never cached', () => {
+  it('adds no-store to any response with Set-Cookie, wherever it is served', () => {
+    const h = get('/somewhere', { headers: { 'set-cookie': 'a=b' } }).headers;
+    expect(h.get('cache-control')).toBe('no-store');
   });
 });

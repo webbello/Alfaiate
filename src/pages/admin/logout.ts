@@ -17,6 +17,12 @@ export const POST: APIRoute = async (context) => {
   const { DB } = requireBindings(env);
   await revokeSession(DB, token);
   await audit(DB, { userId: auth.userId, action: 'logout' });
-  context.cookies.delete(SESSION_COOKIE, { path: '/' });
+  // A __Host- cookie change is ignored by browsers unless it carries Secure.
+  context.cookies.delete(SESSION_COOKIE, {
+    path: '/',
+    secure: true,
+    httpOnly: true,
+    sameSite: 'lax',
+  });
   return context.redirect('/admin/login', 303);
 };

@@ -10,8 +10,8 @@ export function validateEmail(input) {
 }
 
 export function validatePassword(input) {
-  if (typeof input !== 'string' || input.length < 12)
-    throw new Error('The password must be at least 12 characters.');
+  if (typeof input !== 'string' || input.length < 12 || input.length > 1024)
+    throw new Error('The password must be 12 to 1024 characters.');
   return input;
 }
 

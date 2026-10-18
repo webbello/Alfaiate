@@ -160,7 +160,7 @@ describe('login rate limit', () => {
     expect((await attempt(user.email, PASSWORD, '203.0.113.61')).ok).toBe(true);
   });
 
-  it('limits an account that is guessed from many IPs', async () => {
+  it('limits an account that is guessed from very many IPs (ceiling)', async () => {
     const user = await addUser();
     for (let i = 0; i < EMAIL_LIMIT; i++)
       await attempt(user.email, 'wrong', `192.0.2.${i + 1}`);
@@ -186,5 +186,42 @@ describe('revoke', () => {
     if (!r.ok) throw new Error('expected sign-in');
     await revokeSession(db, r.token);
     expect(await validateSession(db, r.token, T0)).toBeNull();
+  });
+});
+
+describe('login rate limit hardening', () => {
+  it('lets only five of many parallel wrong guesses reach the password check', async () => {
+    const user = await addUser();
+    const ip = '203.0.113.150';
+    const results = await Promise.all(
+      Array.from({ length: 12 }, () => attempt(user.email, 'wrong', ip)),
+    );
+    expect(results.filter((r) => !r.ok && !r.limited)).toHaveLength(IP_LIMIT);
+    expect(results.filter((r) => !r.ok && r.limited)).toHaveLength(
+      12 - IP_LIMIT,
+    );
+  });
+
+  it('does not let guessing from a few other addresses lock the real user out', async () => {
+    const user = await addUser();
+    for (let i = 0; i < 20; i++)
+      await attempt(user.email, 'wrong', `192.0.2.${100 + i}`);
+    expect((await attempt(user.email, PASSWORD, '198.18.0.1')).ok).toBe(true);
+  });
+
+  it('counts every address in one IPv6 /64 as the same client', async () => {
+    const user = await addUser();
+    for (let i = 0; i < IP_LIMIT; i++)
+      await attempt(user.email, 'wrong', `2001:db8:77:88::${i + 1}`);
+    expect(
+      await attempt(user.email, PASSWORD, '2001:db8:77:88:aaaa::9'),
+    ).toEqual({ ok: false, limited: true });
+  });
+
+  it('does not count successful sign-ins against the limit', async () => {
+    const user = await addUser();
+    const ip = '203.0.113.151';
+    for (let i = 0; i < IP_LIMIT + 3; i++)
+      expect((await attempt(user.email, PASSWORD, ip)).ok).toBe(true);
   });
 });

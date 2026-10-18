@@ -10,8 +10,16 @@ const CSP = [
   "frame-ancestors 'none'",
 ].join('; ');
 
-const isAdminPath = (pathname: string) =>
-  pathname === '/admin' || pathname.startsWith('/admin/');
+function isAdminPath(pathname: string): boolean {
+  let path = pathname;
+  try {
+    path = decodeURIComponent(pathname); // the router decodes %61dmin, so this must too
+  } catch {
+    // an undecodable path cannot match a route; fall through with the raw value
+  }
+  path = path.toLowerCase();
+  return path === '/admin' || path.startsWith('/admin/');
+}
 
 /** Returns a copy with the headers applied (the original may have immutable headers, e.g. a redirect). */
 export function applySecurityHeaders(
@@ -25,9 +33,9 @@ export function applySecurityHeaders(
   h.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   h.set('Strict-Transport-Security', 'max-age=31536000');
   h.set('X-Frame-Options', 'DENY');
-  if (isAdminPath(pathname)) {
-    h.set('X-Robots-Tag', 'noindex, nofollow');
-    h.set('Cache-Control', 'no-store');
-  }
+  const admin = isAdminPath(pathname);
+  if (admin) h.set('X-Robots-Tag', 'noindex, nofollow');
+  // Admin pages, and anything that sets a cookie (a session) whatever its path, must not be cached.
+  if (admin || h.has('Set-Cookie')) h.set('Cache-Control', 'no-store');
   return result;
 }

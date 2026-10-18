@@ -25,7 +25,7 @@ if (Astro.request.method === 'POST') {
   const result = parsed.success
     ? await login(requireBindings(env).DB, {
         ...parsed.data,
-        ip: Astro.request.headers.get('cf-connecting-ip') ?? 'unknown',
+        ip: Astro.request.headers.get('cf-connecting-ip') ?? undefined,
         previousToken: Astro.cookies.get(SESSION_COOKIE)?.value,
       })
     : { ok: false as const, limited: false };

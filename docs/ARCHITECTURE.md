@@ -2,11 +2,11 @@
 
 Status: Draft v0.3 · 2026-10-18 · Requirements: [PRD.md](PRD.md) · Data: [DATA_MODEL.md](DATA_MODEL.md) · Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
 
-**Owner-selected stack (confirmed 2026-10-16):** Astro 7.4, Cloudflare Workers, Cloudflare D1, Cloudflare R2 (or another image store), and a custom admin interface with role-based access control (RBAC). Everything else below is **proposed** unless marked confirmed. Only the Phase 1 skeleton is implemented (see §1); all product features are unimplemented.
+**Owner-selected stack (confirmed 2026-10-16):** Astro 7.4, Cloudflare Workers, Cloudflare D1, Cloudflare R2 (or another image store), and a custom admin interface with role-based access control (RBAC). Everything else below is **proposed** unless marked confirmed. Phases 1–2 are implemented (project skeleton; database schema; admin sign-in, sessions and RBAC); all tailor, directory, enquiry and referral features are unimplemented.
 
 ## 1. Existing repository assessment
 
-Inspected 2026-10-16 at `/Users/apple/Sites/AlfaiateTL`: empty directory, no conventions. **Phase 1 completed 2026-10-18** (verified on npm and by running `npm run check`): npm; Astro 7.4.0 with `@astrojs/cloudflare` 14.4.0 and Wrangler 4.151.1 (exact pins); TypeScript 6.0.3 (7.x unsupported by `@astrojs/check` and `typescript-eslint` peers); ESLint 10 + Prettier 3; Vitest 5.0.5 with components rendered through Astro's container (the Workers/D1 test pool is deferred to Phase 2). Node >= 22.22.0. Toolchain decisions are in [DECISIONS.md](DECISIONS.md); the check command is `npm run check`.
+Inspected 2026-10-16 at `/Users/apple/Sites/AlfaiateTL`: empty directory, no conventions. **Phase 1 completed 2026-10-18** (verified on npm and by running `npm run check`): npm; Astro 7.4.0 with `@astrojs/cloudflare` 14.4.0 and Wrangler 4.151.1 (exact pins); TypeScript 6.0.3 (7.x unsupported by `@astrojs/check` and `typescript-eslint` peers); ESLint 10 + Prettier 3; Vitest 4.1.12 from Phase 2 (see DECISIONS.md) with three projects. Node >= 22.22.0. Toolchain decisions are in [DECISIONS.md](DECISIONS.md); the check command is `npm run check`.
 
 ## 2. Stack
 
@@ -20,9 +20,9 @@ Inspected 2026-10-16 at `/Users/apple/Sites/AlfaiateTL`: empty directory, no con
 | Bot protection | Cloudflare Turnstile | Proposed | Privacy-friendly, no puzzle for most users; see §10. |
 | Validation | Zod (or equivalent) | Proposed | One schema per form/endpoint. |
 | Styling | Plain CSS with tokens | Proposed | Small payloads. |
-| Tests | Vitest; Playwright + axe; Workers/D1 local test runtime (Miniflare via the Cloudflare tooling) | Proposed | Verify the exact local D1 test setup in Phase 1. |
+| Tests | Vitest 4.1.12 with three projects (`container`: Astro components; `workers`: workerd + local D1/R2 via `@cloudflare/vitest-plugin`; `integration`: the built Worker with real HTTP requests); Playwright + axe in Phase 4/7 | Implemented (Phase 2) | `npm test` runs the first two; `npm run test:integration` builds, then runs the third; `npm run check` runs everything. |
 
-Versions other than Astro are not pinned here; pin the current stable releases in Phase 1.
+Exact versions are in `package.json`.
 
 ## 3. Application architecture
 
@@ -71,21 +71,21 @@ Unchanged in intent from v0.1; language prefix is a future extension.
 
 **Public:** `/`, `/tailors` (filters `category`, `area`, `home_visit`), `/tailors/[slug]`, `/categories/[slug]`, `/areas/[slug]` (optional), `/request` (`?tailor=slug`), `/request/thanks`, `/how-it-works`, `/about`, `/privacy`, `/terms`, `/sitemap.xml`, `/robots.txt`, `/media/*`, `POST /api/contact-click`.
 
-**Admin (`/admin`, authenticated, `noindex`, no-store):** `/admin/login`, `/admin/logout`, `/admin` (dashboard), `/admin/tailors`, `/admin/tailors/new`, `/admin/tailors/[id]`, `/admin/categories`, `/admin/areas`, `/admin/enquiries`, `/admin/enquiries/[id]`, `/admin/users` (owner only).
+**Admin (`/admin`, authenticated, `noindex`, no-store):** `/admin/login`, `/admin/logout`, `/admin` (dashboard), `/admin/account` (own password), `/admin/users/actions` (POST handler), `/admin/tailors`, `/admin/tailors/new`, `/admin/tailors/[id]`, `/admin/categories`, `/admin/areas`, `/admin/enquiries`, `/admin/enquiries/[id]`, `/admin/users` (owner only).
 
 Each admin route and each mutating handler declares the permission it needs (§6).
 
 ## 6. Authentication, authorisation and RBAC
 
 - Two zones: anonymous (public routes) and authenticated admin. No customer or tailor logins (PRD §7.3).
-- **Sessions:** random token in an `HttpOnly`, `Secure`, `SameSite=Lax` cookie; only a hash is stored in D1 (`session` table); idle and absolute expiry; rotation on login; revocation on logout, password change or deactivation.
-- **Passwords:** hashed in the Worker with a memory-hard or iterated KDF available in the runtime (WebCrypto PBKDF2 with a high iteration count, or a WASM scrypt/argon2 build). The choice must be benchmarked against Worker CPU limits in Phase 2 (AD-03). Login is rate limited with generic errors.
+- **Sessions (implemented):** random 256-bit token in the `__Host-alfaiate_session` cookie (`HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/`); only its SHA-256 is stored in D1 (`session`); 30 min idle and 12 h absolute expiry; a new session on every sign-in (the previous one is revoked); revocation on logout, password change and deactivation. Our own D1 sessions are used, not Astro sessions (disabled). CSRF: a token derived from the session token is required on every authenticated POST, plus Astro's origin check.
+- **Passwords (implemented, AD-03):** WebCrypto PBKDF2-HMAC-SHA-256, parameters stored with each hash and upgraded at sign-in. The default iteration count (600000) is provisional and depends on the Cloudflare plan (AD-02): see DECISIONS.md. Sign-in is rate limited (5 attempts per IP — IPv6 counted per /64 — and 50 per email per 15 minutes; attempts are counted atomically before the password is checked and refunded on success; D1 counters with hashed keys; changing your own password is limited the same way) and all failures look identical.
 - **Optional extra layer:** Cloudflare Access in front of `/admin` can be added later without code changes to the app's own checks (defence in depth, not a substitute).
-- **Account creation:** by an `owner` inside `/admin/users`, or a seed script for the first owner. No public sign-up.
+- **Account creation:** by an `owner` inside `/admin/users`, or by `npm run owner:create` for the first owner (local D1 by default; password typed without echo). `npm run owner:reset` recovers a forgotten password. No public sign-up.
 
 ### Roles and permissions (confirmed by owner 2026-10-18, OQ-15)
 
-Permission-based checks (`can(user, 'tailor.publish')`), with roles as fixed bundles defined in code. Roles are stored per user; a user has exactly one role in the MVP. No custom role editor.
+Permission-based checks (`can(role, 'tailor.publish')`), with roles as fixed bundles defined in code. Roles are stored per user; a user has exactly one role in the MVP. No custom role editor.
 
 | Permission | owner | manager | editor | viewer |
 |---|:-:|:-:|:-:|:-:|
@@ -139,13 +139,13 @@ Rules: least privilege by default; denied by default when a permission is unmapp
 | HTTPS | Cloudflare edge; HSTS | SEC-03 |
 | Secrets | Worker secrets and `.dev.vars` (git-ignored); `.dev.vars.example` with placeholders | SEC-03 |
 | Upload hardening | §8 | SEC-04 |
-| Customer data isolation | Only `can('enquiry.view')` routes read enquiry tables; edge cache never stores them | SEC-05 |
+| Customer data isolation | Only `can(role, 'enquiry.view')` routes read enquiry tables; edge cache never stores them | SEC-05 |
 | Admin headers | `noindex`, `Cache-Control: no-store` | SEC-06 |
 | Spam control | Honeypot, minimum-time check, Turnstile, rate limit (Cloudflare rate limiting rule or counter in D1) | SEC-07 |
-| Security headers | CSP, nosniff, frame-ancestors, Referrer-Policy | SEC-08 |
+| Security headers | CSP, nosniff, frame-ancestors, Referrer-Policy, HSTS, X-Frame-Options; applied by middleware to server-rendered responses (static `/_astro/*` assets get cache headers only, DECISIONS T11) | SEC-08 |
 | Consent record | Version and timestamp on enquiry | PRV-03 |
 | Retention/anonymisation | Owner-only action, scheduled purge optional (Cron Trigger) | PRV-04 |
-| Audit | Sign-ins, role changes, publishing and status changes logged in D1 | SEC-09 |
+| Audit | Phase 2 writes login, login_failed, logout, user_created, role_changed, user_deactivated, user_reactivated, password_changed; publishing and status changes arrive in Phases 3 and 5 | SEC-09 |
 
 Cloudflare processes customer data in transit and at rest in D1/R2; the privacy notice must reflect this and data-location questions go to OQ-08.
 

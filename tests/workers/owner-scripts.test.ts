@@ -37,6 +37,7 @@ describe('validation', () => {
   it('requires a password of at least 12 characters', () => {
     expect(() => validatePassword('short')).toThrow();
     expect(validatePassword(PASSWORD)).toBe(PASSWORD);
+    expect(() => validatePassword('x'.repeat(1025))).toThrow(); // the sign-in form accepts at most 1024
   });
 });
 

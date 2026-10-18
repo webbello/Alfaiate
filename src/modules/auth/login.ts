@@ -1,10 +1,11 @@
 import { audit } from './audit';
 import { hashPassword, needsRehash, verifyPassword } from './password';
-import { countHits, recordHit } from './rate-limit';
+import { hit, ipBucket, refund } from './rate-limit';
 import { createSession, revokeSession } from './session';
 
 export const IP_LIMIT = 5;
-export const EMAIL_LIMIT = 20;
+/** Per-email ceiling for guessing spread over many addresses. High on purpose: a low one lets anyone lock the owner out. */
+export const EMAIL_LIMIT = 50;
 export const WINDOW_SECONDS = 15 * 60;
 
 // A valid hash of a random value nobody knows, so unknown and inactive users cost the same time as real ones.
@@ -19,7 +20,7 @@ export type LoginResult =
 type Credentials = {
   email: string;
   password: string;
-  ip: string;
+  ip?: string;
   previousToken?: string;
 };
 type UserRow = { id: number; password_hash: string; is_active: number };
@@ -27,6 +28,8 @@ type UserRow = { id: number; password_hash: string; is_active: number };
 /**
  * Every failure looks the same to the caller (unknown user, wrong password, inactive user, empty password);
  * only a rate-limit refusal is distinguishable, and it is keyed on what was submitted, not on whether the account exists.
+ * The attempt is counted before the password is checked (atomically), so parallel guesses cannot slip past the limit;
+ * a successful sign-in gives its attempt back.
  */
 export async function login(
   db: D1Database,
@@ -34,14 +37,15 @@ export async function login(
   now = new Date(),
 ): Promise<LoginResult> {
   const normalised = email.trim().toLowerCase();
-  const ipKey = `login:ip:${ip}`;
+  // No address (not behind Cloudflare, e.g. local dev): count by email only instead of sharing one bucket for everyone.
+  const ipKey = ip ? `login:ip:${ipBucket(ip)}` : null;
   const emailKey = `login:email:${normalised}`;
 
   const [ipHits, emailHits] = await Promise.all([
-    countHits(db, ipKey, WINDOW_SECONDS, now),
-    countHits(db, emailKey, WINDOW_SECONDS, now),
+    ipKey ? hit(db, ipKey, WINDOW_SECONDS, now) : 0,
+    hit(db, emailKey, WINDOW_SECONDS, now),
   ]);
-  if (ipHits >= IP_LIMIT || emailHits >= EMAIL_LIMIT)
+  if (ipHits > IP_LIMIT || emailHits > EMAIL_LIMIT)
     return { ok: false, limited: true };
 
   const user = await db
@@ -56,14 +60,14 @@ export async function login(
   );
 
   if (!user || !user.is_active || !passwordOk) {
-    await Promise.all([
-      recordHit(db, ipKey, WINDOW_SECONDS, now),
-      recordHit(db, emailKey, WINDOW_SECONDS, now),
-    ]);
     await audit(db, { userId: user?.id ?? null, action: 'login_failed' });
     return { ok: false, limited: false };
   }
 
+  await Promise.all([
+    ipKey ? refund(db, ipKey, WINDOW_SECONDS, now) : null,
+    refund(db, emailKey, WINDOW_SECONDS, now),
+  ]);
   if (needsRehash(user.password_hash)) {
     await db
       .prepare('UPDATE admin_user SET password_hash = ? WHERE id = ?')

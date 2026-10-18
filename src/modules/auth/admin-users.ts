@@ -2,10 +2,13 @@ import { z } from 'zod';
 import { audit } from './audit';
 import { hashPassword, verifyPassword } from './password';
 import { ROLES, type Role } from './permissions';
+import { hit, refund } from './rate-limit';
 import { revokeUserSessions } from './session';
 import { LastOwnerError, setActive, setRole } from './users';
 
 export const MIN_PASSWORD_LENGTH = 12;
+const CHANGE_LIMIT = 5;
+const CHANGE_WINDOW_SECONDS = 15 * 60;
 
 export type Outcome =
   | { ok: true }
@@ -16,7 +19,8 @@ export type Outcome =
         | 'email_taken'
         | 'last_owner'
         | 'not_found'
-        | 'wrong_password';
+        | 'wrong_password'
+        | 'limited';
     };
 
 const password = z.string().min(MIN_PASSWORD_LENGTH).max(1024);
@@ -131,6 +135,10 @@ export async function changeOwnPassword(
 ): Promise<Outcome> {
   if (!password.safeParse(input.next).success || input.next === input.current)
     return { ok: false, error: 'invalid' };
+  // Counted before the check, atomically, like sign-in: a stolen session must not be able to guess the current password.
+  const key = `password-change:${userId}`;
+  if ((await hit(db, key, CHANGE_WINDOW_SECONDS)) > CHANGE_LIMIT)
+    return { ok: false, error: 'limited' };
   const row = await db
     .prepare('SELECT password_hash FROM admin_user WHERE id = ?')
     .bind(userId)
@@ -141,6 +149,7 @@ export async function changeOwnPassword(
     .prepare('UPDATE admin_user SET password_hash = ? WHERE id = ?')
     .bind(await hashPassword(input.next), userId)
     .run();
+  await refund(db, key, CHANGE_WINDOW_SECONDS);
   await revokeUserSessions(db, userId, currentToken);
   await audit(db, {
     userId,

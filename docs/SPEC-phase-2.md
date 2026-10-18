@@ -117,3 +117,12 @@ All SQL uses prepared statements with bound parameters; no string-built SQL. Log
 2. **AD-10 phone rules:** please confirm the Timor-Leste number format (assumption 6) or give me the rule.
 3. **Dashboard shell:** show only "Signed in as <email> (<role>)" and the nav for allowed pages. OK, since counts arrive in Phases 3–6?
 4. **Session lifetimes:** proposed 30 min idle, 12 h absolute. Change if you want longer for convenience on a shared phone.
+
+## Deviations recorded during the build (see DECISIONS.md)
+
+- Schema is two migrations (`0001` admin/tailor tables, `0002` enquiry/referral/operational), not one; the placeholder seed is `seeds/placeholders.sql`, not a migration.
+- Test runtime is `@cloudflare/vitest-plugin` (successor of the deprecated pool package) with Vitest 4.1.12, plus an `integration` project against the built Worker.
+- No `src/modules/db/` helpers: auth modules query D1 directly through the typed binding. Deferred; revisit when Phase 3 adds more queries.
+- One `scripts/owner.mjs` (create/reset) instead of two scripts. `phone.ts` is not built (T8, waiting on AD-10).
+- Success criterion 4 ("fits the Worker CPU limit with margin") is **not demonstrated**: the 600000-iteration default depends on the Workers Paid plan (AD-02).
+- Success criterion 8: security headers come from middleware, so static `/_astro/*` assets carry cache headers only.

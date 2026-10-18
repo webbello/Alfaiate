@@ -27,7 +27,7 @@ CREATE TABLE enquiry (
   -- Live enquiries need a name, number and channel (PRV-01).
   CHECK (anonymised_at IS NOT NULL OR (customer_name IS NOT NULL AND length(trim(customer_name)) > 0 AND contact_number_e164 IS NOT NULL AND contact_channel IS NOT NULL)),
   -- Anonymised enquiries keep reporting fields only (PRV-04).
-  CHECK (anonymised_at IS NULL OR (customer_name IS NULL AND contact_number_e164 IS NULL AND notes IS NULL AND service_description IS NULL))
+  CHECK (anonymised_at IS NULL OR (customer_name IS NULL AND contact_number_e164 IS NULL AND notes IS NULL AND service_description IS NULL AND area_text IS NULL AND preferred_datetime_text IS NULL))
 );
 CREATE INDEX enquiry_status ON enquiry (status, created_at);
 
@@ -86,6 +86,20 @@ END;
 
 CREATE TRIGGER referral_requires_shareable_enquiry
 BEFORE INSERT ON referral
+WHEN (SELECT consent_shared_with_tailor <> 1 OR anonymised_at IS NOT NULL FROM enquiry WHERE id = NEW.enquiry_id)
+BEGIN
+  SELECT RAISE(ABORT, 'referral requires an enquiry with sharing consent and live data');
+END;
+
+CREATE TRIGGER referral_update_requires_approved_tailor
+BEFORE UPDATE OF tailor_id ON referral
+WHEN (SELECT status FROM tailor WHERE id = NEW.tailor_id) <> 'approved'
+BEGIN
+  SELECT RAISE(ABORT, 'referral requires an approved tailor');
+END;
+
+CREATE TRIGGER referral_update_requires_shareable_enquiry
+BEFORE UPDATE OF enquiry_id ON referral
 WHEN (SELECT consent_shared_with_tailor <> 1 OR anonymised_at IS NOT NULL FROM enquiry WHERE id = NEW.enquiry_id)
 BEGIN
   SELECT RAISE(ABORT, 'referral requires an enquiry with sharing consent and live data');

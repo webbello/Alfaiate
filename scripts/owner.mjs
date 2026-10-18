@@ -149,10 +149,11 @@ try {
       ? buildCreateSql(email, hash)
       : buildResetSql(email, hash),
   );
-  const done =
-    query(
-      `SELECT count(*) AS c FROM admin_user WHERE email = '${email}' AND password_hash = '${hash}'`,
-    )[0].c === 1;
+  // Compared in Node, so the hash is never put on a command line (visible in `ps`).
+  const stored = query(
+    `SELECT password_hash FROM admin_user WHERE email = '${email}'`,
+  )[0]?.password_hash;
+  const done = stored === hash;
   if (!done) fail('The change was not applied.');
   stdout.write(
     command === 'create'

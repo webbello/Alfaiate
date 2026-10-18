@@ -187,7 +187,10 @@ describe('sign out', () => {
     });
     expect(out.status).toBe(303);
     expect(out.headers.get('location')).toBe('/admin/login');
-    expect(out.headers.get('set-cookie')).toMatch(
+    const cleared = out.headers.get('set-cookie') ?? '';
+    expect(cleared).toContain('Secure'); // browsers ignore a __Host- cookie change without it
+    expect(cleared).toContain('HttpOnly');
+    expect(cleared).toMatch(
       /__Host-alfaiate_session=;|Max-Age=0|Expires=Thu, 01 Jan 1970/i,
     );
     const after = await send('/admin', { cookie });
