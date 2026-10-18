@@ -3,16 +3,30 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.22.0" },
+  "engines": {
+    "node": ">=22.22.0"
+  },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build"
+    "build": "astro build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "astro check",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
-    "astro": "7.4.0",
-    "@astrojs/cloudflare": "14.4.0"
+    "@astrojs/cloudflare": "14.4.0",
+    "astro": "7.4.0"
   },
   "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@eslint/js": "10.0.1",
+    "eslint": "10.13.0",
+    "eslint-plugin-astro": "3.2.1",
+    "prettier": "3.9.10",
+    "prettier-plugin-astro": "1.1.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.2",
     "wrangler": "4.151.1"
   }
 }

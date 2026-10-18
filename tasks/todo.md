@@ -5,7 +5,7 @@
   - Verify: `npm ci && npx astro --version` prints 7.4.0.
   - Files: `package.json`, `package-lock.json`, `astro.config.mjs`, `tsconfig.json`, `src/pages/index.astro`, `src/env.d.ts`
 
-- [ ] **T2 Lint, format, typecheck scripts**
+- [x] **T2 Lint, format, typecheck scripts**
   - Acceptance: ESLint (astro plugin) + Prettier configured; scripts `lint`, `format`, `typecheck` (`astro check`); TypeScript 7 tried, fallback recorded if needed.
   - Verify: `npm run lint && npm run typecheck` exit 0; DECISIONS.md updated with the TypeScript outcome.
   - Files: `package.json`, `eslint.config.js`, `.prettierrc`, `tsconfig.json`, `docs/DECISIONS.md`
