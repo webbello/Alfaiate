@@ -40,7 +40,7 @@
   - Verify: unit tests built from the owner's examples. Do not start until the owner gives the rule.
   - Files: `src/modules/contact-links/phone.ts`, `tests/phone.test.ts`, `docs/DECISIONS.md`
 
-- [ ] **T9 Sessions, CSRF, audit**
+- [x] **T9 Sessions, CSRF, audit**
   - Acceptance: random token, only its hash in D1; cookie `HttpOnly; Secure; SameSite=Lax`; 30 min idle and 12 h absolute expiry with injected clock; rotate on login; revoke on logout, password change, deactivation; per-session CSRF token check; `audit.ts` appends rows with no customer data.
   - Verify: tests: expiry both ways, rotation, revoked refused, CSRF mismatch rejected, token never stored raw.
   - Files: `src/modules/auth/session.ts`, `src/modules/auth/csrf.ts`, `src/modules/auth/audit.ts`, `tests/session.test.ts`, `tests/csrf.test.ts`

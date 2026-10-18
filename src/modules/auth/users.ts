@@ -30,7 +30,12 @@ export function setRole(db: D1Database, id: number, role: Role) {
   return guardedUpdate(db, sql, role, id);
 }
 
-export function setActive(db: D1Database, id: number, active: boolean) {
+export async function setActive(db: D1Database, id: number, active: boolean) {
   const sql = `UPDATE admin_user SET is_active = ?1, updated_at = ${NOW} WHERE id = ?2 AND NOT (${LAST_ACTIVE_OWNER} AND ?1 = 0)`;
-  return guardedUpdate(db, sql, active ? 1 : 0, id);
+  await guardedUpdate(db, sql, active ? 1 : 0, id);
+  if (!active)
+    await db
+      .prepare('DELETE FROM session WHERE admin_user_id = ?')
+      .bind(id)
+      .run();
 }
