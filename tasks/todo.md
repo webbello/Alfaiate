@@ -5,7 +5,7 @@
   - Verify: `npm test` runs both projects green, including a trivial D1 `SELECT 1` test that failed first.
   - Files: `package.json`, `package-lock.json`, `vitest.config.ts`, `tests/d1-smoke.test.ts`, `docs/DECISIONS.md`
 
-- [ ] **T2 Bindings access and config module**
+- [x] **T2 Bindings access and config module**
   - Acceptance: verified way to read `DB`/R2 in Astro 7 + adapter 14 recorded; `IMAGES`/`SESSION` bindings disabled or proven unused (recorded); `config` module returns typed bindings and fails closed when missing.
   - Verify: unit test: missing `DB` throws, present returns; `npm run build` output has no `SESSION`/`IMAGES` binding (or decision recorded why).
   - Files: `src/modules/config/index.ts`, `astro.config.mjs`, `wrangler.jsonc`, `tests/config.test.ts`, `docs/DECISIONS.md`
