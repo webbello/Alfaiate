@@ -60,7 +60,7 @@
   - Verify: tests: anonymous redirected on every admin route; login/logout flow; inventory test fails when a stray route file is added (proved once, then removed).
   - Files: `src/pages/admin/login.astro`, `src/pages/admin/logout.ts`, `src/pages/admin/index.astro`, `src/i18n/en.ts`, `tests/admin-routes.test.ts`
 
-- [ ] **T13 User management (owner only)**
+- [x] **T13 User management (owner only)**
   - Acceptance: `/admin/users` lists users; owner can create a user, set a role, deactivate/reactivate; any user can change their own password (revokes other sessions); all guarded by `user.manage` (own password change by session); audit rows written.
   - Verify: AC-09 role matrix across all admin routes and handlers (anonymous 302/401, owner ok, manager/editor/viewer 403 on `/admin/users`); last-owner protection through the UI handlers.
   - Files: `src/pages/admin/users.astro`, `src/pages/admin/users/actions.ts`, `src/pages/admin/account.astro`, `tests/admin-users.test.ts`, `tests/ac09-matrix.test.ts`

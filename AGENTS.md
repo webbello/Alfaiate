@@ -34,3 +34,4 @@ Append one line when the user corrects you, a check catches a mistake, or someth
 
 - 2026-10-18 — `prettier --write .` reformatted docs and hooks → `.prettierignore` excludes docs, tasks, .claude and *.md; never run a formatter repo-wide without checking `git status` after.
 - 2026-10-18 — a commit chained after `npm run check | grep` ran although check failed → capture the exit code (`npm run check; rc=$?`) and commit only when `rc` is 0.
+- 2026-10-18 — a scripted `str.replace` edit silently did nothing because Prettier had reformatted the target, and the new tests passed vacuously → assert the replacement happened, and run a mutation check (break the guard, see the test fail) before trusting a new security test.

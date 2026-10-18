@@ -29,4 +29,22 @@ export const ADMIN_ROUTES: readonly {
     permission: 'dashboard.view',
     methods: ['GET'],
   },
+  {
+    file: 'account.astro',
+    path: '/admin/account',
+    permission: 'dashboard.view',
+    methods: ['GET', 'POST'],
+  },
+  {
+    file: 'users.astro',
+    path: '/admin/users',
+    permission: 'user.manage',
+    methods: ['GET'],
+  },
+  {
+    file: 'users/actions.ts',
+    path: '/admin/users/actions',
+    permission: 'user.manage',
+    methods: ['POST'],
+  },
 ];

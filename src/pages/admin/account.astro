@@ -1,0 +1,78 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { requirePermission } from '../../modules/auth/require';
+import { verifyCsrf } from '../../modules/auth/csrf';
+import { SESSION_COOKIE } from '../../modules/auth/session';
+import { changeOwnPassword } from '../../modules/auth/admin-users';
+
+const auth = await requirePermission(Astro, 'dashboard.view');
+if (auth instanceof Response) return auth;
+
+let code = '';
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData().catch(() => new FormData());
+  const token = Astro.cookies.get(SESSION_COOKIE)?.value ?? '';
+  if (!(await verifyCsrf(token, form.get('csrf')?.toString())))
+    return new Response('Forbidden', { status: 403 });
+  const result = await changeOwnPassword(
+    requireBindings(env).DB,
+    auth.userId,
+    token,
+    {
+      current: form.get('current_password')?.toString() ?? '',
+      next: form.get('new_password')?.toString() ?? '',
+    },
+  );
+  code = result.ok ? 'password_changed' : result.error;
+  Astro.response.status = result.ok ? 200 : 400;
+}
+const message = Object.hasOwn(en.adminMessages, code)
+  ? en.adminMessages[code as keyof typeof en.adminMessages]
+  : '';
+---
+
+<Base
+  title={en.adminAccountHeading}
+  description={en.adminAccountHeading}
+  noindex
+>
+  <h1>{en.adminAccountHeading}</h1>
+  <p>
+    <a href="/admin">{en.adminDashboardHeading}</a>
+  </p>
+  <p>
+    {auth.email} ({auth.role})
+  </p>
+  {message && <p role="status">{message}</p>}
+  <form method="post">
+    <input type="hidden" name="csrf" value={auth.csrfToken} />
+    <p>
+      <label for="current">{en.adminCurrentPassword}</label>
+      <br />
+      <input
+        id="current"
+        name="current_password"
+        type="password"
+        autocomplete="current-password"
+        required
+      />
+    </p>
+    <p>
+      <label for="next">{en.adminNewPassword}</label>
+      <br />
+      <input
+        id="next"
+        name="new_password"
+        type="password"
+        autocomplete="new-password"
+        required
+        minlength="12"
+      />
+    </p>
+    <button type="submit">{en.adminChangePassword}</button>
+  </form>
+</Base>

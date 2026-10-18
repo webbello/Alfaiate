@@ -1,0 +1,117 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { requirePermission } from '../../modules/auth/require';
+import { ROLES } from '../../modules/auth/permissions';
+
+const auth = await requirePermission(Astro, 'user.manage');
+if (auth instanceof Response) return auth;
+
+const { results: users } = await requireBindings(env)
+  .DB.prepare(
+    'SELECT id, email, role, is_active FROM admin_user ORDER BY email',
+  )
+  .all<{ id: number; email: string; role: string; is_active: number }>();
+const code = Astro.url.searchParams.get('msg') ?? '';
+const message = Object.hasOwn(en.adminMessages, code)
+  ? en.adminMessages[code as keyof typeof en.adminMessages]
+  : '';
+---
+
+<Base title={en.adminUsersHeading} description={en.adminUsersHeading} noindex>
+  <h1>{en.adminUsersHeading}</h1>
+  <p>
+    <a href="/admin">{en.adminDashboardHeading}</a>
+  </p>
+  {message && <p role="status">{message}</p>}
+  <table>
+    <thead>
+      <tr>
+        <th>{en.adminUsersEmail}</th>
+        <th>{en.adminUsersRole}</th>
+        <th>{en.adminUsersStatus}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {users.map((user) => (
+        <tr>
+          <td>{user.email}</td>
+          <td>
+            <form method="post" action="/admin/users/actions">
+              <input type="hidden" name="csrf" value={auth.csrfToken} />
+              <input type="hidden" name="action" value="set_role" />
+              <input type="hidden" name="user_id" value={user.id} />
+              <select
+                name="role"
+                aria-label={`${en.adminUsersRole}: ${user.email}`}
+              >
+                {ROLES.map((role) => (
+                  <option value={role} selected={role === user.role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
+              <button type="submit">{en.adminUsersSave}</button>
+            </form>
+          </td>
+          <td>
+            {user.is_active ? en.adminUsersActive : en.adminUsersInactive}
+          </td>
+          <td>
+            <form method="post" action="/admin/users/actions">
+              <input type="hidden" name="csrf" value={auth.csrfToken} />
+              <input
+                type="hidden"
+                name="action"
+                value={user.is_active ? 'deactivate' : 'reactivate'}
+              />
+              <input type="hidden" name="user_id" value={user.id} />
+              <button type="submit">
+                {user.is_active
+                  ? en.adminUsersDeactivate
+                  : en.adminUsersReactivate}
+              </button>
+            </form>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <h2>{en.adminUsersCreateHeading}</h2>
+  <form method="post" action="/admin/users/actions">
+    <input type="hidden" name="csrf" value={auth.csrfToken} />
+    <input type="hidden" name="action" value="create" />
+    <p>
+      <label for="new-email">{en.adminUsersEmail}</label>
+      <br />
+      <input id="new-email" name="email" type="email" required />
+    </p>
+    <p>
+      <label for="new-role">{en.adminUsersRole}</label>
+      <br />
+      <select id="new-role" name="role">
+        {ROLES.map((role) => (
+          <option value={role}>{role}</option>
+        ))}
+      </select>
+    </p>
+    <p>
+      <label for="new-password">{en.adminUsersInitialPassword}</label>
+      <br />
+      <input
+        id="new-password"
+        name="password"
+        type="password"
+        autocomplete="new-password"
+        required
+        minlength="12"
+      />
+    </p>
+    <button type="submit">{en.adminUsersCreate}</button>
+  </form>
+</Base>

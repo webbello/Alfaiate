@@ -3,6 +3,7 @@ export const prerender = false;
 import Base from '../../layouts/Base.astro';
 import { en } from '../../i18n/en';
 import { requirePermission } from '../../modules/auth/require';
+import { can } from '../../modules/auth/permissions';
 
 const auth = await requirePermission(Astro, 'dashboard.view');
 if (auth instanceof Response) return auth;
@@ -13,6 +14,12 @@ if (auth instanceof Response) return auth;
   <p>
     {en.adminSignedInAs} {auth.email} ({auth.role})
   </p>
+  <nav>
+    <a href="/admin/account">{en.adminNavAccount}</a>
+    {can(auth.role, 'user.manage') && (
+      <a href="/admin/users">{en.adminNavUsers}</a>
+    )}
+  </nav>
   <form method="post" action="/admin/logout">
     <input type="hidden" name="csrf" value={auth.csrfToken} />
     <button type="submit">{en.adminSignOut}</button>
