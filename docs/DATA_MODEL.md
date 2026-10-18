@@ -198,3 +198,16 @@ Index: `tailor(slug)`, `tailor(is_published, status)`, joins by FK, `enquiry(sta
 ## 8. Requirement coverage
 
 FR-PRO-* → tailor, tailor_category, tailor_area, portfolio_image · FR-ENQ-* → enquiry · FR-ADM-* → all admin tables · FR-REF-* → referral, tailor fee terms · FR-RPT-* → computed from enquiry, status_log, referral · SEC-05/BR-07 → public/private split · ANA-02 → contact_click_daily.
+
+## 9. As implemented in migrations (Phase 2, `migrations/0001`, `0002`)
+
+Where the migrations refine the conceptual model above, the migrations win; this list records the differences.
+
+- Timestamps are UTC ISO-8601 text, booleans 0/1, enums CHECK-constrained text, foreign keys enforced. Prices (`price_from`/`price_to`, `fee_amount`) are whole minor units of one site-wide currency (OQ-14 pending).
+- `session` also has `last_seen_at` (idle expiry) and `expires_at` (absolute expiry). CSRF tokens are derived, not stored.
+- `tailor`: publishing is refused by CHECK unless `status = 'approved'` and `permission_recorded = 1`. "At least one published contact method" stays an application rule (it was Proposed).
+- `enquiry`: `customer_name`, `contact_number_e164` and `contact_channel` are nullable only when `anonymised_at` is set; a CHECK requires them present before, and requires name, number, notes and `service_description` to be cleared after. Consent must be 1.
+- `referral`: triggers refuse creation for a tailor that is not `approved`, and for an enquiry that is anonymised (FR-REF-02, AC-12). CHECKs: `fee_amount` only after `completion_reported_at`; a completion needs `completion_reported_by`; `fee_status = 'paid'` needs `fee_paid_at`.
+- `internal_note`: exactly one of `enquiry_id`, `tailor_id`, `referral_id` (CHECK); `author_id` is required and users are deactivated, never deleted.
+- `audit_log` and `enquiry_status_log` are append-only by convention (the code has no update path); no database triggers enforce it.
+- `rate_limit` uses an integer `window_start` (epoch seconds).
