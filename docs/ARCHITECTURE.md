@@ -83,7 +83,7 @@ Each admin route and each mutating handler declares the permission it needs (§6
 - **Optional extra layer:** Cloudflare Access in front of `/admin` can be added later without code changes to the app's own checks (defence in depth, not a substitute).
 - **Account creation:** by an `owner` inside `/admin/users`, or a seed script for the first owner. No public sign-up.
 
-### Roles and permissions (proposed — confirm with OQ-15)
+### Roles and permissions (confirmed by owner 2026-10-18, OQ-15)
 
 Permission-based checks (`can(user, 'tailor.publish')`), with roles as fixed bundles defined in code. Roles are stored per user; a user has exactly one role in the MVP. No custom role editor.
 
@@ -190,7 +190,7 @@ Language routing and translated content; tailor notifications via WhatsApp Busin
 |---|---|---|
 | AD-01 | Confirm Astro 7.4 availability and the adapter/Wrangler versions that support it | **Resolved 2026-10-18**, see DECISIONS.md |
 | AD-02 | Cloudflare plan, budget, and a check of free-tier limits against expected use | Start on the plan that supports D1 backups and Worker CPU needs; measure |
-| AD-03 | Password-hashing method that fits Worker CPU limits | Benchmark in Phase 2 |
+| AD-03 | Password-hashing method that fits Worker CPU limits | **Owner chose WebCrypto PBKDF2 (2026-10-18)**; iteration count benchmarked in Phase 2 |
 | AD-04 | R2 vs another image store; public delivery via Worker route vs R2 custom domain; client-side resizing vs Cloudflare Images | R2, Worker route, client-side resizing |
 | AD-05 | Owner notification channel and sender (OQ-06) | Email |
 | AD-06 | Backup destination outside Cloudflare, frequency and retention | Daily D1 export + R2 replication, owner-approved destination (decided 2026-10-18, see DECISIONS.md) |
@@ -198,5 +198,5 @@ Language routing and translated content; tailor notifications via WhatsApp Busin
 | AD-08 | Domain, DNS and email-sending setup | Owner to supply |
 | AD-09 | Launch language(s) (OQ-07) | Single language, i18n-ready |
 | AD-10 | Phone input rules for Timor-Leste | Accept local and +670, store E.164 |
-| AD-11 | Role set and who gets which role (OQ-15) | owner, manager, editor, viewer as in §6; one owner account at launch |
+| AD-11 | Role set and who gets which role (OQ-15) | **Resolved 2026-10-18**: owner, manager, editor, viewer as in §6; one owner account at launch |
 | AD-12 | Whether Cloudflare Access is added in front of `/admin` | No in MVP; revisit |
