@@ -25,7 +25,7 @@
   - Verify: integration tests for anonymous 302, editor/viewer 403, manager allowed except the fee route 403, owner allowed, missing CSRF 403, bad ids 404, AC-12 end to end, a seeded fee amount absent from a manager's page and from every manager response, `owner_confirmed` refused for a manager; mutation checks on each route's permission and on `withFees`.
   - Files: `src/pages/admin/enquiries/[id]/referrals.ts`, `src/pages/admin/enquiries/[id]/referrals/[rid].ts`, `src/pages/admin/enquiries/[id]/referrals/[rid]/fee.ts`, `src/pages/admin/enquiries/[id].astro`, `src/modules/auth/admin-routes.ts`, `src/i18n/en.ts`, `tests/integration/referrals.test.ts`, `tests/integration/ac09-matrix.test.ts`
 
-- [ ] **T6 Reporting metrics**
+- [x] **T6 Reporting metrics**
   - Acceptance: `metrics(db, period, {withFees})` returns M1, enquiries by status, referrals forwarded and accepted, M2, M3, M4, M5, M6, M8 and (only with `withFees`) fees due, disputed, M7 and M9, exactly as defined in the spec, each with numerator and denominator and `null` for a zero denominator; spam excluded; period membership by the date each event was recorded; no names, numbers or notes are queried.
   - Verify: a seeded dataset with every expected value written by hand (AC-14), events just inside and outside each period edge, spam and anonymised enquiries, a waived fee, zero-denominator cases, a cross-check against plain counts over the same rows, `withFees: false` has no fee keys; mutation checks on each metric's edge, denominator and the spam filter.
   - Files: `src/modules/reporting/metrics.ts`, `tests/workers/reporting-metrics.test.ts`
