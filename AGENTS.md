@@ -43,4 +43,7 @@ Append one line when the user corrects you, a check catches a mistake, or someth
 - 2026-10-19 — D1 rejected a long search term with "LIKE or GLOB pattern too complex" (limit 50 bytes, escapes and emoji count) → cut user search text until its escaped pattern fits, and test with `%`, emoji and backslashes.
 - 2026-10-19 — a mutation survived because no role could tell two permissions apart in the integration test → check which suite is supposed to catch a mutation (here the route-inventory unit test) before adding tests, and test each guard where it can actually be observed.
 - 2026-10-19 — a Python edit failed its assertion, the shell chain went on, the commit message then claimed a mutation check that had not run → end every edit script with `&& echo EDIT-OK`, read that line before the next step, and write commit messages only from results seen in this run.
+- 2026-10-19 — a test searched the page for `<script` and failed on the hostile name that Astro leaves unescaped inside attribute values (like `og:title`) → check markup after blanking attribute values, and run attribute text through `metaText` when it is customer-controlled.
+- 2026-10-19 — e2e requests shared one rate-limit bucket because the local Worker sees no client address, so the sixth form submission was refused → give each e2e file that posts its own `cf-connecting-ip`.
+- 2026-10-19 — an imprecise mutation (changing a bound-parameter count) "failed" for the wrong reason → mutate so the bind count stays valid (add `OR 1 = 1`, swap a constant) and look at which test failed.
 

@@ -108,3 +108,13 @@ export function localBusiness(profile: ProfileView, siteUrl: string): object {
 4. **`check:repo` joins `npm run check`** (assumption 11), so every commit proves no secrets or photos are tracked. Default: yes.
 5. **Dependency audit rule** (assumption 10): zero high or critical in production dependencies, or a written justification; development-only findings are listed but do not block. Default: as written.
 6. **Retention period (OQ-09) and the privacy and terms text (OQ-08)** are still yours to decide before launch; this phase builds the mechanism, not the policy.
+
+## Deviations recorded during the build (see DECISIONS.md)
+
+- The written security and privacy reviews are in `docs/SECURITY_PRIVACY_REVIEW.md`, not inside DECISIONS.md (a table cell cannot hold a checklist); DECISIONS links to it.
+- A request post from another site is still refused by Astro's own cross-site check with its plain-text 403; only a post with no Origin gets the friendly page.
+- `order_value_note` on referrals is also cleared when an enquiry is anonymised (free text that can name the customer).
+- The byte budgets are enforced on uncompressed sizes in `npm run check`; compressed transfer sizes and timings are reported by `npm run perf` only.
+- A third integration project, `integration-staging` (Tetum on, indexing off), was added next to `integration` and `integration-en`.
+- Admin controls got a minimum height (44 px) after axe reported the WCAG 2.2 target-size rule on the admin role select.
+

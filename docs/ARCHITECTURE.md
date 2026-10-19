@@ -157,11 +157,12 @@ Cloudflare processes customer data in transit and at rest in D1/R2; the privacy 
 
 ## 11. SEO and performance
 
-- Server-rendered or prerendered HTML; one `<h1>`; unique title/description/canonical per tailor and category; Open Graph image from the profile photo (planned, Phase 7).
-- Structured data: `Organization`/`WebSite` on home; `LocalBusiness` on profiles for published facts only; no rating/review markup (BR-11).
-- Sitemap from published content only; `robots.txt` blocks `/admin` and `/api`; filter-parameter pages canonicalised or `noindex,follow`.
-- Edge caching of public HTML and media; responsive images with explicit dimensions and lazy loading; system fonts or one self-hosted subset; minimal client JS (Astro islands only where needed).
-- Budgets are set in Phase 7 from measurements on a throttled mobile profile, including a check of latency from Dili; none are asserted here.
+- Server-rendered HTML; one `<h1>`; unique title, description and canonical per page; `hreflang` alternates for the enabled languages.
+- Built in Phase 7: Open Graph tags (title, description, URL, type, site name and, for a permitted profile photo, the image) and JSON-LD on **indexable** public pages only: `WebSite` and `Organization` on the home page, `LocalBusiness` on a profile with name, URL, description, address text, telephone (only with recorded contact consent) and image (only a permitted photo). Never ratings, reviews, prices, hours or claims (BR-11). The JSON block is serialised with `<`, `>`, `&` escaped and is a data block, so the strict CSP is unchanged.
+- `SITE_INDEXABLE` (Wrangler var; only the exact string `true` enables indexing): when off (local, staging) `robots.txt` is `Disallow: /`, the sitemap is empty and every response sends `X-Robots-Tag: noindex, nofollow` and a noindex meta tag. Production sets it to `true`.
+- Sitemap from published, permitted content only (one entry per page and language); it becomes a sitemap index with `/sitemap-<n>.xml` child files past 5,000 entries. `robots.txt` blocks `/admin` and `/api`; filtered directory pages are `noindex,follow` with the plain list as canonical.
+- Responsive images (320, 800, 1600 px widths) with `srcset`, `sizes` and alt text, lazy except the profile hero; system fonts; JavaScript only for the tap counter and the admin upload tool; no third-party requests.
+- **Budgets are measured, not assumed:** `npm run perf` and the recorded numbers and limits are in IMPLEMENTATION_PLAN.md Phase 7; byte budgets (measured + about 20%) are enforced by `tests/integration/budgets.test.ts`. A check from Dili and with real photos belongs in Phase 8.
 
 ## 12. Deployment, configuration and backup
 
