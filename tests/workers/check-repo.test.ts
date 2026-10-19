@@ -103,3 +103,30 @@ describe('check:repo content rules', () => {
     ).toHaveLength(3);
   });
 });
+
+// Owner decision 2026-10-19: licensed scene photos for the public site may be tracked, but only WebP files in public/images/site/
+// whose name is listed in that folder's CREDITS.md (photographer, source, licence). Every other image is still refused.
+describe('check:repo licensed scene photos', () => {
+  const credits = file(
+    'public/images/site/CREDITS.md',
+    '| hero | Someone | https://unsplash.com/photos/x | Unsplash License |',
+  );
+  it('accepts a credited WebP in public/images/site', () => {
+    expect(
+      problems(credits, file('public/images/site/hero-800.webp', null)),
+    ).toEqual([]);
+  });
+  it('refuses an uncredited one, another format, another folder, or any image without the credits file', () => {
+    for (const bad of [
+      [credits, file('public/images/site/other-800.webp', null)],
+      [credits, file('public/images/site/hero-800.jpg', null)],
+      [credits, file('public/images/hero-800.webp', null)],
+      [credits, file('public/images/site/sub/hero-800.webp', null)],
+      [file('public/images/site/hero-800.webp', null)],
+    ])
+      expect(
+        problems(...bad).length,
+        bad.map((f) => f.path).join(' '),
+      ).toBeGreaterThanOrEqual(1);
+  });
+});

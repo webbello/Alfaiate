@@ -12,7 +12,7 @@ const FILE_RULES = [
   [/(^|\/)id_(rsa|dsa|ecdsa|ed25519)(\.pub)?$/, 'ssh key'],
   [/(^|\/)uploads\//, 'uploads directory'],
   [/(^|\/)(\.wrangler|dist|node_modules)\//, 'build output or local state'],
-  // Photos of customers or tailors must never reach git. (No image is tracked today; an allow-list entry would need the owner's approval.)
+  // Photos of customers or tailors must never reach git. The only exception is the credited scene photos below (owner-approved 2026-10-19).
   [/\.(jpe?g|png|webp|gif|heic|heif|tiff?|bmp)$/i, 'image file'],
 ];
 
@@ -24,12 +24,26 @@ const CONTENT_RULES = [
   [/sk_live_[0-9A-Za-z]{20,}/, 'Stripe live key'],
 ];
 
+// Licensed scene photos (owner decision 2026-10-19): `public/images/site/<name>-<width>.webp` is allowed only when <name> is listed in
+// `public/images/site/CREDITS.md` as `| <name> |`. Tailor and customer photos never go here: they live in R2.
+const SITE_PHOTO = /^public\/images\/site\/([a-z0-9-]+?)-\d+\.webp$/;
+const CREDITS = 'public/images/site/CREDITS.md';
+function creditedPhotos(files) {
+  const text = files.find((f) => f.path === CREDITS)?.text ?? '';
+  return (path) => {
+    const m = SITE_PHOTO.exec(path);
+    return m !== null && text.includes(`| ${m[1]} |`);
+  };
+}
+
 /** @param {{ path: string, text: string | null }[]} files Tracked files; `text` is null for files that are not readable text. */
 export function findProblems(files) {
   const problems = [];
+  const credited = creditedPhotos(files);
   for (const { path, text } of files) {
     for (const [pattern, label, applies] of FILE_RULES)
-      if (pattern.test(path) && (!applies || applies(path)))
+      if (label === 'image file' && credited(path)) continue;
+      else if (pattern.test(path) && (!applies || applies(path)))
         problems.push(`${path}: ${label} must not be tracked`);
     if (text === null) continue;
     for (const [pattern, label] of CONTENT_RULES)

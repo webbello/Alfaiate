@@ -16,21 +16,28 @@ const ratio = (a: string, b: string) => {
   return (hi + 0.05) / (lo + 0.05);
 };
 const PAIRS: [fg: string, bg: string][] = [
+  ['color-charcoal', 'color-ivory'],
+  ['color-charcoal', 'color-white'],
+  ['color-charcoal', 'color-cream'],
+  ['color-muted', 'color-ivory'],
+  ['color-muted', 'color-white'],
+  ['color-muted', 'color-cream'],
+  ['color-olive', 'color-ivory'],
+  ['color-olive', 'color-white'],
+  ['color-terracotta', 'color-ivory'],
+  ['color-terracotta', 'color-white'],
+  ['color-white', 'color-terracotta'],
+  ['color-white', 'color-forest'],
+  ['color-ivory', 'color-forest'],
+  ['color-ivory', 'color-charcoal'],
+  ['thread-light', 'color-forest'],
+  ['thread-light', 'color-charcoal'],
+  // names the older pages use, resolved through the aliases above
   ['ink', 'paper'],
-  ['muted', 'paper'],
   ['muted', 'band'],
   ['accent', 'paper'],
-  ['accent', 'band'],
   ['accent-ink', 'accent'],
-  ['ink', 'chalk'],
-  ['muted', 'chalk'],
-  ['accent', 'chalk'],
   ['paper', 'indigo'],
-  ['thread-light', 'indigo'],
-  ['paper', 'deep'],
-  ['thread-light', 'deep'],
-  ['thread', 'paper'],
-  ['thread', 'band'],
 ];
 
 describe('colour tokens meet WCAG AA', () => {
@@ -40,10 +47,16 @@ describe('colour tokens meet WCAG AA', () => {
     const css = await (
       await worker.fetch(new Request(`${ORIGIN}${href}`))
     ).text();
-    const token = (name: string) => {
-      const m = new RegExp(`--${name}:\\s*#([0-9a-fA-F]{3,6})\\b`).exec(css);
-      expect(m, `--${name} is defined as a hex colour`).not.toBeNull();
-      const h = m![1];
+    const token = (name: string, depth = 0): string => {
+      const m = new RegExp(
+        `--${name}:\\s*(#[0-9a-fA-F]{3,6}\\b|var\\(--([a-z-]+)\\))`,
+      ).exec(css);
+      expect(
+        m,
+        `--${name} is defined as a hex colour or an alias`,
+      ).not.toBeNull();
+      if (m![2]) return token(m![2], depth + 1);
+      const h = m![1].slice(1);
       return `#${h.length === 3 ? [...h].map((c) => c + c).join('') : h}`;
     };
     for (const [fg, bg] of PAIRS)

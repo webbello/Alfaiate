@@ -3,7 +3,7 @@ import { ORIGIN, get } from './helpers';
 import { worker } from './worker';
 
 // Phase 7c T1: the display serif is self-hosted, small, licensed and swaps in without blocking text.
-const FONT = '/fonts/instrument-serif-regular.woff2';
+const FONT = '/fonts/alfaiate-display.woff2';
 const css = async () => {
   const html = await (await get('/')).text();
   const href = /<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/.exec(html)![1];
@@ -19,16 +19,16 @@ describe('the display font', () => {
     expect(bytes.length).toBeLessThanOrEqual(30_000);
   });
   it('has its open licence next to it', async () => {
-    const text = await (await get('/fonts/OFL.txt')).text();
+    const text = await (await get('/fonts/OFL-playfair-display.txt')).text();
     expect(text).toContain('SIL OPEN FONT LICENSE');
-    expect(text).toContain('Instrument Serif');
+    expect(text).toContain('Playfair Display');
   });
   it('is declared with font-display swap, loaded from our origin only, and used by the display token', async () => {
     const sheet = await css();
-    expect(sheet).toMatch(/@font-face\s*{[^}]*Instrument Serif[^}]*}/);
+    expect(sheet).toMatch(/@font-face\s*{[^}]*Alfaiate Display[^}]*}/);
     expect(sheet).toContain(`url(${FONT})`);
     expect(sheet).toMatch(/font-display:\s*swap/);
     expect(sheet).not.toMatch(/https?:\/\//);
-    expect(sheet).toMatch(/--display:\s*["']?Instrument Serif/);
+    expect(sheet).toMatch(/--font-display:\s*["']?Alfaiate Display/);
   });
 });
