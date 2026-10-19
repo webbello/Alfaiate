@@ -48,3 +48,13 @@ export const ADMIN_ROUTES: readonly {
     methods: ['POST'],
   },
 ];
+
+/** Fills the dynamic segments of a route template ([id], [...key]) so tests can request it. */
+export function concretePath(
+  path: string,
+  params: { id?: number | string; key?: string },
+): string {
+  return path
+    .replace('[id]', String(params.id ?? ''))
+    .replace('[...key]', params.key ?? '');
+}

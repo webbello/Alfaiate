@@ -1,7 +1,7 @@
 # Tasks: Phase 3
 
-- [ ] **T1 Foundations**
-  - Acceptance: `AuditAction` gains `tailor_created`, `tailor_updated`, `tailor_published`, `tailor_unpublished`, `image_uploaded`, `image_changed`, `image_deleted`, `catalog_changed`, `fee_terms_changed` (ids only); `slugify()` makes unique-able ASCII slugs; `ADMIN_ROUTES` supports path templates (`[id]`, `[...key]`) and the inventory and role-matrix tests substitute real ids; dashboard nav lists Tailors, Categories, Areas for roles with `tailor.edit`.
+- [x] **T1 Foundations**
+  - Acceptance: `AuditAction` gains `tailor_created`, `tailor_updated`, `tailor_published`, `tailor_unpublished`, `image_uploaded`, `image_changed`, `image_deleted`, `catalog_changed`, `fee_terms_changed` (ids only); `slugify()` makes unique-able ASCII slugs; `ADMIN_ROUTES` supports path templates (`[id]`, `[...key]`) and the inventory and role-matrix tests substitute real ids; the dashboard nav links are added with the pages they point to (T3, T6) so none is ever a dead link.
   - Verify: new slug unit tests fail first; the existing 232 + 46 tests still pass.
   - Files: `src/modules/auth/audit.ts`, `src/modules/tailors/slug.ts`, `src/modules/auth/admin-routes.ts`, `tests/workers/slug.test.ts`, `tests/integration/ac09-matrix.test.ts`
 

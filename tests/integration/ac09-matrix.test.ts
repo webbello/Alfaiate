@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { env } from 'cloudflare:workers';
 import { worker } from './worker';
-import { ADMIN_ROUTES } from '../../src/modules/auth/admin-routes';
+import {
+  ADMIN_ROUTES,
+  concretePath,
+} from '../../src/modules/auth/admin-routes';
 import { can, ROLES } from '../../src/modules/auth/permissions';
 import { hashPassword } from '../../src/modules/auth/password';
 
@@ -70,12 +73,15 @@ describe('AC-09 role matrix', () => {
           const form =
             method === 'POST' ? validForm[route.path]?.(csrf) : undefined;
           const response = await worker.fetch(
-            new Request(`${ORIGIN}${route.path}`, {
-              method,
-              headers: { Cookie: cookie, Origin: ORIGIN },
-              body: form ? new URLSearchParams(form) : undefined,
-              redirect: 'manual',
-            }),
+            new Request(
+              `${ORIGIN}${concretePath(route.path, { id: 1, key: 'x' })}`,
+              {
+                method,
+                headers: { Cookie: cookie, Origin: ORIGIN },
+                body: form ? new URLSearchParams(form) : undefined,
+                redirect: 'manual',
+              },
+            ),
           );
           if (allowed) {
             expect(response.status).not.toBe(403);

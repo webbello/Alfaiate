@@ -7,7 +7,15 @@ export type AuditAction =
   | 'user_deactivated'
   | 'user_reactivated'
   | 'password_changed'
+  | 'tailor_created'
+  | 'tailor_updated'
   | 'tailor_published'
+  | 'tailor_unpublished'
+  | 'image_uploaded'
+  | 'image_changed'
+  | 'image_deleted'
+  | 'catalog_changed'
+  | 'fee_terms_changed'
   | 'enquiry_status_changed';
 
 type Entry = {

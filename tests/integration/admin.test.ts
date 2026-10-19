@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { env } from 'cloudflare:workers';
 import { worker } from './worker';
-import { ADMIN_ROUTES } from '../../src/modules/auth/admin-routes';
+import {
+  ADMIN_ROUTES,
+  concretePath,
+} from '../../src/modules/auth/admin-routes';
 import { hashPassword } from '../../src/modules/auth/password';
 
 const ORIGIN = 'https://example.test';
@@ -54,10 +57,13 @@ describe('anonymous access (AC-09)', () => {
   for (const route of ADMIN_ROUTES.filter((r) => r.permission !== null)) {
     for (const method of route.methods) {
       it(`${method} ${route.path} redirects to the login page`, async () => {
-        const response = await send(route.path, {
-          method,
-          form: method === 'POST' ? { x: '1' } : undefined,
-        });
+        const response = await send(
+          concretePath(route.path, { id: 1, key: 'x' }),
+          {
+            method,
+            form: method === 'POST' ? { x: '1' } : undefined,
+          },
+        );
         expect(response.status).toBe(302);
         expect(response.headers.get('location')).toBe('/admin/login');
         expect(response.headers.get('cache-control')).toBe('no-store');
