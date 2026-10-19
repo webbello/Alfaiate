@@ -40,7 +40,7 @@
   - Verify: table test over permission x visibility x published x delete x profile photo asserting exact keys in both buckets; failure simulation (R2 delete throws) leaves the row and a retry converges; schema check: no blob columns; 11th photo refused; mutation check on the publicity rule.
   - Files: `src/modules/media/store.ts`, `src/modules/media/reconcile.ts`, `tests/workers/media-store.test.ts`, `tests/workers/media-reconcile.test.ts`
 
-- [ ] **T9 Publish workflow (AC-10)**
+- [x] **T9 Publish workflow (AC-10)**
   - Acceptance: `publishBlockers(tailor)` returns `not_approved`, `no_permission_recorded`, `no_consented_contact`; manager actions: approve, record permission (note, date), set contact-publish consent, set verified fields (known list only), publish, unpublish; publish/unpublish call `reconcileImages`; refusal messages are plain; audit by id.
   - Verify: unit tests for every blocker combination; D1 test that the database CHECK also refuses; publish then unpublish moves images between buckets; editor refused; unknown verified field refused; mutation check on each blocker. Endpoint `/admin/tailors/[id]/publish` (`tailor.publish`) with integration role matrix and CSRF.
   - Files: `src/modules/tailors/publish.ts`, `src/pages/admin/tailors/[id]/publish.ts`, `src/pages/admin/tailors/[id].astro`, `tests/workers/publish.test.ts`, `tests/integration/publish.test.ts`

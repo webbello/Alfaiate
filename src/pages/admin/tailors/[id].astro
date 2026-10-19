@@ -16,6 +16,8 @@ import {
 } from '../../../modules/tailors/links';
 import { listNotes } from '../../../modules/tailors/notes';
 import { messageFrom } from '../../../modules/tailors/messages';
+import { publishBlockers } from '../../../modules/tailors/publish';
+import { VERIFIABLE_FIELDS } from '../../../modules/tailors/verification';
 
 const auth = await requirePermission(Astro, 'tailor.edit');
 if (auth instanceof Response) return auth;
@@ -41,7 +43,14 @@ const shop = new Set(
 const serves = new Set(
   areaLinks.filter((a) => a.kind === 'serves').map((a) => a.area_id),
 );
-const { message, fields } = messageFrom(Astro.url);
+const { message, fields, blockers } = messageFrom(Astro.url);
+const currentBlockers = publishBlockers(tailor).map(
+  (b) => en.publishBlockers[b],
+);
+const verified = new Set<string>(
+  JSON.parse(tailor.verified_fields) as string[],
+);
+const publishAction = `/admin/tailors/${id}/publish`;
 const action = `/admin/tailors/${id}/actions`;
 ---
 
@@ -62,7 +71,114 @@ const action = `/admin/tailors/${id}/actions`;
       )}
     </p>
   )}
+  {blockers.length > 0 && (
+    <ul>
+      {blockers.map((b) => (
+        <li>{b}</li>
+      ))}
+    </ul>
+  )}
   {!editable && <p role="note">{en.tailorLocked}</p>}
+
+  {mayVerify && (
+    <>
+      <h2>{en.publishHeading}</h2>
+      {tailor.is_published ? (
+        <p>{en.tailorPublished}</p>
+      ) : currentBlockers.length > 0 ? (
+        <>
+          <p>{en.publishBlockedIntro}</p>
+          <ul>
+            {currentBlockers.map((b) => (
+              <li>{b}</li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <p>{en.publishReady}</p>
+      )}
+      <form method="post" action={publishAction}>
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <input type="hidden" name="action" value="approve" />
+        <button type="submit" disabled={tailor.status === 'approved'}>
+          {en.publishApprove}
+        </button>
+      </form>
+      <form method="post" action={publishAction}>
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <input type="hidden" name="action" value="record_permission" />
+        <p>
+          <label for="permission_note">{en.publishPermissionNote}</label>
+          <br />
+          <input
+            id="permission_note"
+            name="permission_note"
+            value={tailor.permission_note ?? ''}
+            maxlength="500"
+            required
+          />
+        </p>
+        <p>
+          <label for="permission_date">{en.publishPermissionDate}</label>
+          <br />
+          <input
+            id="permission_date"
+            name="permission_date"
+            type="date"
+            value={tailor.permission_date ?? ''}
+            required
+          />
+        </p>
+        <p>
+          <label>
+            <input
+              type="checkbox"
+              name="contact_publish_consent"
+              checked={!!tailor.contact_publish_consent}
+            />{' '}
+            {en.publishConsent}
+          </label>
+        </p>
+        <button type="submit">{en.publishRecord}</button>
+      </form>
+      {tailor.permission_recorded ? (
+        <form method="post" action={publishAction}>
+          <input type="hidden" name="csrf" value={auth.csrfToken} />
+          <input type="hidden" name="action" value="withdraw_permission" />
+          <button type="submit">{en.publishWithdraw}</button>
+        </form>
+      ) : null}
+      <form method="post" action={publishAction}>
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <input type="hidden" name="action" value="set_verified" />
+        <fieldset>
+          <legend>{en.publishVerifiedHeading}</legend>
+          {VERIFIABLE_FIELDS.map((f) => (
+            <label>
+              <input
+                type="checkbox"
+                name={`verified_${f}`}
+                checked={verified.has(f)}
+              />{' '}
+              {en.verifiableLabels[f]}
+            </label>
+          ))}
+        </fieldset>
+        <button type="submit">{en.publishSaveVerified}</button>
+      </form>
+      <form method="post" action={publishAction}>
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <input
+          type="hidden"
+          name="action"
+          value={tailor.is_published ? 'unpublish' : 'publish'}
+        />
+        <button type="submit">
+          {tailor.is_published ? en.publishUnpublish : en.publishNow}
+        </button>
+      </form>
+    </>
+  )}
 
   {editable && (
     <>

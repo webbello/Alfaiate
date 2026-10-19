@@ -41,6 +41,36 @@ export const en = {
   },
   homeVisitsOptions: { unknown: 'Not known', yes: 'Yes', no: 'No' },
   tailorProfileHeading: 'Profile',
+  publishHeading: 'Approval and publishing',
+  publishApprove: 'Approve',
+  publishPermissionNote: 'How and when permission was given',
+  publishPermissionDate: 'Date permission was given',
+  publishConsent:
+    'The tailor agreed that their phone and WhatsApp numbers may be shown publicly',
+  publishRecord: 'Record permission',
+  publishWithdraw: 'Withdraw permission (also unpublishes)',
+  publishVerifiedHeading:
+    'Facts we have verified ourselves (shown as verified; everything else is shown as supplied by the tailor)',
+  publishSaveVerified: 'Save verified facts',
+  publishNow: 'Publish',
+  publishUnpublish: 'Unpublish',
+  publishBlockedIntro: 'Cannot publish yet:',
+  publishReady: 'Ready to publish.',
+  publishBlockers: {
+    not_approved: 'Not approved yet.',
+    no_permission_recorded: "The tailor's permission is not recorded.",
+    no_consented_contact:
+      'No WhatsApp or phone number with consent to publish.',
+  },
+  verifiableLabels: {
+    description: 'Description',
+    shop_address_text: 'Shop address',
+    home_visits: 'Home visits',
+    languages: 'Languages',
+    price_note: 'Price note',
+    whatsapp: 'WhatsApp number',
+    phone: 'Phone number',
+  },
   tailorCategoriesHeading: 'Categories and prices',
   tailorAreasHeading: 'Areas',
   tailorNotesHeading: 'Internal notes (never public)',
@@ -90,6 +120,13 @@ export const en = {
   adminChangePassword: 'Change password',
   adminMessages: {
     created: 'User created.',
+    published: 'Published.',
+    unpublished: 'Unpublished.',
+    blocked: 'This tailor cannot be published yet.',
+    invalid_state:
+      'This tailor is archived or suspended and cannot be approved.',
+    needs_contact:
+      'A published tailor must keep a WhatsApp or phone number that may be shown.',
     slug_taken: 'That web address is already used.',
     slug_locked:
       'The web address cannot change once a tailor has been published.',

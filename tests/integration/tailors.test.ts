@@ -16,7 +16,7 @@ const addTailor = async (
   ).meta.last_row_id;
   if (published)
     await env.DB.prepare(
-      "UPDATE tailor SET status = 'approved', permission_recorded = 1, is_published = 1 WHERE id = ?",
+      "UPDATE tailor SET status = 'approved', permission_recorded = 1, contact_publish_consent = 1, phone_e164 = '+67077123456', is_published = 1 WHERE id = ?",
     )
       .bind(id)
       .run();
@@ -307,6 +307,7 @@ describe('the editor lock on published tailors', () => {
           csrf: managerCsrf,
           action: 'save_profile',
           display_name: 'By Manager',
+          phone: '7712 3456',
         })
       ).headers.get('location'),
     ).toBe(`/admin/tailors/${id}?msg=saved`);

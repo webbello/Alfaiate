@@ -7,6 +7,7 @@ import {
   updateSchema,
   type ProfileInput,
 } from './schemas';
+import { isVerifiable } from './verification';
 
 export type TailorRow = {
   id: number;
@@ -52,7 +53,11 @@ export type CreateResult =
 export type UpdateResult =
   | { ok: true }
   | { ok: false; error: 'invalid'; fields: string[] }
-  | { ok: false; error: 'locked' | 'not_found' | 'slug_locked' | 'slug_taken' };
+  | {
+      ok: false;
+      error:
+        'locked' | 'not_found' | 'slug_locked' | 'slug_taken' | 'needs_contact';
+    };
 
 const STATUSES = ['draft', 'approved', 'suspended', 'archived'] as const;
 const NOW = `strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`;
@@ -192,6 +197,36 @@ export async function updateProfile(
     }
     sets.push(`${COLUMN[field]} = ?`);
     binds.push(value);
+  }
+  // BR-11: changing a verified fact makes it unverified again.
+  const before = JSON.parse(tailor.verified_fields) as string[];
+  const verified = new Set<string>(before);
+  const stored = tailor as unknown as Record<string, unknown>;
+  for (const [field, value] of Object.entries(parsed.data) as [
+    keyof typeof COLUMN,
+    unknown,
+  ][]) {
+    if (
+      value !== undefined &&
+      isVerifiable(field) &&
+      value !== stored[COLUMN[field]]
+    )
+      verified.delete(field);
+  }
+  if (verified.size !== before.length) {
+    sets.push('verified_fields = ?');
+    binds.push(JSON.stringify([...verified]));
+  }
+  // A published tailor must keep at least one consented contact number (SPEC-phase-3 assumption 3).
+  if (tailor.is_published) {
+    const whatsapp =
+      parsed.data.whatsapp !== undefined
+        ? parsed.data.whatsapp
+        : tailor.whatsapp_e164;
+    const phone =
+      parsed.data.phone !== undefined ? parsed.data.phone : tailor.phone_e164;
+    if (!tailor.contact_publish_consent || (!whatsapp && !phone))
+      return { ok: false, error: 'needs_contact' };
   }
   if (sets.length > 0) {
     await db

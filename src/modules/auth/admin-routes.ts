@@ -83,6 +83,12 @@ export const ADMIN_ROUTES: readonly {
     permission: 'tailor.edit',
     methods: ['POST'],
   },
+  {
+    file: 'tailors/[id]/publish.ts',
+    path: '/admin/tailors/[id]/publish',
+    permission: 'tailor.publish',
+    methods: ['POST'],
+  },
 ];
 
 /** Fills the dynamic segments of a route template ([id], [...key]) so tests can request it. */

@@ -31,7 +31,7 @@ const draft = async (
 const publishRaw = (id: number) =>
   db
     .prepare(
-      "UPDATE tailor SET status = 'approved', permission_recorded = 1, is_published = 1, published_at = '2026-01-01T00:00:00Z' WHERE id = ?",
+      "UPDATE tailor SET status = 'approved', permission_recorded = 1, contact_publish_consent = 1, phone_e164 = '+67077123456', is_published = 1, published_at = '2026-01-01T00:00:00Z' WHERE id = ?",
     )
     .bind(id)
     .run();
@@ -284,5 +284,80 @@ describe('listTailors', () => {
     const row = (await listTailors(db, {})).find((t) => t.id === id)!;
     expect(Object.keys(row)).not.toContain('fee_terms_text');
     expect(Object.keys(row)).not.toContain('private_phone');
+  });
+});
+
+describe('verification and the contact rule on edit (BR-11)', () => {
+  const setVerified = (id: number, fields: string[]) =>
+    db
+      .prepare('UPDATE tailor SET verified_fields = ? WHERE id = ?')
+      .bind(JSON.stringify(fields), id)
+      .run();
+  const verified = async (id: number) =>
+    JSON.parse((await getTailor(db, id))!.verified_fields) as string[];
+
+  it('drops the verified mark of a field whose value changes, and keeps the others', async () => {
+    const { by, id } = await draft('Verify Drop', {
+      description: 'Old words',
+      languages: 'Tetum',
+    });
+    await setVerified(id, ['description', 'languages']);
+    await updateProfile(db, by, 'editor', id, {
+      display_name: 'Verify Drop',
+      description: 'New words',
+      languages: 'Tetum',
+    });
+    expect(await verified(id)).toEqual(['languages']);
+  });
+
+  it('keeps a verified mark when the value is saved unchanged', async () => {
+    const { by, id } = await draft('Verify Keep', {
+      description: 'Same words',
+    });
+    await setVerified(id, ['description']);
+    await updateProfile(db, by, 'editor', id, {
+      display_name: 'Verify Keep',
+      description: 'Same words',
+    });
+    expect(await verified(id)).toEqual(['description']);
+  });
+
+  it('drops verification for a changed phone number, in whatever form it is typed', async () => {
+    const { by, id } = await draft('Verify Phone', { phone: '7712 3456' });
+    await setVerified(id, ['phone']);
+    await updateProfile(db, by, 'editor', id, {
+      display_name: 'Verify Phone',
+      phone: '+670 77123456',
+    });
+    expect(await verified(id)).toEqual(['phone']);
+    await updateProfile(db, by, 'editor', id, {
+      display_name: 'Verify Phone',
+      phone: '7712 9999',
+    });
+    expect(await verified(id)).toEqual([]);
+  });
+
+  it('refuses an edit that would leave a published tailor without a consented contact number', async () => {
+    const { by, id } = await draft('Contact Rule', { phone: '7712 3456' });
+    await db
+      .prepare(
+        "UPDATE tailor SET status = 'approved', permission_recorded = 1, contact_publish_consent = 1, is_published = 1 WHERE id = ?",
+      )
+      .bind(id)
+      .run();
+    expect(
+      await updateProfile(db, by, 'manager', id, {
+        display_name: 'Contact Rule',
+        phone: '',
+      }),
+    ).toEqual({ ok: false, error: 'needs_contact' });
+    expect((await getTailor(db, id))?.phone_e164).toBe('+67077123456');
+    expect(
+      await updateProfile(db, by, 'manager', id, {
+        display_name: 'Contact Rule',
+        phone: '',
+        whatsapp: '7712 8888',
+      }),
+    ).toEqual({ ok: true });
   });
 });

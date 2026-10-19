@@ -1,7 +1,11 @@
 import { en } from '../../i18n/en';
 
 /** Turns ?msg= and ?fields= into text, accepting only known keys (nothing from the URL is rendered as is). */
-export function messageFrom(url: URL): { message: string; fields: string[] } {
+export function messageFrom(url: URL): {
+  message: string;
+  fields: string[];
+  blockers: string[];
+} {
   const code = url.searchParams.get('msg') ?? '';
   const message = Object.hasOwn(en.adminMessages, code)
     ? en.adminMessages[code as keyof typeof en.adminMessages]
@@ -10,5 +14,9 @@ export function messageFrom(url: URL): { message: string; fields: string[] } {
     .split(',')
     .filter((f) => Object.hasOwn(en.tailorFields, f))
     .map((f) => en.tailorFields[f as keyof typeof en.tailorFields]);
-  return { message, fields };
+  const blockers = (url.searchParams.get('blockers') ?? '')
+    .split(',')
+    .filter((b) => Object.hasOwn(en.publishBlockers, b))
+    .map((b) => en.publishBlockers[b as keyof typeof en.publishBlockers]);
+  return { message, fields, blockers };
 }
