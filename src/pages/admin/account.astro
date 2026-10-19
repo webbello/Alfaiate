@@ -2,7 +2,9 @@
 export const prerender = false;
 import { readForm } from '../../modules/http/body';
 import { env } from 'cloudflare:workers';
+import Flash from '../../components/admin/Flash.astro';
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import { messageKind } from '../../modules/admin-ui/messages';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { requirePermission } from '../../modules/auth/require';
@@ -48,7 +50,7 @@ const message = Object.hasOwn(en.adminMessages, code)
   <p>
     {auth.email} ({auth.role})
   </p>
-  {message && <p role="status">{message}</p>}
+  {message && <Flash message={message} kind={messageKind(code)} />}
   <form method="post">
     <input type="hidden" name="csrf" value={auth.csrfToken} />
     <p>

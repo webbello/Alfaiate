@@ -1,8 +1,10 @@
 import { en } from '../../i18n/en';
+import { messageKind } from '../admin-ui/messages';
 
 /** Turns ?msg= and ?fields= into text, accepting only known keys (nothing from the URL is rendered as is). */
 export function messageFrom(url: URL): {
   message: string;
+  kind: 'success' | 'problem';
   fields: string[];
   blockers: string[];
 } {
@@ -18,5 +20,5 @@ export function messageFrom(url: URL): {
     .split(',')
     .filter((b) => Object.hasOwn(en.publishBlockers, b))
     .map((b) => en.publishBlockers[b as keyof typeof en.publishBlockers]);
-  return { message, fields, blockers };
+  return { message, kind: messageKind(code), fields, blockers };
 }

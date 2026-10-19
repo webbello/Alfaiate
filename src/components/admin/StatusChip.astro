@@ -1,0 +1,13 @@
+---
+import { toneFor } from '../../modules/admin-ui/tone';
+
+interface Props {
+  /** The state code, for the tone (for example "new" or "declined"). */
+  state: string;
+  /** The words shown. */
+  label: string;
+}
+const { state, label } = Astro.props;
+---
+
+<span class={`chip chip--${toneFor(state)}`}>{label}</span>

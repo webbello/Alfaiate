@@ -1,7 +1,9 @@
 ---
 export const prerender = false;
 import { env } from 'cloudflare:workers';
+import Flash from '../../components/admin/Flash.astro';
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import { messageKind } from '../../modules/admin-ui/messages';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { requirePermission } from '../../modules/auth/require';
@@ -30,7 +32,7 @@ const message = Object.hasOwn(en.adminMessages, code)
   <p>
     <a href="/admin">{en.adminDashboardHeading}</a>
   </p>
-  {message && <p role="status">{message}</p>}
+  {message && <Flash message={message} kind={messageKind(code)} />}
   <table>
     <thead>
       <tr>

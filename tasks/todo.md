@@ -5,7 +5,7 @@
   - Verify: contract test green before and after; unit test of nav links per role (owner, manager, editor, viewer) and per permission; integration tests that each admin page marks its own link current, that the sign-in page has no nav, and that no admin page loads a script; full AC-09 matrix and existing admin tests unchanged; mutation checks on a link's permission and on the current-page marker.
   - Files: `tests/integration/admin-contract.test.ts`, `src/layouts/AdminLayout.astro`, `src/styles/admin.css`, `src/modules/admin-ui/nav.ts`, `src/pages/admin/**` (layout swap only)
 
-- [ ] **T2 Banners, status chips, cards, empty-state component and form styles**
+- [x] **T2 Banners, status chips, cards, empty-state component and form styles**
   - Acceptance: `modules/admin-ui/messages.ts` classifies every message code in every admin dictionary as success or problem; `Flash.astro` shows "Done" or "Problem" in words with `role="status"` or `role="alert"`; `StatusChip.astro` shows enquiry, referral and tailor states in words; `Card.astro`, `EmptyState.astro`, button variants (primary, secondary, destructive) and form spacing exist in `admin.css`; every page uses the banner instead of its one-line message.
   - Verify: a test iterates all message dictionaries and fails on an unclassified key; integration tests that a problem uses `role="alert"` and a success `role="status"`, and that `?msg=` text is still allow-listed (hostile codes show nothing); contrast test for chip and banner colours (at least 4.5:1); contract test unchanged; mutation checks on the classification of one success and one problem code.
   - Files: `src/modules/admin-ui/messages.ts`, `src/components/admin/*.astro`, `src/styles/admin.css`, `src/pages/admin/**`, tests

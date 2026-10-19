@@ -2,6 +2,7 @@
 export const prerender = false;
 import { readForm } from '../../../modules/http/body';
 import { env } from 'cloudflare:workers';
+import Flash from '../../../components/admin/Flash.astro';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import ProfileFields from '../../../components/ProfileFields.astro';
 import { en } from '../../../i18n/en';
@@ -38,7 +39,7 @@ if (Astro.request.method === 'POST') {
     303,
   );
 }
-const { message, fields } = messageFrom(Astro.url);
+const { message, kind, fields } = messageFrom(Astro.url);
 ---
 
 <AdminLayout
@@ -51,15 +52,13 @@ const { message, fields } = messageFrom(Astro.url);
     <a href="/admin/tailors">{en.tailorListHeading}</a>
   </p>
   {message && (
-    <p role="alert">
-      {message}
+    <Flash message={message} kind={kind}>
       {fields.length > 0 && (
         <>
-          {' '}
           {en.tailorCheck}: {fields.join(', ')}
         </>
       )}
-    </p>
+    </Flash>
   )}
   <form method="post">
     <input type="hidden" name="csrf" value={auth.csrfToken} />

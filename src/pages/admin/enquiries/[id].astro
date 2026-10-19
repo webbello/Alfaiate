@@ -1,7 +1,9 @@
 ---
 export const prerender = false;
 import { env } from 'cloudflare:workers';
+import Flash from '../../../components/admin/Flash.astro';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { messageKind } from '../../../modules/admin-ui/messages';
 import { en } from '../../../i18n/en';
 import { fill } from '../../../i18n/public';
 import { requireBindings } from '../../../modules/config';
@@ -57,7 +59,7 @@ const action = `/admin/enquiries/${id}/actions`;
   <p>
     <a href="/admin/enquiries">{text.back}</a>
   </p>
-  {message && <p role="status">{message}</p>}
+  {message && <Flash message={message} kind={messageKind(code)} />}
 
   <h2>{text.details}</h2>
   <dl>
@@ -186,7 +188,9 @@ const action = `/admin/enquiries/${id}/actions`;
           />
         </p>
         <p>
-          <button type="submit">{text.anonymiseButton}</button>
+          <button type="submit" class="danger">
+            {text.anonymiseButton}
+          </button>
         </p>
       </form>
     </>

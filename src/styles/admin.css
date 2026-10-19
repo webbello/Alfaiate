@@ -242,6 +242,123 @@ small {
   color: var(--muted);
 }
 
+/* Banners (messages after an action): the words "Done" or "Problem" always come first, colour is only a hint. */
+.flash {
+  max-width: 48rem;
+  margin: 0 0 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid;
+  border-radius: var(--radius);
+}
+.flash--success {
+  background: #e6f4e6;
+  color: #14341a;
+  border-color: #2e7d32;
+}
+.flash--problem {
+  background: #fdeaea;
+  color: #5a0f0f;
+  border-color: #9b1c1c;
+}
+.flash ul {
+  margin: 0.25rem 0 0;
+}
+
+/* Status chips: the state in words, tone in colour */
+.chip {
+  display: inline-block;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.chip--neutral {
+  background: #ece7df;
+  color: #1b1b1b;
+}
+.chip--info {
+  background: #dbe8fb;
+  color: #0b2f66;
+}
+.chip--success {
+  background: #dcefdc;
+  color: #14532d;
+}
+.chip--warn {
+  background: #fbecc8;
+  color: #5b3a00;
+}
+.chip--danger {
+  background: #f8dcdc;
+  color: #7a1212;
+}
+
+/* Cards, empty states and button variants */
+.card {
+  max-width: 48rem;
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.card > :first-child {
+  margin-top: 0;
+}
+.card > :last-child {
+  margin-bottom: 0;
+}
+.card--warning {
+  border: 2px solid #9b1c1c;
+  background: #fff8f8;
+}
+.empty {
+  max-width: 48rem;
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--muted);
+  background: var(--band);
+  border: 1px dashed var(--muted);
+  border-radius: var(--radius);
+}
+.empty strong {
+  display: block;
+  color: var(--ink);
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+button.secondary,
+.button-link {
+  color: var(--ink);
+  background: #fff;
+  border-color: var(--muted);
+}
+button.secondary:hover,
+.button-link:hover {
+  background: var(--band);
+  border-color: var(--muted);
+}
+button.danger {
+  background: #9b1c1c;
+  border-color: #9b1c1c;
+}
+button.danger:hover {
+  background: #7a1212;
+  border-color: #7a1212;
+}
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  border: 2px solid;
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+}
+
 /* Sign-in page: a small centred card, no header bar */
 .admin-card-page {
   max-width: 26rem;

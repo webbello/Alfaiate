@@ -3,6 +3,7 @@ export const prerender = false;
 import { readForm } from '../../modules/http/body';
 import { env } from 'cloudflare:workers';
 import { z } from 'zod';
+import Flash from '../../components/admin/Flash.astro';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
@@ -45,7 +46,7 @@ if (Astro.request.method === 'POST') {
 
 <AdminLayout title={en.adminLoginTitle} description={en.adminLoginTitle}>
   <h1>{en.adminLoginHeading}</h1>
-  {message && <p role="alert">{message}</p>}
+  {message && <Flash message={message} kind="problem" />}
   <form method="post">
     <p>
       <label for="email">{en.adminEmail}</label>

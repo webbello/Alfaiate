@@ -1,0 +1,20 @@
+---
+interface Props {
+  title?: string;
+  /** Heading level inside the card: it sits below the page's h1 and its section h2s. */
+  level?: 2 | 3;
+  id?: string;
+  warning?: boolean;
+}
+const { title, level = 2, id, warning = false } = Astro.props;
+const Heading = `h${level}` as 'h2' | 'h3';
+---
+
+<section
+  class={warning ? 'card card--warning' : 'card'}
+  aria-labelledby={title ? `${id ?? 'card'}-title` : undefined}
+  id={id}
+>
+  {title && <Heading id={`${id ?? 'card'}-title`}>{title}</Heading>}
+  <slot />
+</section>

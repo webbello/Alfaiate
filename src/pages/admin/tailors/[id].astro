@@ -2,6 +2,7 @@
 export const prerender = false;
 import { parseId } from '../../../modules/http/body';
 import { env } from 'cloudflare:workers';
+import Flash from '../../../components/admin/Flash.astro';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import ProfileFields from '../../../components/ProfileFields.astro';
 import { en } from '../../../i18n/en';
@@ -48,7 +49,7 @@ const shop = new Set(
 const serves = new Set(
   areaLinks.filter((a) => a.kind === 'serves').map((a) => a.area_id),
 );
-const { message, fields, blockers } = messageFrom(Astro.url);
+const { message, kind, fields, blockers } = messageFrom(Astro.url);
 const currentBlockers = publishBlockers(tailor).map(
   (b) => en.publishBlockers[b],
 );
@@ -70,15 +71,13 @@ const action = `/admin/tailors/${id}/actions`;
     {tailor.is_published ? en.tailorPublished : en.tailorNotPublished}
   </p>
   {message && (
-    <p role="status">
-      {message}
+    <Flash message={message} kind={kind}>
       {fields.length > 0 && (
         <>
-          {' '}
           {en.tailorCheck}: {fields.join(', ')}
         </>
       )}
-    </p>
+    </Flash>
   )}
   {blockers.length > 0 && (
     <ul>
@@ -154,7 +153,9 @@ const action = `/admin/tailors/${id}/actions`;
         <form method="post" action={publishAction}>
           <input type="hidden" name="csrf" value={auth.csrfToken} />
           <input type="hidden" name="action" value="withdraw_permission" />
-          <button type="submit">{en.publishWithdraw}</button>
+          <button type="submit" class="danger">
+            {en.publishWithdraw}
+          </button>
         </form>
       ) : null}
       <form method="post" action={publishAction}>
@@ -182,7 +183,10 @@ const action = `/admin/tailors/${id}/actions`;
           name="action"
           value={tailor.is_published ? 'unpublish' : 'publish'}
         />
-        <button type="submit">
+        <button
+          type="submit"
+          class={tailor.is_published ? 'danger' : undefined}
+        >
           {tailor.is_published ? en.publishUnpublish : en.publishNow}
         </button>
       </form>

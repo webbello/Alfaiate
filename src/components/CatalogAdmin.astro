@@ -1,6 +1,7 @@
 ---
 import type { Entry } from '../modules/catalog';
 import { en } from '../i18n/en';
+import Flash from './admin/Flash.astro';
 
 interface Props {
   action: string;
@@ -8,9 +9,10 @@ interface Props {
   entries: Entry[];
   csrf: string;
   message: string;
+  kind: 'success' | 'problem';
   withDescription: boolean;
 }
-const { action, heading, entries, csrf, message, withDescription } =
+const { action, heading, entries, csrf, message, kind, withDescription } =
   Astro.props;
 ---
 
@@ -18,7 +20,7 @@ const { action, heading, entries, csrf, message, withDescription } =
 <p>
   <a href="/admin">{en.adminDashboardHeading}</a>
 </p>
-{message && <p role="status">{message}</p>}
+{message && <Flash message={message} kind={kind} />}
 <table>
   <thead>
     <tr>
