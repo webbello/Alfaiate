@@ -15,7 +15,7 @@
   - Verify: unit tests for every field and refusal, defaults, owner-only `owner_confirmed`, audit content, hostile text kept as plain text; mutation checks on the owner-only rule and the pairing rule.
   - Files: `src/modules/referral/update.ts`, `tests/workers/referral-update.test.ts`
 
-- [ ] **T4 Fee rules**
+- [x] **T4 Fee rules**
   - Acceptance: `setFee(db, {id, userId, input})` (caller must hold `fee.view`, enforced by the route) records amount in dollars as cents (no negatives, at most two decimals, at most 1,000,000), `fee_basis_note` (max 300), `order_value_note` (max 300), status (`not_due|due|paid|waived|disputed`) and paid date; refuses an amount with no reported completion (`needs_completion`), `paid` without a paid date (`needs_paid_date`), and `due` or `paid` when the tailor has no `fee_terms_agreed_on` (`no_agreed_terms`, BR-09); `waived` and `not_due` need nothing; a `referral_fee_updated` audit row (ids only); nothing is computed or suggested.
   - Verify: unit tests for each rule and message, cents conversion edges, audit content without amounts; mutation checks on BR-09 and the completion rule.
   - Files: `src/modules/referral/fee.ts`, `tests/workers/referral-fee.test.ts`
