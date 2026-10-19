@@ -1,6 +1,6 @@
 # Spec: Phase 4 — Public site: homepage, directory, categories and tailor profiles
 
-Status: Draft for owner approval · 2026-10-19 · Source: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 4 · [PRD.md](PRD.md) §6-7, 9, 12-13 · [ARCHITECTURE.md](ARCHITECTURE.md) §3-5, 7, 11
+Status: Approved 2026-10-19 (all seven open-question defaults accepted) · Source: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 4 · [PRD.md](PRD.md) §6-7, 9, 12-13 · [ARCHITECTURE.md](ARCHITECTURE.md) §3-5, 7, 11
 
 **Requirements:** FR-PUB-01/02/03/04/05/06, FR-DIR-01-04, FR-PRO-01-08 (FR-PRO-07's structured data is Phase 7, see assumption 9), ANA-01/02, NFR-SEO-01, NFR-A11Y-01 (baseline), NFR-I18N-01, NFR-BRW-01, BR-01/04/05/06/07/11. **Acceptance:** AC-01, AC-02, AC-03, AC-04, AC-05, and the public-site part of AC-15.
 **Answers already given** (see [DECISIONS.md](DECISIONS.md)): OQ-07 languages = **English and Tetum**; analytics = own contact counters only; no area pages.

@@ -1,49 +1,49 @@
-# Plan: Phase 3 — Tailor profiles, images and publishing (admin side)
+# Plan: Phase 4 — Public site (homepage, directory, categories, profiles)
 
-Spec: [docs/SPEC-phase-3.md](../docs/SPEC-phase-3.md) (approved 2026-10-19). Tasks: [todo.md](todo.md). Earlier plans are in git history (Phase 2: `fb0d6a2`).
+Spec: [docs/SPEC-phase-4.md](../docs/SPEC-phase-4.md) (approved 2026-10-19). Tasks: [todo.md](todo.md). Earlier plans are in git history (Phase 3: `17c9b65`).
 
 ## Order and dependencies
 
 ```
-T1 foundations ──> T2 catalog module ──> T3 catalog pages
-      │
-      └──> T4 tailor repo + schemas + edit lock ──> T5 categories/prices/areas/notes ──> T6 tailor pages
-T7 media validation ──> T8 media store + reconcile
-T6 + T8 ──> T9 publish workflow (AC-10) ──> T10 fee terms
-T4 + T8 ──> T11 image upload + image actions (server)
-T8 ──> T12 public /media route + admin preview
-T11 + T12 ──> T13 upload script + photos section (manual browser check)
-all ──> T14 docs, reviewers, security audit, fresh clone
+T1 language helpers + site config ──> T2 dictionaries + layout + styles + 404 + Tetum gate
+T2 ──> T3 link builders, price format, filter parsing (pure)
+T2 ──> T4 directory data module (explicit columns, view models)
+T3 + T4 ──> T5 home + request placeholder ──> T6 directory + category pages ──> T7 tailor profile
+T2 ──> T8 static pages (how it works, about, privacy, terms)
+T4 + T8 ──> T9 sitemap + robots + canonical/noindex rules
+T4 + T7 ──> T10 contact tap counter (module, endpoint, script)
+T7 + T8 ──> T11 Playwright + axe (mobile journey, accessibility, both languages)
+all ──> T12 docs, reviewers, security audit, fresh clone, manual look
 ```
 
-T7-T8 are independent of T2-T6 and could be built first; I keep them in this order so each task leaves a usable admin feature. Strictly one task at a time, one commit each, commit only when `npm run check` exits 0.
+One task at a time, one commit each, commit only when `npm run check` exits 0 (e2e is run separately and must pass before T11 and T12 are ticked). Every public page is built in English and Tetum from the start through shared views, so the two languages cannot drift.
 
 ## Risks
 
 | Risk | Mitigation |
 |---|---|
-| Local R2 not usable from the Vitest Workers project | T7 starts with a put/get/list/delete R2 test; if it fails, stop and ask |
-| D1 and R2 are not transactional (a failure between them leaves them out of step) | `reconcileImages` is idempotent and recomputes from D1; delete R2 before the D1 row; tests simulate a failure and a retry |
-| Server validation of JPEG bytes is hand-written | Byte-level fixtures for every accept/reject case; mutation checks; no real photos |
-| Canvas re-encode may not strip metadata or may add an ICC/APP segment in some browsers | Server rejects APP1/APP13; allows APP0/APP2 only; manual check in a real browser in T13 (Safari/Chrome noted); results recorded |
-| Multipart uploads through Astro endpoints and the origin check | T11 proves a real multipart POST against the built Worker; CSRF token sent as a form field |
-| Strict CSP blocks the upload script | Script is an external bundled file; integration test asserts no inline script and a `script src` on the page |
-| New `[id]` and `[...key]` routes break the route-inventory and role-matrix tests | T1 extends the registry with path templates and the tests substitute real ids before any route is added |
-| Cached public image outlives a withdrawn permission | 1-hour max-age (approved); deleted from the public bucket immediately; documented in the privacy notice work later (OQ-08) |
-| Scope creep into public pages | Nothing under `src/pages` outside `admin/` and `media/`; reviewer checks it |
-| A large integration suite becomes slow | Reuse sessions per file; measure after T9 and trim before T14 |
+| Tetum text is mine and unreviewed | Typed dictionaries guarantee every string exists; Tetum is off in production by default (`PUBLIC_LANGUAGES`); the launch checklist blocks on the owner's review |
+| A public query leaks a private column | Explicit column lists only; view-model key test; HTML sweep for seeded private values; mutation checks |
+| Playwright cannot drive the built Worker with a seeded database | T11 starts with a small spike (build, `wrangler dev` on a temp persisted DB, one Playwright request). If it fails, fall back to the Astro dev server (already proven to work with the local D1) and record it |
+| Strict CSP (no inline styles/scripts) fights page features | Stylesheet is an external file, the beacon script is external, nothing needs inline code; an integration test scans every public page |
+| Duplicate English and Tetum route files drift | Thin wrapper pages around shared views; a test lists the public routes in both languages and fails if one is missing |
+| Public pages query D1 on every request (cost and speed) | Pilot-size lists and indexed queries now; edge caching and budgets belong to Phase 7 (measured, not assumed) |
+| Contact counter inflated or abused | Per-address hashed rate limit, published tailors and real channels only, same-origin check, no personal data; counts documented as intent signals |
+| Filters build SQL from user input | Query values are parsed against whitelists (slugs looked up, flags as booleans) and always bound; fuzz-style test with hostile values |
+| `hreflang`/canonical wrong without a domain | `SITE_URL` placeholder from configuration; tests assert the structure, Phase 8 sets the real value |
+| Layout work balloons | Simple mobile-first styles with system fonts; design skill used once at T2; polish waits for staging feedback |
 
 ## Verification checkpoints
 
-- After T1: existing 232 + 46 tests still pass with the extended registry.
-- After T3: catalog role matrix passes.
-- After T6: an editor can create a draft and edit it; cannot edit once it is published (stubbed row).
-- After T8: public-bucket contents match the publicity rule for every state (table test).
-- After T9: AC-10 passes at both layers (handler and database).
-- After T12: `/media` serves only permitted, visible images of published tailors.
-- After T13: one manual run in a real browser with a real photo kept outside the repo.
-- After T14: `npm ci && npm run check` from a fresh clone; three reviewers report no blockers.
+- After T2: both languages render a shell page; `/tet/...` is 404 when Tetum is off.
+- After T4: the "only published, only consented, only permitted" table test passes.
+- After T5: AC-01 passes in integration (both languages).
+- After T6: AC-02 passes (each filter alone and combined).
+- After T7: AC-03, AC-04, AC-05 pass; the private-value HTML sweep passes for all public pages so far.
+- After T10: tap counting works end to end and leaves no personal data.
+- After T11: Playwright mobile journey and axe scans pass (English and Tetum).
+- After T12: `npm ci && npm run check` from a fresh clone; `npm run test:e2e`; three reviewers report no blockers.
 
 ## Out of scope
 
-Public pages (directory, profiles, categories), contact click counter, sitemap, SEO, enquiry and referral screens, CSV export, bulk import, image editing beyond resize, remote buckets and deploy.
+Enquiry form and storage (Phase 5), referral tracking (Phase 6), structured data, performance budgets and edge caching (Phase 7), production domain, deploy and real content (Phase 8), area pages, search, reviews, accounts.
