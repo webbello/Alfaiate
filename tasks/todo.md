@@ -42,7 +42,7 @@
   - Verify: dictionary parity tests; privacy/terms text byte-identical in the integration test; axe both languages.
   - Files: `src/pages/*.astro`, `src/pages/tet/**`, `src/i18n/public/*`, tests
 
-- [ ] **T9 Motion, accessibility, performance and budgets**
+- [x] **T9 Motion, accessibility, performance and budgets**
   - Acceptance: reduced-motion removes all animation and flattens 3D; no-JavaScript run passes; new pages added to axe, CSP, reflow and text-spacing specs; `npm run perf` before and after recorded; byte budgets set from measurements plus about 20% and enforced (spec numbers are placeholders until measured).
   - Verify: `npm run check`, `npm run test:e2e`, `npm run perf`; a removed `aria-hidden` on a decorative piece and an added inline style were each seen failing and reverted.
   - Files: `e2e/*.spec.ts`, `tests/integration/budgets.test.ts`, `docs/IMPLEMENTATION_PLAN.md`

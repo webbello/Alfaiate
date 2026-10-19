@@ -70,3 +70,23 @@ test('mistakes are explained next to the field with JavaScript off', async ({
   // without JavaScript the browser's own required-field check may stop the send first; either way the page stays on the form
   await expect(page).toHaveURL(/\/request/);
 });
+
+test('the home story and the join form work with JavaScript off (Phase 7c)', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.locator('.tape-measure details')).toHaveCount(5);
+  await page.locator('.tape-measure summary').first().click(); // native <details>, no script
+  await expect(page.locator('.tape-measure details').first()).toHaveAttribute(
+    'open',
+    '',
+  );
+  await page.goto('/join');
+  await page.locator('#name').fill('E2E No-JS Applicant');
+  await page.locator('#phone').fill('7712 3456');
+  await page.locator('#consent').check();
+  await page.waitForTimeout(3200);
+  await page.locator('button[type="submit"]').click();
+  await expect(page).toHaveURL(/\/join\/thanks\?ref=JN-/);
+});

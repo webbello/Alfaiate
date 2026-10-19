@@ -47,19 +47,21 @@ const seed = async () => {
   return 'bg-suits';
 };
 
-// Uncompressed bytes. Measured: home 3513, directory 3476, category 2796, profile 4400, request 4728, how-it-works 3510, CSS 6474, JS 287.
+// Uncompressed bytes, measured on 2026-10-19 after Phase 7c (home 6486, directory 3877, category 2399, profile 3783, request 6820, how-it-works 3624, join 3804,
+// site CSS 9191, home CSS 14700, admin CSS 6852, JS 287, display font 18.8 KB tested in font.test.ts), each budget the measurement plus about 20%.
 const BUDGET = {
   html: {
-    home: 8200, // measured 6787 plus about 20% (Phase 7c T4; re-measured in T9)
-    directory: 4300,
+    home: 7800,
+    directory: 4700,
     category: 3400,
     profile: 5400,
-    request: 5700,
-    howItWorks: 4300,
+    request: 8200,
+    howItWorks: 4400,
+    join: 4600,
   },
-  css: 9600, // measured 7952 plus about 20% (Phase 7c T5; re-measured in T9)
-  homeCss: 15100, // site + story stylesheet, measured 12587 plus about 20% (Phase 7c T4; re-measured in T9)
-  adminCss: 8200, // measured 6793 plus about 20%
+  css: 11000,
+  homeCss: 17600,
+  adminCss: 8200,
   js: 400,
 } as const;
 
@@ -73,6 +75,7 @@ describe('page weight budgets (NFR-PERF-01)', () => {
       profile: `/tailors/${slug}`,
       request: '/request',
       howItWorks: '/how-it-works',
+      join: '/join',
     } as const;
     for (const [name, path] of Object.entries(pages) as [
       keyof typeof pages,

@@ -129,6 +129,16 @@ Home HTML ≤ 9 KB, other pages ≤ their current budgets plus 25%, shared CSS �
 
 T1 art direction doc, tokens, type scale, font and palette contrast tests · T2 layout shell: header, footer, sticky bar · T3 home hero and swatch · T4 story sections (promise, how it works, craft/tape measure, local story, trust, final call) · T5 directory, category and profile restyle with photo slots · T6 two-step request and thanks · T7 `/join`, migration, module, admin list, RBAC tests · T8 static pages, 404, Tetum parity · T9 motion/reduced-motion/no-JS/axe/reflow/perf and budgets · T10 docs, reviewers, fresh clone, owner sign-off. Screenshots to the owner after T3, T4, T6 and T7.
 
+## Deviations recorded during the build
+
+- The request form's optional JavaScript progress indicator is not built: the two steps are static fieldsets in one form (works without JavaScript, nothing to enhance). Category and area are radio pills, "Not sure yet" included.
+- No font preload: the font swaps in after first paint on every page, and the measured LCP did not move; preloading would add a request on the critical path.
+- The "how it works" pieces use three steps (the existing copy), tilt-on-hover for garment swatches and static pattern pieces; scroll-driven assembly was not built (CSS-only motion is limited to the swatch drift, the running stitch and the hover tilt).
+- The tape measure is native `<details>` (keyboard-operable, no script) rather than hover points on a drawn tape.
+- The tailor invitation banner lives on the home page; the final-call section links to the request page rather than embedding its first step (the request page itself is two steps).
+- Sticky bar is hidden on request and legal pages; WhatsApp in it needs `SITE_WHATSAPP` (OQ-06).
+- Budgets are set from measurements after the build, as the spec said they would be.
+
 ## Open questions
 
 1. **Tais-inspired motifs:** is abstract geometric border work acceptable, and are there patterns or regional meanings to avoid or favour? Default: abstract geometry only, nothing named, you review before use.

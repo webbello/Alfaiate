@@ -7,7 +7,7 @@ test.describe('reduced motion', () => {
   test('nothing animates', async ({ page }) => {
     await page.goto('/');
     const names = await page.evaluate(() =>
-      [...document.querySelectorAll('.hero *')]
+      [...document.querySelectorAll('body *')]
         .map((e) => getComputedStyle(e).animationName)
         .filter((n) => n !== 'none'),
     );
@@ -29,4 +29,24 @@ test.describe('normal motion', () => {
     expect(style.animation).not.toBe('none');
     expect(await violationsOf(page)).toEqual([]);
   });
+});
+
+test.describe('reduced motion everywhere', () => {
+  test.use({ reducedMotion: 'reduce' });
+  for (const path of ['/', '/tailors', '/request', '/join', '/how-it-works']) {
+    test(`no animation and no 3D transform on ${path}`, async ({ page }) => {
+      await page.goto(path);
+      const moving = await page.evaluate(() =>
+        [...document.querySelectorAll('body *')]
+          .filter((e) => {
+            const s = getComputedStyle(e);
+            return (
+              s.animationName !== 'none' || s.transform.startsWith('matrix3d')
+            );
+          })
+          .map((e) => e.className || e.tagName),
+      );
+      expect(moving).toEqual([]);
+    });
+  }
 });

@@ -103,6 +103,7 @@ No web fonts, no third-party requests; JavaScript only on a profile with contact
 - **Requirements:** no change to FR-ENQ, BR-06/07/08/11; new FR-JOIN-* added to the PRD in T7; NFR-A11Y-01 and NFR-PERF-01 kept.
 - **Acceptance:** behaviour of existing flows unchanged; axe clean in both languages; reduced-motion and no-JavaScript runs pass; budgets met; owner sign-off.
 - **Tests:** consent, honeypot and permission tests for `/join`; contrast test for tokens; Playwright for motion, reflow and keyboard; `npm run perf` before and after.
+- **Measured after T9 (2026-10-19), median of 5 runs, 375 px, 4x CPU slowdown, 1.6 Mbps, 750 ms RTT, empty cache:** home 3 requests, HTML 2.8 KB transfer (6.8 decoded), CSS 4.7 (14.4), LCP 1600 ms; directory 2.7 KB CSS transfer (9.0 decoded), LCP 1584 ms; category, profile and request LCP 1576 to 1580 ms with the 18.6 KB display font loading after first paint (`font-display: swap`). Before Phase 7c the LCP was about 1588 ms, so the redesign did not move it on this profile. Budgets, uncompressed bytes (measurement plus about 20%): HTML home 7800, directory 4700, category 3400, profile 5400, request 8200, how it works 4400, join 4600; CSS 11000 per page and 17600 on the home page (site plus story sheet); admin CSS 8200; JS 400. The font is capped at 30 KB in `font.test.ts`. The home page is the heaviest page by design; it is still one request for HTML plus two small CSS files and no images.
 
 ## Phase 8 — Deployment and initial pilot
 
