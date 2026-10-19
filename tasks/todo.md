@@ -10,7 +10,7 @@
   - Verify: unit tests for each control, the sixth submission refused while another address and a later normal submission still work (AC-08); mutation checks on honeypot, time trap and limit.
   - Files: `src/modules/enquiry/spam.ts`, `src/modules/config/index.ts`, `.dev.vars.example`, `worker-configuration.d.ts`, `tests/workers/enquiry-spam.test.ts`
 
-- [ ] **T3 Create the enquiry and notify adapter**
+- [x] **T3 Create the enquiry and notify adapter**
   - Acceptance: `createEnquiry` inserts one `new` enquiry with consent version (language-specific) and server time plus one `enquiry_status_log` row in one batch, with bounded retry on reference collision; `source` is `form` or `profile:<slug>`; `notifyNewEnquiry({reference, adminUrl})` adapter with a no-op default, called through `waitUntil`, errors caught and logged without customer data; message text holds only the reference and admin link.
   - Verify: unit/D1 tests (one row, status log, consent constraint, forced collision, forced DB failure creates nothing and reports an error, throwing adapter keeps the enquiry, message contains no seeded name, number or notes); a test that `console.*` calls in `src/modules/enquiry` and `src/modules/notify` receive only constants.
   - Files: `src/modules/enquiry/create.ts`, `src/modules/notify/index.ts`, `tests/workers/enquiry-create.test.ts`, `tests/workers/notify.test.ts`
