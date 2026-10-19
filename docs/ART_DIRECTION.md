@@ -24,7 +24,7 @@ Every pair used is tested for WCAG AA 4.5:1 (`tests/integration/contrast.test.ts
 
 ## Type
 
-Display: a self-hosted subset serif (`--display`, with a system serif fallback until the font is added), used for headings, numerals and pull quotes only. Body: system sans for speed. Scale and spacing are set in T2 onward.
+Display: Instrument Serif (SIL OFL, owner's pick 2026-10-19), Latin subset, 18.8 KB WOFF2 at `public/fonts/instrument-serif-regular.woff2` with `public/fonts/OFL.txt`; regular weight only, `font-display: swap`, system serif fallback; used for headings, numerals and pull quotes only. The italic (19.8 KB) is not shipped; add it only if a pull quote needs it. Subset made with fonttools (Latin, Latin-1, general punctuation), kept out of the project dependencies. Body: system sans for speed. Scale and spacing are set in T2 onward.
 
 ## Motion and 3D
 

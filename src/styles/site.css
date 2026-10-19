@@ -1,5 +1,14 @@
 /* Public site styles: mobile first, system fonts, no images needed. Plain CSS in one external file (the CSP has no
    'unsafe-inline'). Colours were chosen for WCAG AA contrast (computed 2026-10-19): body text 16.9:1, muted text 7.4 to 8.3:1, accent on white 9.2:1, error red 8.2:1, focus ring 6.3:1. */
+/* Instrument Serif (SIL Open Font License, public/fonts/OFL.txt), Latin subset, self-hosted. Headings only. */
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url(/fonts/instrument-serif-regular.woff2) format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --ink: #1b1b1b;
   --muted: #4d4d4d;
@@ -15,7 +24,8 @@
   --indigo: #1f2a4d;
   --thread: #7a5a12;
   --thread-light: #e2c27a;
-  --display: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --display:
+    'Instrument Serif', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
   --radius: 0.5rem;
   --gap: 1rem;
   --measure: 42rem;
@@ -65,6 +75,11 @@ h2,
 h3 {
   line-height: 1.25;
   margin: 1.5rem 0 0.5rem;
+}
+h1,
+h2 {
+  font-family: var(--display);
+  font-weight: 400;
 }
 h1 {
   font-size: 1.75rem;

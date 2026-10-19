@@ -2,7 +2,7 @@
 
 - [ ] **Carried over: Phase 7b T9 sign-off** (owner click-through with demo data, then tick T9 and move its entry to DECISIONS). Not a build task.
 
-- [ ] **T1 Art direction, tokens and font**
+- [x] **T1 Art direction, tokens and font**
   - Acceptance: `docs/ART_DIRECTION.md` (palette, type scale, spacing, motifs, motion rules, copy rules); new colour tokens in `site.css`; two OFL serif candidates shown to the owner with measured subset sizes, owner picks; the chosen WOFF2 and its licence committed under `public/fonts/`; display headings use it with `font-display: swap` and a metric-matched fallback; body stays on the system sans.
   - Verify: a test computes every text/background token pair (WCAG AA); integration test that the font is served from our own origin, has a licence file next to it and is under the size cap; CSP and no-third-party tests unchanged; specimen screenshots shown.
   - Files: `docs/ART_DIRECTION.md`, `src/styles/site.css`, `public/fonts/*`, tests
