@@ -178,6 +178,20 @@ describe('createReferral (FR-REF-01/02/07, AC-12, BR-08)', () => {
       }),
     ).toEqual({ ok: false, error: 'already_active' });
     expect((await listReferrals(db, e, { withFees: false })).length).toBe(1);
+    // a refused create leaves no audit row behind (not even a stale one for the earlier referral)
+    const created = async () =>
+      (await db
+        .prepare(
+          "SELECT count(*) AS c FROM audit_log WHERE action = 'referral_created'",
+        )
+        .first<{ c: number }>())!.c;
+    const before = await created();
+    await createReferral(db, {
+      enquiryId: e,
+      tailorId: await tailor(),
+      userId: who,
+    });
+    expect(await created()).toBe(before);
   });
 
   it('allows a new referral after a decline or no response and keeps the old one (FR-REF-07)', async () => {
