@@ -16,7 +16,14 @@ export default [
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,
   {
-    files: ['scripts/**/*.mjs'],
-    languageOptions: { globals: { console: 'readonly', process: 'readonly' } },
+    files: ['scripts/**/*.mjs', 'e2e/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        fetch: 'readonly',
+        setTimeout: 'readonly',
+      },
+    },
   },
 ];

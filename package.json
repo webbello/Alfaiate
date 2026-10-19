@@ -21,7 +21,8 @@
     "bench:hash": "node scripts/bench-hash.mjs",
     "test:integration": "npm run build && vitest run --project integration --project integration-en",
     "owner:create": "node scripts/owner.mjs create",
-    "owner:reset": "node scripts/owner.mjs reset"
+    "owner:reset": "node scripts/owner.mjs reset",
+    "test:e2e": "npm run build && node e2e/run.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.4.0",
@@ -30,8 +31,10 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
+    "@axe-core/playwright": "4.14.0",
     "@cloudflare/vitest-plugin": "1.4.4",
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
     "eslint": "10.13.0",
     "eslint-plugin-astro": "3.2.1",
     "prettier": "3.9.10",

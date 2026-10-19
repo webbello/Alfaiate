@@ -10,3 +10,5 @@ dist/
 uploads/
 .claude/settings.local.json
 .astro/
+test-results/
+playwright-report/

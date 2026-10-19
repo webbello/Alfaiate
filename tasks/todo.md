@@ -50,7 +50,7 @@
   - Verify: unit/D1 tests for counting and refusals (unpublished, wrong channel, no consent, other origin, oversized body, rate limit); integration end to end; mutation checks on origin and published rules; script loads as an external file.
   - Files: `src/modules/analytics/contact-click.ts`, `src/pages/api/contact-click.ts`, `src/scripts/contact-click.ts`, `tests/workers/contact-click.test.ts`, `tests/integration/contact-click.test.ts`
 
-- [ ] **T11 Playwright and axe**
+- [x] **T11 Playwright and axe**
   - Acceptance: after a feasibility spike, `npm run test:e2e` builds, starts the built Worker on a temporary seeded local database, runs Playwright and stops it; mobile 375 px journey (AC-01 above the fold, browse, profile, WhatsApp and Call hrefs), keyboard path through filters, axe zero violations on home, directory, category, profile, request and static pages in English and Tetum.
   - Verify: the suite passes; a deliberately broken page (missing label or low contrast) makes it fail once, then is reverted; any fallback to the Astro dev server is recorded.
   - Files: `package.json`, `playwright.config.ts`, `e2e/seed.sql`, `e2e/run.mjs`, `e2e/journey.spec.ts`, `e2e/a11y.spec.ts`
