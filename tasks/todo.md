@@ -10,7 +10,7 @@
   - Verify: unit/D1 tests for each refusal, a direct SQL INSERT refused by the triggers (AC-12), two parallel creates, history kept after reassignment, the result for `withFees: false` has no fee keys; mutation checks on consent, approval, the one-active clause and the fee flag.
   - Files: `src/modules/referral/create.ts`, `src/modules/referral/queries.ts`, `src/modules/auth/audit.ts`, `tests/workers/referral-create.test.ts`
 
-- [ ] **T3 Update forwarding, response and reported completion**
+- [x] **T3 Update forwarding, response and reported completion**
   - Acceptance: `updateReferral(db, {id, userId, role, input})` records forwarded date (valid Dili date or empty), method (`whatsapp|phone|sms|in_person|other` or empty), shared-fields note (max 500), response (`pending|accepted|declined|no_response`) with response date (today's Dili date when a non-pending response has none), completion date with reporter (`tailor|customer|owner_confirmed`; both or neither; `owner_confirmed` only for the owner), and `closed_reason` (max 300); clearing a completion is allowed; a `referral_updated` audit row (ids only) per change; unknown referral gives `not_found`; a referral of another enquiry is refused.
   - Verify: unit tests for every field and refusal, defaults, owner-only `owner_confirmed`, audit content, hostile text kept as plain text; mutation checks on the owner-only rule and the pairing rule.
   - Files: `src/modules/referral/update.ts`, `tests/workers/referral-update.test.ts`
