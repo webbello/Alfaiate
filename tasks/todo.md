@@ -35,7 +35,7 @@
   - Verify: byte-level fixtures for every accept/reject case, each seen failing first; mutation checks on EXIF rejection and the width cap.
   - Files: `src/modules/media/validate.ts`, `src/modules/media/keys.ts`, `tests/workers/media-validate.test.ts`, `tests/workers/media-keys.test.ts`, `tests/workers/fixtures/images.ts`
 
-- [ ] **T8 Media store and reconcile**
+- [x] **T8 Media store and reconcile**
   - Acceptance: `storeImage` writes the three variants to the private bucket and one `portfolio_image` row (key + metadata only), enforces 10 per tailor; `deleteImage` removes R2 objects (both buckets) before the row; `reconcileImages(tailorId)` makes the public bucket hold exactly the images with permission, visible, on a published tailor, and clears `profile_photo_id` when its image stops being public; idempotent.
   - Verify: table test over permission x visibility x published x delete x profile photo asserting exact keys in both buckets; failure simulation (R2 delete throws) leaves the row and a retry converges; schema check: no blob columns; 11th photo refused; mutation check on the publicity rule.
   - Files: `src/modules/media/store.ts`, `src/modules/media/reconcile.ts`, `tests/workers/media-store.test.ts`, `tests/workers/media-reconcile.test.ts`

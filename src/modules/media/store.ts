@@ -1,0 +1,141 @@
+import { z } from 'zod';
+import { audit } from '../auth/audit';
+import {
+  imagePrefix,
+  newImageKey,
+  variantKey,
+  VARIANTS,
+  type Variant,
+} from './keys';
+import { validateVariant, type ValidationError } from './validate';
+
+export const MAX_IMAGES = 10; // AD-07
+export type MediaBindings = {
+  DB: D1Database;
+  MEDIA_PRIVATE: R2Bucket;
+  MEDIA_PUBLIC: R2Bucket;
+};
+
+const meta = z.object({
+  alt_text: z.string().trim().min(1).max(200),
+  caption: z.string().trim().max(200).optional(),
+});
+
+export type StoreResult =
+  | { ok: true; id: number }
+  | {
+      ok: false;
+      error:
+        | ValidationError
+        | 'invalid'
+        | 'missing_variant'
+        | 'not_found'
+        | 'limit'
+        | 'storage';
+    };
+
+/**
+ * Validates every variant, writes them to the PRIVATE bucket under a random key, then records metadata in D1.
+ * New images are never public: permission and publication are separate steps (see reconcile.ts).
+ */
+export async function storeImage(
+  b: MediaBindings,
+  actorId: number,
+  tailorId: number,
+  input: {
+    alt_text: string;
+    caption?: string;
+    variants: Record<Variant, Uint8Array>;
+  },
+): Promise<StoreResult> {
+  const parsed = meta.safeParse(input);
+  if (!parsed.success) return { ok: false, error: 'invalid' };
+  for (const variant of VARIANTS) {
+    const bytes = input.variants?.[variant];
+    if (!bytes) return { ok: false, error: 'missing_variant' };
+    const checked = validateVariant(bytes, variant);
+    if (!checked.ok) return checked;
+  }
+  if (
+    !(await b.DB.prepare('SELECT 1 FROM tailor WHERE id = ?')
+      .bind(tailorId)
+      .first())
+  )
+    return { ok: false, error: 'not_found' };
+  const count = (await b.DB.prepare(
+    'SELECT count(*) AS c FROM portfolio_image WHERE tailor_id = ?',
+  )
+    .bind(tailorId)
+    .first<{ c: number }>())!.c;
+  if (count >= MAX_IMAGES) return { ok: false, error: 'limit' };
+
+  const key = newImageKey();
+  const written: string[] = [];
+  try {
+    for (const variant of VARIANTS) {
+      const objectKey = variantKey(tailorId, key, variant);
+      await b.MEDIA_PRIVATE.put(objectKey, input.variants[variant], {
+        httpMetadata: { contentType: 'image/jpeg' },
+      });
+      written.push(objectKey);
+    }
+    const next = (await b.DB.prepare(
+      'SELECT coalesce(max(sort_order), 0) + 1 AS n FROM portfolio_image WHERE tailor_id = ?',
+    )
+      .bind(tailorId)
+      .first<{ n: number }>())!.n;
+    const row = await b.DB.prepare(
+      'INSERT INTO portfolio_image (tailor_id, file_key, alt_text, caption, sort_order) VALUES (?, ?, ?, ?, ?)',
+    )
+      .bind(
+        tailorId,
+        key,
+        parsed.data.alt_text,
+        parsed.data.caption || null,
+        next,
+      )
+      .run();
+    await audit(b.DB, {
+      userId: actorId,
+      action: 'image_uploaded',
+      entityType: 'portfolio_image',
+      entityId: row.meta.last_row_id,
+    });
+    return { ok: true, id: row.meta.last_row_id };
+  } catch {
+    await Promise.allSettled(written.map((k) => b.MEDIA_PRIVATE.delete(k)));
+    return { ok: false, error: 'storage' };
+  }
+}
+
+/** Files first, then the row: a failure leaves the row in place so the delete can be retried. */
+export async function deleteImage(
+  b: MediaBindings,
+  actorId: number,
+  tailorId: number,
+  imageId: number,
+): Promise<{ ok: true } | { ok: false; error: 'not_found' }> {
+  const row = await b.DB.prepare(
+    'SELECT file_key FROM portfolio_image WHERE id = ? AND tailor_id = ?',
+  )
+    .bind(imageId, tailorId)
+    .first<{ file_key: string }>();
+  if (!row) return { ok: false, error: 'not_found' };
+  const keys = VARIANTS.map((variant) =>
+    variantKey(tailorId, row.file_key, variant),
+  );
+  await b.MEDIA_PRIVATE.delete(keys);
+  await b.MEDIA_PUBLIC.delete(keys);
+  await b.DB.prepare('DELETE FROM portfolio_image WHERE id = ?')
+    .bind(imageId)
+    .run(); // profile_photo_id is cleared by ON DELETE SET NULL
+  await audit(b.DB, {
+    userId: actorId,
+    action: 'image_deleted',
+    entityType: 'portfolio_image',
+    entityId: imageId,
+  });
+  return { ok: true };
+}
+
+export { imagePrefix };
