@@ -5,7 +5,7 @@
   - Verify: new slug unit tests fail first; the existing 232 + 46 tests still pass.
   - Files: `src/modules/auth/audit.ts`, `src/modules/tailors/slug.ts`, `src/modules/auth/admin-routes.ts`, `tests/workers/slug.test.ts`, `tests/integration/ac09-matrix.test.ts`
 
-- [ ] **T2 Catalog module (categories and areas)**
+- [x] **T2 Catalog module (categories and areas)**
   - Acceptance: create, rename, reorder, activate/deactivate for both; slugs unique and stable after first use; deactivated entries stay linked to tailors and are excluded from "choices for new links"; no delete; every change audited by id.
   - Verify: D1 tests per rule (duplicate slug, empty name, deactivate keeps links, inactive not offered, reorder persists); mutation check on "inactive not offered".
   - Files: `src/modules/catalog/index.ts`, `src/modules/catalog/schemas.ts`, `tests/workers/catalog.test.ts`
