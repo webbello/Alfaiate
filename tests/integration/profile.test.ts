@@ -107,7 +107,6 @@ describe('profile page (AC-03, FR-PRO-01/02/03/05/08)', () => {
       'What they make',
       'Where',
       'Languages',
-      'About',
       'Shop address',
     ])
       expect(html, empty).not.toContain(empty);

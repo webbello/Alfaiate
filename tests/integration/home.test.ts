@@ -24,7 +24,7 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
     const h1 = index(html, '<h1>Find a tailor in Dili</h1>');
     const disclaimer = index(html, 'introduces you to independent tailors');
     const cta = index(html, 'Request a tailor at home');
-    const how = index(html, 'How it works');
+    const how = index(html, '<h2 id="how">');
     // The first content block: heading, disclaimer and request button all come before "How it works" and the rest.
     expect(h1).toBeLessThan(disclaimer);
     expect(disclaimer).toBeLessThan(how);
@@ -40,7 +40,7 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
     const h1 = index(html, '<h1>Buka alfaiate iha Dili</h1>');
     const disclaimer = index(html, 'aprezenta ita ba alfaiate independente');
     const cta = index(html, 'Husu alfaiate ba uma');
-    const how = index(html, 'Oinsá serbisu ne&#39;e halo');
+    const how = index(html, '<h2 id="how">');
     expect(h1).toBeLessThan(disclaimer);
     expect(disclaimer).toBeLessThan(how);
     expect(cta).toBeLessThan(how);

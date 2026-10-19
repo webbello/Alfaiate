@@ -10,6 +10,13 @@ export const tet: Dictionary = {
     label: 'Menu prinsipál',
     home: 'Pájina inísiu',
     tailors: 'Buka alfaiate',
+    how: "Oinsá serbisu ne'e halo",
+  },
+  footer: {
+    about: 'Kona-ba',
+    privacy: 'Privasidade',
+    terms: 'Kondisaun',
+    label: "Kona-ba sítiu ne'e",
   },
   language: { switchLabel: 'Lian', en: 'English', tet: 'Tetun' },
   cta: { requestHome: 'Husu alfaiate ba uma' },
@@ -68,6 +75,44 @@ export const tet: Dictionary = {
     homeVisits: 'Bele vizita iha uma',
     viewProfile: 'Haree perfíl',
     moreFilters: 'Filtru ba área ka vizita iha uma',
+  },
+  pages: {
+    how: {
+      title: 'Oinsá Alfaiate TL serbisu',
+      intro:
+        'Alfaiate TL ajuda ita buka alfaiate independente iha Dili no kontaktu sira diretamente.',
+      s1Heading: 'Saida mak ami',
+      s1: "Alfaiate TL mak diretóriu ida. Ami aprezenta kliente sira ba alfaiate sira ne'ebé jere sira-nia negósiu rasik. Ami la'ós alfaiate: ami la halo, la faan, la entrega ka la hadi'a roupa.",
+      s2Heading: 'Buka no kontaktu alfaiate',
+      s2: "Haree lista, loke perfíl atu haree saida mak alfaiate halo, iha ne'ebé sira serbisu no folin aproximadu, depois toka WhatsApp ka Telefone atu koʼalia ho sira diretamente.",
+      s3Heading: "Alfaiate ne'ebé mai ita-nia fatin",
+      s3: "Alfaiate balu bele mai vizita ita atu foti medida. Formuláriu pedidu ba ne'e hela prepara. To'o loke, kontaktu alfaiate sira diretamente no husu se sira bele vizita.",
+      s4Heading: 'Folin no akordu',
+      s4: 'Folin iha perfíl sira aproximadu no alfaiate rasik mak hili. Ita no alfaiate konkorda rasik ba folin final, material, medida, data no pagamentu. Alfaiate TL la simu pagamentu.',
+      s5Heading: 'Saida mak ita bele fiar',
+      s5: "Alfaiate sira hatudu iha ne'e de'it ho sira-nia lisensa. Informasaun ne'ebé marka \"Verifika husi Alfaiate TL\" ami mak verifika; seluk mai husi alfaiate rasik. Ami la publika avaliasaun ka revizaun.",
+      s6Heading: 'Saida mak ami la bele promete',
+      s6: "Ami la bele garante katak alfaiate disponivel, sira-nia serbisu di'ak ka bainhira sei remata. Favór konkorda ida-ne'e diretamente ho alfaiate.",
+    },
+    about: {
+      title: 'Kona-ba Alfaiate TL',
+      intro:
+        'Alfaiate TL mak diretóriu alfaiate independente iha Dili, Timor-Leste.',
+      s1Heading: 'Tanba sá iha',
+      s1: 'Alfaiate TL hatuur alfaiate lokál sira iha fatin ida, hodi kliente sira bele haree saida mak sira halo no kontaktu sira diretamente, no alfaiate sira bele hetan kliente foun.',
+      s2Heading: 'Oinsá jere',
+      s2: 'Alfaiate TL aprezenta kliente no alfaiate. Alfaiate sira jere sira-nia negósiu rasik no konkorda ba folin no data ho sira-nia kliente rasik.',
+    },
+    privacy: {
+      title: 'Avizu privasidade',
+      intro:
+        "Pájina ne'e mak fatin-reservadu. Avizu privasidade kompletu hela prepara no seidauk aprova.",
+    },
+    terms: {
+      title: 'Kondisaun uza',
+      intro:
+        "Pájina ne'e mak fatin-reservadu. Kondisaun uza kompletu hela prepara no seidauk aprova.",
+    },
   },
   profile: {
     metaDescription:

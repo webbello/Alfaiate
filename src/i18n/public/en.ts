@@ -1,7 +1,18 @@
 export const en = {
   siteName: 'Alfaiate TL',
   skipToContent: 'Skip to main content',
-  nav: { label: 'Main menu', home: 'Home', tailors: 'Find a tailor' },
+  nav: {
+    label: 'Main menu',
+    home: 'Home',
+    tailors: 'Find a tailor',
+    how: 'How it works',
+  },
+  footer: {
+    about: 'About',
+    privacy: 'Privacy',
+    terms: 'Terms',
+    label: 'About this site',
+  },
   language: { switchLabel: 'Language', en: 'English', tet: 'Tetun' },
   cta: { requestHome: 'Request a tailor at home' },
   contact: {
@@ -61,6 +72,44 @@ export const en = {
     homeVisits: 'Home visits offered',
     viewProfile: 'View profile',
     moreFilters: 'Filter by area or home visits',
+  },
+  pages: {
+    how: {
+      title: 'How Alfaiate TL works',
+      intro:
+        'Alfaiate TL helps you find independent tailors in Dili and contact them directly.',
+      s1Heading: 'What we are',
+      s1: 'Alfaiate TL is a directory. We introduce customers to tailors who run their own businesses. We are not a tailor: we do not make, sell, deliver or repair clothes.',
+      s2Heading: 'Finding and contacting a tailor',
+      s2: 'Browse the list, open a profile to see what the tailor makes, where they work and roughly what it costs, then tap WhatsApp or Call to talk to them directly.',
+      s3Heading: 'Tailors who come to you',
+      s3: 'Some tailors can visit you to take measurements. A request form for this is being prepared. Until it opens, contact tailors directly and ask whether they can visit.',
+      s4Heading: 'Prices and agreements',
+      s4: 'Prices on profiles are approximate and set by the tailors. You and the tailor agree the final price, materials, measurements, dates and payment between yourselves. Alfaiate TL does not take payments.',
+      s5Heading: 'What you can rely on',
+      s5: 'Tailors appear here only with their permission. Details marked "Verified by Alfaiate TL" have been checked by us; everything else is supplied by the tailor. We do not publish ratings or reviews.',
+      s6Heading: 'What we cannot promise',
+      s6: 'We cannot guarantee that a tailor is available, how good their work is, or when it will be finished. Please agree these directly with the tailor.',
+    },
+    about: {
+      title: 'About Alfaiate TL',
+      intro:
+        'Alfaiate TL is a directory of independent tailors in Dili, Timor-Leste.',
+      s1Heading: 'Why it exists',
+      s1: 'Alfaiate TL puts local tailors in one place, so customers can see what they make and contact them directly, and tailors can be found by new customers.',
+      s2Heading: 'How it is run',
+      s2: 'Alfaiate TL introduces customers and tailors. The tailors run their own businesses and agree prices and dates with their customers themselves.',
+    },
+    privacy: {
+      title: 'Privacy notice',
+      intro:
+        'This page is a placeholder. The full privacy notice is being prepared and has not been approved yet.',
+    },
+    terms: {
+      title: 'Terms of use',
+      intro:
+        'This page is a placeholder. The full terms of use are being prepared and have not been approved yet.',
+    },
   },
   profile: {
     metaDescription:

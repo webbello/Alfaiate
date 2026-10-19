@@ -35,7 +35,7 @@
   - Verify: integration for AC-03, AC-04, AC-05; HTML sweep proving seeded private values (private phone, permission note, fee terms, internal notes) never appear on any public page so far; mutation checks on the verified label, approximate label and 404 rules.
   - Files: `src/views/Profile.astro`, `src/pages/tailors/[slug].astro`, `src/pages/tet/tailors/[slug].astro`, `tests/integration/profile.test.ts`, `tests/integration/public-privacy.test.ts`
 
-- [ ] **T8 Static pages**
+- [x] **T8 Static pages**
   - Acceptance: How it works, About (drafted from PRD facts, flagged for owner approval), Privacy and Terms (placeholders saying the text is pending, `noindex`); a `reviewed` flag per page controls `noindex` and sitemap inclusion; both languages.
   - Verify: integration: all four pages render with status 200 and the right robots meta; placeholder pages contain no invented legal wording; content never claims availability, quality or timing guarantees (BR-04).
   - Files: `src/views/StaticPage.astro`, `src/modules/seo/pages.ts`, `src/pages/how-it-works.astro`, `src/pages/about.astro`, `src/pages/privacy.astro` (+ `terms.astro`, `tet/` wrappers), `tests/integration/static-pages.test.ts`

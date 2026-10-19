@@ -1,0 +1,51 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import { dictionary } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+import { isIndexable, staticPage, type StaticSlug } from '../modules/seo/pages';
+
+interface Props {
+  lang: Lang;
+  slug: StaticSlug;
+}
+const { lang, slug } = Astro.props;
+const t = dictionary(lang);
+const entry = staticPage(slug)!;
+const page = t.pages[entry.key];
+// Only the long pages have sections; the placeholders have just an introduction.
+const sections = (['s1', 's2', 's3', 's4', 's5', 's6'] as const).flatMap(
+  (n) => {
+    const body = page as Record<string, string>;
+    return body[`${n}Heading`] && body[n]
+      ? [{ heading: body[`${n}Heading`], text: body[n], id: n }]
+      : [];
+  },
+);
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${page.title} · ${t.siteName}`}
+  description={page.intro}
+  rest={`/${slug}`}
+  noindex={!isIndexable(slug)}
+>
+  <h1>{page.title}</h1>
+  <p class="lead">{page.intro}</p>
+  {sections.map((s) => (
+    <section aria-labelledby={s.id}>
+      <h2 id={s.id}>{s.heading}</h2>
+      <p>{s.text}</p>
+    </section>
+  ))}
+  {sections.length > 0 && (
+    <p class="actions">
+      <a class="button" href={pathFor(lang, '/tailors')}>
+        {t.home.browse}
+      </a>
+      <a class="button button--secondary" href={pathFor(lang, '/request')}>
+        {t.cta.requestHome}
+      </a>
+    </p>
+  )}
+</PublicLayout>
