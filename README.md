@@ -25,9 +25,9 @@ Note: `npm run dev` inlines CSS, which the strict CSP blocks, so pages look unst
 npm run check   # lint + typecheck + unit/D1 tests + build + integration tests
 ```
 
-Other scripts: `npm test` (container + D1 tests), `npm run test:integration` (builds, then tests the built Worker), `npm run lint`, `npm run format`, `npm run typecheck`, `npm run types` (regenerate Worker types after editing `wrangler.jsonc`), `npm run bench:hash` (PBKDF2 timing), `npm run owner:reset` (forgotten password).
+Other scripts: `npm test` (unit and D1 tests in workerd), `npm run test:integration` (builds, then tests the built Worker in English+Tetum and English-only modes), `npm run test:e2e` (builds, serves the built Worker on a throwaway database with fake data, runs Playwright and axe at phone width; first run needs `npx playwright install chromium`), `npm run lint`, `npm run format`, `npm run typecheck`, `npm run types` (regenerate Worker types after editing `wrangler.jsonc`), `npm run bench:hash` (PBKDF2 timing), `npm run owner:reset` (forgotten password).
 
-## Admin workflow (Phases 2-3)
+## Admin workflow (Phases 2-3) and public site (Phase 4)
 
-Sign in at `/admin`. Editors create and edit draft tailors, categories, areas and photos; managers also record the tailor's permission, mark verified facts and publish; the owner alone sees referral fee terms and manages users. Photos are private until a manager records permission and the tailor is published. Public pages are not built yet (Phase 4); the only public routes are the placeholder home page and `/media/...` images.
+Sign in at `/admin`. Editors create and edit draft tailors, categories, areas and photos; managers also record the tailor's permission, mark verified facts and publish; the owner alone sees referral fee terms and manages users. Photos are private until a manager records permission and the tailor is published. The public site (Phase 4) is live locally: home, directory, category and profile pages, static pages, sitemap and robots, in English and, when `PUBLIC_LANGUAGES` includes `tet`, Tetum under `/tet/`. `/request` is a placeholder until Phase 5. Tetum is on in `.dev.vars.example` and staging but off in production until a native speaker has reviewed it.
 

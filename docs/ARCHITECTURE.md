@@ -67,7 +67,7 @@ Pages call modules; modules call `db`/`media`. Modules do not query each other's
 
 ## 5. Routes
 
-Unchanged in intent from v0.1; language prefix is a future extension.
+Unchanged in intent from v0.1. Phase 4 added the Tetum language prefix: every page below exists in English at the path shown and in Tetum under `/tet/` (e.g. `/tet/tailors`); Tetum returns 404 unless `PUBLIC_LANGUAGES` includes `tet`. `/areas/[slug]` was decided against (directory filters only, 2026-10-19). `/request` is a placeholder until Phase 5, and `/request/thanks` does not exist yet. Privacy and Terms are placeholders (noindex, outside the sitemap) until the owner supplies text. `POST /api/contact-click` is language-neutral.
 
 **Public:** `/`, `/tailors` (filters `category`, `area`, `home_visit`), `/tailors/[slug]`, `/categories/[slug]`, `/areas/[slug]` (optional), `/request` (`?tailor=slug`), `/request/thanks`, `/how-it-works`, `/about`, `/privacy`, `/terms`, `/sitemap.xml`, `/robots.txt`, `/media/*`, `POST /api/contact-click`.
 
@@ -110,7 +110,7 @@ Rules: least privilege by default; denied by default when a permission is unmapp
 | Owner notification | Adapter in `notify`. Options: an email-sending service reachable from Workers via HTTPS, or a Cloudflare email feature — to be chosen (OQ-06, AD-05). Optional; the app works without it. The message contains only the reference code and a link to the admin enquiry page — never the customer's name, phone or notes (SEC-05). |
 | Turnstile | Server-side token verification call from the Worker. |
 | Maps | None in MVP. |
-| Analytics | Aggregate counts in D1 (contact taps, form funnel) and/or Cloudflare's cookieless web analytics; no personal data (PRV-05). |
+| Analytics | Decided 2026-10-19: own counters only. `POST /api/contact-click` (same-origin, 1 KB body, rate limited per address bucket) adds one to a per-tailor, per-channel, per-UTC-day count in `contact_click_daily`; no visitor data is stored. Page visits only via Cloudflare's cookieless analytics if the owner switches it on (PRV-05). |
 
 ## 8. Image storage and upload
 

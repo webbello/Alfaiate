@@ -113,3 +113,11 @@ All user-visible strings come from the dictionaries; no literal sentences in pag
 5. **Category and area names in Tetum:** the database holds one name per category/area, shown as entered in both languages. If you want separate Tetum names, I add translated name columns in a migration now. Which do you prefer: single name as entered (default), or Tetum names too?
 6. **Directory:** alphabetical order, no pagination, cap of 200 (assumption 10). OK?
 7. **Domain:** `SITE_URL` stays a placeholder until you choose a domain (OQ-11/AD-08). Fine for now?
+
+## Deviations recorded during the build (see DECISIONS.md)
+
+- The Phase 1 `container` test project and its smoke test were retired in T5, because the home page it rendered changed; the adapter's `process.env.VITEST` guard in `astro.config.mjs` was removed with it. Component output is covered by the integration projects.
+- Added an `integration-en` Vitest project (built Worker with `PUBLIC_LANGUAGES=en`) to prove the Tetum gate.
+- The contact-tap script is added to a profile only when it has a WhatsApp or Call button.
+- `npm run test:e2e` serves the built Worker with `wrangler dev` on a throwaway `--persist-to` directory (feasibility spike passed; the Astro dev server fallback was not needed). It is not part of `npm run check`.
+
