@@ -189,7 +189,7 @@ Language routing and translated content; tailor notifications via WhatsApp Busin
 | ID | Decision | Default if unanswered |
 |---|---|---|
 | AD-01 | Confirm Astro 7.4 availability and the adapter/Wrangler versions that support it | **Resolved 2026-10-18**, see DECISIONS.md |
-| AD-02 | Cloudflare plan, budget, and a check of free-tier limits against expected use | Start on the plan that supports D1 backups and Worker CPU needs; measure |
+| AD-02 | Cloudflare plan, budget, and a check of free-tier limits against expected use | **Owner chose Workers Paid (2026-10-19)**; measure on the deployed Worker in Phase 8 |
 | AD-03 | Password-hashing method that fits Worker CPU limits | **Owner chose WebCrypto PBKDF2 (2026-10-18)**; iteration count benchmarked in Phase 2 |
 | AD-04 | R2 vs another image store; public delivery via Worker route vs R2 custom domain; client-side resizing vs Cloudflare Images | R2, Worker route, client-side resizing |
 | AD-05 | Owner notification channel and sender (OQ-06) | Email |
