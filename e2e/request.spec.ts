@@ -83,3 +83,19 @@ test('the Tetum form submits to the Tetum acknowledgement', async ({
   await expect(page).toHaveURL(/\/tet\/request\/thanks\?ref=AT-/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'tet');
 });
+
+test('a customer taps a category and an area, fills step 2 and sends (Phase 7c)', async ({
+  page,
+}) => {
+  await page.goto('/request');
+  await page.getByText('[Placeholder] Suits', { exact: true }).click();
+  await page.getByText('[Placeholder] Area 1', { exact: true }).click();
+  await expect(page.locator('#category-none')).not.toBeChecked();
+  await page.locator('#name').fill('E2E Fake Customer');
+  await page.locator('#phone').fill('7712 3456');
+  await page.locator('#channel-whatsapp').check();
+  await page.locator('#consent').check();
+  await page.waitForTimeout(FILL_DELAY);
+  await page.locator('button[type="submit"]').click();
+  await expect(page).toHaveURL(/\/request\/thanks\?ref=AT-/);
+});

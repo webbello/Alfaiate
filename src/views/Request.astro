@@ -124,233 +124,263 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
             />
           </div>
 
-          <div class="field">
-            <label for="name">{r.name}</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={values.name}
-              autocomplete="name"
-              maxlength="100"
-              required
-              aria-invalid={invalid('name')}
-              aria-describedby={describedBy('name')}
-            />
-            {errors.name && (
-              <p class="error" id="name-error">
-                {message('name')}
-              </p>
-            )}
-          </div>
-
-          <div class="field">
-            <label for="phone">{r.phone}</label>
-            <p class="hint" id="phone-hint">
-              {r.phoneHint}
-            </p>
-            <input
-              type="tel"
-              inputmode="tel"
-              id="phone"
-              name="phone"
-              value={values.phone}
-              autocomplete="tel"
-              maxlength="40"
-              required
-              aria-invalid={invalid('phone')}
-              aria-describedby={describedBy('phone', 'phone-hint')}
-            />
-            {errors.phone && (
-              <p class="error" id="phone-error">
-                {message('phone')}
-              </p>
-            )}
-          </div>
-
-          <fieldset
-            class="field"
-            id="channel"
-            aria-describedby={describedBy('channel')}
-          >
-            <legend>{r.channel}</legend>
-            {(
-              [
-                ['whatsapp', r.channelWhatsapp],
-                ['phone', r.channelPhone],
-                ['either', r.channelEither],
-              ] as const
-            ).map(([value, text]) => (
-              <label class="choice" for={`channel-${value}`}>
-                <input
-                  type="radio"
-                  id={`channel-${value}`}
-                  name="channel"
-                  value={value}
-                  checked={values.channel === value}
-                  required
-                />
-                {text}
-              </label>
-            ))}
-            {errors.channel && (
-              <p class="error" id="channel-error">
-                {message('channel')}
-              </p>
-            )}
-          </fieldset>
-
-          <div class="field">
-            <label for="category">{r.category}</label>
-            <select
+          <fieldset class="step">
+            <legend>{r.stepOne}</legend>
+            <fieldset
+              class="field"
               id="category"
-              name="category"
-              aria-invalid={invalid('category')}
               aria-describedby={describedBy('category')}
             >
-              <option value="">{r.choose}</option>
-              {view.categories.map((c) => (
-                <option
-                  value={String(c.id)}
-                  selected={values.category === String(c.id)}
-                >
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            {errors.category && (
-              <p class="error" id="category-error">
-                {message('category')}
-              </p>
-            )}
-          </div>
-
-          <div class="field">
-            <label for="service">{r.service}</label>
-            <input
-              type="text"
-              id="service"
-              name="service"
-              value={values.service}
-              maxlength="200"
-              aria-invalid={invalid('service')}
-              aria-describedby={describedBy('service')}
-            />
-            {errors.service && (
-              <p class="error" id="service-error">
-                {message('service')}
-              </p>
-            )}
-          </div>
-
-          <div class="field">
-            <label for="area">{r.area}</label>
-            <select
+              <legend>{r.category}</legend>
+              <div class="chip-choices">
+                <label class="chip-choice" for="category-none">
+                  <input
+                    type="radio"
+                    id="category-none"
+                    name="category"
+                    value=""
+                    checked={!values.category}
+                  />
+                  <span>{r.notSure}</span>
+                </label>
+                {view.categories.map((x) => (
+                  <label class="chip-choice" for={`category-${x.id}`}>
+                    <input
+                      type="radio"
+                      id={`category-${x.id}`}
+                      name="category"
+                      value={String(x.id)}
+                      checked={values.category === String(x.id)}
+                    />
+                    <span>{x.name}</span>
+                  </label>
+                ))}
+              </div>
+              {errors.category && (
+                <p class="error" id="category-error">
+                  {message('category')}
+                </p>
+              )}
+            </fieldset>
+            <div class="field">
+              <label for="service">{r.service}</label>
+              <input
+                type="text"
+                id="service"
+                name="service"
+                value={values.service}
+                maxlength="200"
+                aria-invalid={invalid('service')}
+                aria-describedby={describedBy('service')}
+              />
+              {errors.service && (
+                <p class="error" id="service-error">
+                  {message('service')}
+                </p>
+              )}
+            </div>
+            <fieldset
+              class="field"
               id="area"
-              name="area"
-              aria-invalid={invalid('area')}
               aria-describedby={describedBy('area')}
             >
-              <option value="">{r.choose}</option>
-              {view.areas.map((a) => (
-                <option
-                  value={String(a.id)}
-                  selected={values.area === String(a.id)}
-                >
-                  {a.name}
-                </option>
-              ))}
-              <option value="other" selected={values.area === 'other'}>
-                {r.areaOther}
-              </option>
-            </select>
-            {errors.area && (
-              <p class="error" id="area-error">
-                {message('area')}
-              </p>
-            )}
-          </div>
-
-          <div class="field">
-            <label for="area_text">{r.areaText}</label>
-            <input
-              type="text"
-              id="area_text"
-              name="area_text"
-              value={values.area_text}
-              maxlength="100"
-              aria-invalid={invalid('area_text')}
-              aria-describedby={describedBy('area_text')}
-            />
-            {errors.area_text && (
-              <p class="error" id="area_text-error">
-                {message('area_text')}
-              </p>
-            )}
-          </div>
-
-          <div class="field">
-            <label for="when">{r.when}</label>
-            <p class="hint" id="when-hint">
-              {r.whenHint}
-            </p>
-            <input
-              type="text"
-              id="when"
-              name="when"
-              value={values.when}
-              maxlength="100"
-              aria-invalid={invalid('when')}
-              aria-describedby={describedBy('when', 'when-hint')}
-            />
-            {errors.when && (
-              <p class="error" id="when-error">
-                {message('when')}
-              </p>
-            )}
-          </div>
-
-          <div class="field">
-            <label for="notes">{r.notes}</label>
-            <textarea
-              id="notes"
-              name="notes"
-              rows="4"
-              maxlength="1000"
-              aria-invalid={invalid('notes')}
-              aria-describedby={describedBy('notes')}
-            >{values.notes}</textarea>
-            {errors.notes && (
-              <p class="error" id="notes-error">
-                {message('notes')}
-              </p>
-            )}
-          </div>
-
-          <fieldset class="field">
-            <legend>{r.consentLegend}</legend>
-            <label class="choice" for="consent">
+              <legend>{r.area}</legend>
+              <div class="chip-choices">
+                <label class="chip-choice" for="area-none">
+                  <input
+                    type="radio"
+                    id="area-none"
+                    name="area"
+                    value=""
+                    checked={!values.area}
+                  />
+                  <span>{r.notSure}</span>
+                </label>
+                {view.areas.map((x) => (
+                  <label class="chip-choice" for={`area-${x.id}`}>
+                    <input
+                      type="radio"
+                      id={`area-${x.id}`}
+                      name="area"
+                      value={String(x.id)}
+                      checked={values.area === String(x.id)}
+                    />
+                    <span>{x.name}</span>
+                  </label>
+                ))}
+                <label class="chip-choice" for="area-other">
+                  <input
+                    type="radio"
+                    id="area-other"
+                    name="area"
+                    value="other"
+                    checked={values.area === 'other'}
+                  />
+                  <span>{r.areaOther}</span>
+                </label>
+              </div>
+              {errors.area && (
+                <p class="error" id="area-error">
+                  {message('area')}
+                </p>
+              )}
+            </fieldset>
+            <div class="field">
+              <label for="area_text">{r.areaText}</label>
               <input
-                type="checkbox"
-                id="consent"
-                name="consent"
-                value="yes"
-                required
-                aria-invalid={invalid('consent')}
-                aria-describedby={describedBy('consent')}
+                type="text"
+                id="area_text"
+                name="area_text"
+                value={values.area_text}
+                maxlength="100"
+                aria-invalid={invalid('area_text')}
+                aria-describedby={describedBy('area_text')}
               />
-              {r.consent}
-            </label>
-            {errors.consent && (
-              <p class="error" id="consent-error">
-                {message('consent')}
+              {errors.area_text && (
+                <p class="error" id="area_text-error">
+                  {message('area_text')}
+                </p>
+              )}
+            </div>
+            <div class="field">
+              <label for="when">{r.when}</label>
+              <p class="hint" id="when-hint">
+                {r.whenHint}
               </p>
-            )}
-            <p>
-              <a href={pathFor(lang, '/privacy')}>{r.privacyLink}</a>
-            </p>
+              <input
+                type="text"
+                id="when"
+                name="when"
+                value={values.when}
+                maxlength="100"
+                aria-invalid={invalid('when')}
+                aria-describedby={describedBy('when', 'when-hint')}
+              />
+              {errors.when && (
+                <p class="error" id="when-error">
+                  {message('when')}
+                </p>
+              )}
+            </div>
+            <div class="field">
+              <label for="notes">{r.notes}</label>
+              <textarea
+                id="notes"
+                name="notes"
+                rows="4"
+                maxlength="1000"
+                aria-invalid={invalid('notes')}
+                aria-describedby={describedBy('notes')}
+              >{values.notes}</textarea>
+              {errors.notes && (
+                <p class="error" id="notes-error">
+                  {message('notes')}
+                </p>
+              )}
+            </div>
           </fieldset>
+          <fieldset class="step">
+            <legend>{r.stepTwo}</legend>
+            <div class="field">
+              <label for="name">{r.name}</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={values.name}
+                autocomplete="name"
+                maxlength="100"
+                required
+                aria-invalid={invalid('name')}
+                aria-describedby={describedBy('name')}
+              />
+              {errors.name && (
+                <p class="error" id="name-error">
+                  {message('name')}
+                </p>
+              )}
+            </div>
 
+            <div class="field">
+              <label for="phone">{r.phone}</label>
+              <p class="hint" id="phone-hint">
+                {r.phoneHint}
+              </p>
+              <input
+                type="tel"
+                inputmode="tel"
+                id="phone"
+                name="phone"
+                value={values.phone}
+                autocomplete="tel"
+                maxlength="40"
+                required
+                aria-invalid={invalid('phone')}
+                aria-describedby={describedBy('phone', 'phone-hint')}
+              />
+              {errors.phone && (
+                <p class="error" id="phone-error">
+                  {message('phone')}
+                </p>
+              )}
+            </div>
+
+            <fieldset
+              class="field"
+              id="channel"
+              aria-describedby={describedBy('channel')}
+            >
+              <legend>{r.channel}</legend>
+              {(
+                [
+                  ['whatsapp', r.channelWhatsapp],
+                  ['phone', r.channelPhone],
+                  ['either', r.channelEither],
+                ] as const
+              ).map(([value, text]) => (
+                <label class="choice" for={`channel-${value}`}>
+                  <input
+                    type="radio"
+                    id={`channel-${value}`}
+                    name="channel"
+                    value={value}
+                    checked={values.channel === value}
+                    required
+                  />
+                  {text}
+                </label>
+              ))}
+              {errors.channel && (
+                <p class="error" id="channel-error">
+                  {message('channel')}
+                </p>
+              )}
+            </fieldset>
+
+            <fieldset class="field">
+              <legend>{r.consentLegend}</legend>
+              <label class="choice" for="consent">
+                <input
+                  type="checkbox"
+                  id="consent"
+                  name="consent"
+                  value="yes"
+                  required
+                  aria-invalid={invalid('consent')}
+                  aria-describedby={describedBy('consent')}
+                />
+                {r.consent}
+              </label>
+              {errors.consent && (
+                <p class="error" id="consent-error">
+                  {message('consent')}
+                </p>
+              )}
+              <p>
+                <a href={pathFor(lang, '/privacy')}>{r.privacyLink}</a>
+              </p>
+            </fieldset>
+          </fieldset>
           <p class="notice" role="note">
             <strong>{t.home.noteLabel}:</strong> {r.notBooking}
           </p>

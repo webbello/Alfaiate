@@ -344,3 +344,96 @@ describe('acknowledgement page (FR-ENQ-03/04)', () => {
     expect(tet.headers.get('location')).toBe('/tet/request');
   });
 });
+
+// Phase 7c T6: the same single form, laid out as two steps with tappable choices. Server rules are covered above and unchanged.
+describe('two-step layout', () => {
+  const steps = (html: string) =>
+    [
+      ...html.matchAll(
+        /<fieldset class="step"[\s\S]*?<\/fieldset>\s*(?=<fieldset class="step"|<p class="notice"|<p>\s*<button)/g,
+      ),
+    ].map((m) => m[0]);
+  const seed = async () => {
+    await db
+      .prepare(
+        "INSERT OR IGNORE INTO garment_category (slug, name) VALUES ('steps-cat-fake', 'Steps Cat Fake')",
+      )
+      .run();
+    await db
+      .prepare(
+        "INSERT OR IGNORE INTO service_area (slug, name) VALUES ('steps-area-fake', 'Steps Area Fake')",
+      )
+      .run();
+    const c = (await db
+      .prepare("SELECT id FROM garment_category WHERE slug = 'steps-cat-fake'")
+      .first<{ id: number }>())!.id;
+    const a = (await db
+      .prepare("SELECT id FROM service_area WHERE slug = 'steps-area-fake'")
+      .first<{ id: number }>())!.id;
+    return { c, a };
+  };
+  it('has two numbered steps in one form: what and where first, then who and consent', async () => {
+    const html = await (await get('/request')).text();
+    expect(html.match(/<form /g)).toHaveLength(1);
+    const [one, two] = steps(html);
+    expect(one, 'step 1').toContain('Step 1 of 2');
+    expect(two, 'step 2').toContain('Step 2 of 2');
+    for (const name of ['category', 'service', 'area', 'when', 'notes'])
+      expect(one, name).toContain(`name="${name}"`);
+    for (const name of ['name', 'phone', 'channel', 'consent'])
+      expect(two, name).toContain(`name="${name}"`);
+    expect(html.indexOf('type="submit"')).toBeGreaterThan(
+      html.indexOf('Step 2 of 2'),
+    );
+  });
+  it('offers categories and areas as radio choices (with "not sure yet"), not as drop-down lists', async () => {
+    const { c, a } = await seed();
+    const html = await (await get('/request')).text();
+    expect(html).not.toMatch(/<select[^>]*name="(category|area)"/);
+    expect(html).toMatch(
+      new RegExp(
+        `<input[^>]*type="radio"[^>]*name="category"[^>]*value="${c}"`,
+      ),
+    );
+    expect(html).toMatch(
+      /<input[^>]*type="radio"[^>]*name="category"[^>]*value=""/,
+    );
+    expect(html).toMatch(
+      new RegExp(`<input[^>]*type="radio"[^>]*name="area"[^>]*value="${a}"`),
+    );
+    expect(html).toMatch(
+      /<input[^>]*type="radio"[^>]*name="area"[^>]*value="other"/,
+    );
+    expect(html).toContain('Steps Cat Fake');
+  });
+  it('keeps the chosen category and area when the form comes back with a mistake', async () => {
+    const { c, a } = await seed();
+    const html = await (
+      await send(
+        '/request',
+        fields({ name: '', category: String(c), area: String(a) }),
+      )
+    ).text();
+    expect(html).toMatch(
+      new RegExp(
+        `<input[^>]*name="category"[^>]*value="${c}"[^>]*checked|<input[^>]*checked[^>]*name="category"[^>]*value="${c}"`,
+      ),
+    );
+    expect(html).toMatch(
+      new RegExp(
+        `<input[^>]*name="area"[^>]*value="${a}"[^>]*checked|<input[^>]*checked[^>]*name="area"[^>]*value="${a}"`,
+      ),
+    );
+  });
+  it('stores a request made with the radio choices exactly as before', async () => {
+    const { c, a } = await seed();
+    const r = await send(
+      '/request',
+      fields({ category: String(c), area: String(a) }),
+    );
+    expect(r.status).toBe(303);
+    const e = await enquiry(refOf(r));
+    expect(e!.garment_category_id).toBe(c);
+    expect(e!.area_id).toBe(a);
+  });
+});

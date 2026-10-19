@@ -27,7 +27,7 @@
   - Verify: existing directory, profile, privacy and image-permission tests unchanged and green; new tests that no photo shows without permission and no stock image exists; axe both languages; screenshots.
   - Files: `src/pages/tailors/**`, `src/pages/categories/**`, `src/components/TailorCard.astro`, `src/styles/*.css`, tests
 
-- [ ] **T6 Two-step request**
+- [x] **T6 Two-step request**
   - Acceptance: step 1 (what and where: category and area as large chips, optional detail), step 2 (name, number, channel, consent); one form, one submit, works without JavaScript; optional enhancement shows progress; server rules, honeypot, token, rate limit, consent text and stored fields unchanged; preselected tailor kept; thanks page keeps reference code.
   - Verify: all Phase 5 request tests unchanged and green; e2e no-JavaScript submit; keyboard path; error summary still focused and labelled; measured taps/fields noted; screenshots.
   - Files: `src/pages/request.astro`, `src/pages/request/thanks.astro`, `src/components/**`, `src/styles/site.css`, tests
