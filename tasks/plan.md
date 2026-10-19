@@ -1,41 +1,41 @@
-# Plan: Phase 5 — Enquiry and doorstep request workflow
+# Plan: Phase 6 — Referral tracking and basic reporting
 
-Spec: [docs/SPEC-phase-5.md](../docs/SPEC-phase-5.md) (approved 2026-10-19). Tasks: [todo.md](todo.md). Earlier plans are in git history (Phase 4: `dec979c`).
+Spec: [docs/SPEC-phase-6.md](../docs/SPEC-phase-6.md) (approved 2026-10-19). Tasks: [todo.md](todo.md). Earlier plans are in git history (Phase 5: `8f6d57c`).
 
 ## Order and dependencies
 
 ```
-T1 validation schema + reference code (pure + lookups)
-T1 ──> T2 spam controls (honeypot, signed time token, rate limit)
-T1 + T2 ──> T3 createEnquiry (insert + status log) + notify adapter
-T3 ──> T4 form page, POST handler, thanks page (English and Tetum)
-T4 ──> T5 integration tests + customer-data sweep (public side complete)
-T3 ──> T6 admin enquiry list (permission, search, filters, route inventory)
-T6 ──> T7 admin detail: status changes, notes, spam flag, forwarding text
-T5 + T7 ──> T8 Playwright + axe (form journey on a phone, keyboard, admin pages)
+T1 Dili date helpers + period ranges (pure)
+T1 ──> T2 create referral (consent, approval, one active) + list query (fee columns only on request)
+T2 ──> T3 update referral: forwarding, response, completion (+ audit, owner_confirmed rule)
+T3 ──> T4 fee rules (amount, status, paid date, BR-09 agreed terms) + audit
+T2 + T3 + T4 ──> T5 admin routes (3) + Referrals section on the enquiry page + route inventory ([rid])
+T1 ──> T6 reporting metrics (M1–M9, hand-computed seeded dataset, AC-14)
+T6 ──> T7 dashboard on /admin (period selector, fee figures owner-only)
+T5 + T7 ──> T8 Playwright + axe (referral journey, dashboard)
 all ──> T9 docs, reviewers, security audit, fresh clone, manual look
 ```
 
-One task at a time, one commit each, commit only when `npm run check` exits 0 (e2e is run separately and must pass before T8 and T9 are ticked). Every public page exists in English and Tetum from the start.
+One task at a time, one commit each, commit only when `npm run check` exits 0 (`npm run test:e2e` must pass before T8 and T9 are ticked). No migration: every rule is enforced in the module and, where it already exists, by the database.
 
 ## Risks
 
 | Risk | Mitigation |
 |---|---|
-| Customer data leaks into a URL, log, header, error or notification | Only the random reference code goes in the redirect URL; a test fails if a `console.*` call in enquiry code gets non-constants; extended sweep of every public page, sitemap, headers and notification text for seeded customer values; mutation checks |
-| Honeypot or time trap silently loses a real enquiry | Too-fast submissions get a visible "please submit again" with input preserved (not silent); only the honeypot is silent; test that a normal submit after a blocked one works (AC-08) |
-| The time token needs a signing secret | New secret `FORM_TOKEN_SECRET` (`.dev.vars.example` placeholder, typed binding, fails closed if missing); the real value is set with Wrangler in Phase 8 and recorded in STATUS. Without it the form refuses to render instead of skipping the check |
-| Rate limiting by address when no address header exists | Shared "unknown" bucket (same as the tap counter), so absent headers never disable the limit |
-| Database failure shows a false success | Insert and status-log row in one batch; the handler shows the acknowledgement only after the batch returns; a test forces a failure |
-| Notification failure loses the enquiry | Notification runs after the insert through `waitUntil`, errors caught and logged without customer data; test with a throwing adapter |
-| Editors or viewers reach customer data | Every admin enquiry route and POST calls `requirePermission`; routes added to `ADMIN_ROUTES`, covered by the inventory and role-matrix tests; mutation checks per route |
-| Admin search or notes echo customer data into logs or URLs | Search is a POST-free GET parameter used only in a bound LIKE query and never logged; page shows it only inside the admin session (no-store); test that logs are constants |
-| Consent wording drifts from what was stored | Version id constant per language; tests assert the stored version equals the dictionary's and that changing the text without the version fails a snapshot-style test |
-| Reference code collisions | Unique column plus bounded retry; test forces a collision |
-| Scope creep (referral assignment, deletion, funnel counts, images, Turnstile) | All listed as excluded in the spec; the public-pages scope guard and admin route inventory are updated deliberately |
+| A manager sees fee data | The referral query selects fee columns only when the caller passes `withFees` (set only for `fee.view`); the fee route needs `fee.view`; integration test searches a manager's page and response for seeded fee values; mutation check on the flag |
+| Rules only in the form | Every rule lives in the module and is tested there; AC-12 rules also have database triggers, and tests prove both layers (a direct INSERT is refused by the trigger) |
+| Two admins create an active referral at once | The "one active" check is inside the INSERT (insert-select with a NOT EXISTS clause), so a second concurrent create inserts nothing; test with two parallel creates |
+| Wrong period boundaries (UTC vs Dili) | One helper module converts Dili days to UTC bounds; tests at midnight edges on both sides and across month ends; metrics tests use events just inside and just outside each boundary |
+| Metrics that look right but count wrong | Expected values for the seeded dataset are written out by hand, plus a cross-check against plain counts; zero denominators tested; spam exclusion tested; each figure has a mutation check |
+| Ratios mislead on small numbers | Each ratio is shown with numerator and denominator and labelled "reported"; "no data" for zero denominators |
+| A completion is shown as verified | The wording is "reported" everywhere (test scans the dashboard and enquiry page); `owner_confirmed` is owner-only |
+| BR-09 bypass (fee due before terms agreed) | The fee module checks the tailor's `fee_terms_agreed_on` for `due` and `paid`; test and mutation check; the form says why it was refused |
+| Customer data on the dashboard | The dashboard queries only counts and sums, never names, numbers or notes; test seeds a recognisable customer and searches the page |
+| Fee amount parsing mistakes | Reuse `dollarsToCents` (already tested); reject negatives, more than two decimals and absurd sizes; stored as integer cents |
+| Dashboard slows `/admin` | A few indexed aggregate queries on pilot-size data, run in one batch; no caching needed now |
 
 ## Verification checkpoints
 
-- After T3: a valid submission creates exactly one `new` enquiry with consent version and time; failures create none.
-- After T5: AC-06, AC-07, AC-08 pass against the built Worker in both languages and the customer-data sweep is clean.
-- After T7: AC-11 passes and editor/viewer are refused on every enquiry route.
+- After T2: AC-12 holds at module and database level, and two parallel creates leave one active referral.
+- After T5: a manager can run the whole referral journey except fees; the owner can also record a fee; nothing changes an enquiry's status.
+- After T7: AC-14 passes for each period against the seeded dataset.

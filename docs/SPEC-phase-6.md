@@ -1,9 +1,9 @@
 # Spec: Phase 6 — Referral tracking and basic reporting
 
-Status: Draft for approval · Source: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 6 · [PRD.md](PRD.md) §2 (M1–M9), §7.2, FR-REF-01–08, FR-RPT-01/02, BR-08/09/10, AC-12/13/14, ANA-04/05 · [DATA_MODEL.md](DATA_MODEL.md) §3.8, 3.9, §9 · [ARCHITECTURE.md](ARCHITECTURE.md) §4, 6
+Status: Approved 2026-10-19 (all six open-question defaults accepted) · Source: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 6 · [PRD.md](PRD.md) §2 (M1–M9), §7.2, FR-REF-01–08, FR-RPT-01/02, BR-08/09/10, AC-12/13/14, ANA-04/05 · [DATA_MODEL.md](DATA_MODEL.md) §3.8, 3.9, §9 · [ARCHITECTURE.md](ARCHITECTURE.md) §4, 6
 
 **Requirements:** FR-REF-01–07 (FR-REF-08 already built in Phase 3), FR-RPT-01, FR-RPT-02, ANA-04, ANA-05, BR-08/09/10, SEC-05, SEC-09. **Acceptance:** AC-12, AC-13, AC-14.
-**Owner answers for this phase** (2026-10-19, to be logged in DECISIONS.md on approval): fee fields are **owner only** (`fee.view`); fee amounts are **recorded by hand, never calculated** (OQ-03/OQ-04 stay open); the dashboard lives on **/admin**, with periods this month / last 30 days / all time using **Dili dates**.
+**Owner answers for this phase** (2026-10-19, logged in DECISIONS.md): fee fields are **owner only** (`fee.view`); fee amounts are **recorded by hand, never calculated** (OQ-03/OQ-04 stay open); the dashboard lives on **/admin**, with periods this month / last 30 days / all time using **Dili dates**.
 
 **Scope check.** One journey: the owner or a manager records what happened to an enquiry after it arrives (referral, forwarding, response, completion, fee) and reads the totals. Two slices that share the `referral` table: (A) referral records on the enquiry page, (B) the dashboard. **Not in this phase:** CSV export (FR-RPT-03, Future), anonymise or delete (FR-ADM-09), per-tailor reports, automatic status changes or suggestions, automatic forwarding or messaging, fee calculation, notes on referrals.
 

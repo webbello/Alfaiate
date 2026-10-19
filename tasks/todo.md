@@ -1,45 +1,45 @@
-# Tasks: Phase 5
+# Tasks: Phase 6
 
-- [x] **T1 Validation schema and reference code**
-  - Acceptance: Hand-written validation (not Zod; see DECISIONS) for the form (name 1-100 chars, number via `normalisePhone`, channel `whatsapp|phone|either`, optional category and area ids that must be active, optional service text, area text, preferred time text, notes with length caps, consent required true); field-level errors keyed by field with message keys (not text); `?tailor=slug` resolved only to a published tailor, otherwise ignored; reference code `AT-` plus 8 characters from an unambiguous alphabet, random, non-sequential.
-  - Verify: unit tests (each field valid/invalid, hostile strings kept as plain text, inactive category refused, unknown or unpublished tailor ignored, code alphabet and length, 10,000 codes without duplicates); fail first.
-  - Files: `src/modules/enquiry/schema.ts`, `src/modules/enquiry/reference.ts`, `tests/workers/enquiry-schema.test.ts`, `tests/workers/enquiry-reference.test.ts`
+- [ ] **T1 Dili date helpers and period ranges**
+  - Acceptance: `diliToday(now)` gives the Dili calendar day (UTC+9) as `YYYY-MM-DD`; `isDiliDate` validates a real date; `periodRange(period, now)` for `month` (current Dili calendar month), `30d` (last 30 Dili days including today) and `all` returns date bounds (inclusive start, exclusive end) as Dili days and as UTC timestamps for `created_at` comparisons; an unknown period falls back to `month`.
+  - Verify: unit tests at midnight edges (UTC 14:59 vs 15:00 on the day before), month and year ends, leap day, 30-day window, invalid input; fail first.
+  - Files: `src/modules/referral/dates.ts`, `src/modules/reporting/period.ts`, `tests/workers/referral-dates.test.ts`, `tests/workers/reporting-period.test.ts`
 
-- [x] **T2 Spam controls**
-  - Acceptance: hidden honeypot field; signed time token (HMAC of the render time with `FORM_TOKEN_SECRET`; too fast under 3 s, older than 24 h or tampered is rejected as `too_fast`/`invalid`); per-address limit of 5 submissions per hour using the hashed `hit` counter, shared "unknown" bucket without an address; missing secret fails closed (form does not render); `.dev.vars.example` placeholder, read through `formSecret`, cast instead of a typed binding because secrets are not in `wrangler.jsonc`.
-  - Verify: unit tests for each control, the sixth submission refused while another address and a later normal submission still work (AC-08); mutation checks on honeypot, time trap and limit.
-  - Files: `src/modules/enquiry/spam.ts`, `src/modules/config/index.ts`, `.dev.vars.example`, `worker-configuration.d.ts`, `tests/workers/enquiry-spam.test.ts`
+- [ ] **T2 Create a referral and list referrals**
+  - Acceptance: `createReferral(db, {enquiryId, tailorId, userId})` refuses an unknown enquiry or tailor, an enquiry without sharing consent or anonymised (`no_consent`), a tailor not `approved` (`not_approved`) and an enquiry that already has a referral with response `pending` or `accepted` (`already_active`), the last check inside the INSERT so parallel creates cannot both succeed; allowed after `declined` or `no_response`, and the old referral stays; writes a `referral_created` audit row (ids only); `listReferrals(db, enquiryId, {withFees})` returns explicit columns and includes fee columns only when `withFees` is true; `approvedTailors(db, preferredId)` lists approved tailors with the preferred one first.
+  - Verify: unit/D1 tests for each refusal, a direct SQL INSERT refused by the triggers (AC-12), two parallel creates, history kept after reassignment, the result for `withFees: false` has no fee keys; mutation checks on consent, approval, the one-active clause and the fee flag.
+  - Files: `src/modules/referral/create.ts`, `src/modules/referral/queries.ts`, `src/modules/auth/audit.ts`, `tests/workers/referral-create.test.ts`
 
-- [x] **T3 Create the enquiry and notify adapter**
-  - Acceptance: `createEnquiry` inserts one `new` enquiry with consent version (language-specific) and server time plus one `enquiry_status_log` row in one batch, with bounded retry on reference collision; `source` is `form` or `profile:<slug>`; `notifyNewEnquiry({reference, adminUrl})` adapter with a no-op default, called through `waitUntil`, errors caught and logged without customer data; message text holds only the reference and admin link.
-  - Verify: unit/D1 tests (one row, status log, consent constraint, forced collision, forced DB failure creates nothing and reports an error, throwing adapter keeps the enquiry, message contains no seeded name, number or notes); a test that `console.*` calls in `src/modules/enquiry` and `src/modules/notify` receive only constants.
-  - Files: `src/modules/enquiry/create.ts`, `src/modules/notify/index.ts`, `tests/workers/enquiry-create.test.ts`, `tests/workers/notify.test.ts`
+- [ ] **T3 Update forwarding, response and reported completion**
+  - Acceptance: `updateReferral(db, {id, userId, role, input})` records forwarded date (valid Dili date or empty), method (`whatsapp|phone|sms|in_person|other` or empty), shared-fields note (max 500), response (`pending|accepted|declined|no_response`) with response date (today's Dili date when a non-pending response has none), completion date with reporter (`tailor|customer|owner_confirmed`; both or neither; `owner_confirmed` only for the owner), and `closed_reason` (max 300); clearing a completion is allowed; a `referral_updated` audit row (ids only) per change; unknown referral gives `not_found`; a referral of another enquiry is refused.
+  - Verify: unit tests for every field and refusal, defaults, owner-only `owner_confirmed`, audit content, hostile text kept as plain text; mutation checks on the owner-only rule and the pairing rule.
+  - Files: `src/modules/referral/update.ts`, `tests/workers/referral-update.test.ts`
 
-- [x] **T4 Form page, POST handler and acknowledgement (English and Tetum)**
-  - Acceptance: `/request` and `/tet/request` show the form (labels above inputs, error summary with focus, field errors with `aria-describedby`, input preserved except the consent tick, not-a-booking disclaimer beside the submit button, consent text with version and privacy link, optional `?tailor=` preselection shown by name) and handle POST (same-origin check, `readForm` limit, validation, spam controls, create, 303 to `/request/thanks?ref=CODE`); `/request/thanks` and Tetum twin show the reference, the disclaimer and neutral next steps; honeypot hit shows the normal acknowledgement with no row; rate limit shows a plain limited page; database failure shows an error page; all `noindex`, `no-store`, no cookies; works without JavaScript; privacy page gains the marked placeholder block; scope-guard list updated; the Phase 4 placeholder view is removed.
-  - Verify: dictionary parity test; integration tests for each outcome (valid, invalid, no consent, honeypot, too fast, limited, DB failure, cross-origin, oversized, preselected tailor valid/unknown), thanks page contains the reference and none of the input; fail first.
-  - Files: `src/views/Request.astro`, `src/views/RequestThanks.astro`, `src/pages/request.astro`, `src/pages/request/thanks.astro`, `src/pages/tet/request.astro`, `src/pages/tet/request/thanks.astro`, `src/i18n/public/en.ts`, `src/i18n/public/tet.ts`, `tests/workers/public-pages.test.ts`, `tests/integration/request.test.ts`
+- [ ] **T4 Fee rules**
+  - Acceptance: `setFee(db, {id, userId, input})` (caller must hold `fee.view`, enforced by the route) records amount in dollars as cents (no negatives, at most two decimals, at most 1,000,000), `fee_basis_note` (max 300), `order_value_note` (max 300), status (`not_due|due|paid|waived|disputed`) and paid date; refuses an amount with no reported completion (`needs_completion`), `paid` without a paid date (`needs_paid_date`), and `due` or `paid` when the tailor has no `fee_terms_agreed_on` (`no_agreed_terms`, BR-09); `waived` and `not_due` need nothing; a `referral_fee_updated` audit row (ids only); nothing is computed or suggested.
+  - Verify: unit tests for each rule and message, cents conversion edges, audit content without amounts; mutation checks on BR-09 and the completion rule.
+  - Files: `src/modules/referral/fee.ts`, `tests/workers/referral-fee.test.ts`
 
-- [x] **T5 Customer-data sweep and public-side checks**
-  - Acceptance: the privacy sweep also seeds an enquiry with a recognisable fake name, number and notes and asserts none appears in any public page (both languages), sitemap, `robots.txt`, redirect URL, response headers or the notification message; honeypot and limited submissions leave `enquiry` unchanged; AC-06, AC-07, AC-08 each have a named integration test.
-  - Verify: tests pass; mutation checks: remove the consent requirement, the honeypot, the time trap and the limit, and put the name in the redirect URL, each seen failing.
-  - Files: `tests/integration/public-privacy.test.ts`, `tests/integration/request.test.ts`
+- [ ] **T5 Admin routes and the Referrals section on the enquiry page**
+  - Acceptance: `POST /admin/enquiries/[id]/referrals` (`referral.edit`), `POST /admin/enquiries/[id]/referrals/[rid]` (`referral.edit`) and `POST /admin/enquiries/[id]/referrals/[rid]/fee` (`fee.view`) with CSRF, plain digit ids, redirect with an allow-listed message; the enquiry page lists referrals (history included) with forms for a manager and owner, and fee fields and the fee form for the owner only; the manager's page and response contain no fee value; `concretePath` and the route inventory learn `[rid]`; the role matrix gets valid forms; messages shown through an allow-list.
+  - Verify: integration tests for anonymous 302, editor/viewer 403, manager allowed except the fee route 403, owner allowed, missing CSRF 403, bad ids 404, AC-12 end to end, a seeded fee amount absent from a manager's page and from every manager response, `owner_confirmed` refused for a manager; mutation checks on each route's permission and on `withFees`.
+  - Files: `src/pages/admin/enquiries/[id]/referrals.ts`, `src/pages/admin/enquiries/[id]/referrals/[rid].ts`, `src/pages/admin/enquiries/[id]/referrals/[rid]/fee.ts`, `src/pages/admin/enquiries/[id].astro`, `src/modules/auth/admin-routes.ts`, `src/i18n/en.ts`, `tests/integration/referrals.test.ts`, `tests/integration/ac09-matrix.test.ts`
 
-- [x] **T6 Admin enquiry list**
-  - Acceptance: `/admin/enquiries` requires `enquiry.view`; lists newest first (cap 100 with a "narrow your search" note), status filter, search by reference, name or phone (bound LIKE, never logged), spam hidden unless toggled; `AdminShell` nav entry only for permitted roles; route added to `ADMIN_ROUTES`; `no-store`, `noindex`.
-  - Verify: tests for each role (owner and manager allowed, editor and viewer 403, anonymous 302), search and filters, spam hidden by default, the route inventory test, mutation check removing the permission check.
-  - Files: `src/pages/admin/enquiries.astro`, `src/modules/enquiry/queries.ts`, `src/modules/auth/admin-routes.ts`, `tests/workers/enquiry-queries.test.ts`, `tests/integration/admin-enquiries.test.ts`
+- [ ] **T6 Reporting metrics**
+  - Acceptance: `metrics(db, period, {withFees})` returns M1, enquiries by status, referrals forwarded and accepted, M2, M3, M4, M5, M6, M8 and (only with `withFees`) fees due, disputed, M7 and M9, exactly as defined in the spec, each with numerator and denominator and `null` for a zero denominator; spam excluded; period membership by the date each event was recorded; no names, numbers or notes are queried.
+  - Verify: a seeded dataset with every expected value written by hand (AC-14), events just inside and outside each period edge, spam and anonymised enquiries, a waived fee, zero-denominator cases, a cross-check against plain counts over the same rows, `withFees: false` has no fee keys; mutation checks on each metric's edge, denominator and the spam filter.
+  - Files: `src/modules/reporting/metrics.ts`, `tests/workers/reporting-metrics.test.ts`
 
-- [x] **T7 Admin enquiry detail: status, notes, spam flag, forwarding text**
-  - Acceptance: `/admin/enquiries/[id]` shows all fields, status history and internal notes; POST handlers (permission `enquiry.update`, CSRF) set any of the seven statuses with `status_changed_at`, a status-log row and an `audit_log` entry holding no customer data (AC-11), add internal notes, toggle spam; "copy details for forwarding" shows only consented fields (name, number and channel, category, area, preferred time, notes) in a read-only textarea, nothing is sent; viewers cannot update; ids must be plain digits.
-  - Verify: tests for all seven statuses (log row each time), audit row content, notes never in public pages, forwarding text exact, 403 for editor/viewer/missing CSRF, route inventory; mutation checks on permission, the log write and the consented-fields list.
-  - Files: `src/pages/admin/enquiries/[id].astro`, `src/pages/admin/enquiries/[id]/actions.ts`, `src/modules/enquiry/status.ts`, `src/modules/enquiry/forwarding.ts`, `src/modules/auth/admin-routes.ts`, `tests/workers/enquiry-status.test.ts`, `tests/integration/admin-enquiries.test.ts`
+- [ ] **T7 Dashboard on /admin**
+  - Acceptance: `/admin` shows the figures for `?period=month|30d|all` (default `month`) to roles with `enquiry.view`, with the period links, each figure's definition in plain words, "reported" labels on manual figures and "no data" for empty ratios; fee figures only for the owner and queried only for the owner; editors and viewers see no figures; no customer data on the page.
+  - Verify: integration tests per role and period, seeded customer name and fee amounts absent where they must be, labels present, the existing dashboard tests still pass; mutation checks on the owner-only flag and the default period.
+  - Files: `src/pages/admin/index.astro`, `src/i18n/en.ts`, `tests/integration/dashboard.test.ts`
 
-- [x] **T8 Playwright and axe for the form and inbox**
-  - Acceptance: e2e fills and submits the form on a 375 px viewport and by keyboard only, sees the reference; error state reachable and announced; axe zero violations on `/request` (clean and error state), `/request/thanks` in both languages and on the admin inbox and detail pages (signed in with a throwaway fake owner created in the e2e seed).
-  - Verify: `npm run test:e2e` passes; a deliberately removed label fails it once, then is reverted.
-  - Files: `e2e/request.spec.ts`, `e2e/a11y.spec.ts`, `e2e/seed.sql`, `e2e/run.mjs`
+- [ ] **T8 Playwright and axe**
+  - Acceptance: e2e as the throwaway owner creates a referral on the seeded enquiry, records forwarding, response and a reported completion, records a fee (after the seeded tailor has agreed terms), sees the dashboard figures change; axe zero violations on the enquiry page with referrals and on `/admin`; a deliberately broken label fails the suite once, then is reverted.
+  - Verify: `npm run test:e2e` passes.
+  - Files: `e2e/referral.spec.ts`, `e2e/a11y.spec.ts`, `e2e/seed.sql`
 
-- [x] **T9 Docs, reviewers, security audit, fresh clone, manual look**
-  - Acceptance: README, STATUS, DECISIONS, ARCHITECTURE §4, §5, §7, §10, DATA_MODEL (if anything changed), SPEC deviations and AGENTS lessons updated; `privacy-scope-reviewer`, `docs-sync` and `agent-skills:security-auditor` run with no unresolved blockers; one manual look at phone size recorded; launch items written down (real sender OQ-06, privacy text OQ-08, retention OQ-09, `FORM_TOKEN_SECRET` set in Phase 8, Tetum review).
+- [ ] **T9 Docs, reviewers, security audit, fresh clone, manual look**
+  - Acceptance: README, STATUS, DECISIONS, ARCHITECTURE §4–§6, DATA_MODEL §3.8 and §9, SPEC deviations and AGENTS lessons updated; `privacy-scope-reviewer`, `docs-sync` and `agent-skills:security-auditor` run with no unresolved blockers; one manual look at the dashboard and a referral recorded; launch items written down (fee model OQ-03/04, no fee relied on until agreed).
   - Verify: `npm ci && npm run check` from a fresh clone and `npm run test:e2e`; `git ls-files` has no secrets, databases or uploads.
