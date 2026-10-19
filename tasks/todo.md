@@ -5,7 +5,7 @@
   - Verify: unit tests at midnight edges (UTC 14:59 vs 15:00 on the day before), month and year ends, leap day, 30-day window, invalid input; fail first.
   - Files: `src/modules/referral/dates.ts`, `src/modules/reporting/period.ts`, `tests/workers/referral-dates.test.ts`, `tests/workers/reporting-period.test.ts`
 
-- [ ] **T2 Create a referral and list referrals**
+- [x] **T2 Create a referral and list referrals**
   - Acceptance: `createReferral(db, {enquiryId, tailorId, userId})` refuses an unknown enquiry or tailor, an enquiry without sharing consent or anonymised (`no_consent`), a tailor not `approved` (`not_approved`) and an enquiry that already has a referral with response `pending` or `accepted` (`already_active`), the last check inside the INSERT so parallel creates cannot both succeed; allowed after `declined` or `no_response`, and the old referral stays; writes a `referral_created` audit row (ids only); `listReferrals(db, enquiryId, {withFees})` returns explicit columns and includes fee columns only when `withFees` is true; `approvedTailors(db, preferredId)` lists approved tailors with the preferred one first.
   - Verify: unit/D1 tests for each refusal, a direct SQL INSERT refused by the triggers (AC-12), two parallel creates, history kept after reassignment, the result for `withFees: false` has no fee keys; mutation checks on consent, approval, the one-active clause and the fee flag.
   - Files: `src/modules/referral/create.ts`, `src/modules/referral/queries.ts`, `src/modules/auth/audit.ts`, `tests/workers/referral-create.test.ts`

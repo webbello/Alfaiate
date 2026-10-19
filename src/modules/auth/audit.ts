@@ -17,7 +17,10 @@ export type AuditAction =
   | 'catalog_changed'
   | 'fee_terms_changed'
   | 'enquiry_status_changed'
-  | 'enquiry_spam_changed';
+  | 'enquiry_spam_changed'
+  | 'referral_created'
+  | 'referral_updated'
+  | 'referral_fee_updated';
 
 type Entry = {
   userId: number | null;
