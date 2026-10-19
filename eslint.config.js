@@ -23,6 +23,10 @@ export default [
         process: 'readonly',
         fetch: 'readonly',
         setTimeout: 'readonly',
+        // used inside page.evaluate callbacks, which run in the browser (scripts/perf.mjs)
+        window: 'readonly',
+        performance: 'readonly',
+        PerformanceObserver: 'readonly',
       },
     },
   },

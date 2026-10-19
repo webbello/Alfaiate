@@ -30,7 +30,7 @@
   - Verify: `npm run test:e2e`; a deliberately removed label, a removed `alt` and a CSP-violating inline script each fail the suite once and are reverted; the fixes listed in DECISIONS.md with the check that found them.
   - Files: `e2e/a11y.spec.ts`, `e2e/admin-a11y.spec.ts`, `e2e/no-javascript.spec.ts`, `e2e/csp.spec.ts`, `e2e/reflow.spec.ts`, CSS or markup files as reported
 
-- [ ] **T7 Performance measurements and budgets (NFR-PERF-01)**
+- [x] **T7 Performance measurements and budgets (NFR-PERF-01)**
   - Acceptance: `npm run perf` builds, serves the built Worker on a throwaway seeded database and measures home, directory, a category page, a profile and the request page on a mobile profile (375 px, 4× CPU slowdown, 1.6 Mbps, 750 ms round trip) through the DevTools protocol: bytes by type, request count, DOMContentLoaded, load and LCP, median of five runs; the numbers, the method and its limits (local machine, not Dili) are recorded in IMPLEMENTATION_PLAN.md Phase 7 with byte budgets at about 20% headroom; a test fails when HTML, CSS or JS bytes exceed a budget; images checked for `loading="lazy"`, `srcset`/`sizes` and `alt`.
   - Verify: the script runs end to end and prints a table; the byte-budget test passes and fails when a budget is lowered; the recorded numbers match a fresh run within the stated headroom.
   - Files: `scripts/perf.mjs`, `package.json`, `docs/IMPLEMENTATION_PLAN.md`, `tests/integration/budgets.test.ts`

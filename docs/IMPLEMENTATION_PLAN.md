@@ -70,6 +70,22 @@ Phases 1–5 produce a publicly usable directory with a working request form and
 - **Acceptance:** AC-15, AC-17; no unresolved high-severity security finding; performance numbers recorded.
 - **Tests:** full suite; Playwright + axe on key pages; security checklist; no-JavaScript run of browse and form.
 
+### Phase 7 measurements and budgets (NFR-PERF-01), recorded 2026-10-19
+
+**Method.** `npm run perf` builds, serves the built Worker on a throwaway seeded database and measures five pages through Chromium's DevTools protocol: 375 × 812 mobile viewport, 4× CPU slowdown, slow 4G (1.6 Mbps down, 750 kbps up, 750 ms round trip), empty cache for every run, median of five runs. **Limits:** one developer machine, not Dili; the test data has no photos; the 750 ms round trip dominates the times, so the numbers show page weight and the number of round trips, not real-world speed. A check from Dili belongs in Phase 8.
+
+| Page | Requests | HTML (transfer / decoded KB) | CSS | JS | Images | DOMContentLoaded | Load | LCP |
+|---|---|---|---|---|---|---|---|---|
+| Home | 2 | 1.7 / 3.4 | 2.1 / 6.3 | 0 | 0 | 776 ms | 1563 ms | 1576 ms |
+| Directory | 2 | 1.7 / 3.5 | 2.1 / 6.3 | 0 | 0 | 780 ms | 1543 ms | 1600 ms |
+| Category | 2 | 1.5 / 2.9 | 2.1 / 6.3 | 0 | 0 | 777 ms | 1570 ms | 1588 ms |
+| Profile | 3 | 2.0 / 4.1 | 2.1 / 6.3 | 0.5 / 0.3 | 0 | 1585 ms | 1585 ms | 1592 ms |
+| Request | 2 | 2.2 / 4.9 | 2.1 / 6.3 | 0 | 0 | 779 ms | 1542 ms | 1588 ms |
+
+No web fonts, no third-party requests; JavaScript only on a profile with contact buttons (the tap counter).
+
+**Budgets (enforced in `npm run check` by `tests/integration/budgets.test.ts`, uncompressed bytes, measured + about 20%):** HTML home 4,300, directory 4,300, category 3,400, profile 5,400, request 5,700, how it works 4,300; stylesheet 7,800; JavaScript 400. Images: every image needs alt text, `srcset` and `sizes`, and all but the profile hero are `loading="lazy"`; image weight comes from the three resize widths (320, 800, 1600) and the upload caps, since the test data has no photos. Timings are reported by `npm run perf`, not enforced. A directory with many tailors grows the HTML (cap 200 cards): re-measure with real content in Phase 8.
+
 ## Phase 8 — Deployment and initial pilot
 
 - **Objective:** go live with a small set of real tailors and learn.

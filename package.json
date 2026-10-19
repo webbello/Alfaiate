@@ -23,7 +23,8 @@
     "owner:create": "node scripts/owner.mjs create",
     "owner:reset": "node scripts/owner.mjs reset",
     "test:e2e": "npm run build && node e2e/run.mjs",
-    "check:repo": "node scripts/check-repo.mjs"
+    "check:repo": "node scripts/check-repo.mjs",
+    "perf": "npm run build && node scripts/perf.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.4.0",
