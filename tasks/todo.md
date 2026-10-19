@@ -10,7 +10,7 @@
   - Verify: dictionary parity test (same keys, no empty values), integration tests for gate on/off, 404 status, no inline script or style, CSP intact, contrast checked by the later axe run; design skill consulted for the base styles.
   - Files: `src/i18n/public/en.ts`, `src/i18n/public/tet.ts`, `src/layouts/PublicLayout.astro`, `src/styles/site.css`, `src/pages/404.astro`, `src/middleware.ts`
 
-- [ ] **T3 Contact links, price formatting, filter parsing (pure code)**
+- [x] **T3 Contact links, price formatting, filter parsing (pure code)**
   - Acceptance: `telLink`, `whatsappLink` exactly `tel:+670…` and `https://wa.me/<digits>?text=<encoded>`; WhatsApp message built from the dictionary and the listing name only; `formatPriceRange(cents, cents)` gives "$20-$35.50" style text and is always paired with an "approximate" label by the caller; `parseDirectoryFilters(searchParams)` accepts only known shapes (slug pattern, `home_visit=1`) and drops everything else.
   - Verify: unit tests for AC-04 forms, encoding of names with quotes/ampersands/non-ASCII, cents rounding, hostile filter values.
   - Files: `src/modules/contact-links/tel.ts`, `src/modules/contact-links/whatsapp.ts`, `src/modules/directory/format.ts`, `src/modules/directory/filters.ts`, `tests/workers/contact-links.test.ts`

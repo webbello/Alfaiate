@@ -9,6 +9,18 @@ export const tet: Dictionary = {
   nav: { label: 'Menu prinsipál', home: 'Pájina inísiu' },
   language: { switchLabel: 'Lian', en: 'English', tet: 'Tetun' },
   cta: { requestHome: 'Husu alfaiate ba uma' },
+  contact: {
+    whatsapp: 'WhatsApp',
+    call: 'Telefone',
+    whatsappMessage:
+      "Bondia, ha'u hetan {name} iha Alfaiate TL no ha'u hakarak husu kona-ba ita-nia serbisu alfaiate.",
+  },
+  price: {
+    from: 'Hahú husi {amount}',
+    upTo: "To'o {amount}",
+    approximate: 'Folin aproximadu',
+    confirmedOn: 'Konfirma iha {date}',
+  },
   disclaimer: {
     short:
       "Alfaiate TL aprezenta ita ba alfaiate independente sira. Alfaiate rasik, la'ós Alfaiate TL, konkorda ba folin, halo ita-nia roupa no hili data. Ami la bele garante alfaiate disponivel, kualidade ka tempu.",

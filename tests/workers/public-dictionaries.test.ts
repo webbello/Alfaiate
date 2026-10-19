@@ -37,7 +37,12 @@ describe('public dictionaries', () => {
   });
 
   it('are not English copied into the Tetum file (except names that are the same in both)', () => {
-    const sameOnPurpose = new Set(['siteName', 'language.en', 'language.tet']);
+    const sameOnPurpose = new Set([
+      'siteName',
+      'language.en',
+      'language.tet',
+      'contact.whatsapp',
+    ]);
     for (const key of Object.keys(english)) {
       if (!sameOnPurpose.has(key))
         expect(tetum[key], key).not.toBe(english[key]);
