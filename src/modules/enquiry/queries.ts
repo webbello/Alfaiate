@@ -56,7 +56,6 @@ export type EnquiryRow = {
   referral_state: 'pending' | 'accepted' | 'declined' | 'no_response' | null;
 };
 
-
 /** Admin inbox (FR-ADM-06): newest first, spam hidden unless asked, optional status and search (reference, name or phone). */
 export async function listEnquiries(
   db: D1Database,

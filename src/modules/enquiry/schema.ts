@@ -12,6 +12,8 @@ export type Field =
   | 'area_text'
   | 'when'
   | 'notes'
+  | 'organisation'
+  | 'group_size'
   | 'consent';
 export type ErrorKey = 'required' | 'invalid' | 'too_long';
 export type FieldErrors = Partial<Record<Field, ErrorKey>>;
@@ -29,6 +31,10 @@ export type EnquiryInput = {
   when: string | null;
   notes: string | null;
   tailorSlug: string | null;
+  /** Set only on the business form (FR-ENQ-09). */
+  organisation?: string | null;
+  groupSize?: string | null;
+  business?: boolean;
 };
 export type Parsed =
   | { ok: true; data: EnquiryInput }
@@ -40,6 +46,8 @@ const LIMITS = {
   area_text: 100,
   when: 100,
   notes: 1000,
+  organisation: 100,
+  group_size: 40,
 };
 const CHANNELS = ['whatsapp', 'phone', 'either'] as const;
 const ID = /^[0-9]{1,9}$/;
@@ -50,7 +58,11 @@ export const tailorParam = (value: string | null): string | null => {
   return slug.length <= 60 && SLUG.test(slug) ? slug : null;
 };
 
-export function parseEnquiryForm(form: URLSearchParams): Parsed {
+export function parseEnquiryForm(
+  form: URLSearchParams,
+  options: { business?: boolean } = {},
+): Parsed {
+  const business = options.business === true;
   const get = (key: string) => (form.get(key) ?? '').trim();
   const values: FormValues = {
     name: get('name'),
@@ -62,8 +74,17 @@ export function parseEnquiryForm(form: URLSearchParams): Parsed {
     area_text: get('area_text'),
     when: get('when'),
     notes: get('notes'),
+    organisation: business ? get('organisation') : '',
+    group_size: business ? get('group_size') : '',
   };
   const errors: FieldErrors = {};
+  if (business) {
+    if (!values.organisation) errors.organisation = 'required';
+    else if (values.organisation.length > LIMITS.organisation)
+      errors.organisation = 'too_long';
+    if (values.group_size.length > LIMITS.group_size)
+      errors.group_size = 'too_long';
+  }
 
   if (!values.name) errors.name = 'required';
   else if (values.name.length > LIMITS.name) errors.name = 'too_long';
@@ -112,6 +133,9 @@ export function parseEnquiryForm(form: URLSearchParams): Parsed {
       when: values.when || null,
       notes: values.notes || null,
       tailorSlug: tailorParam(form.get('tailor')),
+      organisation: business ? values.organisation : null,
+      groupSize: business ? values.group_size || null : null,
+      business,
     },
   };
 }
@@ -159,6 +183,10 @@ export async function resolveChoices(
     categoryId: input.categoryId,
     areaId: input.areaId,
     tailorId: tailor?.id ?? null,
-    source: tailor ? `profile:${input.tailorSlug}` : 'form',
+    source: input.business
+      ? 'business'
+      : tailor
+        ? `profile:${input.tailorSlug}`
+        : 'form',
   };
 }

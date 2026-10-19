@@ -87,6 +87,18 @@ const action = `/admin/enquiries/${id}/actions`;
     <dl>
       <dt>{text.name}</dt>
       <dd>{e.customer_name ?? text.anonymised}</dd>
+      {e.organisation_name && (
+        <>
+          <dt>{text.organisation}</dt>
+          <dd>{e.organisation_name}</dd>
+        </>
+      )}
+      {e.group_size_text && (
+        <>
+          <dt>{text.groupSize}</dt>
+          <dd>{e.group_size_text}</dd>
+        </>
+      )}
       <dt>{text.number}</dt>
       <dd>{e.contact_number_e164 ?? text.anonymised}</dd>
       {e.contact_channel && (

@@ -209,6 +209,15 @@ export const en = {
     intro: 'Tailors who offer this.',
     emptyBody: 'No tailors are listed for this yet.',
   },
+  business: {
+    title: 'For businesses, schools and organisations',
+    heading: 'Made for teams, schools and businesses',
+    intro:
+      'Tell us about your uniform or group order. With your consent we pass it to a suitable tailor, who then contacts you to agree designs, measurements, price and dates.',
+    organisation: 'Organisation, school or business name',
+    groupSize: 'How many people or pieces? (optional)',
+    groupSizeHint: 'For example: 30 school shirts, or 12 staff uniforms.',
+  },
   contactPage: {
     title: 'Contact',
     heading: 'Contact us',

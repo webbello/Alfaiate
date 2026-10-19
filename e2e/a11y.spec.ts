@@ -10,6 +10,7 @@ const PATHS = [
   '/request',
   '/join',
   '/contact',
+  '/business',
   '/request/thanks?ref=AT-ABCD2345',
   '/how-it-works',
   '/about',

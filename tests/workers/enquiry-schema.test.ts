@@ -38,6 +38,9 @@ describe('parseEnquiryForm (FR-ENQ-01/02/05, PRV-01)', () => {
       when: null,
       notes: null,
       tailorSlug: null,
+      organisation: null,
+      groupSize: null,
+      business: false,
     });
   });
 
@@ -196,5 +199,51 @@ describe('resolveChoices (active lists and a published preselected tailor)', () 
       const r = await resolveChoices(db, { ...ok(), tailorSlug: slug });
       expect(r).toMatchObject({ ok: true, tailorId: null, source: 'form' });
     }
+  });
+});
+
+describe('parseEnquiryForm on the business form (FR-ENQ-09)', () => {
+  const base = {
+    name: 'Fake',
+    phone: '77123456',
+    channel: 'phone',
+    consent: 'yes',
+  };
+  it('requires an organisation and caps both business fields', () => {
+    const missing = parseEnquiryForm(new URLSearchParams(base), {
+      business: true,
+    });
+    expect(missing.ok ? null : missing.errors.organisation).toBe('required');
+    const long = parseEnquiryForm(
+      new URLSearchParams({
+        ...base,
+        organisation: 'x'.repeat(101),
+        group_size: 'y'.repeat(41),
+      }),
+      { business: true },
+    );
+    expect(long.ok ? null : long.errors).toMatchObject({
+      organisation: 'too_long',
+      group_size: 'too_long',
+    });
+  });
+  it('keeps them on the business form and ignores them on the ordinary one', () => {
+    const form = new URLSearchParams({
+      ...base,
+      organisation: 'Escola Fake',
+      group_size: '12',
+    });
+    const biz = parseEnquiryForm(form, { business: true });
+    expect(biz.ok && biz.data).toMatchObject({
+      organisation: 'Escola Fake',
+      groupSize: '12',
+      business: true,
+    });
+    const plain = parseEnquiryForm(form);
+    expect(plain.ok && plain.data).toMatchObject({
+      organisation: null,
+      groupSize: null,
+      business: false,
+    });
   });
 });

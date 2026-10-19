@@ -28,7 +28,7 @@ export async function anonymiseEnquiry(
     db
       .prepare(
         `UPDATE enquiry SET customer_name = NULL, contact_number_e164 = NULL, notes = NULL, service_description = NULL, area_text = NULL,
-           preferred_datetime_text = NULL, anonymised_at = ?, updated_at = ? WHERE id = ? AND anonymised_at IS NULL`,
+           preferred_datetime_text = NULL, organisation_name = NULL, group_size_text = NULL, anonymised_at = ?, updated_at = ? WHERE id = ? AND anonymised_at IS NULL`,
       )
       .bind(at, at, id),
     db

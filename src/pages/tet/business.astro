@@ -1,0 +1,13 @@
+---
+export const prerender = false;
+import Request from '../../views/Request.astro';
+import { runRequestPage } from '../../modules/enquiry/page';
+
+const outcome = await runRequestPage(Astro.request, 'tet', 'business');
+if (outcome instanceof Response) return outcome;
+if (outcome.kind === 'redirect') return Astro.redirect(outcome.to, 303);
+Astro.response.status = outcome.status;
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<Request lang="tet" outcome={outcome} kind="business" />

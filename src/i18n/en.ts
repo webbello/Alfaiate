@@ -359,6 +359,8 @@ export const en = {
     received: 'Received',
     reference: 'Reference',
     name: 'Name',
+    organisation: 'Organisation (business form)',
+    groupSize: 'Group size',
     number: 'Number',
     status: 'Status',
     none: 'No enquiries match.',

@@ -35,6 +35,8 @@ export type Outcome =
 
 type Deps = {
   db: D1Database;
+  /** 'business' is the group-order form at /business (FR-ENQ-09): same pipeline, two more fields. */
+  kind?: 'request' | 'business';
   secret: string;
   lang: Lang;
   siteUrl: string;
@@ -54,6 +56,8 @@ const EMPTY: FormValues = {
   area_text: '',
   when: '',
   notes: '',
+  organisation: '',
+  group_size: '',
 };
 
 async function formView(
@@ -115,7 +119,9 @@ export async function submitForm(
     params.get('form_token') ?? '',
     deps.now,
   );
-  const parsed = parseEnquiryForm(params);
+  const parsed = parseEnquiryForm(params, {
+    business: deps.kind === 'business',
+  });
   if (timing !== 'ok')
     return {
       kind: 'form',

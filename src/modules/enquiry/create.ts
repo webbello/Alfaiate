@@ -31,8 +31,9 @@ export async function createEnquiry(
         db
           .prepare(
             `INSERT INTO enquiry (reference_code, customer_name, contact_number_e164, contact_channel, garment_category_id, service_description,
-               area_id, area_text, preferred_datetime_text, notes, preferred_tailor_id, consent_shared_with_tailor, consent_text_version, consent_at, source)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)`,
+               area_id, area_text, preferred_datetime_text, notes, preferred_tailor_id, consent_shared_with_tailor, consent_text_version, consent_at, source,
+               organisation_name, group_size_text)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?)`,
           )
           .bind(
             reference,
@@ -49,6 +50,8 @@ export async function createEnquiry(
             consentVersion,
             now.toISOString(),
             choices.source,
+            input.organisation ?? null,
+            input.groupSize ?? null,
           ),
         db
           .prepare(

@@ -212,6 +212,15 @@ export const tet: Dictionary = {
     intro: "Alfaiate sira ne'ebé halo ne'e.",
     emptyBody: "Seidauk iha alfaiate lista ba ne'e.",
   },
+  business: {
+    title: 'Ba negósiu, eskola no organizasaun',
+    heading: 'Halo ba ekipa, eskola no negósiu',
+    intro:
+      'Hatete mai ami kona-ba ita-nia pedidu uniforme ka grupu. Ho ita-nia konsentimentu ami haruka ba alfaiate ida, ne’ebé sei kontaktu ita atu koalia kona-ba dezeñu, medida, folin no data.',
+    organisation: 'Naran organizasaun, eskola ka negósiu',
+    groupSize: 'Ema ka roupa hira? (opsionál)',
+    groupSizeHint: 'Ezemplu: kamiza eskola 30, ka uniforme funsionáriu 12.',
+  },
   contactPage: {
     title: 'Kontaktu',
     heading: 'Kontaktu ami',

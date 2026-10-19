@@ -8,7 +8,7 @@ const CHANNEL: Record<string, string> = {
 
 /**
  * Plain text the owner copies and sends to a tailor by hand (BR-08). It holds only the fields the customer agreed to share:
- * name, number and channel, what they need, area, preferred time, notes. Never the source, status, spam flag or internal notes.
+ * name, organisation and group size (business form), number and channel, what they need, area, preferred time, notes. Never the source, status, spam flag or internal notes.
  * Empty for an anonymised enquiry.
  */
 export function forwardingText(e: EnquiryDetail): string {
@@ -16,6 +16,8 @@ export function forwardingText(e: EnquiryDetail): string {
   const lines = [
     `Reference: ${e.reference_code}`,
     `Name: ${e.customer_name}`,
+    ['Organisation', e.organisation_name],
+    ['Group size', e.group_size_text],
     `Number: ${e.contact_number_e164}${e.contact_channel ? ` (${CHANNEL[e.contact_channel] ?? e.contact_channel})` : ''}`,
     [
       'Needs',

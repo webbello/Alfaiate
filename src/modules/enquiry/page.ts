@@ -7,6 +7,7 @@ import { showForm, submitForm, type Outcome } from './submit';
 export async function runRequestPage(
   request: Request,
   lang: Lang,
+  kind: 'request' | 'business' = 'request',
 ): Promise<Outcome | Response> {
   if (
     request.method !== 'GET' &&
@@ -24,6 +25,7 @@ export async function runRequestPage(
     db: requireBindings(env).DB,
     secret: formSecret(env as { FORM_TOKEN_SECRET?: string }),
     lang,
+    kind,
     siteUrl: siteConfig(env).siteUrl,
     waitUntil,
   };

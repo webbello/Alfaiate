@@ -10,6 +10,7 @@ const PATHS = [
   '/join',
   '/tet/join',
   '/contact',
+  '/business',
   '/tailors?q=a',
   '/request/thanks?ref=AT-ABCD2345',
   '/how-it-works',

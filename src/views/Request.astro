@@ -8,10 +8,18 @@ import type { Field } from '../modules/enquiry/schema';
 interface Props {
   lang: Lang;
   outcome: Extract<Outcome, { kind: 'form' | 'message' }>;
+  /** 'business' renders the group-order form at /business (FR-ENQ-09). */
+  kind?: 'request' | 'business';
 }
-const { lang, outcome } = Astro.props;
+const { lang, outcome, kind = 'request' } = Astro.props;
 const t = dictionary(lang);
 const r = t.request;
+const b = t.business;
+const business = kind === 'business';
+const path = business ? '/business' : '/request';
+const title = business ? b.title : r.title;
+const heading = business ? b.heading : r.heading;
+const intro = business ? b.intro : r.intro;
 const view = outcome.kind === 'form' ? outcome.view : null;
 const messageHeading =
   outcome.kind === 'message'
@@ -41,6 +49,8 @@ const labels: Record<Field, string> = {
   area_text: r.areaText,
   when: r.when,
   notes: r.notes,
+  organisation: b.organisation,
+  group_size: b.groupSize,
   consent: r.consentLegend,
 };
 const message = (field: Field) => {
@@ -63,9 +73,9 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
 
 <PublicLayout
   lang={lang}
-  title={`${outcome.kind === 'message' ? messageHeading : r.title} · ${t.siteName}`}
-  description={r.intro}
-  rest="/request"
+  title={`${outcome.kind === 'message' ? messageHeading : title} · ${t.siteName}`}
+  description={intro}
+  rest={path}
   noindex
 >
   {outcome.kind === 'message' ? (
@@ -87,8 +97,8 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
     view &&
     values && (
       <>
-        <h1>{r.heading}</h1>
-        <p>{r.intro}</p>
+        <h1>{heading}</h1>
+        <p>{intro}</p>
         {view.tailor && (
           <p class="notice">{fill(r.fromTailor, { name: view.tailor.name })}</p>
         )}
@@ -108,7 +118,7 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
             </ul>
           </div>
         )}
-        <form class="request" method="post" action={pathFor(lang, '/request')}>
+        <form class="request" method="post" action={pathFor(lang, path)}>
           <input type="hidden" name="form_token" value={view.token} />
           {view.tailor && (
             <input type="hidden" name="tailor" value={view.tailor.slug} />
@@ -126,6 +136,52 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
 
           <fieldset class="step">
             <legend>{r.stepOne}</legend>
+            {business && (
+              <>
+                <div class="field">
+                  <label for="organisation">{b.organisation}</label>
+                  <input
+                    type="text"
+                    id="organisation"
+                    name="organisation"
+                    value={values.organisation}
+                    autocomplete="organization"
+                    maxlength="100"
+                    required
+                    aria-invalid={invalid('organisation')}
+                    aria-describedby={describedBy('organisation')}
+                  />
+                  {errors.organisation && (
+                    <p class="error" id="organisation-error">
+                      {message('organisation')}
+                    </p>
+                  )}
+                </div>
+                <div class="field">
+                  <label for="group_size">{b.groupSize}</label>
+                  <p class="hint" id="group_size-hint">
+                    {b.groupSizeHint}
+                  </p>
+                  <input
+                    type="text"
+                    id="group_size"
+                    name="group_size"
+                    value={values.group_size}
+                    maxlength="40"
+                    aria-invalid={invalid('group_size')}
+                    aria-describedby={describedBy(
+                      'group_size',
+                      'group_size-hint',
+                    )}
+                  />
+                  {errors.group_size && (
+                    <p class="error" id="group_size-error">
+                      {message('group_size')}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
             <fieldset
               class="field"
               id="category"
