@@ -23,6 +23,9 @@ if (auth instanceof Response) return auth;
         <a href="/admin/areas">{en.adminNavAreas}</a>
       </>
     )}
+    {can(auth.role, 'enquiry.view') && (
+      <a href="/admin/enquiries">{en.adminNavEnquiries}</a>
+    )}
     {can(auth.role, 'user.manage') && (
       <a href="/admin/users">{en.adminNavUsers}</a>
     )}

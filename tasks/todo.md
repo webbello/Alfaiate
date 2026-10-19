@@ -25,7 +25,7 @@
   - Verify: tests pass; mutation checks: remove the consent requirement, the honeypot, the time trap and the limit, and put the name in the redirect URL, each seen failing.
   - Files: `tests/integration/public-privacy.test.ts`, `tests/integration/request.test.ts`
 
-- [ ] **T6 Admin enquiry list**
+- [x] **T6 Admin enquiry list**
   - Acceptance: `/admin/enquiries` requires `enquiry.view`; lists newest first (cap 100 with a "narrow your search" note), status filter, search by reference, name or phone (bound LIKE, never logged), spam hidden unless toggled; `AdminShell` nav entry only for permitted roles; route added to `ADMIN_ROUTES`; `no-store`, `noindex`.
   - Verify: tests for each role (owner and manager allowed, editor and viewer 403, anonymous 302), search and filters, spam hidden by default, the route inventory test, mutation check removing the permission check.
   - Files: `src/pages/admin/enquiries.astro`, `src/modules/enquiry/queries.ts`, `src/modules/auth/admin-routes.ts`, `tests/workers/enquiry-queries.test.ts`, `tests/integration/admin-enquiries.test.ts`

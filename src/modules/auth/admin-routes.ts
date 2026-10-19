@@ -108,6 +108,12 @@ export const ADMIN_ROUTES: readonly {
     methods: ['POST'],
   },
   {
+    file: 'enquiries.astro',
+    path: '/admin/enquiries',
+    permission: 'enquiry.view',
+    methods: ['GET'],
+  },
+  {
     file: 'media/[...key].ts',
     path: '/admin/media/[...key]',
     permission: 'tailor.edit',

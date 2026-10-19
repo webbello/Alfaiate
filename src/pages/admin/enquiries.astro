@@ -1,0 +1,85 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { requirePermission } from '../../modules/auth/require';
+import { STATUSES, listEnquiries } from '../../modules/enquiry/queries';
+
+const auth = await requirePermission(Astro, 'enquiry.view');
+if (auth instanceof Response) return auth;
+
+const params = Astro.url.searchParams;
+const status = STATUSES.find((s) => s === params.get('status'));
+const q = (params.get('q') ?? '').slice(0, 100);
+const spam = params.get('spam') === '1';
+const { rows, truncated } = await listEnquiries(requireBindings(env).DB, {
+  status,
+  q,
+  spam,
+});
+const text = en.enquiry;
+---
+
+<Base title={text.heading} description={text.heading} noindex>
+  <h1>{text.heading}</h1>
+  <p>
+    <a href="/admin">{en.adminDashboardHeading}</a>
+  </p>
+  <form method="get" action="/admin/enquiries">
+    <p>
+      <label for="q">{text.search}</label>
+      <input type="search" id="q" name="q" value={q} maxlength="100" />
+    </p>
+    <p>
+      <label for="status">{text.statusFilter}</label>
+      <select id="status" name="status">
+        <option value="">{text.allStatuses}</option>
+        {STATUSES.map((s) => (
+          <option value={s} selected={status === s}>
+            {text.statuses[s]}
+          </option>
+        ))}
+      </select>
+    </p>
+    <p>
+      <label>
+        <input type="checkbox" name="spam" value="1" checked={spam} />
+        {text.showSpam}
+      </label>
+    </p>
+    <p>
+      <button type="submit">{text.searchButton}</button>
+    </p>
+  </form>
+  {rows.length === 0 && <p>{text.none}</p>}
+  {rows.length > 0 && (
+    <table>
+      <thead>
+        <tr>
+          <th>{text.reference}</th>
+          <th>{text.received}</th>
+          <th>{text.name}</th>
+          <th>{text.number}</th>
+          <th>{text.status}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr>
+            <td>
+              <a href={`/admin/enquiries/${r.id}`}>{r.reference_code}</a>
+              {r.is_spam ? ` (${text.spamMark})` : ''}
+            </td>
+            <td>{r.created_at.slice(0, 10)}</td>
+            <td>{r.customer_name ?? text.anonymised}</td>
+            <td>{r.contact_number_e164 ?? text.anonymised}</td>
+            <td>{text.statuses[r.status]}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+  {truncated && <p>{text.truncated}</p>}
+</Base>
