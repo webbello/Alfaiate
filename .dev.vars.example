@@ -1,6 +1,8 @@
 # Copy to .dev.vars (git-ignored). Placeholders only; never commit real values.
 SESSION_SECRET=replace-me
 TURNSTILE_SECRET_KEY=replace-me
+# Signs the request form's fill-time token (SEC-07). At least 16 characters; set a real value with `wrangler secret put` at deploy.
+FORM_TOKEN_SECRET=replace-me-with-at-least-16-chars
 # Local development: turn Tetum on and use the dev server address (the committed defaults serve English only).
 PUBLIC_LANGUAGES=en,tet
 SITE_URL=http://localhost:4321

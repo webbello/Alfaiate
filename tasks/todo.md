@@ -5,7 +5,7 @@
   - Verify: unit tests (each field valid/invalid, hostile strings kept as plain text, inactive category refused, unknown or unpublished tailor ignored, code alphabet and length, 10,000 codes without duplicates); fail first.
   - Files: `src/modules/enquiry/schema.ts`, `src/modules/enquiry/reference.ts`, `tests/workers/enquiry-schema.test.ts`, `tests/workers/enquiry-reference.test.ts`
 
-- [ ] **T2 Spam controls**
+- [x] **T2 Spam controls**
   - Acceptance: hidden honeypot field; signed time token (HMAC of the render time with `FORM_TOKEN_SECRET`; too fast under 3 s, older than 24 h or tampered is rejected as `too_fast`/`invalid`); per-address limit of 5 submissions per hour using the hashed `hit` counter, shared "unknown" bucket without an address; missing secret fails closed (form does not render); `.dev.vars.example` placeholder, typed binding, `npm run types`.
   - Verify: unit tests for each control, the sixth submission refused while another address and a later normal submission still work (AC-08); mutation checks on honeypot, time trap and limit.
   - Files: `src/modules/enquiry/spam.ts`, `src/modules/config/index.ts`, `.dev.vars.example`, `worker-configuration.d.ts`, `tests/workers/enquiry-spam.test.ts`

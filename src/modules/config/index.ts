@@ -43,3 +43,11 @@ export function siteConfig(env: {
     languages: enabledLanguages(env.PUBLIC_LANGUAGES),
   };
 }
+
+/** Signing secret for the form's fill-time token. Missing or short fails closed: the form must not run without its time check. */
+export function formSecret(env: { FORM_TOKEN_SECRET?: string }): string {
+  const secret = env.FORM_TOKEN_SECRET ?? '';
+  if (secret.length < 16)
+    throw new ConfigError('FORM_TOKEN_SECRET is missing or too short');
+  return secret;
+}
