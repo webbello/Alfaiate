@@ -1,6 +1,6 @@
 # Tasks: Phase 6
 
-- [ ] **T1 Dili date helpers and period ranges**
+- [x] **T1 Dili date helpers and period ranges**
   - Acceptance: `diliToday(now)` gives the Dili calendar day (UTC+9) as `YYYY-MM-DD`; `isDiliDate` validates a real date; `periodRange(period, now)` for `month` (current Dili calendar month), `30d` (last 30 Dili days including today) and `all` returns date bounds (inclusive start, exclusive end) as Dili days and as UTC timestamps for `created_at` comparisons; an unknown period falls back to `month`.
   - Verify: unit tests at midnight edges (UTC 14:59 vs 15:00 on the day before), month and year ends, leap day, 30-day window, invalid input; fail first.
   - Files: `src/modules/referral/dates.ts`, `src/modules/reporting/period.ts`, `tests/workers/referral-dates.test.ts`, `tests/workers/reporting-period.test.ts`
