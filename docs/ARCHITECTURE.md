@@ -197,6 +197,6 @@ Language routing and translated content; tailor notifications via WhatsApp Busin
 | AD-07 | Image count/size limits | Set in Phase 3 |
 | AD-08 | Domain, DNS and email-sending setup | Owner to supply |
 | AD-09 | Launch language(s) (OQ-07) | Single language, i18n-ready |
-| AD-10 | Phone input rules for Timor-Leste | Accept local and +670, store E.164 |
+| AD-10 | Phone input rules for Timor-Leste | **Resolved 2026-10-19**: `+670` + 8 digits (mobile 7, landline 3); local and `+670` forms accepted, stored E.164 |
 | AD-11 | Role set and who gets which role (OQ-15) | **Resolved 2026-10-18**: owner, manager, editor, viewer as in §6; one owner account at launch |
 | AD-12 | Whether Cloudflare Access is added in front of `/admin` | No in MVP; revisit |

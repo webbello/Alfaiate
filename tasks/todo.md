@@ -35,7 +35,7 @@
   - Verify: unit tests (round trip, wrong password, tampered hash, params stored); benchmark output pasted into DECISIONS.md.
   - Files: `src/modules/auth/password.ts`, `scripts/bench-hash.mjs`, `tests/workers/password.test.ts`, `package.json`, `docs/DECISIONS.md`
 
-- [ ] **T8 Phone normalisation — BLOCKED on AD-10 (owner's phone rule not yet given)**
+- [x] **T8 Phone normalisation (AD-10 resolved 2026-10-19)**
   - Acceptance: `phone.ts` normalises accepted local forms and `+670` to E.164 per the owner's confirmed rule; rejects the rest.
   - Verify: unit tests built from the owner's examples. Do not start until the owner gives the rule.
   - Files: `src/modules/contact-links/phone.ts`, `tests/workers/phone.test.ts`, `docs/DECISIONS.md`

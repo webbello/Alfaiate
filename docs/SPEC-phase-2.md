@@ -123,6 +123,6 @@ All SQL uses prepared statements with bound parameters; no string-built SQL. Log
 - Schema is two migrations (`0001` admin/tailor tables, `0002` enquiry/referral/operational), not one; the placeholder seed is `seeds/placeholders.sql`, not a migration.
 - Test runtime is `@cloudflare/vitest-plugin` (successor of the deprecated pool package) with Vitest 4.1.12, plus an `integration` project against the built Worker.
 - No `src/modules/db/` helpers: auth modules query D1 directly through the typed binding. Deferred; revisit when Phase 3 adds more queries.
-- One `scripts/owner.mjs` (create/reset) instead of two scripts. `phone.ts` is not built (T8, waiting on AD-10).
+- One `scripts/owner.mjs` (create/reset) instead of two scripts. `phone.ts` lives in `src/modules/contact-links/` (T8, built after the owner approved the AD-10 rule).
 - Success criterion 4 ("fits the Worker CPU limit with margin") is **not demonstrated**: the 600000-iteration default depends on the Workers Paid plan (AD-02).
 - Success criterion 8: security headers come from middleware, so static `/_astro/*` assets carry cache headers only.
