@@ -1,0 +1,90 @@
+---
+import { env } from 'cloudflare:workers';
+import '../styles/site.css';
+import { dictionary } from '../i18n/public';
+import { isEnabled, pathFor, twinPath, type Lang } from '../i18n/lang';
+import { siteConfig } from '../modules/config';
+import { buildHead } from '../modules/seo/head';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  /** Path without the language prefix, e.g. "/tailors/ana". */
+  rest: string;
+  noindex?: boolean;
+  canonicalRest?: string;
+  /** false for the 404 page: no canonical, no alternates, no language twin. */
+  realPage?: boolean;
+}
+const {
+  lang,
+  title,
+  description,
+  rest,
+  noindex = false,
+  canonicalRest,
+  realPage = true,
+} = Astro.props;
+const t = dictionary(lang);
+const { siteUrl, languages } = siteConfig(env);
+const head = buildHead({
+  siteUrl,
+  languages,
+  lang,
+  rest,
+  noindex,
+  canonicalRest,
+  canonical: realPage,
+});
+const showSwitch = realPage && isEnabled('tet', languages);
+const twin = showSwitch ? twinPath(pathFor(lang, rest)) : null;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {head.robots && <meta name="robots" content={head.robots} />}
+    {head.canonical && <link rel="canonical" href={head.canonical} />}
+    {head.alternates.map((a) => (
+      <link rel="alternate" hreflang={a.hreflang} href={a.href} />
+    ))}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      {t.skipToContent}
+    </a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="site-name" href={pathFor(lang, '/')}>
+          {t.siteName}
+        </a>
+        <nav class="site-nav" aria-label={t.nav.label}>
+          <a href={pathFor(lang, '/')}>{t.nav.home}</a>
+          {twin && (
+            <a
+              class="lang-switch"
+              href={twin.path}
+              lang={twin.lang}
+              hreflang={twin.lang}
+            >
+              {t.language[twin.lang]}
+            </a>
+          )}
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <p>{t.disclaimer.short}</p>
+      </div>
+    </footer>
+  </body>
+</html>

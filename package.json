@@ -19,7 +19,7 @@
     "db:migrate": "wrangler d1 migrations apply DB --local",
     "db:seed": "wrangler d1 execute DB --local --file=seeds/placeholders.sql",
     "bench:hash": "node scripts/bench-hash.mjs",
-    "test:integration": "npm run build && vitest run --project integration",
+    "test:integration": "npm run build && vitest run --project integration --project integration-en",
     "owner:create": "node scripts/owner.mjs create",
     "owner:reset": "node scripts/owner.mjs reset"
   },

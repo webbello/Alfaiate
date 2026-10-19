@@ -7,7 +7,7 @@ const files = Object.keys(import.meta.glob('../../src/pages/**/*.{astro,ts}'))
   .sort();
 
 describe('public routes (scope guard)', () => {
-  it('are only the home page and the image route', () => {
-    expect(files).toEqual(['index.astro', 'media/[...key].ts']);
+  it('are only the home page, the 404 page and the image route', () => {
+    expect(files).toEqual(['404.astro', 'index.astro', 'media/[...key].ts']);
   });
 });

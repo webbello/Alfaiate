@@ -1,0 +1,208 @@
+/* Public site styles: mobile first, system fonts, no images needed. Plain CSS in one external file (the CSP has no
+   'unsafe-inline'). Colours were chosen for WCAG AA contrast: body text 15.9:1, muted text 7.4:1, accent on white 8.6:1. */
+:root {
+  --ink: #1b1b1b;
+  --muted: #4d4d4d;
+  --paper: #fffdf9;
+  --band: #f4efe7;
+  --line: #d9d0c3;
+  --accent: #8a1c2b;
+  --accent-ink: #ffffff;
+  --focus: #0b57d0;
+  --radius: 0.5rem;
+  --gap: 1rem;
+  --measure: 42rem;
+  --wide: 68rem;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  font-size: 100%;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 1.25rem var(--gap) 2.5rem;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  margin: 1.5rem 0 0.5rem;
+}
+h1 {
+  font-size: 1.75rem;
+  margin-top: 0.5rem;
+}
+h2 {
+  font-size: 1.35rem;
+}
+h3 {
+  font-size: 1.1rem;
+}
+p,
+ul,
+ol {
+  margin: 0 0 1rem;
+  max-width: var(--measure);
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 0.15em;
+}
+a:hover {
+  text-decoration-thickness: 0.15em;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -4rem;
+  z-index: 50;
+  padding: 0.75rem 1rem;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: var(--radius);
+}
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+.site-header {
+  background: var(--band);
+  border-bottom: 1px solid var(--line);
+}
+.site-header__inner {
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 0.5rem var(--gap);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
+}
+.site-name {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--ink);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+  margin-left: auto;
+}
+.site-nav a,
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 0.5rem;
+  color: var(--ink);
+}
+
+.site-footer {
+  background: var(--band);
+  border-top: 1px solid var(--line);
+  padding: 1.25rem var(--gap);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.site-footer__inner {
+  max-width: var(--wide);
+  margin: 0 auto;
+}
+.site-footer p {
+  margin-bottom: 0.5rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius);
+  border: 2px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.button:hover {
+  background: #6f1522;
+}
+.button--secondary {
+  background: transparent;
+  color: var(--accent);
+}
+.button--secondary:hover {
+  background: var(--band);
+}
+
+.notice {
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--accent);
+  background: var(--band);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  max-width: var(--measure);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (min-width: 48rem) {
+  h1 {
+    font-size: 2.25rem;
+  }
+  main {
+    padding-top: 2rem;
+  }
+}

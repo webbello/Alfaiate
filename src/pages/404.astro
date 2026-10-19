@@ -1,0 +1,33 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import PublicLayout from '../layouts/PublicLayout.astro';
+import { dictionary } from '../i18n/public';
+import { isEnabled, parsePath, pathFor } from '../i18n/lang';
+import { siteConfig } from '../modules/config';
+
+// A /tet/... address only gets Tetum when Tetum is switched on; otherwise the English page answers.
+const parsed = parsePath(Astro.url.pathname);
+const lang = isEnabled(parsed.lang, siteConfig(env).languages)
+  ? parsed.lang
+  : 'en';
+const t = dictionary(lang);
+Astro.response.status = 404;
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${t.notFound.title} · ${t.siteName}`}
+  description={t.notFound.body}
+  rest="/"
+  noindex
+  realPage={false}
+>
+  <h1>{t.notFound.heading}</h1>
+  <p>{t.notFound.body}</p>
+  <p>
+    <a class="button" href={pathFor(lang, '/')}>
+      {t.notFound.home}
+    </a>
+  </p>
+</PublicLayout>

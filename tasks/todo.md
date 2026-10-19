@@ -5,7 +5,7 @@
   - Verify: unit tests fail first, including hostile paths (`/tet/../admin`, `//tet`, `/TET`), missing config falling back to English only and a bad `SITE_URL` failing closed; regenerate Worker types.
   - Files: `src/i18n/lang.ts`, `src/modules/config/index.ts`, `wrangler.jsonc`, `worker-configuration.d.ts`, `tests/workers/lang.test.ts`
 
-- [ ] **T2 Dictionaries, public layout, styles, 404 and the Tetum gate**
+- [x] **T2 Dictionaries, public layout, styles, 404 and the Tetum gate**
   - Acceptance: typed English and Tetum dictionaries for the shared text (navigation, footer, disclaimer, request CTA, language names, 404, empty states) where `tet` must satisfy the same keys; `PublicLayout.astro` with skip link, landmarks, language switch (only when Tetum is enabled), canonical and `hreflang`, optional `noindex`; `site.css` (external) mobile-first with focus styles and 44 px targets; `404.astro` returning status 404 in both languages; middleware answers 404 for `/tet/*` when Tetum is disabled.
   - Verify: dictionary parity test (same keys, no empty values), integration tests for gate on/off, 404 status, no inline script or style, CSP intact, contrast checked by the later axe run; design skill consulted for the base styles.
   - Files: `src/i18n/public/en.ts`, `src/i18n/public/tet.ts`, `src/layouts/PublicLayout.astro`, `src/styles/site.css`, `src/pages/404.astro`, `src/middleware.ts`
