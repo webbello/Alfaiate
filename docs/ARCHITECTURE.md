@@ -191,10 +191,10 @@ Language routing and translated content; tailor notifications via WhatsApp Busin
 | AD-01 | Confirm Astro 7.4 availability and the adapter/Wrangler versions that support it | **Resolved 2026-10-18**, see DECISIONS.md |
 | AD-02 | Cloudflare plan, budget, and a check of free-tier limits against expected use | **Owner chose Workers Paid (2026-10-19)**; measure on the deployed Worker in Phase 8 |
 | AD-03 | Password-hashing method that fits Worker CPU limits | **Owner chose WebCrypto PBKDF2 (2026-10-18)**; iteration count benchmarked in Phase 2 |
-| AD-04 | R2 vs another image store; public delivery via Worker route vs R2 custom domain; client-side resizing vs Cloudflare Images | R2, Worker route, client-side resizing |
+| AD-04 | R2 vs another image store; public delivery via Worker route vs R2 custom domain; client-side resizing vs Cloudflare Images | **Resolved 2026-10-19**: R2, Worker `/media` route, client-side resizing |
 | AD-05 | Owner notification channel and sender (OQ-06) | Email |
 | AD-06 | Backup destination outside Cloudflare, frequency and retention | Daily D1 export + R2 replication, owner-approved destination (decided 2026-10-18, see DECISIONS.md) |
-| AD-07 | Image count/size limits | Set in Phase 3 |
+| AD-07 | Image count/size limits | **Resolved 2026-10-19**: 10 photos per tailor, 8 MB per original |
 | AD-08 | Domain, DNS and email-sending setup | Owner to supply |
 | AD-09 | Launch language(s) (OQ-07) | Single language, i18n-ready |
 | AD-10 | Phone input rules for Timor-Leste | **Resolved 2026-10-19**: `+670` + 8 digits (mobile 7, landline 3); local and `+670` forms accepted, stored E.164 |

@@ -325,7 +325,7 @@ Criteria are testable statements; full test mapping is in the implementation pla
 | OQ-11 | Does the owner have a domain, WhatsApp Business number and brand assets? |
 | OQ-12 | Should customers be able to pick a specific tailor in the request form, or only a general request? (Draft assumes both are allowed.) |
 | OQ-13 | Who verifies tailor facts and how (visit, photo, phone)? |
-| OQ-14 | Which currency and price format are displayed (USD or other)? |
+| OQ-14 | Which currency and price format are displayed (USD or other)? **Answered 2026-10-19:** US dollars, always labelled approximate. |
 | OQ-15 | Who needs admin access at launch, and are the proposed roles (owner, manager, editor, viewer) right? **Answered 2026-10-18:** yes, four roles; one owner account at launch. |
 
 ## 15. MVP launch criteria
