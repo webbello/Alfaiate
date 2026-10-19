@@ -26,3 +26,8 @@ npm run check   # lint + typecheck + unit/D1 tests + build + integration tests
 ```
 
 Other scripts: `npm test` (container + D1 tests), `npm run test:integration` (builds, then tests the built Worker), `npm run lint`, `npm run format`, `npm run typecheck`, `npm run types` (regenerate Worker types after editing `wrangler.jsonc`), `npm run bench:hash` (PBKDF2 timing), `npm run owner:reset` (forgotten password).
+
+## Admin workflow (Phases 2-3)
+
+Sign in at `/admin`. Editors create and edit draft tailors, categories, areas and photos; managers also record the tailor's permission, mark verified facts and publish; the owner alone sees referral fee terms and manages users. Photos are private until a manager records permission and the tailor is published. Public pages are not built yet (Phase 4); the only public routes are the placeholder home page and `/media/...` images.
+

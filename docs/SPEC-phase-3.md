@@ -115,3 +115,12 @@ export function publishBlockers(t: TailorRow): PublishBlocker[] { /* [] means pu
 3. **Contact rule for publishing** (assumption 3): at least one consented WhatsApp or phone number. OK?
 4. **Image formats after resize:** JPEG only (smallest code, works in every browser). WebP would be smaller but adds a second encoder path. OK with JPEG only?
 5. **Categories/areas delete:** the admin can deactivate but not delete (deleting is blocked in the database while in use, and deactivating is enough). OK?
+
+## Deviations recorded during the build (see DECISIONS.md)
+
+- The server accepts **JPEG only** (Open Question 4); WebP handling in the spec's `validate.ts` description was dropped.
+- Photo logic lives in `src/modules/media/service.ts` (lock, permission, profile photo) on top of `store.ts` and `reconcile.ts`; granting photo permission is an action on the `/publish` endpoint so every file keeps one permission.
+- `GET /media/<key>` also checks D1 before serving, and the profile-photo pointer is allowed on unpublished tailors (it needs permission and visibility only).
+- A published tailor cannot be edited into having no consented contact (error `needs_contact`), and editing a verified fact drops its verified mark. Neither was in the spec text; both follow from BR-11 and the contact rule.
+- Success criterion 2 holds at both layers. The manual browser check (T13) covered one browser engine only.
+

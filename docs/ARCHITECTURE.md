@@ -2,7 +2,7 @@
 
 Status: Draft v0.3 · 2026-10-18 · Requirements: [PRD.md](PRD.md) · Data: [DATA_MODEL.md](DATA_MODEL.md) · Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
 
-**Owner-selected stack (confirmed 2026-10-16):** Astro 7.4, Cloudflare Workers, Cloudflare D1, Cloudflare R2 (or another image store), and a custom admin interface with role-based access control (RBAC). Everything else below is **proposed** unless marked confirmed. Phases 1–2 are implemented (project skeleton; database schema; admin sign-in, sessions and RBAC); all tailor, directory, enquiry and referral features are unimplemented.
+**Owner-selected stack (confirmed 2026-10-16):** Astro 7.4, Cloudflare Workers, Cloudflare D1, Cloudflare R2 (or another image store), and a custom admin interface with role-based access control (RBAC). Everything else below is **proposed** unless marked confirmed. Phases 1–3 are implemented (project skeleton; database schema; admin sign-in, sessions and RBAC; tailor profiles, categories, areas, photos and publishing in the admin). The public directory, enquiry form and referral tracking are not built yet.
 
 ## 1. Existing repository assessment
 
@@ -71,7 +71,7 @@ Unchanged in intent from v0.1; language prefix is a future extension.
 
 **Public:** `/`, `/tailors` (filters `category`, `area`, `home_visit`), `/tailors/[slug]`, `/categories/[slug]`, `/areas/[slug]` (optional), `/request` (`?tailor=slug`), `/request/thanks`, `/how-it-works`, `/about`, `/privacy`, `/terms`, `/sitemap.xml`, `/robots.txt`, `/media/*`, `POST /api/contact-click`.
 
-**Admin (`/admin`, authenticated, `noindex`, no-store):** `/admin/login`, `/admin/logout`, `/admin` (dashboard), `/admin/account` (own password), `/admin/users/actions` (POST handler), `/admin/tailors`, `/admin/tailors/new`, `/admin/tailors/[id]`, `/admin/categories`, `/admin/areas`, `/admin/enquiries`, `/admin/enquiries/[id]`, `/admin/users` (owner only).
+**Admin (`/admin`, authenticated, `noindex`, no-store):** `/admin/login`, `/admin/logout`, `/admin` (dashboard), `/admin/account` (own password), `/admin/users/actions` (POST handler), `/admin/tailors`, `/admin/tailors/new`, `/admin/tailors/[id]` (with POST handlers `/actions`, `/publish`, `/fees`, `/images`, `/images/actions`), `/admin/media/[...key]` (private photo preview), `/admin/categories`, `/admin/areas`, `/admin/enquiries`, `/admin/enquiries/[id]`, `/admin/users` (owner only).
 
 Each admin route and each mutating handler declares the permission it needs (§6).
 
@@ -114,12 +114,17 @@ Rules: least privilege by default; denied by default when a permission is unmapp
 
 ## 8. Image storage and upload
 
-- **Separation:** images live in R2; D1 holds `file_key`, alt text, order, permission and visibility only. Database size is unaffected by images.
-- **Buckets:** one public-serving location for permitted portfolio variants (served via the Worker's `/media` route or an R2 custom domain — AD-04), and one **private** bucket for anything that must not be public (optional customer reference images, FR-ENQ-07), read only through an authorised admin handler.
-- **Processing:** the Worker runtime has no native image library. Proposed approach: the admin browser resizes and re-encodes (canvas) into a small set of widths (e.g. thumbnail/medium/large) and uploads the variants; the Worker validates size, sniffed content type and dimensions, and writes with generated keys. Alternative: Cloudflare Images/image transformations (may add cost; verify plan) (AD-04). EXIF is stripped by the canvas re-encode; the Worker rejects files that still contain it **[verify in Phase 3]**.
-- **Permission:** unpermitted images are not written to the public location; withdrawing permission deletes public variants.
-- **Limits:** per-file size, count per tailor and allowed types are config values set in Phase 3.
-- **Delivery:** long-lived immutable cache headers (keys are content-unique); responsive `srcset`.
+Implemented in Phase 3 (decisions AD-04 and AD-07 resolved 2026-10-19).
+
+- **Separation:** images live in R2; D1 (`portfolio_image`) holds only a random `file_key`, alt text, caption, order, permission and visibility. No image bytes in the database.
+- **Keys:** `tailor/<tailorId>/<32 hex>/<thumb|medium|large>.jpg`. Keys are parsed strictly (`src/modules/media/keys.ts`); anything else, including traversal, is rejected.
+- **Buckets:** every upload lands in the **private** bucket (`MEDIA_PRIVATE`). A copy exists in the **public** bucket (`MEDIA_PUBLIC`) only while the photo has recorded permission **and** is visible **and** its tailor is published (BR-06). `reconcileImages(tailorId)` recomputes that set from D1 and copies or deletes accordingly; it is idempotent and runs after every change that can affect it (permission, visibility, publish, unpublish, withdraw, delete). It removes before it adds.
+- **Delivery:** `GET /media/<key>` serves the public bucket only, after also confirming in D1 that the photo may be shown right now (a second line of defence if a cleanup ever fails). `Cache-Control: public, max-age=3600`: a withdrawn photo is deleted at once but a cache may keep a copy for up to one hour. Admins preview any photo, including private ones, through `GET /admin/media/<key>` (`tailor.edit`, `no-store`).
+- **Processing:** the admin's browser redraws the chosen photo on a canvas into three JPEGs (320, 800 and 1600 px wide, heights capped at 4000), which drops EXIF, GPS and other metadata (`src/scripts/image-upload.ts`). Originals up to 8 MB; JPEG, PNG or WebP accepted for selection; only JPEG is stored.
+- **Server validation (SEC-04):** the server never trusts the browser. `validateVariant` walks the JPEG marker structure and rejects: anything that is not a baseline/progressive JPEG, any metadata segment (APP1 EXIF/XMP, APP13 IPTC, other APPn except JFIF and ICC, comments), truncated files, bytes after the end marker, wrong width for the variant, over-size files. Nothing is stored unless all three variants pass.
+- **Limits:** 10 photos per tailor; thumb 150 KB, medium 600 KB, large 2 MB.
+- **Permission rules:** uploads and edits follow the profile edit lock (editors only on unpublished tailors); recording or withdrawing a photo's permission is a manager/owner action. The profile-photo pointer needs permission and visibility, and is cleared when either is lost or the photo is deleted.
+- **Failure behaviour:** files are deleted before the database row, and a failed storage write cleans up after itself, so a failure leaves something retryable and never an orphaned public file. If syncing fails after an unpublish, the request errors and can be retried; consider a scheduled sync (Cron Trigger) in Phase 8.
 - **Switching store:** all access goes through the `media` module, so moving off R2 touches one module.
 
 ## 9. Validation and error handling
