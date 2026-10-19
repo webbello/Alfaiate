@@ -43,3 +43,12 @@ describe('Tetum gate on real pages (English only)', () => {
     }
   });
 });
+
+describe('sitemap while Tetum is off', () => {
+  it('lists English addresses only, with no Tetum alternates', async () => {
+    const xml = await (await get('/sitemap.xml')).text();
+    expect(xml).toContain('<loc>https://alfaiate-tl.example/</loc>');
+    expect(xml).not.toContain('/tet');
+    expect(xml).not.toContain('hreflang="tet"');
+  });
+});

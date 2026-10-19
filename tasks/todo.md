@@ -40,7 +40,7 @@
   - Verify: integration: all four pages render with status 200 and the right robots meta; placeholder pages contain no invented legal wording; content never claims availability, quality or timing guarantees (BR-04).
   - Files: `src/views/StaticPage.astro`, `src/modules/seo/pages.ts`, `src/pages/how-it-works.astro`, `src/pages/about.astro`, `src/pages/privacy.astro` (+ `terms.astro`, `tet/` wrappers), `tests/integration/static-pages.test.ts`
 
-- [ ] **T9 Sitemap, robots and canonical rules**
+- [x] **T9 Sitemap, robots and canonical rules**
   - Acceptance: `/sitemap.xml` lists home, directory, active categories, published tailors and reviewed static pages with `hreflang` alternates (Tetum only when enabled); `/robots.txt` disallows `/admin` and `/api` and names the sitemap; every public page has a canonical from `SITE_URL`.
   - Verify: unit tests for the builders; integration: unpublished tailor absent from sitemap (AC-05), placeholder pages absent, unknown values escaped in XML.
   - Files: `src/modules/seo/sitemap.ts`, `src/modules/seo/robots.ts`, `src/pages/sitemap.xml.ts`, `src/pages/robots.txt.ts`, `tests/workers/seo.test.ts`, `tests/integration/seo.test.ts`

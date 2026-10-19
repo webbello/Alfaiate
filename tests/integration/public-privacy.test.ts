@@ -114,6 +114,10 @@ describe('public pages never contain private values (SEC-05, BR-07, AC-15)', () 
       '/request',
       '/no-such-page',
       `/tailors?category=${catSlug}`,
+      '/how-it-works',
+      '/about',
+      '/privacy',
+      '/terms',
     ];
     const secrets = [...Object.values(SECRET), 'SECRET-SHARED-FIELDS'];
     let sawPublicWords = false;
@@ -125,6 +129,12 @@ describe('public pages never contain private values (SEC-05, BR-07, AC-15)', () 
           expect(html, `${url} leaked ${secret}`).not.toContain(secret);
         if (html.includes('Public words')) sawPublicWords = true;
       }
+    }
+    // Language-neutral files are checked once.
+    for (const path of ['/sitemap.xml', '/robots.txt']) {
+      const text = await (await get(path)).text();
+      for (const secret of secrets)
+        expect(text, `${path} leaked ${secret}`).not.toContain(secret);
     }
     expect(sawPublicWords).toBe(true); // sanity: the sweep did look at a page that shows the tailor
   });

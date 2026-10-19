@@ -308,3 +308,21 @@ export async function getActiveCategory(
     .bind(slug)
     .first<Choice>();
 }
+
+/** Pages that belong in the sitemap: the home page, the directory, categories that have a published tailor and every published tailor. */
+export async function listSitemapPaths(db: Db): Promise<string[]> {
+  const [tailors, categories] = await Promise.all([
+    db
+      .prepare(
+        'SELECT slug FROM tailor WHERE is_published = 1 ORDER BY slug LIMIT 5000',
+      )
+      .all<{ slug: string }>(),
+    listActiveCategories(db, { onlyWithTailors: true }),
+  ]);
+  return [
+    '/',
+    '/tailors',
+    ...categories.map((c) => `/categories/${c.slug}`),
+    ...tailors.results.map((t) => `/tailors/${t.slug}`),
+  ];
+}

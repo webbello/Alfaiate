@@ -30,6 +30,8 @@ describe('public routes (scope guard)', () => {
     'media/[...key].ts',
     'privacy.astro',
     'request.astro',
+    'robots.txt.ts',
+    'sitemap.xml.ts',
     'tailors/[slug].astro',
     'tailors/index.astro',
     'terms.astro',
