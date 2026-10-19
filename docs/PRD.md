@@ -318,7 +318,7 @@ Criteria are testable statements; full test mapping is in the implementation pla
 | OQ-04 | Do fees apply only to form-based referrals, or also to customers who contact a tailor directly from the site? |
 | OQ-05 | What response-time promise (if any) may the site make to customers? |
 | OQ-06 | How will the owner be notified (email, WhatsApp, other) and how are enquiries forwarded to tailors? |
-| OQ-07 | Which language(s) at launch — Tetum, English, Portuguese, Indonesian? |
+| OQ-07 | Which language(s) at launch — Tetum, English, Portuguese, Indonesian? **Answered 2026-10-19:** English and Tetum. |
 | OQ-08 | Who prepares privacy notice and terms, and is legal advice on data protection and consumer/tax obligations available? |
 | OQ-09 | How long are enquiries retained before deletion/anonymisation? |
 | OQ-10 | Which service areas (neighbourhood list) and category list should exist at launch? |
