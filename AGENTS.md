@@ -42,4 +42,5 @@ Append one line when the user corrects you, a check catches a mistake, or someth
 - 2026-10-19 — the public-pages scope-guard list must be updated on purpose with every new page, including twins and API routes → edit `tests/workers/public-pages.test.ts` in the same task.
 - 2026-10-19 — D1 rejected a long search term with "LIKE or GLOB pattern too complex" (limit 50 bytes, escapes and emoji count) → cut user search text until its escaped pattern fits, and test with `%`, emoji and backslashes.
 - 2026-10-19 — a mutation survived because no role could tell two permissions apart in the integration test → check which suite is supposed to catch a mutation (here the route-inventory unit test) before adding tests, and test each guard where it can actually be observed.
+- 2026-10-19 — a Python edit failed its assertion, the shell chain went on, the commit message then claimed a mutation check that had not run → end every edit script with `&& echo EDIT-OK`, read that line before the next step, and write commit messages only from results seen in this run.
 

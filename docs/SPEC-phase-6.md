@@ -107,3 +107,11 @@ export type CreateResult =
 4. **BR-09 gate on `due`/`paid`** needs the tailor's fee-terms date from Phase 3 (assumption 10). Default: enforce.
 5. **Metric definitions** (assumption 14), especially M8 as an average in hours, M9 by amount excluding waived, and period membership by the date each event was recorded. Default: as written.
 6. **Fee terms and amounts are still the owner's to decide** (OQ-03/OQ-04): this phase records but never interprets them; a fee model must be agreed before any fee is relied on.
+
+## Deviations recorded during the build (see DECISIONS.md)
+
+- The fee amount cap follows `dollarsToCents` (7 digits) plus an explicit limit of one million dollars.
+- Enquiries always hold sharing consent (database CHECK), so the `no_consent` refusal in practice means an anonymised enquiry.
+- The dashboard reports "spam excluded" in its note; M6 uses the UTC day stored by the tap counter against Dili day boundaries.
+- Redirects after a referral action end in `#referrals`, so the page opens at the section.
+
