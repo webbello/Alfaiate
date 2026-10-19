@@ -114,6 +114,18 @@ export const ADMIN_ROUTES: readonly {
     methods: ['GET'],
   },
   {
+    file: 'enquiries/[id].astro',
+    path: '/admin/enquiries/[id]',
+    permission: 'enquiry.view',
+    methods: ['GET'],
+  },
+  {
+    file: 'enquiries/[id]/actions.ts',
+    path: '/admin/enquiries/[id]/actions',
+    permission: 'enquiry.update',
+    methods: ['POST'],
+  },
+  {
     file: 'media/[...key].ts',
     path: '/admin/media/[...key]',
     permission: 'tailor.edit',

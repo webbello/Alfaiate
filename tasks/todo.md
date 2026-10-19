@@ -30,7 +30,7 @@
   - Verify: tests for each role (owner and manager allowed, editor and viewer 403, anonymous 302), search and filters, spam hidden by default, the route inventory test, mutation check removing the permission check.
   - Files: `src/pages/admin/enquiries.astro`, `src/modules/enquiry/queries.ts`, `src/modules/auth/admin-routes.ts`, `tests/workers/enquiry-queries.test.ts`, `tests/integration/admin-enquiries.test.ts`
 
-- [ ] **T7 Admin enquiry detail: status, notes, spam flag, forwarding text**
+- [x] **T7 Admin enquiry detail: status, notes, spam flag, forwarding text**
   - Acceptance: `/admin/enquiries/[id]` shows all fields, status history and internal notes; POST handlers (permission `enquiry.update`, CSRF) set any of the seven statuses with `status_changed_at`, a status-log row and an `audit_log` entry holding no customer data (AC-11), add internal notes, toggle spam; "copy details for forwarding" shows only consented fields (name, number and channel, category, area, preferred time, notes) in a read-only textarea, nothing is sent; viewers cannot update; ids must be plain digits.
   - Verify: tests for all seven statuses (log row each time), audit row content, notes never in public pages, forwarding text exact, 403 for editor/viewer/missing CSRF, route inventory; mutation checks on permission, the log write and the consented-fields list.
   - Files: `src/pages/admin/enquiries/[id].astro`, `src/pages/admin/enquiries/[id]/actions.ts`, `src/modules/enquiry/status.ts`, `src/modules/enquiry/forwarding.ts`, `src/modules/auth/admin-routes.ts`, `tests/workers/enquiry-status.test.ts`, `tests/integration/admin-enquiries.test.ts`

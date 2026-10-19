@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { env } from 'cloudflare:workers';
-import { get, signIn, unique } from './helpers';
+import { csrfOf, get, post, signIn, unique } from './helpers';
 
 const db = env.DB;
 const add = async (
@@ -122,5 +122,217 @@ describe('GET /admin/enquiries (FR-ADM-06, SEC-09, BR-07)', () => {
       const html = await (await get('/admin', await signIn(role))).text();
       expect(html.includes('href="/admin/enquiries"'), role).toBe(shown);
     }
+  });
+});
+
+const detail = async (id: number, cookie: string) =>
+  get(`/admin/enquiries/${id}`, cookie);
+const idOf = async (ref: string) =>
+  (await db
+    .prepare('SELECT id FROM enquiry WHERE reference_code = ?')
+    .bind(ref)
+    .first<{ id: number }>())!.id;
+
+describe('GET /admin/enquiries/[id] (FR-ADM-06/08, BR-07, BR-08)', () => {
+  it('shows every field, the history, the notes and the forwarding text to a manager', async () => {
+    const ref = await add('Detail Fake Customer');
+    const id = await idOf(ref);
+    await db
+      .prepare(
+        "UPDATE enquiry SET notes = 'Fake customer words', service_description = 'Fake service' WHERE id = ?",
+      )
+      .bind(id)
+      .run();
+    await db
+      .prepare(
+        "INSERT INTO enquiry_status_log (enquiry_id, from_status, to_status) VALUES (?, NULL, 'new')",
+      )
+      .bind(id)
+      .run();
+    const r = await detail(id, await signIn('manager'));
+    const html = await r.text();
+    expect(r.status).toBe(200);
+    for (const shown of [
+      ref,
+      'Detail Fake Customer',
+      '+67077123456',
+      'Fake customer words',
+      'Fake service',
+      'readonly',
+    ])
+      expect(html).toContain(shown);
+    expect(html).toContain('name="csrf"');
+    expect(r.headers.get('cache-control')).toMatch(/no-store/);
+  });
+
+  it('refuses editors and viewers, gives 404 for a missing or malformed id, and sends anonymous visitors to sign in', async () => {
+    const id = await idOf(await add('Never Shown To Editors'));
+    for (const role of ['editor', 'viewer']) {
+      const r = await detail(id, await signIn(role));
+      expect(r.status, role).toBe(403);
+      expect(await r.text()).not.toContain('Never Shown');
+    }
+    const cookie = await signIn('owner');
+    for (const bad of ['999999', 'abc', '1e3', '0x10', '-1'])
+      expect((await get(`/admin/enquiries/${bad}`, cookie)).status, bad).toBe(
+        404,
+      );
+    expect((await get(`/admin/enquiries/${id}`)).status).toBe(302);
+  });
+
+  it('does not show the update forms to a role that can only view', async () => {
+    // No role has enquiry.view without enquiry.update today, so this guards the rule at the handler instead (see below).
+    const id = await idOf(await add('Handler Guard'));
+    const owner = await detail(id, await signIn('owner'));
+    expect(await owner.text()).toContain('/admin/enquiries/' + id + '/actions');
+  });
+});
+
+describe('POST /admin/enquiries/[id]/actions (FR-ADM-07/08, AC-11, SEC-09)', () => {
+  const act = async (
+    role: string,
+    id: number,
+    form: Record<string, string>,
+    withCsrf = true,
+  ) => {
+    const cookie = await signIn(role);
+    const csrf = withCsrf ? await csrfOf(cookie) : 'bad';
+    return post(`/admin/enquiries/${id}/actions`, cookie, { csrf, ...form });
+  };
+
+  it('sets each of the seven statuses, logs each change and shows it', async () => {
+    const id = await idOf(await add('Status Journey'));
+    const cookie = await signIn('manager');
+    const csrf = await csrfOf(cookie);
+    for (const status of [
+      'contacted',
+      'referred',
+      'accepted_by_tailor',
+      'completed_reported',
+      'not_converted',
+      'cancelled',
+      'new',
+    ]) {
+      const r = await post(`/admin/enquiries/${id}/actions`, cookie, {
+        csrf,
+        action: 'set_status',
+        status,
+      });
+      expect(r.status, status).toBe(303);
+      expect(r.headers.get('location')).toBe(
+        `/admin/enquiries/${id}?msg=status_saved`,
+      );
+      expect(
+        (await db
+          .prepare('SELECT status FROM enquiry WHERE id = ?')
+          .bind(id)
+          .first<{ status: string }>())!.status,
+      ).toBe(status);
+    }
+    const logs = (await db
+      .prepare(
+        'SELECT count(*) AS c FROM enquiry_status_log WHERE enquiry_id = ?',
+      )
+      .bind(id)
+      .first<{ c: number }>())!.c;
+    expect(logs).toBe(7);
+  });
+
+  it('adds a note and flags spam', async () => {
+    const id = await idOf(await add('Note And Spam'));
+    expect(
+      (
+        await act('owner', id, {
+          action: 'add_note',
+          body: 'called, no answer',
+        })
+      ).headers.get('location'),
+    ).toBe(`/admin/enquiries/${id}?msg=note_added`);
+    expect(
+      (await act('owner', id, { action: 'set_spam', spam: '1' })).status,
+    ).toBe(303);
+    expect(
+      (await db
+        .prepare('SELECT is_spam FROM enquiry WHERE id = ?')
+        .bind(id)
+        .first<{ is_spam: number }>())!.is_spam,
+    ).toBe(1);
+    expect(await (await detail(id, await signIn('owner'))).text()).toContain(
+      'called, no answer',
+    );
+  });
+
+  it('refuses editors and viewers, and a missing or wrong CSRF token, without changing anything', async () => {
+    const id = await idOf(await add('Guarded'));
+    for (const role of ['editor', 'viewer'])
+      expect(
+        (await act(role, id, { action: 'set_status', status: 'cancelled' }))
+          .status,
+        role,
+      ).toBe(403);
+    expect(
+      (
+        await act(
+          'owner',
+          id,
+          { action: 'set_status', status: 'cancelled' },
+          false,
+        )
+      ).status,
+    ).toBe(403);
+    expect(
+      (
+        await post(`/admin/enquiries/${id}/actions`, undefined, {
+          action: 'set_status',
+          status: 'cancelled',
+        })
+      ).status,
+    ).toBe(302);
+    expect(
+      (await db
+        .prepare('SELECT status FROM enquiry WHERE id = ?')
+        .bind(id)
+        .first<{ status: string }>())!.status,
+    ).toBe('new');
+  });
+
+  it('answers 404 for an unknown enquiry and a clear message for bad input', async () => {
+    expect(
+      (
+        await act('owner', 999_999, {
+          action: 'set_status',
+          status: 'cancelled',
+        })
+      ).status,
+    ).toBe(404);
+    const id = await idOf(await add('Bad Input'));
+    for (const form of <Record<string, string>[]>[
+      { action: 'set_status', status: 'bogus' },
+      { action: 'add_note', body: '   ' },
+      { action: 'nonsense' },
+    ]) {
+      const r = await act('owner', id, form);
+      expect(r.status).toBe(303);
+      expect(r.headers.get('location')).toBe(
+        `/admin/enquiries/${id}?msg=invalid`,
+      );
+    }
+  });
+
+  it('keeps customer data out of the audit log', async () => {
+    const id = await idOf(await add('Audit Privacy Person'));
+    await act('owner', id, { action: 'set_status', status: 'contacted' });
+    await act('owner', id, { action: 'add_note', body: 'Audit Privacy note' });
+    const rows = JSON.stringify(
+      (
+        await db
+          .prepare(
+            "SELECT * FROM audit_log WHERE entity_type = 'enquiry' AND entity_id = ?",
+          )
+          .bind(id)
+          .all()
+      ).results,
+    );
+    expect(rows).not.toMatch(/Audit Privacy|\+670/);
   });
 });

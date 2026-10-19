@@ -65,6 +65,11 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     csrf,
     display_name: `Matrix Tailor ${Date.now()}${n++}`,
   }),
+  '/admin/enquiries/[id]/actions': (csrf) => ({
+    csrf,
+    action: 'add_note',
+    body: 'matrix note',
+  }),
   '/admin/tailors/[id]/actions': (csrf) => ({
     csrf,
     action: 'add_note',

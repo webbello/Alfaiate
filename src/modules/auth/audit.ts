@@ -16,7 +16,8 @@ export type AuditAction =
   | 'image_deleted'
   | 'catalog_changed'
   | 'fee_terms_changed'
-  | 'enquiry_status_changed';
+  | 'enquiry_status_changed'
+  | 'enquiry_spam_changed';
 
 type Entry = {
   userId: number | null;
