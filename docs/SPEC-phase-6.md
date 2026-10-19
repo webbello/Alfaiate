@@ -54,8 +54,8 @@ Browser:    npm run test:e2e     # extended with a referral journey and axe on t
 ## Project structure
 
 ```
-src/modules/referral/      queries.ts (list for an enquiry; fee columns only when asked), create.ts (rules, one active), update.ts (forwarding, response, completion), fee.ts (fee rules incl. BR-09), dates.ts (Dili day helpers, period ranges), messages.ts
-src/modules/reporting/     metrics.ts (the figures in assumption 14), period.ts (period parsing and ranges)
+src/modules/referral/      queries.ts (list for an enquiry; fee columns only when asked), create.ts (rules, one active), update.ts (forwarding, response, completion), fee.ts (fee rules incl. BR-09), dates.ts (Dili day helpers; messages live in src/i18n/en.ts)
+src/modules/reporting/     metrics.ts (the figures in assumption 14), period.ts (period parsing and ranges, using the Dili day helpers)
 src/pages/admin/enquiries/[id]/referrals.ts                 POST create        (referral.edit)
 src/pages/admin/enquiries/[id]/referrals/[rid].ts           POST update        (referral.edit)
 src/pages/admin/enquiries/[id]/referrals/[rid]/fee.ts       POST fee           (fee.view)

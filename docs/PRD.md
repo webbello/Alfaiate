@@ -60,7 +60,7 @@ No market-size or revenue figures are claimed. The MVP exists to test these hypo
 | M8 | Time to first contact | Enquiry created → status first moved to "Contacted" or "Referred" |
 | M9 | Fee collection rate | Fees paid ÷ fees due on reported completions |
 
-Reported figures are tailor-reported and manually recorded; they must be labelled as such.
+Reported figures are tailor-reported and manually recorded; they must be labelled as such. Exact definitions as built (spam excluded; M5 counts tailors with a referral forwarded in the period; M7 by paid date; M9 by amount, waived excluded, disputed in the denominator; M6 by UTC tap day): [SPEC-phase-6.md](SPEC-phase-6.md) assumption 14.
 
 ## 5. Target users and needs
 

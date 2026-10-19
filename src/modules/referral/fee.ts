@@ -71,27 +71,46 @@ export async function setFee(
   if (status === 'paid' && paidAt === '')
     return { ok: false, error: 'needs_paid_date' };
 
-  await db.batch([
-    db
-      .prepare(
-        `UPDATE referral SET fee_amount = ?, fee_basis_note = ?, order_value_note = ?, fee_status = ?, fee_paid_at = ?, updated_at = ?
-         WHERE id = ? AND enquiry_id = ?`,
-      )
-      .bind(
-        cents,
-        basis || null,
-        orderValue || null,
-        status,
-        status === 'paid' ? paidAt : null,
-        new Date().toISOString(),
-        referralId,
-        enquiryId,
-      ),
-    db
-      .prepare(
-        "INSERT INTO audit_log (admin_user_id, action, entity_type, entity_id) SELECT ?, 'referral_fee_updated', 'referral', ? WHERE changes() > 0",
-      )
-      .bind(userId, referralId),
-  ]);
+  // The statement repeats the completion and agreed-terms rules, so a change made by someone else after the checks above cannot slip a fee through.
+  const needsTerms = status === 'due' || status === 'paid';
+  let changes: number;
+  try {
+    const [update] = await db.batch([
+      db
+        .prepare(
+          `UPDATE referral SET fee_amount = ?, fee_basis_note = ?, order_value_note = ?, fee_status = ?, fee_paid_at = ?, updated_at = ?
+           WHERE id = ? AND enquiry_id = ?
+             AND (? IS NULL OR completion_reported_at IS NOT NULL)
+             AND (? = 0 OR (SELECT fee_terms_agreed_on FROM tailor WHERE tailor.id = referral.tailor_id) IS NOT NULL)`,
+        )
+        .bind(
+          cents,
+          basis || null,
+          orderValue || null,
+          status,
+          status === 'paid' ? paidAt : null,
+          new Date().toISOString(),
+          referralId,
+          enquiryId,
+          cents,
+          needsTerms ? 1 : 0,
+        ),
+      db
+        .prepare(
+          "INSERT INTO audit_log (admin_user_id, action, entity_type, entity_id) SELECT ?, 'referral_fee_updated', 'referral', ? WHERE changes() > 0",
+        )
+        .bind(userId, referralId),
+    ]);
+    changes = update.meta.changes;
+  } catch (error) {
+    if (String(error).includes('CHECK constraint'))
+      return { ok: false, error: 'needs_completion' };
+    throw error;
+  }
+  if (changes === 0)
+    return {
+      ok: false,
+      error: needsTerms ? 'no_agreed_terms' : 'needs_completion',
+    };
   return { ok: true };
 }

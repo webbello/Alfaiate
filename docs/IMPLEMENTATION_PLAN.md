@@ -56,8 +56,8 @@ Phases 1–5 produce a publicly usable directory with a working request form and
 
 - **Objective:** record the enquiry → referral → reported completion → fee trail and show counts.
 - **Dependencies:** Phase 5; OQ-03/OQ-04 (fee model) — fields exist regardless, the interpretation is the owner's.
-- **Deliverables:** assign enquiry to tailor (consent and approval checks); record forward time/method, tailor response, reported completion, fee and payment status; reassignment with history; dashboard counts and metrics M1–M5, M7, M9 labelled as reported; period selector.
-- **Requirements:** FR-REF-01–07, FR-RPT-01/02, FR-ADM-09 (Should), ANA-04/05, BR-08/09/10.
+- **Deliverables:** assign enquiry to tailor (consent and approval checks); record forward time/method, tailor response, reported completion, fee and payment status; reassignment with history; dashboard counts and metrics M1–M9 labelled as reported; period selector. Built as in [SPEC-phase-6.md](SPEC-phase-6.md).
+- **Requirements:** FR-REF-01–07, FR-RPT-01/02, ANA-04/05, BR-08/09/10 (FR-ADM-09, deletion and anonymisation, was deferred by the Phase 6 spec).
 - **Acceptance:** AC-12, AC-13, AC-14.
 - **Tests:** unit (metric calculations on a seeded dataset, fee/status constraints); integration (refusals, history retained, anonymisation keeps reporting fields); admin end-to-end journey J3.
 

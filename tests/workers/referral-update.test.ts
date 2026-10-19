@@ -243,7 +243,15 @@ describe('updateReferral: forwarding, response, completion (FR-REF-03/04/05, AC-
       .prepare('UPDATE referral SET fee_amount = 500 WHERE id = ?')
       .bind(s.id)
       .run();
-    expect(await run(s, form())).toEqual({ ok: false, error: 'has_fee' });
+    // only the owner is told a fee exists; a manager just gets a neutral refusal
+    expect(await run(s, form(), 'manager')).toEqual({
+      ok: false,
+      error: 'invalid',
+    });
+    expect(await run(s, form(), 'owner')).toEqual({
+      ok: false,
+      error: 'has_fee',
+    });
     expect((await get(s.e)).completion_reported_at).toBe('2026-06-09');
   });
 
@@ -302,5 +310,92 @@ describe('updateReferral: forwarding, response, completion (FR-REF-03/04/05, AC-
       entity_id: s.id,
     });
     expect(JSON.stringify(rows)).not.toMatch(/script|Fake|\+670|2026-06/);
+  });
+});
+
+describe('rules that hold even when something changes between the checks and the write', () => {
+  it('refuses to make a second referral active again by editing (declined back to pending or accepted)', async () => {
+    const s = await setup();
+    await db
+      .prepare("UPDATE referral SET tailor_response = 'declined' WHERE id = ?")
+      .bind(s.id)
+      .run();
+    const t2 = (
+      await db
+        .prepare(
+          "INSERT INTO tailor (slug, display_name, status) VALUES (?, ?, 'approved')",
+        )
+        .bind(`ru-x-${++n}`, `RU X ${n}`)
+        .run()
+    ).meta.last_row_id as number;
+    const second = await createReferral(db, {
+      enquiryId: s.e,
+      tailorId: t2,
+      userId: s.who,
+    });
+    if (!second.ok) throw new Error('second');
+    for (const response of ['pending', 'accepted'])
+      expect(
+        await run(s, form({ tailor_response: response })),
+        response,
+      ).toEqual({ ok: false, error: 'already_active' });
+    expect((await get(s.e)).tailor_response).toBe('declined');
+    // ...but declining or no response is always fine, and the active one may be edited
+    expect((await run(s, form({ tailor_response: 'no_response' }))).ok).toBe(
+      true,
+    );
+    expect(
+      await updateReferral(db, {
+        enquiryId: s.e,
+        referralId: second.id,
+        userId: s.who,
+        role: 'manager',
+        input: form({ tailor_response: 'accepted' }),
+        now: NOW,
+      }),
+    ).toEqual({ ok: true });
+  });
+
+  it('does not let a manager overwrite a completion the owner confirmed a moment earlier', async () => {
+    const s = await setup();
+    await run(
+      s,
+      form({
+        completion_reported_at: '2026-06-09',
+        completion_reported_by: 'tailor',
+      }),
+      'manager',
+    );
+    const real = db;
+    const racing = {
+      prepare: (sql: string) => real.prepare(sql),
+      batch: async (statements: D1PreparedStatement[]) => {
+        // the owner confirms after the manager's checks have passed
+        await real
+          .prepare(
+            "UPDATE referral SET completion_reported_by = 'owner_confirmed' WHERE id = ?",
+          )
+          .bind(s.id)
+          .run();
+        return real.batch(statements);
+      },
+    } as unknown as D1Database;
+    const result = await updateReferral(racing, {
+      enquiryId: s.e,
+      referralId: s.id,
+      userId: s.who,
+      role: 'manager',
+      input: form({
+        completion_reported_at: '2026-06-09',
+        completion_reported_by: 'customer',
+        forwarded_via: 'sms',
+      }),
+      now: NOW,
+    });
+    expect(result).toEqual({ ok: false, error: 'forbidden' });
+    expect(await get(s.e)).toMatchObject({
+      completion_reported_by: 'owner_confirmed',
+      forwarded_via: null,
+    });
   });
 });

@@ -2,7 +2,7 @@
 
 Status: Draft v0.3 · 2026-10-18 · Requirements: [PRD.md](PRD.md) · Data: [DATA_MODEL.md](DATA_MODEL.md) · Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
 
-**Owner-selected stack (confirmed 2026-10-16):** Astro 7.4, Cloudflare Workers, Cloudflare D1, Cloudflare R2 (or another image store), and a custom admin interface with role-based access control (RBAC). Everything else below is **proposed** unless marked confirmed. Phases 1–3 are implemented (project skeleton; database schema; admin sign-in, sessions and RBAC; tailor profiles, categories, areas, photos and publishing in the admin). The public directory, enquiry form and referral tracking are not built yet.
+**Owner-selected stack (confirmed 2026-10-16):** Astro 7.4, Cloudflare Workers, Cloudflare D1, Cloudflare R2 (or another image store), and a custom admin interface with role-based access control (RBAC). Everything else below is **proposed** unless marked confirmed. Phases 1–6 are implemented (project skeleton; database schema; admin sign-in, sessions and RBAC; tailor profiles, categories, areas, photos and publishing; the public bilingual site; the request form and admin inbox; referral tracking and the dashboard). Hardening, SEO measurement and deployment (Phases 7–8) are not done yet.
 
 ## 1. Existing repository assessment
 
@@ -89,7 +89,7 @@ Permission-based checks (`can(role, 'tailor.publish')`), with roles as fixed bun
 
 | Permission | owner | manager | editor | viewer |
 |---|:-:|:-:|:-:|:-:|
-| View dashboard counts | ✔ | ✔ | ✔ | ✔ |
+| View dashboard figures (needs `enquiry.view`; fee figures owner only) | ✔ | ✔ | | |
 | Create/edit tailor profiles, images, categories, areas (draft) | ✔ | ✔ | ✔ | |
 | Publish / unpublish tailors; record permission and verification | ✔ | ✔ | | |
 | View enquiries (contains customer data) | ✔ | ✔ | | |

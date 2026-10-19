@@ -132,27 +132,27 @@ Customer reference images (if FR-ENQ-07 ships): `enquiry_attachment` (`enquiry_i
 
 ### 3.8 `referral` — **Private**
 
-**Purpose:** one enquiry passed to one tailor; the single place for forwarding, response, reported completion and fee. An enquiry may have several referrals over time (re-referral after decline); normally **one active** at a time **[Proposed]**.
+**Purpose:** one enquiry passed to one tailor; the single place for forwarding, response, reported completion and fee. An enquiry may have several referrals over time (re-referral after decline); **one active** (`pending` or `accepted`) at a time, enforced in the INSERT and in every edit, not by the database.
 
 | Field | Notes |
 |---|---|
 | enquiry_id, tailor_id | FKs |
-| forwarded_at | timestamp, null until forwarded |
+| forwarded_at | Dili day `YYYY-MM-DD` text, null until forwarded |
 | forwarded_via | `whatsapp` \| `phone` \| `sms` \| `in_person` \| `other` |
 | fields_shared_note | text — what was shared (supports BR-08 audit) |
 | tailor_response | `pending` \| `accepted` \| `declined` \| `no_response` |
-| responded_at | null |
-| completion_reported_at | date/timestamp, null — set when completion is reported |
+| responded_at | Dili day text, null while `pending` |
+| completion_reported_at | Dili day text, null — set when completion is reported |
 | completion_reported_by | `tailor` \| `customer` \| `owner_confirmed` |
 | order_value_note | text/amount, null — as reported, optional, used only if the fee is value-based |
 | fee_basis_note | text — which agreed terms apply |
-| fee_amount | decimal, null |
+| fee_amount | integer cents (US dollars), null |
 | fee_status | `not_due` \| `due` \| `paid` \| `waived` \| `disputed` |
-| fee_paid_at | date, null |
+| fee_paid_at | Dili day text, null |
 | closed_reason | text, null |
 
-**Constraints:** enquiry must have consent true and tailor must be `approved` at creation; `fee_amount` allowed only when `completion_reported_at` is set **[Proposed]**; `fee_status = paid` requires `fee_paid_at`.
-**Why not duplicate status here:** the overall customer-facing lifecycle lives in `enquiry.status`; the referral stores only per-tailor facts. The admin UI may suggest an enquiry status after a referral edit, but never changes it automatically (no workflow orchestration).
+**Constraints:** enquiry must have consent true and tailor must be `approved` at creation; `fee_amount` allowed only when `completion_reported_at` is set (database CHECK); `fee_status = paid` requires `fee_paid_at` (CHECK); `due` or `paid` also needs the tailor's `fee_terms_agreed_on` (BR-09, enforced in `src/modules/referral/fee.ts`). `fields_shared_note` and `closed_reason` are free text: the anonymise routine (FR-ADM-09, not built yet) must clear them.
+**Why not duplicate status here:** the overall customer-facing lifecycle lives in `enquiry.status`; the referral stores only per-tailor facts. The admin UI never suggests or changes an enquiry status because of a referral edit (no workflow orchestration).
 
 ### 3.9 `enquiry_status_log` — Private
 

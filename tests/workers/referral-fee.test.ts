@@ -224,3 +224,47 @@ describe('setFee (FR-REF-06, BR-09, BR-10, AC-13)', () => {
     expect((await get(other.e)).fee_amount).toBeNull(); // no default, no suggestion
   });
 });
+
+describe('setFee when the record changes between the checks and the write', () => {
+  it('returns a plain refusal instead of failing, and keeps BR-09 and BR-10 intact', async () => {
+    const real = db;
+    const racing = (undo: string) =>
+      ({
+        prepare: (sql: string) => real.prepare(sql),
+        batch: async (statements: D1PreparedStatement[]) => {
+          await real.prepare(undo).run();
+          return real.batch(statements);
+        },
+      }) as unknown as D1Database;
+    const a = await setup();
+    const lostCompletion = await setFee(
+      racing(
+        `UPDATE referral SET completion_reported_at = NULL, completion_reported_by = NULL WHERE id = ${a.id}`,
+      ),
+      {
+        enquiryId: a.e,
+        referralId: a.id,
+        userId: a.who,
+        role: 'owner',
+        input: form({ fee_amount: '10', fee_status: 'not_due' }),
+      },
+    );
+    expect(lostCompletion).toEqual({ ok: false, error: 'needs_completion' });
+    expect((await get(a.e)).fee_amount).toBeNull();
+    const b = await setup();
+    const lostTerms = await setFee(
+      racing(
+        `UPDATE tailor SET fee_terms_agreed_on = NULL WHERE id = (SELECT tailor_id FROM referral WHERE id = ${b.id})`,
+      ),
+      {
+        enquiryId: b.e,
+        referralId: b.id,
+        userId: b.who,
+        role: 'owner',
+        input: form({ fee_amount: '10', fee_status: 'due' }),
+      },
+    );
+    expect(lostTerms).toEqual({ ok: false, error: 'no_agreed_terms' });
+    expect((await get(b.e)).fee_status).toBe('not_due');
+  });
+});

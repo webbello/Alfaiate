@@ -38,8 +38,8 @@
 - [x] **T8 Playwright and axe**
   - Acceptance: e2e as the throwaway owner creates a referral on the seeded enquiry, records forwarding, response and a reported completion, records a fee (after the seeded tailor has agreed terms), sees the dashboard figures change; axe zero violations on the enquiry page with referrals and on `/admin`; a deliberately broken label fails the suite once, then is reverted.
   - Verify: `npm run test:e2e` passes.
-  - Files: `e2e/referral.spec.ts`, `e2e/a11y.spec.ts`, `e2e/seed.sql`
+  - Files: `e2e/referral.spec.ts` (axe included), `e2e/seed.sql`
 
-- [ ] **T9 Docs, reviewers, security audit, fresh clone, manual look**
+- [x] **T9 Docs, reviewers, security audit, fresh clone, manual look**
   - Acceptance: README, STATUS, DECISIONS, ARCHITECTURE §4–§6, DATA_MODEL §3.8 and §9, SPEC deviations and AGENTS lessons updated; `privacy-scope-reviewer`, `docs-sync` and `agent-skills:security-auditor` run with no unresolved blockers; one manual look at the dashboard and a referral recorded; launch items written down (fee model OQ-03/04, no fee relied on until agreed).
   - Verify: `npm ci && npm run check` from a fresh clone and `npm run test:e2e`; `git ls-files` has no secrets, databases or uploads.
