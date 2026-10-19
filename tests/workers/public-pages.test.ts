@@ -24,6 +24,7 @@ describe('public routes (scope guard)', () => {
   const EXPECTED = [
     '404.astro',
     'about.astro',
+    'api/contact-click.ts',
     'categories/[slug].astro',
     'how-it-works.astro',
     'index.astro',

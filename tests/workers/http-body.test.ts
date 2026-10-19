@@ -102,3 +102,22 @@ describe('parseId', () => {
       expect(Number.isInteger(parseId(bad as never)), String(bad)).toBe(false);
   });
 });
+
+describe('readBody', () => {
+  it('returns the bytes of a small body, an empty array for no body, and null for a body over the limit', async () => {
+    const { readBody } = await import('../../src/modules/http/body');
+    expect(
+      new TextDecoder().decode((await readBody(post('hello'), 100))!),
+    ).toBe('hello');
+    expect(
+      (await readBody(
+        new Request('https://example.test/x', { method: 'POST' }),
+        100,
+      ))!.length,
+    ).toBe(0);
+    expect(await readBody(post('x'.repeat(101)), 100)).toBeNull();
+    expect(
+      await readBody(post('x', { 'content-length': '5000' }), 100),
+    ).toBeNull();
+  });
+});

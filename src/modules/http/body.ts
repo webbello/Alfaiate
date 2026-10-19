@@ -3,18 +3,14 @@ export const SMALL_FORM_LIMIT = 64 * 1024;
 /** Largest body accepted by the photo upload: the three size caps in media/validate.ts plus a margin for the text fields. */
 export const UPLOAD_LIMIT = 3 * 1024 * 1024 + 64 * 1024;
 
-/**
- * Reads a form body but stops once it exceeds `maxBytes`, instead of buffering whatever a signed-in user sends
- * (Workers have 128 MB of memory). Works with or without a Content-Length header. A malformed body gives an empty form.
- */
-export async function readForm(
+/** Reads a request body up to `maxBytes`, with or without a Content-Length header. `null` means it was too large. */
+export async function readBody(
   request: Request,
-  maxBytes = SMALL_FORM_LIMIT,
-): Promise<{ form: FormData; tooLarge: boolean }> {
-  const tooLarge = { form: new FormData(), tooLarge: true };
+  maxBytes: number,
+): Promise<Uint8Array<ArrayBuffer> | null> {
   const declared = Number(request.headers.get('content-length'));
-  if (Number.isFinite(declared) && declared > maxBytes) return tooLarge;
-  if (!request.body) return { form: new FormData(), tooLarge: false };
+  if (Number.isFinite(declared) && declared > maxBytes) return null;
+  if (!request.body) return new Uint8Array(0);
 
   const reader = request.body.getReader();
   const chunks: Uint8Array[] = [];
@@ -25,7 +21,7 @@ export async function readForm(
     total += value.byteLength;
     if (total > maxBytes) {
       await reader.cancel();
-      return tooLarge;
+      return null;
     }
     chunks.push(value);
   }
@@ -35,6 +31,19 @@ export async function readForm(
     bytes.set(chunk, offset);
     offset += chunk.byteLength;
   }
+  return bytes;
+}
+
+/**
+ * Reads a form body but stops once it exceeds `maxBytes`, instead of buffering whatever a signed-in user sends
+ * (Workers have 128 MB of memory). A malformed body gives an empty form.
+ */
+export async function readForm(
+  request: Request,
+  maxBytes = SMALL_FORM_LIMIT,
+): Promise<{ form: FormData; tooLarge: boolean }> {
+  const bytes = await readBody(request, maxBytes);
+  if (bytes === null) return { form: new FormData(), tooLarge: true };
   try {
     const form = await new Response(bytes, {
       headers: { 'content-type': request.headers.get('content-type') ?? '' },

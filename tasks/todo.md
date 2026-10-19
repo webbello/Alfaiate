@@ -45,7 +45,7 @@
   - Verify: unit tests for the builders; integration: unpublished tailor absent from sitemap (AC-05), placeholder pages absent, unknown values escaped in XML.
   - Files: `src/modules/seo/sitemap.ts`, `src/modules/seo/robots.ts`, `src/pages/sitemap.xml.ts`, `src/pages/robots.txt.ts`, `tests/workers/seo.test.ts`, `tests/integration/seo.test.ts`
 
-- [ ] **T10 Contact tap counter**
+- [x] **T10 Contact tap counter**
   - Acceptance: `POST /api/contact-click` (JSON `{slug, channel}`) increments `contact_click_daily` for a published tailor that shows that channel; same-origin only; per-address hashed rate limit; answers 204, 400 or 429; stores nothing personal; `src/scripts/contact-click.ts` sends a beacon from links marked `data-contact-channel` and never blocks navigation.
   - Verify: unit/D1 tests for counting and refusals (unpublished, wrong channel, no consent, other origin, oversized body, rate limit); integration end to end; mutation checks on origin and published rules; script loads as an external file.
   - Files: `src/modules/analytics/contact-click.ts`, `src/pages/api/contact-click.ts`, `src/scripts/contact-click.ts`, `tests/workers/contact-click.test.ts`, `tests/integration/contact-click.test.ts`

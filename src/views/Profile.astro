@@ -221,4 +221,7 @@ const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') =>
 
     <p class="meta">{t.profile.suppliedNote}</p>
   </article>
+  {(whatsapp || phone) && <script>
+    import '../scripts/contact-click';
+  </script>}
 </PublicLayout>
