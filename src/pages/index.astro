@@ -1,11 +1,6 @@
 ---
-// Rendered per request so the middleware adds security headers (SEC-08).
 export const prerender = false;
-import Base from '../layouts/Base.astro';
-import { en } from '../i18n/en';
+import Home from '../views/Home.astro';
 ---
 
-<Base title={en.homeTitle} description={en.homeDescription}>
-  <h1>{en.homeHeading}</h1>
-  <p>{en.homeIntro}</p>
-</Base>
+<Home lang="en" />

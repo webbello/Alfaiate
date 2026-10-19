@@ -206,3 +206,41 @@ a:hover {
     padding-top: 2rem;
   }
 }
+
+.lead {
+  font-size: 1.15rem;
+  max-width: var(--measure);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.25rem 0 2rem;
+}
+.steps {
+  padding-left: 1.25rem;
+}
+.steps li {
+  margin-bottom: 0.5rem;
+}
+.chips {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+}
+.chip:hover {
+  border-color: var(--accent);
+}

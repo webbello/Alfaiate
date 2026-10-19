@@ -20,7 +20,7 @@
   - Verify: D1 tests: published only; consent gating; photo permission; each filter alone and combined (AC-02); inactive categories excluded; view-model key whitelist test (no private, fee, permission or note fields anywhere); mutation checks on published, consent and photo rules.
   - Files: `src/modules/directory/queries.ts`, `src/modules/directory/view.ts`, `tests/workers/directory.test.ts`, `tests/workers/directory-privacy.test.ts`
 
-- [ ] **T5 Home page and request placeholder**
+- [x] **T5 Home page and request placeholder**
   - Acceptance: `/` and `/tet/` show explanation, disclaimer and request CTA first, then three "how it works" steps and category links; `/request` and `/tet/request` placeholder (no form, no data collected, links to the directory); shared views and thin wrapper pages; CTA target is `/request`.
   - Verify: integration for AC-01 (explanation, disclaimer, CTA appear before any later section in the markup) in both languages; no form element on the placeholder; scope-guard test updated with the new public routes.
   - Files: `src/views/Home.astro`, `src/views/RequestPlaceholder.astro`, `src/pages/index.astro`, `src/pages/request.astro`, `src/pages/tet/index.astro` (+ `tet/request.astro`), `tests/workers/public-pages.test.ts`, `tests/integration/home.test.ts`

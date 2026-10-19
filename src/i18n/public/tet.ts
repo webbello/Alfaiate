@@ -25,6 +25,32 @@ export const tet: Dictionary = {
     short:
       "Alfaiate TL aprezenta ita ba alfaiate independente sira. Alfaiate rasik, la'ós Alfaiate TL, konkorda ba folin, halo ita-nia roupa no hili data. Ami la bele garante alfaiate disponivel, kualidade ka tempu.",
   },
+  home: {
+    title: 'Buka alfaiate iha Dili',
+    description:
+      'Alfaiate TL ajuda ita buka alfaiate independente iha Dili, haree sira-nia serbisu no folin aproximadu, no kontaktu sira diretamente liuhosi WhatsApp ka telefone.',
+    heading: 'Buka alfaiate iha Dili',
+    intro:
+      'Haree alfaiate lokál sira, hatene saida mak sira halo no folin aproximadu, depois kontaktu sira diretamente liuhosi WhatsApp ka telefone. Hakarak vizita iha uma? Husu alfaiate atu mai ita-nia fatin.',
+    noteLabel: 'Favór nota',
+    browse: 'Haree alfaiate sira',
+    how: {
+      heading: "Oinsá serbisu ne'e halo",
+      step1Title: 'Haree',
+      step1: 'Haree alfaiate sira, sira-nia serbisu no folin aproximadu.',
+      step2Title: 'Kontaktu',
+      step2: 'Toka WhatsApp ka Telefone atu koʼalia ho alfaiate diretamente.',
+      step3Title: 'Konkorda',
+      step3: 'Ita no alfaiate rasik konkorda ba folin, medida no data.',
+    },
+    categoriesHeading: 'Ita presiza saida?',
+  },
+  request: {
+    title: 'Husu alfaiate ba uma',
+    heading: 'Husu alfaiate ba uma',
+    body: "Formuláriu pedidu ne'e seidauk loke. Agora ita bele haree alfaiate sira no kontaktu sira diretamente.",
+    browse: 'Haree alfaiate sira',
+  },
   notFound: {
     title: 'Pájina la hetan',
     heading: "Ami la hetan pájina ne'e",

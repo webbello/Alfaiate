@@ -20,3 +20,26 @@ describe('Tetum gate (English only)', () => {
     expect(html).not.toContain('lang="tet"');
   });
 });
+
+describe('Tetum gate on real pages (English only)', () => {
+  it('answers 404 with the English page for Tetum addresses that exist when Tetum is on', async () => {
+    for (const path of ['/tet/', '/tet/request']) {
+      const response = await get(path);
+      const html = await response.text();
+      expect(response.status, path).toBe(404);
+      expect(html, path).toContain('We could not find that page');
+      expect(html, path).not.toContain('Buka alfaiate');
+      expect(html, path).not.toContain('<html lang="tet">');
+    }
+  });
+
+  it('serves the English home page and request page normally, with no link or alternate to Tetum', async () => {
+    for (const path of ['/', '/request']) {
+      const response = await get(path);
+      const html = await response.text();
+      expect(response.status, path).toBe(200);
+      expect(html, path).not.toContain('/tet');
+      expect(html, path).not.toContain('hreflang="tet"');
+    }
+  });
+});

@@ -1,0 +1,68 @@
+---
+import { env } from 'cloudflare:workers';
+import PublicLayout from '../layouts/PublicLayout.astro';
+import { dictionary } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+import { requireBindings } from '../modules/config';
+import { listActiveCategories } from '../modules/directory/queries';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dictionary(lang);
+const categories = await listActiveCategories(requireBindings(env).DB, {
+  onlyWithTailors: true,
+});
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${t.home.title} · ${t.siteName}`}
+  description={t.home.description}
+  rest="/"
+>
+  <h1>{t.home.heading}</h1>
+  <p class="lead">{t.home.intro}</p>
+  <p class="notice" role="note">
+    <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
+  </p>
+  <p class="actions">
+    <a class="button" href={pathFor(lang, '/request')}>
+      {t.cta.requestHome}
+    </a>
+    <a class="button button--secondary" href={pathFor(lang, '/tailors')}>
+      {t.home.browse}
+    </a>
+  </p>
+
+  <section aria-labelledby="how">
+    <h2 id="how">{t.home.how.heading}</h2>
+    <ol class="steps">
+      <li>
+        <strong>{t.home.how.step1Title}.</strong> {t.home.how.step1}
+      </li>
+      <li>
+        <strong>{t.home.how.step2Title}.</strong> {t.home.how.step2}
+      </li>
+      <li>
+        <strong>{t.home.how.step3Title}.</strong> {t.home.how.step3}
+      </li>
+    </ol>
+  </section>
+
+  {categories.length > 0 && (
+    <section aria-labelledby="needs">
+      <h2 id="needs">{t.home.categoriesHeading}</h2>
+      <ul class="chips">
+        {categories.map((c) => (
+          <li>
+            <a class="chip" href={pathFor(lang, `/categories/${c.slug}`)}>
+              {c.name}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</PublicLayout>
