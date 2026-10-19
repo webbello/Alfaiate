@@ -20,7 +20,7 @@ Inspected 2026-10-16 at `/Users/apple/Sites/AlfaiateTL`: empty directory, no con
 | Bot protection | Cloudflare Turnstile | Proposed | Privacy-friendly, no puzzle for most users; see §10. |
 | Validation | Zod (or equivalent) | Proposed | One schema per form/endpoint. |
 | Styling | Plain CSS with tokens | Proposed | Small payloads. |
-| Tests | Vitest 4.1.12 with three projects (`container`: Astro components; `workers`: workerd + local D1/R2 via `@cloudflare/vitest-plugin`; `integration`: the built Worker with real HTTP requests); Playwright + axe in Phase 4/7 | Implemented (Phase 2) | `npm test` runs the first two; `npm run test:integration` builds, then runs the third; `npm run check` runs everything. |
+| Tests | Vitest 4.1.12 with three projects (`workers`: workerd + local D1/R2 via `@cloudflare/vitest-plugin`; `integration`: the built Worker with real HTTP requests, English+Tetum; `integration-en`: the built Worker with Tetum off); Playwright + axe (`e2e/`) | Implemented (Phase 2; browser tests Phase 4) | `npm test` runs `workers`; `npm run test:integration` builds, then runs the other two; `npm run check` runs all of these; `npm run test:e2e` (separate) builds and runs Playwright and axe on a throwaway database. |
 
 Exact versions are in `package.json`.
 
@@ -40,7 +40,7 @@ Browser ──> Cloudflare edge ──> Worker (Astro SSR)
 
 | Component | Responsibility |
 |---|---|
-| Public pages | Home, directory, categories, areas, profiles, request form, static pages, sitemap, robots |
+| Public pages | Home, directory, categories, profiles, request form, static pages, sitemap, robots |
 | `enquiry` module | Validate, bot-check, persist enquiry; acknowledgement; owner notification |
 | `referral` module | Referral rules (consent/approval checks), outcome and fee recording |
 | `admin` pages | Tailors, images, categories, areas, enquiries, referrals, dashboard, user management |
@@ -69,7 +69,7 @@ Pages call modules; modules call `db`/`media`. Modules do not query each other's
 
 Unchanged in intent from v0.1. Phase 4 added the Tetum language prefix: every page below exists in English at the path shown and in Tetum under `/tet/` (e.g. `/tet/tailors`); Tetum returns 404 unless `PUBLIC_LANGUAGES` includes `tet`. `/areas/[slug]` was decided against (directory filters only, 2026-10-19). `/request` is a placeholder until Phase 5, and `/request/thanks` does not exist yet. Privacy and Terms are placeholders (noindex, outside the sitemap) until the owner supplies text. `POST /api/contact-click` is language-neutral.
 
-**Public:** `/`, `/tailors` (filters `category`, `area`, `home_visit`), `/tailors/[slug]`, `/categories/[slug]`, `/areas/[slug]` (optional), `/request` (`?tailor=slug`), `/request/thanks`, `/how-it-works`, `/about`, `/privacy`, `/terms`, `/sitemap.xml`, `/robots.txt`, `/media/*`, `POST /api/contact-click`.
+**Public:** `/`, `/tailors` (filters `category`, `area`, `home_visit`), `/tailors/[slug]`, `/categories/[slug]`, `/request` (`?tailor=slug`), `/request/thanks`, `/how-it-works`, `/about`, `/privacy`, `/terms`, `/sitemap.xml`, `/robots.txt`, `/media/*`, `POST /api/contact-click`.
 
 **Admin (`/admin`, authenticated, `noindex`, no-store):** `/admin/login`, `/admin/logout`, `/admin` (dashboard), `/admin/account` (own password), `/admin/users/actions` (POST handler), `/admin/tailors`, `/admin/tailors/new`, `/admin/tailors/[id]` (with POST handlers `/actions`, `/publish`, `/fees`, `/images`, `/images/actions`), `/admin/media/[...key]` (private photo preview), `/admin/categories`, `/admin/areas`, `/admin/enquiries`, `/admin/enquiries/[id]`, `/admin/users` (owner only).
 
@@ -157,7 +157,7 @@ Cloudflare processes customer data in transit and at rest in D1/R2; the privacy 
 
 ## 11. SEO and performance
 
-- Server-rendered or prerendered HTML; one `<h1>`; unique title/description/canonical per tailor and category; Open Graph image from the profile photo.
+- Server-rendered or prerendered HTML; one `<h1>`; unique title/description/canonical per tailor and category; Open Graph image from the profile photo (planned, Phase 7).
 - Structured data: `Organization`/`WebSite` on home; `LocalBusiness` on profiles for published facts only; no rating/review markup (BR-11).
 - Sitemap from published content only; `robots.txt` blocks `/admin` and `/api`; filter-parameter pages canonicalised or `noindex,follow`.
 - Edge caching of public HTML and media; responsive images with explicit dimensions and lazy loading; system fonts or one self-hosted subset; minimal client JS (Astro islands only where needed).
@@ -184,7 +184,7 @@ Cloudflare processes customer data in transit and at rest in D1/R2; the privacy 
 | RBAC with fixed roles | Least privilege for helpers; small code | More to build/test than one admin; roles may need adjusting |
 | Manual forwarding/status | Fits tailor reality, no integrations | Admin effort grows with volume |
 | WhatsApp links only | Free, works for any tailor | No delivery tracking; direct contacts not attributable |
-| Single language first | Faster | Mitigated by NFR-I18N-01 |
+| Tetum gated until reviewed | Production launches English-only until a native speaker has reviewed the Tetum text | `PUBLIC_LANGUAGES` switch (NFR-I18N-01) |
 
 ## 14. Future extension points
 
@@ -202,7 +202,7 @@ Language routing and translated content; tailor notifications via WhatsApp Busin
 | AD-06 | Backup destination outside Cloudflare, frequency and retention | Daily D1 export + R2 replication, owner-approved destination (decided 2026-10-18, see DECISIONS.md) |
 | AD-07 | Image count/size limits | **Resolved 2026-10-19**: 10 photos per tailor, 8 MB per original |
 | AD-08 | Domain, DNS and email-sending setup | Owner to supply |
-| AD-09 | Launch language(s) (OQ-07) | Single language, i18n-ready |
+| AD-09 | Launch language(s) (OQ-07) | **Resolved 2026-10-19**: English and Tetum; Tetum gated by `PUBLIC_LANGUAGES` until native-speaker review |
 | AD-10 | Phone input rules for Timor-Leste | **Resolved 2026-10-19**: `+670` + 8 digits (mobile 7, landline 3); local and `+670` forms accepted, stored E.164 |
 | AD-11 | Role set and who gets which role (OQ-15) | **Resolved 2026-10-18**: owner, manager, editor, viewer as in §6; one owner account at launch |
 | AD-12 | Whether Cloudflare Access is added in front of `/admin` | No in MVP; revisit |

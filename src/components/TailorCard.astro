@@ -1,4 +1,5 @@
 ---
+import Source from './Source.astro';
 import { dictionary } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 import { priceText } from '../modules/directory/format';
@@ -47,7 +48,7 @@ const photo = tailor.photo;
     )}
     {price && (
       <p class="card__line">
-        {t.price.approximate}: {price}
+        {t.price.approximate}: {price} <Source lang={lang} verified={false} />
       </p>
     )}
   </div>

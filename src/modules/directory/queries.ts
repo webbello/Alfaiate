@@ -168,10 +168,11 @@ export async function listPublished(
     truncated,
     tailors: rows.map((r) => {
       const own = cats.filter((c) => c.tailor_id === r.id);
-      const photo =
+      const found =
         r.profile_photo_id !== null
           ? photoById.get(r.profile_photo_id)
           : undefined;
+      const photo = found?.tailor_id === r.id ? found : undefined;
       return {
         slug: r.slug,
         name: r.display_name,

@@ -36,6 +36,16 @@ describe('public shell: 404 page in both languages', () => {
     expect(html).toContain('href="#main"');
   });
 
+  it('lists each header link once', async () => {
+    for (const url of ['/no-such-page', '/tet/no-such-page']) {
+      const nav = (await page(url)).html.match(
+        /<nav class="site-nav"[\s\S]*?<\/nav>/,
+      )![0];
+      const hrefs = [...nav.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+      expect(new Set(hrefs).size, url).toBe(hrefs.length);
+    }
+  });
+
   it('shows the disclaimer in the footer of every page', async () => {
     expect((await page('/no-such-page')).html).toContain(
       'introduces you to independent tailors',

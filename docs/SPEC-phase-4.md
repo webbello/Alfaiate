@@ -50,7 +50,7 @@ src/i18n/public/en.ts, tet.ts      public text dictionaries (tet must satisfy ty
 src/modules/directory/             queries.ts (explicit columns), view.ts (view models), filters.ts (parse/validate query)
 src/modules/contact-links/         tel.ts, whatsapp.ts (existing phone.ts stays)
 src/modules/analytics/             contact-click.ts (record a tap), rate limit via auth/rate-limit
-src/modules/seo/                   sitemap.ts, robots.ts, meta helpers
+src/modules/seo/                   sitemap.ts (sitemap and robots builders), head.ts, meta.ts, pages.ts
 src/views/                         shared page bodies: Home, Directory, Category, Profile, Static, Request placeholder
 src/pages/                         index, tailors/index, tailors/[slug], categories/[slug], request, how-it-works, about, privacy, terms,
                                    sitemap.xml, robots.txt, api/contact-click, 404  (+ the same set under tet/ as thin wrappers)

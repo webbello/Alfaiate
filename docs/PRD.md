@@ -176,7 +176,7 @@ Customer accounts; tailor self-service registration or dashboards; booking calen
 
 ### 7.4 Future enhancements (not designed here)
 
-English/Tetum content (design for it now, ship later — NFR-I18N-01); tailor-side notifications beyond manual messages; simple verified reviews; tailor self-service profile updates; online booking; CSV export; richer analytics.
+Further languages beyond English and Tetum (English and Tetum ship at launch, Tetum gated by native-speaker review — OQ-07, NFR-I18N-01); tailor-side notifications beyond manual messages; simple verified reviews; tailor self-service profile updates; online booking; CSV export; richer analytics.
 
 ## 8. Business rules
 
