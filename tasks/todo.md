@@ -30,8 +30,8 @@
   - Verify: integration: role matrix with a real tailor id, editor creates a draft end to end, editor refused on a published tailor, CSRF refusal, escaped output (a name containing `<script>` renders inert), no `<script` without `src`.
   - Files: `src/pages/admin/tailors.astro`, `src/pages/admin/tailors/new.astro`, `src/pages/admin/tailors/[id].astro`, `src/pages/admin/tailors/[id]/actions.ts`, `tests/integration/tailors.test.ts`
 
-- [ ] **T7 Media validation**
-  - Acceptance: first an R2 put/get/list/delete test in the Workers project; `validateVariant(bytes, variant)` accepts JPEG and WebP only, by magic bytes, with width within the variant maximum (320/800/1600) and size caps, and rejects EXIF/XMP/IPTC (JPEG APP1/APP13; WebP EXIF/XMP chunks), non-images renamed, truncated files; allows JFIF and ICC; `keys.ts` builds and parses `tailor/<id>/<random>/<variant>.jpg` and rejects traversal.
+- [x] **T7 Media validation**
+  - Acceptance: first an R2 put/get/list/delete test in the Workers project; `validateVariant(bytes, variant)` accepts JPEG only (owner chose JPEG-only, spec Q4), by magic bytes, with width within the variant maximum (320/800/1600) and size caps, and rejects EXIF/XMP/IPTC (JPEG APP1/APP13; WebP EXIF/XMP chunks), non-images renamed, truncated files; allows JFIF and ICC; `keys.ts` builds and parses `tailor/<id>/<random>/<variant>.jpg` and rejects traversal.
   - Verify: byte-level fixtures for every accept/reject case, each seen failing first; mutation checks on EXIF rejection and the width cap.
   - Files: `src/modules/media/validate.ts`, `src/modules/media/keys.ts`, `tests/workers/media-validate.test.ts`, `tests/workers/media-keys.test.ts`, `tests/workers/fixtures/images.ts`
 
