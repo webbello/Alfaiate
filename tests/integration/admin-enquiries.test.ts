@@ -432,3 +432,90 @@ describe('the inbox for people (Phase 7b T4)', () => {
     expect(html).toContain('href="/admin/enquiries"');
   });
 });
+
+describe('the enquiry page in cards (Phase 7b T5)', () => {
+  const open = async (role: string) => {
+    const ref = await add('Cards Fake Customer');
+    const id = (await db
+      .prepare('SELECT id FROM enquiry WHERE reference_code = ?')
+      .bind(ref)
+      .first<{ id: number }>())!.id;
+    await db
+      .prepare(
+        "INSERT INTO enquiry_status_log (enquiry_id, from_status, to_status) VALUES (?, NULL, 'new')",
+      )
+      .bind(id)
+      .run();
+    await db
+      .prepare(
+        "INSERT INTO tailor (slug, display_name, status) VALUES (?, 'Cards Tailor', 'approved')",
+      )
+      .bind(`cd-${unique()}`)
+      .run();
+    return {
+      id,
+      ref,
+      html: await (
+        await get(`/admin/enquiries/${id}`, await signIn(role))
+      ).text(),
+    };
+  };
+
+  it('puts a summary, a next step, the customer, the forward box and the referrals first, and the anonymise warning last', async () => {
+    const { html, ref } = await open('owner');
+    const at = (needle: string) => {
+      const i = html.indexOf(needle);
+      expect(i, needle).toBeGreaterThan(-1);
+      return i;
+    };
+    const order = [
+      at(`<h1>${ref}`),
+      at('class="next-step"'),
+      at('id="customer-card"'),
+      at('id="forward-card"'),
+      at('id="referrals"'),
+      at('id="status-card"'),
+      at('id="notes-card"'),
+      at('<details'),
+      at('class="card card--warning"'),
+    ];
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+    expect(html.lastIndexOf('class="card')).toBe(
+      at('class="card card--warning"'),
+    );
+  });
+
+  it('shows the status as a chip with the received date, and a plain next-step sentence', async () => {
+    const { html } = await open('manager');
+    expect(html).toMatch(
+      /<h1>AT-[A-Z0-9]+<\/h1>[\s\S]{0,400}<span class="chip chip--info">New<\/span>/,
+    );
+    expect(html).toMatch(
+      /class="next-step"[^>]*>[\s\S]*Not yet passed to a tailor/,
+    );
+  });
+
+  it('keeps the warning box, the fee forms and the anonymise form away from a manager', async () => {
+    const { html } = await open('manager');
+    expect(html).not.toContain('card--warning');
+    expect(html).not.toContain('/anonymise');
+    expect(html).not.toContain('Referral fee (owner only)');
+  });
+
+  it('keeps the status history inside a native details element, closed by default', async () => {
+    const { html } = await open('owner');
+    expect(html).toMatch(/<details>\s*<summary>Status history<\/summary>/);
+    expect(html).not.toMatch(/<details open/);
+  });
+
+  it('shows the add-note form inside the notes card and the status form inside its own card, for roles that may update', async () => {
+    const { html } = await open('owner');
+    const notes = html.slice(html.indexOf('id="notes-card"'));
+    expect(notes.slice(0, 1500)).toContain('name="body"');
+    const status = html.slice(
+      html.indexOf('id="status-card"'),
+      html.indexOf('id="notes-card"'),
+    );
+    expect(status).toContain('value="set_status"');
+  });
+});

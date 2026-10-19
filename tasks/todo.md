@@ -20,7 +20,7 @@
   - Verify: unit tests for the counts query, the sort order and the referral-state column (including a spam row and an anonymised row); integration tests for chips, filtering, empty state and unchanged search behaviour; contract test unchanged except the new chip links; mutation checks on the sort and on the spam exclusion in the counts.
   - Files: `src/modules/enquiry/queries.ts`, `src/pages/admin/enquiries.astro`, `src/styles/admin.css`, tests
 
-- [ ] **T5 Enquiry page in cards**
+- [x] **T5 Enquiry page in cards**
   - Acceptance: summary header with status chip and a one-line next-step hint (`modules/admin-ui/next-step.ts`), customer details card, copy-to-forward card, referral cards (history included), status and note forms, status history in a native `<details>`, and the anonymise action last in a warning box shown to the owner only; every form, field, route, permission and server rule unchanged.
   - Verify: contract test unchanged; unit tests for `nextStep` in every state; integration tests that the warning box is owner-only and last, that fees stay hidden from managers, and that anonymised enquiries show the right state; e2e referral journey unchanged; screenshots shown to the owner.
   - Files: `src/pages/admin/enquiries/[id].astro`, `src/modules/admin-ui/next-step.ts`, `src/components/admin/*.astro`, `src/styles/admin.css`, tests

@@ -22,6 +22,9 @@ import {
   listReferrals,
 } from '../../../modules/referral/queries';
 import { centsToDollars } from '../../../modules/tailors/links';
+import Card from '../../../components/admin/Card.astro';
+import StatusChip from '../../../components/admin/StatusChip.astro';
+import { nextStep } from '../../../modules/admin-ui/next-step';
 
 const auth = await requirePermission(Astro, 'enquiry.view');
 if (auth instanceof Response) return auth;
@@ -47,6 +50,16 @@ const tailors =
     ? await approvedTailors(DB, e.preferred_tailor_id)
     : [];
 const forward = forwardingText(e);
+const step = nextStep({
+  status: e.status,
+  anonymised: Boolean(e.anonymised_at),
+  spam: Boolean(e.is_spam),
+  referrals: referrals.map((r) => ({
+    response: r.tailor_response,
+    forwarded: Boolean(r.forwarded_at),
+    completed: Boolean(r.completion_reported_at),
+  })),
+});
 const action = `/admin/enquiries/${id}/actions`;
 ---
 
@@ -56,145 +69,105 @@ const action = `/admin/enquiries/${id}/actions`;
   auth={auth}
 >
   <h1>{e.reference_code}</h1>
+  <p class="meta">
+    <StatusChip state={e.status} label={text.statuses[e.status]} />
+    {e.is_spam ? <StatusChip state="cancelled" label={text.spamMark} /> : null}
+    {text.received} {e.created_at.slice(0, 10)}
+    {e.source ? ` · ${text.source}: ${e.source}` : ''}
+  </p>
   <p>
     <a href="/admin/enquiries">{text.back}</a>
   </p>
   {message && <Flash message={message} kind={messageKind(code)} />}
+  <p class="next-step" role="note">
+    <strong>{text.nextStep}</strong> {step}
+  </p>
 
-  <h2>{text.details}</h2>
-  <dl>
-    <dt>{text.name}</dt>
-    <dd>{e.customer_name ?? text.anonymised}</dd>
-    <dt>{text.number}</dt>
-    <dd>{e.contact_number_e164 ?? text.anonymised}</dd>
-    {e.contact_channel && (
-      <>
-        <dt>{text.channel}</dt>
-        <dd>{e.contact_channel}</dd>
-      </>
-    )}
-    {e.category_name && (
-      <>
-        <dt>{text.category}</dt>
-        <dd>{e.category_name}</dd>
-      </>
-    )}
-    {e.service_description && (
-      <>
-        <dt>{text.service}</dt>
-        <dd>{e.service_description}</dd>
-      </>
-    )}
-    {(e.area_name || e.area_text) && (
-      <>
-        <dt>{text.area}</dt>
-        <dd>{[e.area_name, e.area_text].filter(Boolean).join(' - ')}</dd>
-      </>
-    )}
-    {e.preferred_datetime_text && (
-      <>
-        <dt>{text.when}</dt>
-        <dd>{e.preferred_datetime_text}</dd>
-      </>
-    )}
-    {e.notes && (
-      <>
-        <dt>{text.notes}</dt>
-        <dd>{e.notes}</dd>
-      </>
-    )}
-    {e.preferred_tailor_name && (
-      <>
-        <dt>{text.preferredTailor}</dt>
-        <dd>{e.preferred_tailor_name}</dd>
-      </>
-    )}
-    <dt>{text.status}</dt>
-    <dd>{text.statuses[e.status]}</dd>
-    <dt>{text.received}</dt>
-    <dd>{e.created_at}</dd>
-    {e.source && (
-      <>
-        <dt>{text.source}</dt>
-        <dd>{e.source}</dd>
-      </>
-    )}
-    <dt>{text.consent}</dt>
-    <dd>
-      {fill(text.consentLine, {
-        version: e.consent_text_version,
-        at: e.consent_at,
-      })}
-    </dd>
-    {e.is_spam ? (
-      <>
-        <dt>{text.spamFlag}</dt>
-        <dd>✔</dd>
-      </>
-    ) : null}
-  </dl>
+  <Card title={text.details} id="customer-card">
+    <dl>
+      <dt>{text.name}</dt>
+      <dd>{e.customer_name ?? text.anonymised}</dd>
+      <dt>{text.number}</dt>
+      <dd>{e.contact_number_e164 ?? text.anonymised}</dd>
+      {e.contact_channel && (
+        <>
+          <dt>{text.channel}</dt>
+          <dd>{e.contact_channel}</dd>
+        </>
+      )}
+      {e.category_name && (
+        <>
+          <dt>{text.category}</dt>
+          <dd>{e.category_name}</dd>
+        </>
+      )}
+      {e.service_description && (
+        <>
+          <dt>{text.service}</dt>
+          <dd>{e.service_description}</dd>
+        </>
+      )}
+      {(e.area_name || e.area_text) && (
+        <>
+          <dt>{text.area}</dt>
+          <dd>{[e.area_name, e.area_text].filter(Boolean).join(' - ')}</dd>
+        </>
+      )}
+      {e.preferred_datetime_text && (
+        <>
+          <dt>{text.when}</dt>
+          <dd>{e.preferred_datetime_text}</dd>
+        </>
+      )}
+      {e.notes && (
+        <>
+          <dt>{text.notes}</dt>
+          <dd>{e.notes}</dd>
+        </>
+      )}
+      {e.preferred_tailor_name && (
+        <>
+          <dt>{text.preferredTailor}</dt>
+          <dd>{e.preferred_tailor_name}</dd>
+        </>
+      )}
+      <dt>{text.status}</dt>
+      <dd>{text.statuses[e.status]}</dd>
+      <dt>{text.received}</dt>
+      <dd>{e.created_at}</dd>
+      {e.source && (
+        <>
+          <dt>{text.source}</dt>
+          <dd>{e.source}</dd>
+        </>
+      )}
+      <dt>{text.consent}</dt>
+      <dd>
+        {fill(text.consentLine, {
+          version: e.consent_text_version,
+          at: e.consent_at,
+        })}
+      </dd>
+      {e.is_spam ? (
+        <>
+          <dt>{text.spamFlag}</dt>
+          <dd>✔</dd>
+        </>
+      ) : null}
+    </dl>
+  </Card>
 
-  <h2>{text.forwardHeading}</h2>
-  <p>{text.forwardHelp}</p>
-  {forward ? (
-    <p>
-      <label for="forward">{text.forwardLabel}</label>
-      <textarea id="forward" readonly rows="8" cols="60">{forward}</textarea>
-    </p>
-  ) : (
-    <p>{text.forwardEmpty}</p>
-  )}
-
-  <h2>{text.historyHeading}</h2>
-  <ol>
-    {log.map((l) => (
-      <li>
-        {l.changed_at} -{' '}
-        {l.from_status
-          ? `${text.statuses[l.from_status]} → `
-          : `${text.historyFirst} `}
-        {text.statuses[l.to_status]}
-        {l.email ? ` (${l.email})` : ''}
-      </li>
-    ))}
-  </ol>
-
-  <h2>{text.noteHeading}</h2>
-  {notes.length === 0 && <p>{text.noNotes}</p>}
-  <ul>
-    {notes.map((n) => (
-      <li>
-        {n.created_at} - {n.email}: {n.body}
-      </li>
-    ))}
-  </ul>
-
-  {canAnonymise && (
-    <>
-      <h2>{text.anonymiseHeading}</h2>
-      <p>{text.anonymiseHelp}</p>
-      <form method="post" action={`/admin/enquiries/${id}/anonymise`}>
-        <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <p>
-          <label for="confirm-reference">
-            {fill(text.anonymiseLabel, { reference: e.reference_code })}
-          </label>
-          <input
-            type="text"
-            id="confirm-reference"
-            name="confirm_reference"
-            autocomplete="off"
-            required
-          />
-        </p>
-        <p>
-          <button type="submit" class="danger">
-            {text.anonymiseButton}
-          </button>
-        </p>
-      </form>
-    </>
-  )}
+  <Card title={text.forwardHeading} id="forward-card">
+    <p>{text.forwardHelp}</p>
+    {forward ? (
+      <p>
+        <label for="forward">{text.forwardLabel}</label>
+        <textarea id="forward" readonly rows="8" cols="60">{forward}</textarea>
+      </p>
+    ) : (
+      <p>{text.forwardEmpty}</p>
+    )}
+  </Card>
 
   <h2 id="referrals">{ref.heading}</h2>
   <p>
@@ -202,7 +175,7 @@ const action = `/admin/enquiries/${id}/actions`;
   </p>
   {referrals.length === 0 && <p>{ref.none}</p>}
   {referrals.map((r) => (
-    <section aria-labelledby={`referral-${r.id}`}>
+    <section class="card" aria-labelledby={`referral-${r.id}`}>
       <h3 id={`referral-${r.id}`}>
         {fill(ref.refLabel, {
           name: r.tailor_name,
@@ -378,26 +351,27 @@ const action = `/admin/enquiries/${id}/actions`;
     </section>
   ))}
   {tailors.length > 0 && (
-    <form method="post" action={`/admin/enquiries/${id}/referrals`}>
-      <input type="hidden" name="csrf" value={auth.csrfToken} />
-      <h3>{ref.createHeading}</h3>
-      <p>
-        <label for="ref-tailor">{ref.tailor}</label>
-        <select id="ref-tailor" name="tailor_id">
-          {tailors.map((t) => (
-            <option value={String(t.id)}>{t.display_name}</option>
-          ))}
-        </select>
-      </p>
-      <p>
-        <button type="submit">{ref.createButton}</button>
-      </p>
-    </form>
+    <section class="card" aria-labelledby="create-referral">
+      <form method="post" action={`/admin/enquiries/${id}/referrals`}>
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <h3 id="create-referral">{ref.createHeading}</h3>
+        <p>
+          <label for="ref-tailor">{ref.tailor}</label>
+          <select id="ref-tailor" name="tailor_id">
+            {tailors.map((t) => (
+              <option value={String(t.id)}>{t.display_name}</option>
+            ))}
+          </select>
+        </p>
+        <p>
+          <button type="submit">{ref.createButton}</button>
+        </p>
+      </form>
+    </section>
   )}
 
   {canUpdate && (
-    <>
-      <h2>{text.statusHeading}</h2>
+    <Card title={text.statusHeading} id="status-card">
       <form method="post" action={action}>
         <input type="hidden" name="csrf" value={auth.csrfToken} />
         <input type="hidden" name="action" value="set_status" />
@@ -416,27 +390,7 @@ const action = `/admin/enquiries/${id}/actions`;
         </p>
       </form>
 
-      <h2>{text.noteLabel}</h2>
-      <form method="post" action={action}>
-        <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <input type="hidden" name="action" value="add_note" />
-        <p>
-          <label for="note">{text.noteLabel}</label>
-          <textarea
-            id="note"
-            name="body"
-            rows="3"
-            cols="60"
-            maxlength="2000"
-            required
-          ></textarea>
-        </p>
-        <p>
-          <button type="submit">{text.noteButton}</button>
-        </p>
-      </form>
-
-      <h2>{text.spamHeading}</h2>
+      <h3>{text.spamHeading}</h3>
       <form method="post" action={action}>
         <input type="hidden" name="csrf" value={auth.csrfToken} />
         <input type="hidden" name="action" value="set_spam" />
@@ -447,6 +401,81 @@ const action = `/admin/enquiries/${id}/actions`;
           </button>
         </p>
       </form>
-    </>
+    </Card>
+  )}
+
+  <Card title={text.noteHeading} id="notes-card">
+    {notes.length === 0 && <p>{text.noNotes}</p>}
+    <ul>
+      {notes.map((n) => (
+        <li>
+          {n.created_at} - {n.email}: {n.body}
+        </li>
+      ))}
+    </ul>
+    {canUpdate && (
+      <>
+        <form method="post" action={action}>
+          <input type="hidden" name="csrf" value={auth.csrfToken} />
+          <input type="hidden" name="action" value="add_note" />
+          <p>
+            <label for="note">{text.noteLabel}</label>
+            <textarea
+              id="note"
+              name="body"
+              rows="3"
+              cols="60"
+              maxlength="2000"
+              required
+            ></textarea>
+          </p>
+          <p>
+            <button type="submit">{text.noteButton}</button>
+          </p>
+        </form>
+      </>
+    )}
+  </Card>
+
+  <details>
+    <summary>{text.historyHeading}</summary>
+    <ol>
+      {log.map((l) => (
+        <li>
+          {l.changed_at} -{' '}
+          {l.from_status
+            ? `${text.statuses[l.from_status]} → `
+            : `${text.historyFirst} `}
+          {text.statuses[l.to_status]}
+          {l.email ? ` (${l.email})` : ''}
+        </li>
+      ))}
+    </ol>
+  </details>
+
+  {canAnonymise && (
+    <Card title={text.anonymiseHeading} id="danger-zone" warning>
+      <p>{text.anonymiseHelp}</p>
+      <form method="post" action={`/admin/enquiries/${id}/anonymise`}>
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <p>
+          <label for="confirm-reference">
+            {fill(text.anonymiseLabel, { reference: e.reference_code })}
+          </label>
+          <input
+            type="text"
+            id="confirm-reference"
+            name="confirm_reference"
+            autocomplete="off"
+            required
+          />
+        </p>
+        <p>
+          <button type="submit" class="danger">
+            {text.anonymiseButton}
+          </button>
+        </p>
+      </form>
+    </Card>
   )}
 </AdminLayout>

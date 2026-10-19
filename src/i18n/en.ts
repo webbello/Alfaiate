@@ -336,6 +336,7 @@ export const en = {
   enquiry: {
     heading: 'Enquiries',
     search: 'Search by reference, name or phone',
+    nextStep: 'Next step.',
     chipAll: 'All',
     countsNote: 'Counts leave out spam.',
     referralNone: 'No referral yet',

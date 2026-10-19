@@ -458,3 +458,34 @@ a.chip:hover {
   font-size: 0.85rem;
   color: var(--muted);
 }
+
+/* Enquiry page */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+}
+.next-step {
+  max-width: 48rem;
+  padding: 0.75rem 1rem;
+  background: #dbe8fb;
+  color: #0b2f66;
+  border-radius: var(--radius);
+}
+.card > h3:first-child {
+  margin-top: 0;
+}
+details {
+  max-width: 48rem;
+  margin: 0 0 1.25rem;
+  padding: 0 1rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+details[open] > summary {
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 0.5rem;
+}
