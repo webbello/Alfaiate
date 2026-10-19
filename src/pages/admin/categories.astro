@@ -1,0 +1,44 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import CatalogAdmin from '../../components/CatalogAdmin.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { requirePermission } from '../../modules/auth/require';
+import { verifyCsrf } from '../../modules/auth/csrf';
+import { SESSION_COOKIE } from '../../modules/auth/session';
+import { listEntries } from '../../modules/catalog';
+import { applyCatalogForm } from '../../modules/catalog/admin-actions';
+
+const auth = await requirePermission(Astro, 'tailor.edit');
+if (auth instanceof Response) return auth;
+const { DB } = requireBindings(env);
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData().catch(() => new FormData());
+  const token = Astro.cookies.get(SESSION_COOKIE)?.value ?? '';
+  if (!(await verifyCsrf(token, form.get('csrf')?.toString())))
+    return new Response('Forbidden', { status: 403 });
+  return Astro.redirect(
+    `/admin/categories?msg=${await applyCatalogForm(DB, auth.userId, 'category', form)}`,
+    303,
+  );
+}
+
+const code = Astro.url.searchParams.get('msg') ?? '';
+const message = Object.hasOwn(en.adminMessages, code)
+  ? en.adminMessages[code as keyof typeof en.adminMessages]
+  : '';
+---
+
+<Base title={en.adminNavCategories} description={en.adminNavCategories} noindex>
+  <CatalogAdmin
+    action="/admin/categories"
+    heading={en.adminNavCategories}
+    entries={await listEntries(DB, 'category')}
+    csrf={auth.csrfToken}
+    message={message}
+    withDescription={true}
+  />
+</Base>

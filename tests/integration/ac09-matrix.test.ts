@@ -51,6 +51,16 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     current_password: 'wrong-but-well-formed',
     new_password: 'another-long-passphrase',
   }),
+  '/admin/categories': (csrf) => ({
+    csrf,
+    action: 'create',
+    name: `Matrix ${Date.now()}${n++}`,
+  }),
+  '/admin/areas': (csrf) => ({
+    csrf,
+    action: 'create',
+    name: `Matrix ${Date.now()}${n++}`,
+  }),
   '/admin/users/actions': (csrf) => ({
     csrf,
     action: 'create',

@@ -1,0 +1,112 @@
+---
+import type { Entry } from '../modules/catalog';
+import { en } from '../i18n/en';
+
+interface Props {
+  action: string;
+  heading: string;
+  entries: Entry[];
+  csrf: string;
+  message: string;
+  withDescription: boolean;
+}
+const { action, heading, entries, csrf, message, withDescription } =
+  Astro.props;
+---
+
+<h1>{heading}</h1>
+<p>
+  <a href="/admin">{en.adminDashboardHeading}</a>
+</p>
+{message && <p role="status">{message}</p>}
+<table>
+  <thead>
+    <tr>
+      <th>{en.catalogName}</th>
+      {withDescription && <th>{en.catalogDescription}</th>}
+      <th>{en.catalogOrder}</th>
+      <th>{en.adminUsersStatus}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {entries.map((entry) => (
+      <tr>
+        <td colspan={withDescription ? 2 : 1}>
+          <form method="post" action={action}>
+            <input type="hidden" name="csrf" value={csrf} />
+            <input type="hidden" name="action" value="rename" />
+            <input type="hidden" name="id" value={entry.id} />
+            <input
+              name="name"
+              value={entry.name}
+              maxlength="80"
+              required
+              aria-label={en.catalogName}
+            />
+            {withDescription && (
+              <input
+                name="description"
+                value={entry.description ?? ''}
+                maxlength="300"
+                aria-label={en.catalogDescription}
+              />
+            )}
+            <button type="submit">{en.catalogSave}</button>
+          </form>
+        </td>
+        <td>
+          <form method="post" action={action}>
+            <input type="hidden" name="csrf" value={csrf} />
+            <input type="hidden" name="action" value="set_order" />
+            <input type="hidden" name="id" value={entry.id} />
+            <input
+              name="sort_order"
+              type="number"
+              value={entry.sort_order}
+              required
+              aria-label={en.catalogOrder}
+            />
+            <button type="submit">{en.catalogSave}</button>
+          </form>
+        </td>
+        <td>
+          <form method="post" action={action}>
+            <input type="hidden" name="csrf" value={csrf} />
+            <input type="hidden" name="action" value="set_active" />
+            <input type="hidden" name="id" value={entry.id} />
+            <input
+              type="hidden"
+              name="active"
+              value={entry.is_active ? '0' : '1'}
+            />
+            {entry.is_active ? en.adminUsersActive : en.adminUsersInactive}
+            <button type="submit">
+              {entry.is_active
+                ? en.adminUsersDeactivate
+                : en.adminUsersReactivate}
+            </button>
+          </form>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+<h2>{en.catalogAdd}</h2>
+<form method="post" action={action}>
+  <input type="hidden" name="csrf" value={csrf} />
+  <input type="hidden" name="action" value="create" />
+  <p>
+    <label for="new-name">{en.catalogName}</label>
+    <br />
+    <input id="new-name" name="name" maxlength="80" required />
+  </p>
+  {withDescription && (
+    <p>
+      <label for="new-description">{en.catalogDescription}</label>
+      <br />
+      <input id="new-description" name="description" maxlength="300" />
+    </p>
+  )}
+  <button type="submit">{en.catalogAddButton}</button>
+</form>

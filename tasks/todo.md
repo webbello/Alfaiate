@@ -10,7 +10,7 @@
   - Verify: D1 tests per rule (duplicate slug, empty name, deactivate keeps links, inactive not offered, reorder persists); mutation check on "inactive not offered".
   - Files: `src/modules/catalog/index.ts`, `src/modules/catalog/schemas.ts`, `tests/workers/catalog.test.ts`
 
-- [ ] **T3 Catalog admin pages**
+- [x] **T3 Catalog admin pages**
   - Acceptance: `/admin/categories` and `/admin/areas` list and edit via POST on the same page, `tailor.edit`, CSRF on every POST, messages from a whitelist, all listed in `ADMIN_ROUTES`.
   - Verify: integration: anonymous 302, editor/manager/owner allowed, viewer 403 (matrix), CSRF refusal, a created category appears; mutation check removing the guard.
   - Files: `src/pages/admin/categories.astro`, `src/pages/admin/areas.astro`, `src/i18n/en.ts`, `src/modules/auth/admin-routes.ts`, `tests/integration/catalog.test.ts`

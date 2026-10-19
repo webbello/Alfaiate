@@ -47,6 +47,18 @@ export const ADMIN_ROUTES: readonly {
     permission: 'user.manage',
     methods: ['POST'],
   },
+  {
+    file: 'categories.astro',
+    path: '/admin/categories',
+    permission: 'tailor.edit',
+    methods: ['GET', 'POST'],
+  },
+  {
+    file: 'areas.astro',
+    path: '/admin/areas',
+    permission: 'tailor.edit',
+    methods: ['GET', 'POST'],
+  },
 ];
 
 /** Fills the dynamic segments of a route template ([id], [...key]) so tests can request it. */
