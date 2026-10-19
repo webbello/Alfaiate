@@ -26,7 +26,7 @@ test('the inbox and an enquiry pass axe, and a status change shows in the histor
   ).toBeVisible();
   expect(await violationsOf(page)).toEqual([]);
 
-  await page.getByLabel('Status').selectOption('contacted');
+  await page.getByLabel('Status', { exact: true }).selectOption('contacted');
   await page.getByRole('button', { name: 'Set status' }).click();
   await expect(page.getByText('Status saved.')).toBeVisible();
   await page.getByText('Status history').click(); // the history is folded away until asked for
