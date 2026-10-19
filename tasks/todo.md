@@ -15,7 +15,7 @@
   - Verify: integration: anonymous 302, editor/manager/owner allowed, viewer 403 (matrix), CSRF refusal, a created category appears; mutation check removing the guard.
   - Files: `src/pages/admin/categories.astro`, `src/pages/admin/areas.astro`, `src/i18n/en.ts`, `src/modules/auth/admin-routes.ts`, `tests/integration/catalog.test.ts`
 
-- [ ] **T4 Tailor repository, schemas and edit lock**
+- [x] **T4 Tailor repository, schemas and edit lock**
   - Acceptance: create draft (unique slug with numeric suffix), update profile fields, list with status/published filter, `canEdit(role, tailor)` (editor may edit unless `is_published`; `tailor.publish` always may), phone numbers via `normalisePhone`, Zod limits (name 120, description 2000, address 300, languages 200), slug editable only before first publish, audit by id.
   - Verify: D1 tests: bad phone, long fields, duplicate names get distinct slugs, slug frozen after publish, edit-lock for each role x published state; mutation check on the lock.
   - Files: `src/modules/tailors/schemas.ts`, `src/modules/tailors/repo.ts`, `tests/workers/tailors-repo.test.ts`
