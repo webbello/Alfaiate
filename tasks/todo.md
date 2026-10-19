@@ -20,7 +20,7 @@
   - Verify: dictionary parity test; integration tests for each outcome (valid, invalid, no consent, honeypot, too fast, limited, DB failure, cross-origin, oversized, preselected tailor valid/unknown), thanks page contains the reference and none of the input; fail first.
   - Files: `src/views/Request.astro`, `src/views/RequestThanks.astro`, `src/pages/request.astro`, `src/pages/request/thanks.astro`, `src/pages/tet/request.astro`, `src/pages/tet/request/thanks.astro`, `src/i18n/public/en.ts`, `src/i18n/public/tet.ts`, `tests/workers/public-pages.test.ts`, `tests/integration/request.test.ts`
 
-- [ ] **T5 Customer-data sweep and public-side checks**
+- [x] **T5 Customer-data sweep and public-side checks**
   - Acceptance: the privacy sweep also seeds an enquiry with a recognisable fake name, number and notes and asserts none appears in any public page (both languages), sitemap, `robots.txt`, redirect URL, response headers or the notification message; honeypot and limited submissions leave `enquiry` unchanged; AC-06, AC-07, AC-08 each have a named integration test.
   - Verify: tests pass; mutation checks: remove the consent requirement, the honeypot, the time trap and the limit, and put the name in the redirect URL, each seen failing.
   - Files: `tests/integration/public-privacy.test.ts`, `tests/integration/request.test.ts`

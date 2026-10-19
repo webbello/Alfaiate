@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { env } from 'cloudflare:workers';
-import { get, unique } from './helpers';
+import { ORIGIN, get, unique } from './helpers';
+import { worker } from './worker';
+import { issueToken } from '../../src/modules/enquiry/spam';
 
 // AC-15 (public part), SEC-05, BR-07, BR-06: values that must exist only on admin pages. Every public page, in both languages,
 // is fetched and must contain none of them.
@@ -118,15 +120,22 @@ describe('public pages never contain private values (SEC-05, BR-07, AC-15)', () 
       '/about',
       '/privacy',
       '/terms',
+      '/request/thanks?ref=AT-ABCD2345',
     ];
     const secrets = [...Object.values(SECRET), 'SECRET-SHARED-FIELDS'];
     let sawPublicWords = false;
     for (const prefix of ['', '/tet']) {
       for (const path of paths) {
         const url = prefix ? (path === '/' ? '/tet/' : `/tet${path}`) : path;
-        const html = await (await get(url)).text();
-        for (const secret of secrets)
+        const response = await get(url);
+        const html = await response.text();
+        const headers = [...response.headers].join('\n');
+        for (const secret of secrets) {
           expect(html, `${url} leaked ${secret}`).not.toContain(secret);
+          expect(headers, `${url} headers leaked ${secret}`).not.toContain(
+            secret,
+          );
+        }
         if (html.includes('Public words')) sawPublicWords = true;
       }
     }
@@ -137,5 +146,60 @@ describe('public pages never contain private values (SEC-05, BR-07, AC-15)', () 
         expect(text, `${path} leaked ${secret}`).not.toContain(secret);
     }
     expect(sawPublicWords).toBe(true); // sanity: the sweep did look at a page that shows the tailor
+  });
+});
+
+describe('a real submission leaks nothing outside the database (AC-15, SEC-05, BR-07)', () => {
+  it('keeps the name, number and notes out of the redirect, the acknowledgement and every public page', async () => {
+    const name = 'SECRET-SUBMITTED-NAME';
+    const notes = 'SECRET-SUBMITTED-NOTES';
+    const response = await worker.fetch(
+      new Request(`${ORIGIN}/request`, {
+        method: 'POST',
+        headers: {
+          Origin: ORIGIN,
+          'content-type': 'application/x-www-form-urlencoded',
+          'cf-connecting-ip': `198.51.100.${unique() % 250}`,
+        },
+        body: new URLSearchParams({
+          form_token: await issueToken(
+            'integration-form-secret-0123456789',
+            new Date(Date.now() - 10_000),
+          ),
+          name,
+          phone: '+670 7765 4321',
+          channel: 'phone',
+          notes,
+          consent: 'yes',
+        }),
+        redirect: 'manual',
+      }),
+    );
+    expect(response.status).toBe(303);
+    const exposed = [
+      response.headers.get('location'),
+      [...response.headers].join('\n'),
+      await response.text(),
+    ].join('\n');
+    const ref = new URL(
+      response.headers.get('location')!,
+      ORIGIN,
+    ).searchParams.get('ref')!;
+    const pages = [
+      await (await get(`/request/thanks?ref=${ref}`)).text(),
+      await (await get('/')).text(),
+      await (await get('/tailors')).text(),
+      await (await get('/sitemap.xml')).text(),
+      await (await get('/robots.txt')).text(),
+      exposed,
+    ].join('\n');
+    for (const secret of [name, notes, '7765', '+6707765'])
+      expect(pages, secret).not.toContain(secret);
+    const stored = await env.DB.prepare(
+      'SELECT customer_name FROM enquiry WHERE reference_code = ?',
+    )
+      .bind(ref)
+      .first<{ customer_name: string }>();
+    expect(stored?.customer_name).toBe(name); // sanity: it really was stored
   });
 });

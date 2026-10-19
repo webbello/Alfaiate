@@ -105,6 +105,16 @@ describe('GET /request (FR-ENQ-01/02/03, AC-06)', () => {
     const html = await (await get(`/request?tailor=${slug}`)).text();
     expect(html).toContain('Preselect Fake');
     expect(html).toContain(`name="tailor" value="${slug}"`);
+    const draft = `rq-${unique()}`;
+    await db
+      .prepare(
+        "INSERT INTO tailor (slug, display_name) VALUES (?, 'Unpublished Fake Name')",
+      )
+      .bind(draft)
+      .run();
+    expect(await (await get(`/request?tailor=${draft}`)).text()).not.toContain(
+      'Unpublished Fake Name',
+    );
     for (const bad of [
       'no-such-tailor',
       "x'><script>alert(1)</script>",
