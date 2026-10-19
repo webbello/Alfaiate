@@ -1,0 +1,22 @@
+---
+import '../../styles/story.css';
+// An illustrated tape with five measuring points. Each point is a native <details>: keyboard-operable, no script, no input. The tape itself is decoration.
+interface Props {
+  points: { name: string; text: string }[];
+}
+const { points } = Astro.props;
+---
+
+<div class="tape-measure">
+  <div class="tape-measure__tape" aria-hidden="true"></div>
+  <ul class="tape-measure__points">
+    {points.map((p) => (
+      <li>
+        <details>
+          <summary>{p.name}</summary>
+          <p>{p.text}</p>
+        </details>
+      </li>
+    ))}
+  </ul>
+</div>

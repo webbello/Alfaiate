@@ -50,7 +50,7 @@ const seed = async () => {
 // Uncompressed bytes. Measured: home 3513, directory 3476, category 2796, profile 4400, request 4728, how-it-works 3510, CSS 6474, JS 287.
 const BUDGET = {
   html: {
-    home: 4300,
+    home: 8200, // measured 6787 plus about 20% (Phase 7c T4; re-measured in T9)
     directory: 4300,
     category: 3400,
     profile: 5400,
@@ -58,7 +58,7 @@ const BUDGET = {
     howItWorks: 4300,
   },
   css: 7800,
-  homeCss: 11100, // site + story stylesheet, measured 9223 plus about 20% (Phase 7c T3; re-measured in T9)
+  homeCss: 15100, // site + story stylesheet, measured 12587 plus about 20% (Phase 7c T4; re-measured in T9)
   adminCss: 8200, // measured 6793 plus about 20%
   js: 400,
 } as const;

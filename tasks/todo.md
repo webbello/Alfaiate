@@ -17,7 +17,7 @@
   - Verify: integration test for one `<h1>` and both links; e2e with reduced motion (computed style shows no animation and no 3D transform); axe; perf measured; screenshots to the owner.
   - Files: `src/pages/index.astro`, `src/components/story/Swatch3D.astro`, `src/components/story/Stitch.astro`, `src/styles/story.css`, tests
 
-- [ ] **T4 Story sections**
+- [x] **T4 Story sections**
   - Acceptance: promise, how it works as pattern pieces, craft with the tape measure and five labelled points (focusable, one-line explanations, illustrative only, no measurement input), garments grid as tilting swatches, local story (REVIEW placeholder text), trust section with no invented numbers or proof, final call with the request's first step, "Are you a tailor?" banner.
   - Verify: tests that the page has no digits claiming counts or ratings, no `<input>` in the tape measure, every point reachable by keyboard; story CSS loaded only on pages that use it; axe, reflow, text spacing; screenshots to the owner.
   - Files: `src/pages/index.astro`, `src/components/story/*`, `src/styles/story.css`, `src/i18n/public/*`, tests

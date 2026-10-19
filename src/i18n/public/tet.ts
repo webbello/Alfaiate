@@ -61,6 +61,58 @@ export const tet: Dictionary = {
       step3: 'Ita no alfaiate rasik konkorda ba folin, medida no data.',
     },
     categoriesHeading: 'Ita presiza saida?',
+    // Rascunho tetun, seidauk revista husi ema ne'ebé koalia tetun nu'udar lian-inan (OQ-07).
+    promise: {
+      kicker: 'Tanba sá alfaiate',
+      heading: 'Halo ba ema ida de’it: ita.',
+      body: 'Roupa husi loja halo ba ema média. Alfaiate tesi tuir ita-nia isin: ita-nia ombru, ita-nia aas, no oinsá ita gosta roupa monu.',
+    },
+    craft: {
+      heading: 'Oinsá alfaiate hasai medida',
+      intro:
+        'Alfaiate hasai ita-nia medida ho ema ba ema. Ne’e medida lima ne’ebé forma roupa barak.',
+      note: 'Ne’e de’it esplikasaun. Medida, folin no data ita koalia ho alfaiate, la liu husi sítiu ne’e.',
+      shoulder: {
+        name: 'Ombru',
+        text: 'Husi ular to’o ombru-nia ninin. Ne’e determina oinsá kazaku ka kamiza monu.',
+      },
+      chest: {
+        name: 'Ibun',
+        text: 'Roda parte ne’ebé luan liu iha ibun, ba kazaku ka roupa-feto presiza fatin.',
+      },
+      waist: {
+        name: 'Kabun',
+        text: 'Roda kabun naturál, fatin ne’ebé kalsa no saia hatuur.',
+      },
+      inseam: {
+        name: 'Kalsa laran',
+        text: 'Husi fatin ne’ebé ain rua hasoru malu to’o ain-kakorok, ba kalsa-nia naruk.',
+      },
+      sleeve: {
+        name: 'Liman-ben',
+        text: 'Husi ombru to’o liman-kakorok, ho liman kolen uitoan.',
+      },
+    },
+    local: {
+      heading: 'Alfaiate iha Dili',
+      body: 'Alfaiate ida-idak iha ne’e halo ninia negósiu rasik, ho matan rasik no jeitu rasik. Haree serbisu, lee saida mak sira dehan kona-ba sira, depois koalia ho sira.',
+    },
+    trust: {
+      heading: 'Saida mak ami halo, no saida mak ami la halo',
+      doHeading: 'Ami',
+      do1: 'aprezenta ita ba alfaiate independente ne’ebé konkorda atu lista',
+      do2: 'hatudu faktu hanesan alfaiate fornese, ka marka katak ami verifika',
+      do3: 'fahe ita-nia detalle ba alfaiate de’it ho ita-nia konsentimentu',
+      dontHeading: 'Ami la',
+      dont1: 'determina folin, ka simu osan husi ita',
+      dont2: 'garante alfaiate-nia disponibilidade, kualidade ka tempu',
+      dont3: 'hatudu ita-nia detalle ba ema seluk',
+    },
+    ask: {
+      heading: 'Prontu atu husu?',
+      body: 'Hatete mai ami saida mak ita presiza no ita iha ne’ebé. Ami sei aprezenta ita ba alfaiate ida.',
+      button: 'Husu alfaiate',
+    },
   },
   directory: {
     title: 'Buka alfaiate',

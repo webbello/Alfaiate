@@ -57,6 +57,58 @@ export const en = {
         'You and the tailor agree the price, measurements and dates between yourselves.',
     },
     categoriesHeading: 'What do you need?',
+    // Story copy (Phase 7c). Drafts for the owner to review: nothing here is a verified fact about any business.
+    promise: {
+      kicker: 'Why a tailor',
+      heading: 'Made for one person: you.',
+      body: 'Clothes from a shelf are cut for an average. A tailor cuts for you: your shoulders, your height, the way you like a sleeve to fall.',
+    },
+    craft: {
+      heading: 'How a tailor measures',
+      intro:
+        'Your tailor takes your measurements in person. Here are the five that shape most garments.',
+      note: 'These are only an explanation. Measurements, price and dates are agreed with your tailor, never through this site.',
+      shoulder: {
+        name: 'Shoulder',
+        text: 'From the base of the neck to the edge of the shoulder. It decides how a jacket or shirt hangs.',
+      },
+      chest: {
+        name: 'Chest',
+        text: 'Around the fullest part of the chest, for the room a jacket or dress needs.',
+      },
+      waist: {
+        name: 'Waist',
+        text: 'Around the natural waist, where trousers and skirts sit.',
+      },
+      inseam: {
+        name: 'Inseam',
+        text: 'From where the legs meet down to the ankle, for the length of trousers.',
+      },
+      sleeve: {
+        name: 'Sleeve',
+        text: 'From the shoulder to the wrist, with the arm slightly bent.',
+      },
+    },
+    local: {
+      heading: 'Tailoring in Dili',
+      body: 'Each tailor here runs their own business, with their own eye and their own way of working. Look at the work, read what they say about themselves, then talk to them.',
+    },
+    trust: {
+      heading: 'What we do, and what we do not',
+      doHeading: 'We',
+      do1: 'introduce you to independent tailors who agreed to be listed',
+      do2: 'show facts as supplied by the tailor, or marked as checked by us',
+      do3: 'share your details with a tailor only with your consent',
+      dontHeading: 'We do not',
+      dont1: 'set prices, or take any payment from you',
+      dont2: 'guarantee a tailor’s availability, quality or timing',
+      dont3: 'show your details to anyone else',
+    },
+    ask: {
+      heading: 'Ready to ask?',
+      body: 'Tell us what you need and where you are. We will introduce you to a tailor.',
+      button: 'Ask for a tailor',
+    },
   },
   directory: {
     title: 'Find a tailor',

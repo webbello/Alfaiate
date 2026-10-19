@@ -6,6 +6,7 @@ import { pathFor, type Lang } from '../i18n/lang';
 import { requireBindings, siteConfig } from '../modules/config';
 import { websiteJsonLd } from '../modules/seo/jsonld';
 import Swatch3D from '../components/story/Swatch3D.astro';
+import TapeMeasure from '../components/story/TapeMeasure.astro';
 import { listActiveCategories } from '../modules/directory/queries';
 
 interface Props {
@@ -46,9 +47,15 @@ const categories = await listActiveCategories(requireBindings(env).DB, {
     </div>
   </section>
 
+  <section class="band-section" aria-labelledby="promise">
+    <p class="kicker">{t.home.promise.kicker}</p>
+    <h2 id="promise">{t.home.promise.heading}</h2>
+    <p class="lead">{t.home.promise.body}</p>
+  </section>
+
   <section aria-labelledby="how">
     <h2 id="how">{t.home.how.heading}</h2>
-    <ol class="steps">
+    <ol class="steps pieces">
       <li>
         <strong>{t.home.how.step1Title}.</strong> {t.home.how.step1}
       </li>
@@ -61,13 +68,31 @@ const categories = await listActiveCategories(requireBindings(env).DB, {
     </ol>
   </section>
 
+  <section class="band-section" aria-labelledby="craft">
+    <h2 id="craft">{t.home.craft.heading}</h2>
+    <p class="lead">{t.home.craft.intro}</p>
+    <TapeMeasure
+      points={[
+        t.home.craft.shoulder,
+        t.home.craft.chest,
+        t.home.craft.waist,
+        t.home.craft.inseam,
+        t.home.craft.sleeve,
+      ]}
+    />
+    <p class="meta">{t.home.craft.note}</p>
+  </section>
+
   {categories.length > 0 && (
     <section aria-labelledby="needs">
       <h2 id="needs">{t.home.categoriesHeading}</h2>
-      <ul class="chips">
+      <ul class="swatches">
         {categories.map((c) => (
           <li>
-            <a class="chip" href={pathFor(lang, `/categories/${c.slug}`)}>
+            <a
+              class="swatch-link"
+              href={pathFor(lang, `/categories/${c.slug}`)}
+            >
               {c.name}
             </a>
           </li>
@@ -75,4 +100,42 @@ const categories = await listActiveCategories(requireBindings(env).DB, {
       </ul>
     </section>
   )}
+
+  <section class="local" aria-labelledby="local">
+    <div class="border-motif" aria-hidden="true"></div>
+    <h2 id="local">{t.home.local.heading}</h2>
+    <p class="lead">{t.home.local.body}</p>
+  </section>
+
+  <section class="trust" aria-labelledby="trust">
+    <h2 id="trust">{t.home.trust.heading}</h2>
+    <div class="trust__cols">
+      <div>
+        <h3>{t.home.trust.doHeading}</h3>
+        <ul>
+          <li>{t.home.trust.do1}</li>
+          <li>{t.home.trust.do2}</li>
+          <li>{t.home.trust.do3}</li>
+        </ul>
+      </div>
+      <div>
+        <h3>{t.home.trust.dontHeading}</h3>
+        <ul>
+          <li>{t.home.trust.dont1}</li>
+          <li>{t.home.trust.dont2}</li>
+          <li>{t.home.trust.dont3}</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="final-call" aria-labelledby="ask">
+    <h2 id="ask">{t.home.ask.heading}</h2>
+    <p class="lead">{t.home.ask.body}</p>
+    <p class="actions">
+      <a class="button" href={pathFor(lang, '/request')}>
+        {t.home.ask.button}
+      </a>
+    </p>
+  </section>
 </PublicLayout>
