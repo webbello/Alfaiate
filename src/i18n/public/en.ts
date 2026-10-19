@@ -189,6 +189,9 @@ export const en = {
       'Please tick the box so we can share your details with a tailor.',
     errorPhone:
       'Enter a Timor-Leste number: 8 digits starting with 7 or 3, with or without +670.',
+    forbiddenHeading: 'We could not send your request',
+    forbiddenBody:
+      'Your browser did not send what we need to check where this form came from, so nothing was saved. Please open the request page again and send it once more.',
     limitedHeading: 'Too many requests',
     limitedBody: 'Please try again in an hour.',
     failedHeading: 'Something went wrong',

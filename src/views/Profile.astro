@@ -22,10 +22,22 @@ interface Props {
 const { lang, tailor } = Astro.props;
 const t = dictionary(lang);
 const { contacts } = tailor;
+// A stored number that is not a valid number must never take the page down: that button is simply left out.
+const safe = (build: () => string | null): string | null => {
+  try {
+    return build();
+  } catch {
+    return null;
+  }
+};
 const whatsapp = contacts.whatsapp
-  ? whatsappLink(contacts.whatsapp.value, whatsappMessage(t, tailor.name))
+  ? safe(() =>
+      whatsappLink(contacts.whatsapp!.value, whatsappMessage(t, tailor.name)),
+    )
   : null;
-const phone = contacts.phone ? telLink(contacts.phone.value) : null;
+const phone = contacts.phone
+  ? safe(() => telLink(contacts.phone!.value))
+  : null;
 const shop = tailor.areas.filter((a) => a.kind === 'shop_location');
 const serves = tailor.areas.filter((a) => a.kind === 'serves');
 const description =

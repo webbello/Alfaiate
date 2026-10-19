@@ -17,7 +17,7 @@ export const GET: APIRoute = async ({ params }) => {
 
   const allowed = await DB.prepare(
     `SELECT 1 FROM portfolio_image i JOIN tailor t ON t.id = i.tailor_id
-     WHERE i.tailor_id = ? AND i.file_key = ? AND i.permission_granted = 1 AND i.is_visible = 1 AND t.is_published = 1`,
+     WHERE i.tailor_id = ? AND i.file_key = ? AND i.permission_granted = 1 AND i.is_visible = 1 AND t.is_published = 1 AND t.permission_recorded = 1`,
   )
     .bind(parsed.tailorId, parsed.imageKey)
     .first();

@@ -13,6 +13,22 @@ const { lang, outcome } = Astro.props;
 const t = dictionary(lang);
 const r = t.request;
 const view = outcome.kind === 'form' ? outcome.view : null;
+const messageHeading =
+  outcome.kind === 'message'
+    ? outcome.which === 'limited'
+      ? r.limitedHeading
+      : outcome.which === 'forbidden'
+        ? r.forbiddenHeading
+        : r.failedHeading
+    : '';
+const messageBody =
+  outcome.kind === 'message'
+    ? outcome.which === 'limited'
+      ? r.limitedBody
+      : outcome.which === 'forbidden'
+        ? r.forbiddenBody
+        : r.failedBody
+    : '';
 const values = view?.values;
 const errors = view?.errors ?? {};
 const labels: Record<Field, string> = {
@@ -47,19 +63,22 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
 
 <PublicLayout
   lang={lang}
-  title={`${outcome.kind === 'message' ? (outcome.which === 'limited' ? r.limitedHeading : r.failedHeading) : r.title} · ${t.siteName}`}
+  title={`${outcome.kind === 'message' ? messageHeading : r.title} · ${t.siteName}`}
   description={r.intro}
   rest="/request"
   noindex
 >
   {outcome.kind === 'message' ? (
     <>
-      <h1>
-        {outcome.which === 'limited' ? r.limitedHeading : r.failedHeading}
-      </h1>
-      <p>{outcome.which === 'limited' ? r.limitedBody : r.failedBody}</p>
+      <h1>{messageHeading}</h1>
+      <p>{messageBody}</p>
       <p>
-        <a class="button" href={pathFor(lang, '/tailors')}>
+        {outcome.which === 'forbidden' && (
+          <a class="button" href={pathFor(lang, '/request')}>
+            {r.heading}
+          </a>
+        )}
+        <a class="button button--secondary" href={pathFor(lang, '/tailors')}>
           {r.browse}
         </a>
       </p>

@@ -35,7 +35,7 @@ export async function recordContactClick(
 
   const tailor = await db
     .prepare(
-      `SELECT id FROM tailor WHERE slug = ? AND is_published = 1 AND contact_publish_consent = 1
+      `SELECT id FROM tailor WHERE slug = ? AND is_published = 1 AND permission_recorded = 1 AND contact_publish_consent = 1
        AND (CASE ? WHEN 'whatsapp' THEN whatsapp_e164 ELSE phone_e164 END) IS NOT NULL`,
     )
     .bind(slug, channel)

@@ -117,7 +117,7 @@ export async function listPublished(
   db: Db,
   filters: DirectoryFilters,
 ): Promise<{ tailors: CardView[]; truncated: boolean }> {
-  const where = ['t.is_published = 1'];
+  const where = ['t.is_published = 1 AND t.permission_recorded = 1'];
   const binds: unknown[] = [];
   if (filters.category) {
     where.push(
@@ -197,7 +197,7 @@ export async function getPublishedBySlug(
     .prepare(
       `SELECT id, slug, display_name, description, shop_address_text, home_visits, languages, price_note, whatsapp_e164, phone_e164,
               contact_publish_consent, verified_fields, profile_photo_id
-       FROM tailor WHERE slug = ? AND is_published = 1`,
+       FROM tailor WHERE slug = ? AND is_published = 1 AND permission_recorded = 1`,
     )
     .bind(slug)
     .first<{
@@ -273,7 +273,7 @@ export async function listActiveCategories(
   { onlyWithTailors = false } = {},
 ): Promise<Choice[]> {
   const used = onlyWithTailors
-    ? 'AND EXISTS (SELECT 1 FROM tailor_category tc JOIN tailor t ON t.id = tc.tailor_id WHERE tc.category_id = c.id AND t.is_published = 1)'
+    ? 'AND EXISTS (SELECT 1 FROM tailor_category tc JOIN tailor t ON t.id = tc.tailor_id WHERE tc.category_id = c.id AND t.is_published = 1 AND t.permission_recorded = 1)'
     : '';
   const { results } = await db
     .prepare(
@@ -288,7 +288,7 @@ export async function listActiveAreas(
   { onlyWithTailors = false } = {},
 ): Promise<Choice[]> {
   const used = onlyWithTailors
-    ? 'AND EXISTS (SELECT 1 FROM tailor_area ta JOIN tailor t ON t.id = ta.tailor_id WHERE ta.area_id = a.id AND t.is_published = 1)'
+    ? 'AND EXISTS (SELECT 1 FROM tailor_area ta JOIN tailor t ON t.id = ta.tailor_id WHERE ta.area_id = a.id AND t.is_published = 1 AND t.permission_recorded = 1)'
     : '';
   const { results } = await db
     .prepare(
@@ -315,7 +315,7 @@ export async function listSitemapPaths(db: Db): Promise<string[]> {
   const [tailors, categories] = await Promise.all([
     db
       .prepare(
-        'SELECT slug FROM tailor WHERE is_published = 1 ORDER BY slug LIMIT 5000',
+        'SELECT slug FROM tailor WHERE is_published = 1 AND permission_recorded = 1 ORDER BY slug LIMIT 50000',
       )
       .all<{ slug: string }>(),
     listActiveCategories(db, { onlyWithTailors: true }),

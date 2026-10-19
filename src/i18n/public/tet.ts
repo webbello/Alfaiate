@@ -192,6 +192,9 @@ export const tet: Dictionary = {
       'Favór klik kaixa atu ami bele fahe ita-nia detallu ba alfaiate.',
     errorPhone:
       'Hakerek númeru Timor-Leste: dígitu 8 hahú ho 7 ka 3, ho ka laiha +670.',
+    forbiddenHeading: 'Ami la bele haruka ita-nia pedidu',
+    forbiddenBody:
+      "Ita-nia browser la haruka buat ne'ebé ami presiza atu hatene formuláriu ne'e mai husi ne'ebé, tanba ne'e laiha buat ida grava. Favór loke fali pájina pedidu no haruka fali.",
     limitedHeading: 'Pedidu barak liu',
     limitedBody: 'Favór koko fali iha oras ida nia laran.',
     failedHeading: 'Buat ruma la loos',

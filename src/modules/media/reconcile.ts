@@ -8,7 +8,7 @@ async function desiredKeys(
 ): Promise<Set<string>> {
   const { results } = await b.DB.prepare(
     `SELECT i.file_key FROM portfolio_image i JOIN tailor t ON t.id = i.tailor_id
-     WHERE i.tailor_id = ? AND i.permission_granted = 1 AND i.is_visible = 1 AND t.is_published = 1`,
+     WHERE i.tailor_id = ? AND i.permission_granted = 1 AND i.is_visible = 1 AND t.is_published = 1 AND t.permission_recorded = 1`,
   )
     .bind(tailorId)
     .all<{ file_key: string }>();

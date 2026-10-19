@@ -33,6 +33,7 @@ describe('public routes (scope guard)', () => {
     'request.astro',
     'request/thanks.astro',
     'robots.txt.ts',
+    'sitemap-[n].xml.ts',
     'sitemap.xml.ts',
     'tailors/[slug].astro',
     'tailors/index.astro',

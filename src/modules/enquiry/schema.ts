@@ -148,7 +148,9 @@ export async function resolveChoices(
 
   const tailor = input.tailorSlug
     ? await db
-        .prepare('SELECT id FROM tailor WHERE slug = ? AND is_published = 1')
+        .prepare(
+          'SELECT id FROM tailor WHERE slug = ? AND is_published = 1 AND permission_recorded = 1',
+        )
         .bind(input.tailorSlug)
         .first<{ id: number }>()
     : null;

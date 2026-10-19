@@ -27,7 +27,11 @@ export type FormView = {
 export type Outcome =
   | { kind: 'form'; status: 200 | 400; view: FormView }
   | { kind: 'redirect'; to: string }
-  | { kind: 'message'; status: 413 | 429 | 500; which: 'limited' | 'failed' };
+  | {
+      kind: 'message';
+      status: 403 | 413 | 429 | 500;
+      which: 'limited' | 'failed' | 'forbidden';
+    };
 
 type Deps = {
   db: D1Database;

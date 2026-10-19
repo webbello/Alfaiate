@@ -19,7 +19,7 @@ export async function runRequestPage(
     request.method === 'POST' &&
     request.headers.get('origin') !== new URL(request.url).origin
   )
-    return new Response('Forbidden', { status: 403 });
+    return { kind: 'message', status: 403, which: 'forbidden' };
   const deps = {
     db: requireBindings(env).DB,
     secret: formSecret(env as { FORM_TOKEN_SECRET?: string }),

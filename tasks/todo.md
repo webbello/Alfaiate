@@ -10,7 +10,7 @@
   - Verify: unit tests of the builders (allowed keys only, hostile text, no phone without consent, no image without permission); integration tests parse the JSON from the built Worker for home and a profile, check absence elsewhere, compare the CSP header with the value in `headers.ts`; mutation checks on the consent gate, the photo gate, the escaping and the allowed-key list.
   - Files: `src/modules/seo/jsonld.ts`, `src/modules/seo/head.ts`, `src/layouts/PublicLayout.astro`, `src/views/Home.astro`, `src/views/Profile.astro`, tests
 
-- [ ] **T3 Carried-over security fixes**
+- [x] **T3 Carried-over security fixes**
   - Acceptance: the three public queries (list, profile, sitemap paths) also require `permission_recorded = 1`; a profile whose stored phone or WhatsApp number is malformed renders without that button instead of failing; a POST to `/request` with a missing or foreign Origin shows a plain page (403) instead of a bare "Forbidden"; the sitemap becomes a sitemap index with child files when it would pass 5,000 URLs.
   - Verify: tests that fail first for each (published row without permission excluded everywhere; malformed number page is 200 without the button; friendly 403 text in both languages; index and child sitemaps at the 5,000 boundary); mutation checks on the permission clause and the boundary.
   - Files: `src/modules/directory/queries.ts`, `src/views/Profile.astro`, `src/modules/enquiry/page.ts`, `src/modules/seo/sitemap.ts`, `src/pages/sitemap.xml.ts`, tests

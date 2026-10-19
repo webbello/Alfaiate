@@ -43,6 +43,47 @@ export function buildSitemap({
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join('\n')}\n</urlset>\n`;
 }
 
+/** A sitemap file holds at most this many entries (one per page and language). */
+export const SITEMAP_LIMIT = 5000;
+
+export type SitemapPlan =
+  { single: string } | { index: string; children: string[] };
+
+/** One file when it fits, otherwise an index plus child files; both languages of a page always land in the same file. */
+export function sitemapPlan({
+  siteUrl,
+  languages,
+  paths,
+}: {
+  siteUrl: string;
+  languages: readonly Lang[];
+  paths: string[];
+}): SitemapPlan {
+  const valid = paths.filter((p) => p.startsWith('/') && !p.startsWith('//'));
+  const perPage = Math.max(
+    1,
+    LANGUAGES.filter((l) => languages.includes(l)).length,
+  );
+  if (valid.length * perPage <= SITEMAP_LIMIT)
+    return { single: buildSitemap({ siteUrl, languages, paths: valid }) };
+  const perFile = Math.max(1, Math.floor(SITEMAP_LIMIT / perPage));
+  const children: string[] = [];
+  for (let i = 0; i < valid.length; i += perFile)
+    children.push(
+      buildSitemap({ siteUrl, languages, paths: valid.slice(i, i + perFile) }),
+    );
+  const entries = children
+    .map(
+      (_, i) =>
+        `  <sitemap>\n    <loc>${escapeXml(`${siteUrl}/sitemap-${i + 1}.xml`)}</loc>\n  </sitemap>`,
+    )
+    .join('\n');
+  return {
+    index: `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</sitemapindex>\n`,
+    children,
+  };
+}
+
 export function buildRobots(siteUrl: string, indexable: boolean): string {
   // Not indexable (staging, local): ask every crawler to stay away and offer no sitemap.
   if (!indexable) return ['User-agent: *', 'Disallow: /', ''].join('\n');

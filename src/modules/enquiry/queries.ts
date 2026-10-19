@@ -23,7 +23,7 @@ export async function preselectedTailor(
   if (!slug) return null;
   const row = await db
     .prepare(
-      'SELECT display_name AS name FROM tailor WHERE slug = ? AND is_published = 1',
+      'SELECT display_name AS name FROM tailor WHERE slug = ? AND is_published = 1 AND permission_recorded = 1',
     )
     .bind(slug)
     .first<{ name: string }>();
