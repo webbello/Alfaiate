@@ -6,3 +6,8 @@ INSERT INTO tailor_area (tailor_id, area_id, kind) SELECT t.id, a.id, 'shop_loca
 INSERT INTO enquiry (reference_code, customer_name, contact_number_e164, contact_channel, notes, consent_shared_with_tailor, consent_text_version, consent_at)
 VALUES ('AT-E2EFAKE2', 'E2E Fake Customer', '+67077654321', 'whatsapp', 'Made-up notes for browser tests.', 1, 'consent-2026-10-v1-en', '2026-01-01T00:00:00Z');
 INSERT INTO enquiry_status_log (enquiry_id, from_status, to_status) SELECT id, NULL, 'new' FROM enquiry WHERE reference_code = 'AT-E2EFAKE2';
+-- Fee terms agreed for the seeded tailor (needed before a fee can be due), and a second enquiry for the referral journey.
+UPDATE tailor SET fee_terms_agreed_on = '2026-01-01' WHERE slug = 'e2e-fake-tailor';
+INSERT INTO enquiry (reference_code, customer_name, contact_number_e164, contact_channel, consent_shared_with_tailor, consent_text_version, consent_at)
+VALUES ('AT-E2EFAKE3', 'E2E Fake Customer Three', '+67077654322', 'phone', 1, 'consent-2026-10-v1-en', '2026-01-01T00:00:00Z');
+INSERT INTO enquiry_status_log (enquiry_id, from_status, to_status) SELECT id, NULL, 'new' FROM enquiry WHERE reference_code = 'AT-E2EFAKE3';

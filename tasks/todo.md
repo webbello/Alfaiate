@@ -35,7 +35,7 @@
   - Verify: integration tests per role and period, seeded customer name and fee amounts absent where they must be, labels present, the existing dashboard tests still pass; mutation checks on the owner-only flag and the default period.
   - Files: `src/pages/admin/index.astro`, `src/i18n/en.ts`, `tests/integration/dashboard.test.ts`
 
-- [ ] **T8 Playwright and axe**
+- [x] **T8 Playwright and axe**
   - Acceptance: e2e as the throwaway owner creates a referral on the seeded enquiry, records forwarding, response and a reported completion, records a fee (after the seeded tailor has agreed terms), sees the dashboard figures change; axe zero violations on the enquiry page with referrals and on `/admin`; a deliberately broken label fails the suite once, then is reverted.
   - Verify: `npm run test:e2e` passes.
   - Files: `e2e/referral.spec.ts`, `e2e/a11y.spec.ts`, `e2e/seed.sql`
