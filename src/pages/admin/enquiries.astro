@@ -5,7 +5,14 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { requirePermission } from '../../modules/auth/require';
-import { STATUSES, listEnquiries } from '../../modules/enquiry/queries';
+import {
+  STATUSES,
+  countByStatus,
+  listEnquiries,
+} from '../../modules/enquiry/queries';
+import EmptyState from '../../components/admin/EmptyState.astro';
+import StatusChip from '../../components/admin/StatusChip.astro';
+import { toneFor } from '../../modules/admin-ui/tone';
 
 const auth = await requirePermission(Astro, 'enquiry.view');
 if (auth instanceof Response) return auth;
@@ -14,34 +21,54 @@ const params = Astro.url.searchParams;
 const status = STATUSES.find((s) => s === params.get('status'));
 const q = (params.get('q') ?? '').slice(0, 100);
 const spam = params.get('spam') === '1';
-const { rows, truncated } = await listEnquiries(requireBindings(env).DB, {
-  status,
-  q,
-  spam,
-});
+const DB = requireBindings(env).DB;
+const [{ rows, truncated }, counts] = await Promise.all([
+  listEnquiries(DB, { status, q, spam }),
+  countByStatus(DB),
+]);
+// A chip keeps the current search and the spam switch, and changes only the status.
+const chipHref = (value?: string) => {
+  const query = new URLSearchParams();
+  if (value) query.set('status', value);
+  if (q) query.set('q', q);
+  if (spam) query.set('spam', '1');
+  const text = query.toString();
+  return `/admin/enquiries${text ? `?${text}` : ''}`;
+};
+const filtered = Boolean(status || q || spam);
 const text = en.enquiry;
 ---
 
 <AdminLayout title={text.heading} description={text.heading} auth={auth}>
   <h1>{text.heading}</h1>
+
+  <nav class="chips" aria-label={text.statusFilter}>
+    <a
+      class="chip chip--neutral"
+      href={chipHref()}
+      aria-current={status ? undefined : 'page'}
+    >
+      {text.chipAll} {counts.total}
+    </a>
+    {STATUSES.map((s) => (
+      <a
+        class={`chip chip--${toneFor(s)}`}
+        href={chipHref(s)}
+        aria-current={status === s ? 'page' : undefined}
+      >
+        {text.statuses[s]} {counts.byStatus[s]}
+      </a>
+    ))}
+  </nav>
   <p>
-    <a href="/admin">{en.adminDashboardHeading}</a>
+    <small>{text.countsNote}</small>
   </p>
-  <form method="get" action="/admin/enquiries">
+
+  <form method="get" action="/admin/enquiries" class="searchbar">
+    <input type="hidden" name="status" value={status ?? ''} />
     <p>
       <label for="q">{text.search}</label>
       <input type="search" id="q" name="q" value={q} maxlength="100" />
-    </p>
-    <p>
-      <label for="status">{text.statusFilter}</label>
-      <select id="status" name="status">
-        <option value="">{text.allStatuses}</option>
-        {STATUSES.map((s) => (
-          <option value={s} selected={status === s}>
-            {text.statuses[s]}
-          </option>
-        ))}
-      </select>
     </p>
     <p>
       <label>
@@ -53,7 +80,27 @@ const text = en.enquiry;
       <button type="submit">{text.searchButton}</button>
     </p>
   </form>
-  {rows.length === 0 && <p>{text.none}</p>}
+
+  {rows.length === 0 && !filtered && counts.total === 0 && (
+    <EmptyState title={text.emptyTitle}>
+      <p>{text.emptyBody}</p>
+      <p>
+        <a class="button-link" href="/request">
+          {text.emptyLink}
+        </a>
+      </p>
+    </EmptyState>
+  )}
+  {rows.length === 0 && (filtered || counts.total > 0) && (
+    <EmptyState title={text.noMatchTitle}>
+      <p>{text.noMatchBody}</p>
+      <p>
+        <a class="button-link" href="/admin/enquiries">
+          {text.clearFilters}
+        </a>
+      </p>
+    </EmptyState>
+  )}
   {rows.length > 0 && (
     <table>
       <thead>
@@ -63,6 +110,7 @@ const text = en.enquiry;
           <th>{text.name}</th>
           <th>{text.number}</th>
           <th>{text.status}</th>
+          <th>{text.referralHeading}</th>
         </tr>
       </thead>
       <tbody>
@@ -75,7 +123,19 @@ const text = en.enquiry;
             <td>{r.created_at.slice(0, 10)}</td>
             <td>{r.customer_name ?? text.anonymised}</td>
             <td>{r.contact_number_e164 ?? text.anonymised}</td>
-            <td>{text.statuses[r.status]}</td>
+            <td>
+              <StatusChip state={r.status} label={text.statuses[r.status]} />
+            </td>
+            <td>
+              {r.referral_state ? (
+                <StatusChip
+                  state={r.referral_state}
+                  label={en.referral.responses[r.referral_state]}
+                />
+              ) : (
+                <small>{text.referralNone}</small>
+              )}
+            </td>
           </tr>
         ))}
       </tbody>

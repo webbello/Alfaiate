@@ -51,6 +51,8 @@ export type EnquiryRow = {
   status: Status;
   is_spam: number;
   created_at: string;
+  /** The active referral's response, else the latest outcome, else null (not passed to a tailor yet). */
+  referral_state: 'pending' | 'accepted' | 'declined' | 'no_response' | null;
 };
 
 /** Escapes LIKE wildcards so a search for "%" or "_" matches only those characters. */
@@ -87,13 +89,36 @@ export async function listEnquiries(
   }
   const { results } = await db
     .prepare(
-      `SELECT id, reference_code, customer_name, contact_number_e164, contact_channel, status, is_spam, created_at FROM enquiry
-       ${where.length ? `WHERE ${where.join(' AND ')}` : ''} ORDER BY created_at DESC, id DESC LIMIT ${LIST_CAP + 1}`,
+      `SELECT id, reference_code, customer_name, contact_number_e164, contact_channel, status, is_spam, created_at,
+              (SELECT r.tailor_response FROM referral r WHERE r.enquiry_id = enquiry.id
+               ORDER BY (r.tailor_response IN ('pending', 'accepted')) DESC, r.id DESC LIMIT 1) AS referral_state
+       FROM enquiry
+       ${where.length ? `WHERE ${where.join(' AND ')}` : ''} ORDER BY (status = 'new') DESC, created_at DESC, id DESC LIMIT ${LIST_CAP + 1}`,
     )
     .bind(...binds)
     .all<EnquiryRow>();
   return {
     rows: results.slice(0, LIST_CAP),
     truncated: results.length > LIST_CAP,
+  };
+}
+
+/** How many enquiries have each status (spam left out), and the total: for the filter chips on the inbox. */
+export async function countByStatus(
+  db: D1Database,
+): Promise<{ byStatus: Record<Status, number>; total: number }> {
+  const { results } = await db
+    .prepare(
+      'SELECT status, count(*) AS c FROM enquiry WHERE is_spam = 0 GROUP BY status',
+    )
+    .all<{ status: Status; c: number }>();
+  const byStatus = Object.fromEntries(STATUSES.map((s) => [s, 0])) as Record<
+    Status,
+    number
+  >;
+  for (const row of results) byStatus[row.status] = row.c;
+  return {
+    byStatus,
+    total: Object.values(byStatus).reduce((a, b) => a + b, 0),
   };
 }

@@ -15,7 +15,7 @@
   - Verify: the existing dashboard integration expectations pass unchanged; new tests for the period tabs, the chip links, the owner-only fee card and the getting-started card; the e2e dashboard check still passes; screenshots at desktop and 375 px shown to the owner.
   - Files: `src/pages/admin/index.astro`, `src/components/admin/StatCard.astro`, `src/styles/admin.css`, tests
 
-- [ ] **T4 Inbox**
+- [x] **T4 Inbox**
   - Acceptance: per-status counts (spam excluded) on the filter chips, each filtering on click; list sorted new first then newest; rows show reference, received date, name, number, status chip and referral state (none, pending, accepted, declined, no response); labelled large search box; empty-state text with a link to the request form; spam toggle and 100-row cap behave as before.
   - Verify: unit tests for the counts query, the sort order and the referral-state column (including a spam row and an anonymised row); integration tests for chips, filtering, empty state and unchanged search behaviour; contract test unchanged except the new chip links; mutation checks on the sort and on the spam exclusion in the counts.
   - Files: `src/modules/enquiry/queries.ts`, `src/pages/admin/enquiries.astro`, `src/styles/admin.css`, tests

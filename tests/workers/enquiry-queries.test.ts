@@ -3,6 +3,7 @@ import { env } from 'cloudflare:workers';
 import {
   LIST_CAP,
   STATUSES,
+  countByStatus,
   listEnquiries,
 } from '../../src/modules/enquiry/queries';
 
@@ -112,5 +113,85 @@ describe('listEnquiries (FR-ADM-06)', () => {
       customer_name: null,
       contact_number_e164: null,
     });
+  });
+});
+
+describe('inbox order and referral state (Phase 7b T4)', () => {
+  const referral = async (
+    ref: string,
+    response: string,
+    tailorName = 'Inbox Tailor',
+  ) => {
+    const e = (await db
+      .prepare('SELECT id FROM enquiry WHERE reference_code = ?')
+      .bind(ref)
+      .first<{ id: number }>())!.id;
+    const t = (
+      await db
+        .prepare(
+          "INSERT INTO tailor (slug, display_name, status) VALUES (?, ?, 'approved')",
+        )
+        .bind(`iq-${++n}`, tailorName)
+        .run()
+    ).meta.last_row_id;
+    await db
+      .prepare(
+        'INSERT INTO referral (enquiry_id, tailor_id, tailor_response) VALUES (?, ?, ?)',
+      )
+      .bind(e, t, response)
+      .run();
+  };
+
+  it('lists new enquiries first, then the others, each group newest first', async () => {
+    const oldNew = await add({ status: 'new', at: '2030-01-01T00:00:00.000Z' });
+    const recentContacted = await add({
+      status: 'contacted',
+      at: '2030-03-03T00:00:00.000Z',
+    });
+    const recentNew = await add({
+      status: 'new',
+      at: '2030-02-02T00:00:00.000Z',
+    });
+    const oldContacted = await add({
+      status: 'contacted',
+      at: '2030-01-02T00:00:00.000Z',
+    });
+    const order = (await refs({ q: 'Fake Person' })).filter((r) =>
+      [oldNew, recentContacted, recentNew, oldContacted].includes(r),
+    );
+    expect(order).toEqual([recentNew, oldNew, recentContacted, oldContacted]);
+  });
+
+  it('shows the referral state: the active one if there is one, otherwise the latest outcome, otherwise none', async () => {
+    const none = await add();
+    const pending = await add();
+    const declinedThenAccepted = await add();
+    const declinedOnly = await add();
+    await referral(pending, 'pending');
+    await referral(declinedThenAccepted, 'declined');
+    await referral(declinedThenAccepted, 'accepted');
+    await referral(declinedOnly, 'no_response');
+    const state = async (ref: string) =>
+      (await listEnquiries(db, { q: ref })).rows[0].referral_state;
+    expect(await state(none)).toBeNull();
+    expect(await state(pending)).toBe('pending');
+    expect(await state(declinedThenAccepted)).toBe('accepted');
+    expect(await state(declinedOnly)).toBe('no_response');
+  });
+
+  it('counts enquiries per status, leaving spam out, and gives the total', async () => {
+    const before = await countByStatus(db);
+    await add({ status: 'contacted' });
+    await add({ status: 'contacted' });
+    await add({ status: 'cancelled' });
+    await add({ status: 'contacted', spam: true });
+    const after = await countByStatus(db);
+    expect(after.byStatus.contacted - before.byStatus.contacted).toBe(2);
+    expect(after.byStatus.cancelled - before.byStatus.cancelled).toBe(1);
+    expect(after.total - before.total).toBe(3);
+    expect(Object.keys(after.byStatus).sort()).toEqual([...STATUSES].sort());
+    expect(after.total).toBe(
+      Object.values(after.byStatus).reduce((a, b) => a + b, 0),
+    );
   });
 });

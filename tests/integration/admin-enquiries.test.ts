@@ -336,3 +336,99 @@ describe('POST /admin/enquiries/[id]/actions (FR-ADM-07/08, AC-11, SEC-09)', () 
     expect(rows).not.toMatch(/Audit Privacy|\+670/);
   });
 });
+
+describe('the inbox for people (Phase 7b T4)', () => {
+  const chip = (html: string, label: string, count: number, status?: string) =>
+    new RegExp(
+      `<a class="chip chip--[a-z]+" href="/admin/enquiries${status ? `\\?status=${status}` : ''}[^"]*"[^>]*>${label} ${count}</a>`,
+    ).test(html);
+
+  it('shows a chip per status with its count, plus All, each linking to that filter, and marks the current one', async () => {
+    const owner = await signIn('owner');
+    const html = await (
+      await get('/admin/enquiries?status=contacted', owner)
+    ).text();
+    const total = Number(html.match(/>All (\d+)</)![1]);
+    expect(total).toBeGreaterThan(0);
+    for (const status of [
+      'new',
+      'contacted',
+      'referred',
+      'accepted_by_tailor',
+      'completed_reported',
+      'not_converted',
+      'cancelled',
+    ])
+      expect(html, status).toContain(`href="/admin/enquiries?status=${status}`);
+    expect(html).toMatch(
+      /href="\/admin\/enquiries\?status=contacted"[^>]*aria-current="page"/,
+    );
+    expect(
+      chip(
+        html,
+        'Contacted',
+        Number(html.match(/Contacted (\d+)</)![1]),
+        'contacted',
+      ),
+    ).toBe(true);
+  });
+
+  it('counts leave out spam, and chips keep the search and the spam switch', async () => {
+    const owner = await signIn('owner');
+    const spam = await add('Chip Spam Person', { spam: true });
+    const html = await (
+      await get('/admin/enquiries?q=Chip&spam=1', owner)
+    ).text();
+    expect(html).toContain(spam);
+    expect(html).toContain('q=Chip');
+    expect(html).toContain('spam=1');
+  });
+
+  it('shows the status and the referral state as chips on each row', async () => {
+    const owner = await signIn('owner');
+    const ref = await add('Row Chips Person', { status: 'contacted' });
+    const id = (await db
+      .prepare('SELECT id FROM enquiry WHERE reference_code = ?')
+      .bind(ref)
+      .first<{ id: number }>())!.id;
+    const tailor = (
+      await db
+        .prepare(
+          "INSERT INTO tailor (slug, display_name, status) VALUES (?, 'Row Tailor', 'approved')",
+        )
+        .bind(`rc-${unique()}`)
+        .run()
+    ).meta.last_row_id;
+    await db
+      .prepare(
+        "INSERT INTO referral (enquiry_id, tailor_id, tailor_response) VALUES (?, ?, 'declined')",
+      )
+      .bind(id, tailor)
+      .run();
+    const html = await (await get(`/admin/enquiries?q=${ref}`, owner)).text();
+    expect(html).toMatch(/<span class="chip chip--info">Contacted<\/span>/);
+    expect(html).toMatch(/<span class="chip chip--danger">Declined<\/span>/);
+    const fresh = await add('No Referral Person');
+    expect(
+      await (await get(`/admin/enquiries?q=${fresh}`, owner)).text(),
+    ).toContain('No referral yet');
+  });
+
+  it('puts new enquiries first', async () => {
+    const owner = await signIn('owner');
+    const contacted = await add('Order Contacted', { status: 'contacted' });
+    const fresh = await add('Order Fresh', { status: 'new' });
+    const html = await (await get('/admin/enquiries?q=Order', owner)).text();
+    expect(html.indexOf(fresh)).toBeLessThan(html.indexOf(contacted));
+  });
+
+  it('explains an empty search and offers to clear it', async () => {
+    const owner = await signIn('owner');
+    const html = await (
+      await get('/admin/enquiries?q=zzz-nothing-matches', owner)
+    ).text();
+    expect(html).toContain('class="empty"');
+    expect(html).toContain('No enquiries match');
+    expect(html).toContain('href="/admin/enquiries"');
+  });
+});
