@@ -71,6 +71,9 @@ export async function storeImage(
 
   const key = newImageKey();
   const written: string[] = [];
+  const cleanUp = () =>
+    Promise.allSettled(written.map((k) => b.MEDIA_PRIVATE.delete(k)));
+  let imageId: number;
   try {
     for (const variant of VARIANTS) {
       const objectKey = variantKey(tailorId, key, variant);
@@ -79,33 +82,36 @@ export async function storeImage(
       });
       written.push(objectKey);
     }
-    const next = (await b.DB.prepare(
-      'SELECT coalesce(max(sort_order), 0) + 1 AS n FROM portfolio_image WHERE tailor_id = ?',
-    )
-      .bind(tailorId)
-      .first<{ n: number }>())!.n;
+    // One statement checks the cap and inserts, so parallel uploads cannot slip past MAX_IMAGES (check-then-act race).
     const row = await b.DB.prepare(
-      'INSERT INTO portfolio_image (tailor_id, file_key, alt_text, caption, sort_order) VALUES (?, ?, ?, ?, ?)',
+      `INSERT INTO portfolio_image (tailor_id, file_key, alt_text, caption, sort_order)
+       SELECT ?1, ?2, ?3, ?4, coalesce(max(sort_order), 0) + 1 FROM portfolio_image WHERE tailor_id = ?1 HAVING count(*) < ?5`,
     )
       .bind(
         tailorId,
         key,
         parsed.data.alt_text,
         parsed.data.caption || null,
-        next,
+        MAX_IMAGES,
       )
       .run();
-    await audit(b.DB, {
-      userId: actorId,
-      action: 'image_uploaded',
-      entityType: 'portfolio_image',
-      entityId: row.meta.last_row_id,
-    });
-    return { ok: true, id: row.meta.last_row_id };
+    if (row.meta.changes === 0) {
+      await cleanUp();
+      return { ok: false, error: 'limit' };
+    }
+    imageId = row.meta.last_row_id;
   } catch {
-    await Promise.allSettled(written.map((k) => b.MEDIA_PRIVATE.delete(k)));
+    await cleanUp();
     return { ok: false, error: 'storage' };
   }
+  // Outside the try: the row and its files are consistent now, so a failing audit must not delete the files.
+  await audit(b.DB, {
+    userId: actorId,
+    action: 'image_uploaded',
+    entityType: 'portfolio_image',
+    entityId: imageId,
+  });
+  return { ok: true, id: imageId };
 }
 
 /** Files first, then the row: a failure leaves the row in place so the delete can be retried. */

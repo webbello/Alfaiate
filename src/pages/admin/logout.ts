@@ -1,4 +1,5 @@
 export const prerender = false;
+import { readForm } from '../../modules/http/body';
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { requireBindings } from '../../modules/config';
@@ -11,7 +12,7 @@ export const POST: APIRoute = async (context) => {
   const auth = await requirePermission(context, 'dashboard.view');
   if (auth instanceof Response) return auth;
   const token = context.cookies.get(SESSION_COOKIE)?.value ?? '';
-  const form = await context.request.formData().catch(() => new FormData());
+  const form = (await readForm(context.request)).form;
   if (!(await verifyCsrf(token, form.get('csrf')?.toString())))
     return new Response('Forbidden', { status: 403 });
   const { DB } = requireBindings(env);

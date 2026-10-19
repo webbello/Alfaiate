@@ -1,5 +1,6 @@
 ---
 export const prerender = false;
+import { readForm } from '../../modules/http/body';
 import { env } from 'cloudflare:workers';
 import { z } from 'zod';
 import Base from '../../layouts/Base.astro';
@@ -17,9 +18,7 @@ let email = '';
 let message = '';
 if (Astro.request.method === 'POST') {
   const parsed = schema.safeParse(
-    Object.fromEntries(
-      await Astro.request.formData().catch(() => new FormData()),
-    ),
+    Object.fromEntries((await readForm(Astro.request)).form),
   );
   email = parsed.success ? parsed.data.email : '';
   const result = parsed.success

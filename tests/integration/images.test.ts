@@ -357,3 +357,50 @@ describe('image actions and permission', () => {
     ).toBe(`/admin/tailors/${id}?msg=invalid`);
   });
 });
+
+describe('request size limits (denial-of-service guard)', () => {
+  it('answers 413 to an upload body over the limit, before parsing it, and stores nothing', async () => {
+    const cookie = await signIn('editor');
+    const id = await addTailor();
+    const form = new FormData();
+    form.set('csrf', await csrfOf(cookie));
+    form.set('alt_text', 'big');
+    form.set(
+      'thumb',
+      new File([new Uint8Array(4 * 1024 * 1024)], 'thumb.jpg', {
+        type: 'image/jpeg',
+      }),
+    );
+    const response = await post(`/admin/tailors/${id}/images`, cookie, form);
+    expect(response.status).toBe(413);
+    expect(await count(id)).toBe(0);
+    expect(await inBucket(env.MEDIA_PRIVATE, id)).toBe(0);
+  });
+
+  it('treats an oversized ordinary form as empty: refused, nothing changed', async () => {
+    const cookie = await signIn('editor');
+    const before = (await env.DB.prepare(
+      'SELECT count(*) AS c FROM tailor',
+    ).first<{ c: number }>())!.c;
+    const response = await post('/admin/tailors/new', cookie, {
+      csrf: await csrfOf(cookie),
+      display_name: 'x'.repeat(70 * 1024),
+    });
+    expect(response.status).toBe(403);
+    expect(
+      (await env.DB.prepare('SELECT count(*) AS c FROM tailor').first<{
+        c: number;
+      }>())!.c,
+    ).toBe(before);
+  });
+
+  it('answers 404 for route ids that are not plain digits', async () => {
+    const cookie = await signIn('editor');
+    for (const id of ['1e3', '0x10', '-1']) {
+      const response = await post(`/admin/tailors/${id}/images`, cookie, {
+        csrf: await csrfOf(cookie),
+      });
+      expect(response.status, id).toBe(404);
+    }
+  });
+});

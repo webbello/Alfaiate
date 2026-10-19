@@ -149,6 +149,27 @@ describe('storeImage', () => {
     expect(MAX_IMAGES).toBe(10);
   });
 
+  it('keeps the 10-photo cap when uploads arrive in parallel, and leaves no files for the refused ones', async () => {
+    const [by, id] = [await actor(), await tailor()];
+    const results = await Promise.all(
+      Array.from({ length: 15 }, (_, i) =>
+        storeImage(buckets, by, id, { alt_text: `p${i}`, variants: good() }),
+      ),
+    );
+    expect(results.filter((r) => r.ok)).toHaveLength(MAX_IMAGES);
+    expect(results.filter((r) => !r.ok && r.error === 'limit')).toHaveLength(5);
+    expect(
+      (
+        await env.DB.prepare(
+          'SELECT count(*) AS c FROM portfolio_image WHERE tailor_id = ?',
+        )
+          .bind(id)
+          .first<{ c: number }>()
+      )?.c,
+    ).toBe(MAX_IMAGES);
+    expect(await keysIn(env.MEDIA_PRIVATE, id)).toHaveLength(MAX_IMAGES * 3);
+  });
+
   it('cleans up the stored files if the database insert fails', async () => {
     const [by, id] = [await actor(), await tailor()];
     const flaky = {

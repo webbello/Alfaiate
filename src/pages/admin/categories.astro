@@ -1,5 +1,6 @@
 ---
 export const prerender = false;
+import { readForm } from '../../modules/http/body';
 import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import CatalogAdmin from '../../components/CatalogAdmin.astro';
@@ -16,7 +17,7 @@ if (auth instanceof Response) return auth;
 const { DB } = requireBindings(env);
 
 if (Astro.request.method === 'POST') {
-  const form = await Astro.request.formData().catch(() => new FormData());
+  const form = (await readForm(Astro.request)).form;
   const token = Astro.cookies.get(SESSION_COOKIE)?.value ?? '';
   if (!(await verifyCsrf(token, form.get('csrf')?.toString())))
     return new Response('Forbidden', { status: 403 });

@@ -1,5 +1,6 @@
 ---
 export const prerender = false;
+import { readForm } from '../../../modules/http/body';
 import { env } from 'cloudflare:workers';
 import Base from '../../../layouts/Base.astro';
 import ProfileFields from '../../../components/ProfileFields.astro';
@@ -16,7 +17,7 @@ const auth = await requirePermission(Astro, 'tailor.edit');
 if (auth instanceof Response) return auth;
 
 if (Astro.request.method === 'POST') {
-  const form = await Astro.request.formData().catch(() => new FormData());
+  const form = (await readForm(Astro.request)).form;
   if (
     !(await verifyCsrf(
       Astro.cookies.get(SESSION_COOKIE)?.value ?? '',

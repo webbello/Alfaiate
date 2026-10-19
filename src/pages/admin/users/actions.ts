@@ -1,4 +1,5 @@
 export const prerender = false;
+import { readForm } from '../../../modules/http/body';
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { requireBindings } from '../../../modules/config';
@@ -19,7 +20,7 @@ const done = (context: Parameters<APIRoute>[0], code: string) =>
 export const POST: APIRoute = async (context) => {
   const auth = await requirePermission(context, 'user.manage');
   if (auth instanceof Response) return auth;
-  const form = await context.request.formData().catch(() => new FormData());
+  const form = (await readForm(context.request)).form;
   if (
     !(await verifyCsrf(
       context.cookies.get(SESSION_COOKIE)?.value ?? '',

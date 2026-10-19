@@ -1,5 +1,6 @@
 ---
 export const prerender = false;
+import { parseId } from '../../../modules/http/body';
 import { env } from 'cloudflare:workers';
 import Base from '../../../layouts/Base.astro';
 import ProfileFields from '../../../components/ProfileFields.astro';
@@ -24,7 +25,7 @@ import { VERIFIABLE_FIELDS } from '../../../modules/tailors/verification';
 const auth = await requirePermission(Astro, 'tailor.edit');
 if (auth instanceof Response) return auth;
 
-const id = Number(Astro.params.id);
+const id = parseId(Astro.params.id);
 const { DB } = requireBindings(env);
 const tailor = Number.isInteger(id) ? await getTailor(DB, id) : null;
 if (!tailor) return new Response('Not found', { status: 404 });
