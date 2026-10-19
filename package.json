@@ -14,7 +14,7 @@
     "typecheck": "astro check",
     "format:check": "prettier --check .",
     "test": "vitest run --project workers",
-    "check": "npm run lint && npm run typecheck && npm test && npm run test:integration",
+    "check": "npm run lint && npm run typecheck && npm run check:repo && npm test && npm run test:integration",
     "types": "wrangler types",
     "db:migrate": "wrangler d1 migrations apply DB --local",
     "db:seed": "wrangler d1 execute DB --local --file=seeds/placeholders.sql",
@@ -22,7 +22,8 @@
     "test:integration": "npm run build && vitest run --project integration --project integration-en --project integration-staging",
     "owner:create": "node scripts/owner.mjs create",
     "owner:reset": "node scripts/owner.mjs reset",
-    "test:e2e": "npm run build && node e2e/run.mjs"
+    "test:e2e": "npm run build && node e2e/run.mjs",
+    "check:repo": "node scripts/check-repo.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.4.0",

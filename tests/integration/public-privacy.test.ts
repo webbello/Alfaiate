@@ -18,6 +18,10 @@ const SECRET = {
   customerName: 'SECRET-CUSTOMER-NAME',
   customerPhone: '+67011122233',
   customerNote: 'SECRET-CUSTOMER-NOTES',
+  feeBasis: 'SECRET-FEE-BASIS-TEXT',
+  orderValue: 'SECRET-ORDER-VALUE-TEXT',
+  feeAmount: '98765432',
+  closedReason: 'SECRET-CLOSED-REASON',
 };
 
 describe('public pages never contain private values (SEC-05, BR-07, AC-15)', () => {
@@ -103,9 +107,18 @@ describe('public pages never contain private values (SEC-05, BR-07, AC-15)', () 
     ).meta.last_row_id;
     await db
       .prepare(
-        "INSERT INTO referral (enquiry_id, tailor_id, fields_shared_note) VALUES (?, ?, 'SECRET-SHARED-FIELDS')",
+        `INSERT INTO referral (enquiry_id, tailor_id, forwarded_at, tailor_response, completion_reported_at, completion_reported_by, fields_shared_note,
+                                 closed_reason, order_value_note, fee_basis_note, fee_amount, fee_status)
+         VALUES (?, ?, '2026-06-01', 'accepted', '2026-06-05', 'tailor', 'SECRET-SHARED-FIELDS', ?, ?, ?, ?, 'due')`,
       )
-      .bind(enquiry, tailor)
+      .bind(
+        enquiry,
+        tailor,
+        SECRET.closedReason,
+        SECRET.orderValue,
+        SECRET.feeBasis,
+        Number(SECRET.feeAmount),
+      )
       .run();
 
     const paths = [
@@ -121,6 +134,11 @@ describe('public pages never contain private values (SEC-05, BR-07, AC-15)', () 
       '/privacy',
       '/terms',
       '/request/thanks?ref=AT-ABCD2345',
+      '/media/' + 'a'.repeat(32) + '/thumb.jpg',
+      '/api/contact-click',
+      '/sitemap-1.xml',
+      '/robots.txt',
+      '/sitemap.xml',
     ];
     const secrets = [...Object.values(SECRET), 'SECRET-SHARED-FIELDS'];
     let sawPublicWords = false;
