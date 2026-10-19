@@ -183,3 +183,14 @@ describe('newsletter sign-up', () => {
     expect(await sha(tet.newsletter.consent)).toBe('7d0cb84d7266');
   });
 });
+
+describe('newsletter addresses', () => {
+  it('refuses control, zero-width and direction characters', () => {
+    for (const bad of [
+      'a‮b@example.test',
+      'a​b@example.test',
+      'a\u0007@example.test',
+    ])
+      expect(normaliseEmail(bad)).toBeNull();
+  });
+});

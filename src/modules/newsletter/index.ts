@@ -11,9 +11,17 @@ export const newsletterEnabled = (env: { NEWSLETTER_ENABLED?: string }) =>
 
 // Deliberately simple: one @, a dot in the domain, no spaces or angle brackets. The real check is the confirmation the owner sends later.
 const EMAIL = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]{2,}$/;
+// control, zero-width and direction characters could make one address look like another in the admin list
+/* eslint-disable no-control-regex -- matching control characters is the point */
+const INVISIBLE =
+  /[\u0000-\u001F\u007F\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF]/;
+/* eslint-enable no-control-regex */
 export const normaliseEmail = (raw: string): string | null => {
   const email = raw.trim().toLowerCase();
-  return email.length >= 6 && email.length <= 254 && EMAIL.test(email)
+  return email.length >= 6 &&
+    email.length <= 254 &&
+    EMAIL.test(email) &&
+    !INVISIBLE.test(email)
     ? email
     : null;
 };
@@ -90,14 +98,30 @@ export type SignupRow = {
   consent_text_version: string;
   created_at: string;
 };
-export const listSignups = async (db: D1Database) =>
-  (
-    await db
-      .prepare(
-        'SELECT id, email, consent_text_version, created_at FROM newsletter_signup ORDER BY created_at DESC, id DESC LIMIT 500',
-      )
-      .all<SignupRow>()
-  ).results;
+export const LIST_CAP = 500;
+/** Newest first, capped; `email` finds one exact address however old it is, so a removal request can always be met (PRV-04). */
+export async function listSignups(
+  db: D1Database,
+  email?: string | null,
+): Promise<{ rows: SignupRow[]; truncated: boolean }> {
+  const exact = email ? normaliseEmail(email) : null;
+  const { results } = exact
+    ? await db
+        .prepare(
+          'SELECT id, email, consent_text_version, created_at FROM newsletter_signup WHERE email = ?',
+        )
+        .bind(exact)
+        .all<SignupRow>()
+    : await db
+        .prepare(
+          `SELECT id, email, consent_text_version, created_at FROM newsletter_signup ORDER BY created_at DESC, id DESC LIMIT ${LIST_CAP + 1}`,
+        )
+        .all<SignupRow>();
+  return {
+    rows: results.slice(0, LIST_CAP),
+    truncated: results.length > LIST_CAP,
+  };
+}
 
 /** Removes an address for good (on request, PRV-04). Writes an audit row with ids only. */
 export async function removeSignup(

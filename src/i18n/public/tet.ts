@@ -211,7 +211,7 @@ export const tet: Dictionary = {
       intro:
         "Pájina ne'e mak fatin-reservadu. Avizu privasidade kompletu hela prepara no seidauk aprova.",
       s1Heading: 'Saida mak formuláriu pedidu halibur',
-      s1: "Ita-nia naran, númeru telefone ka WhatsApp no tipu, saida mak ita presiza, ita-nia área, oras ne'ebé ita hakarak no nota se ita hakerek. La iha seluk. (Testu fatin-reservadu: dono hodi konfirma.)",
+      s1: "Ita-nia naran, númeru telefone ka WhatsApp no tipu, saida mak ita presiza, ita-nia área, oras ne'ebé ita hakarak no nota se ita hakerek. Formuláriu negósiu mós husu naran organizasaun no pedidu nia tamañu. La iha seluk. (Testu fatin-reservadu: dono hodi konfirma.)",
       s2Heading: 'Se mak simu',
       s2: "Ema sira ne'ebé dirije Alfaiate TL, no alfaiate parseiru ne'ebé simu ita-nia pedidu, depois de ita klik kaixa konsentimentu de'it. (Testu fatin-reservadu.)",
       s3Heading: 'Durasaun rai',

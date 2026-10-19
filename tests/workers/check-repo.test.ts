@@ -130,3 +130,19 @@ describe('check:repo licensed scene photos', () => {
       ).toBeGreaterThanOrEqual(1);
   });
 });
+
+describe('check:repo credits are read from the first column only', () => {
+  it('does not credit a file whose name appears only in another column', () => {
+    const credits = file(
+      'public/images/site/CREDITS.md',
+      '| hero | robbie | https://x | Unsplash License |',
+    );
+    expect(
+      problems(credits, file('public/images/site/robbie-800.webp', null))
+        .length,
+    ).toBeGreaterThanOrEqual(1);
+    expect(
+      problems(credits, file('public/images/site/hero-800.webp', null)),
+    ).toEqual([]);
+  });
+});

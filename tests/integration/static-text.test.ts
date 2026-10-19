@@ -40,12 +40,12 @@ describe('static page text is unchanged', () => {
       '/about': '4d44c690b7c8',
       '/how-it-works': 'e18decde56ac',
       '/no-such-page': '8f5778279c8a',
-      '/privacy': 'd64cf0f90081',
+      '/privacy': '4696861fd35c',
       '/terms': '999b18f1a5eb',
       '/tet/about': '4619138f7a92',
       '/tet/how-it-works': 'a02b235e831f',
       '/tet/no-such-page': '3f2ef287e8f4',
-      '/tet/privacy': '4cec2009a7ad',
+      '/tet/privacy': 'b627894fff79',
       '/tet/terms': 'd7eb59fdd750',
     });
   });

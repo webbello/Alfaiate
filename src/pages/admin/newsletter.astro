@@ -13,7 +13,8 @@ import { listSignups } from '../../modules/newsletter';
 // Email addresses are personal data: owner only (enquiry.delete), like removing customer details.
 const auth = await requirePermission(Astro, 'enquiry.delete');
 if (auth instanceof Response) return auth;
-const rows = await listSignups(requireBindings(env).DB);
+const search = Astro.url.searchParams.get('email') ?? '';
+const { rows, truncated } = await listSignups(requireBindings(env).DB, search);
 const code = Astro.url.searchParams.get('msg') ?? '';
 const message = Object.hasOwn(en.adminMessages, code)
   ? en.adminMessages[code as keyof typeof en.adminMessages]
@@ -31,6 +32,26 @@ const message = Object.hasOwn(en.adminMessages, code)
     sent automatically. Remove an address when someone asks.
   </p>
   {message && <Flash message={message} kind={messageKind(code)} />}
+  <form method="get" action="/admin/newsletter" class="searchbar">
+    <p>
+      <label for="email">Find one address</label>
+      <input
+        type="search"
+        id="email"
+        name="email"
+        value={search}
+        maxlength="254"
+      />
+    </p>
+    <p>
+      <button type="submit">Find</button>
+    </p>
+  </form>
+  {truncated && (
+    <p role="note">
+      Only the newest 500 are listed. Use Find to reach an older address.
+    </p>
+  )}
   {rows.length === 0 ? (
     <EmptyState title="No sign-ups yet">
       <p>The form is off unless NEWSLETTER_ENABLED is true.</p>

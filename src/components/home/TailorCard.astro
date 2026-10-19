@@ -9,6 +9,7 @@ import {
 } from '../../modules/contact-links/whatsapp';
 import type { CardView } from '../../modules/directory/view';
 import { swatchVariant } from '../story/variant';
+import Source from '../Source.astro';
 
 interface Props {
   lang: Lang;
@@ -65,7 +66,9 @@ const whatsapp = (() => {
       </ul>
     )}
     {tailor.description && (
-      <p class="tailor-card__text">{tailor.description}</p>
+      <p class="tailor-card__text">
+        {tailor.description} <Source lang={lang} verified={false} />
+      </p>
     )}
     <p class="tailor-card__actions">
       <a class="button button--small button--outline" href={profile}>

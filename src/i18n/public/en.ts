@@ -206,7 +206,7 @@ export const en = {
       intro:
         'This page is a placeholder. The full privacy notice is being prepared and has not been approved yet.',
       s1Heading: 'What the request form collects',
-      s1: 'Your name, a phone or WhatsApp number and which it is, what you need, your area, a preferred time and notes if you add them. Nothing else. (Placeholder wording: to be confirmed by the owner.)',
+      s1: 'Your name, a phone or WhatsApp number and which it is, what you need, your area, a preferred time and notes if you add them. The business form also asks for your organisation’s name and the size of the order. Nothing else. (Placeholder wording: to be confirmed by the owner.)',
       s2Heading: 'Who receives it',
       s2: 'The people who run Alfaiate TL, and the partner tailor your request is passed to, only after you tick the consent box. (Placeholder wording.)',
       s3Heading: 'How long it is kept',
@@ -259,7 +259,8 @@ export const en = {
       'I agree that Alfaiate TL may email me updates. I can ask to be removed at any time.',
     submit: 'Sign up',
     title: 'Stay updated',
-    intro: 'Leave your email address to hear about new tailors and stories from Dili.',
+    intro:
+      'Leave your email address to hear about new tailors and stories from Dili.',
     errorInvalid: 'Please enter an email address like name@example.com.',
     errorConsent: 'Please tick the box so we may email you.',
     errorTiming: 'Please try again: this form needs a moment to fill in.',

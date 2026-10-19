@@ -30,9 +30,13 @@ const SITE_PHOTO = /^public\/images\/site\/([a-z0-9-]+?)-\d+\.webp$/;
 const CREDITS = 'public/images/site/CREDITS.md';
 function creditedPhotos(files) {
   const text = files.find((f) => f.path === CREDITS)?.text ?? '';
+  // only the first column of a table row is a name; a lowercase word anywhere else must not credit a file
+  const names = new Set(
+    [...text.matchAll(/^\|\s*([a-z0-9-]+)\s*\|/gm)].map((m) => m[1]),
+  );
   return (path) => {
     const m = SITE_PHOTO.exec(path);
-    return m !== null && text.includes(`| ${m[1]} |`);
+    return m !== null && names.has(m[1]);
   };
 }
 

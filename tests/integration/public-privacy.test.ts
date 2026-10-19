@@ -22,6 +22,9 @@ const SECRET = {
   orderValue: 'SECRET-ORDER-VALUE-TEXT',
   feeAmount: '98765432',
   closedReason: 'SECRET-CLOSED-REASON',
+  organisation: 'SECRET-ORGANISATION-NAME',
+  groupSize: 'SECRET-GROUP-SIZE',
+  newsletterEmail: 'secret-newsletter-sweep@example.test',
 };
 
 describe('public pages never contain private values (SEC-05, BR-07, AC-15)', () => {
@@ -95,13 +98,15 @@ describe('public pages never contain private values (SEC-05, BR-07, AC-15)', () 
     const enquiry = (
       await db
         .prepare(
-          "INSERT INTO enquiry (reference_code, customer_name, contact_number_e164, contact_channel, notes, consent_shared_with_tailor, consent_text_version, consent_at) VALUES (?, ?, ?, 'phone', ?, 1, 'v1', '2026-01-01T00:00:00Z')",
+          "INSERT INTO enquiry (reference_code, customer_name, contact_number_e164, contact_channel, notes, consent_shared_with_tailor, consent_text_version, consent_at, source, organisation_name, group_size_text) VALUES (?, ?, ?, 'phone', ?, 1, 'v1', '2026-01-01T00:00:00Z', 'business', ?, ?)",
         )
         .bind(
           `REF-SWEEP-${unique()}`,
           SECRET.customerName,
           SECRET.customerPhone,
           SECRET.customerNote,
+          SECRET.organisation,
+          SECRET.groupSize,
         )
         .run()
     ).meta.last_row_id;
@@ -121,8 +126,19 @@ describe('public pages never contain private values (SEC-05, BR-07, AC-15)', () 
       )
       .run();
 
+    await db
+      .prepare(
+        "INSERT INTO newsletter_signup (email, consent_text_version, consent_at) VALUES (?, 'v', 'now')",
+      )
+      .bind(SECRET.newsletterEmail)
+      .run();
     const paths = [
       '/',
+      '/business',
+      '/contact',
+      '/newsletter',
+      '/newsletter/thanks',
+      '/join',
       '/tailors',
       `/tailors/${slug}`,
       `/categories/${catSlug}`,

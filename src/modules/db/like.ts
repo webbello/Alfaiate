@@ -6,6 +6,6 @@ export const likeAnywhere = (text: string) =>
 export function fitLike(text: string): string {
   let q = text.trim();
   while (q && new TextEncoder().encode(likeAnywhere(q)).length > 50)
-    q = q.slice(0, -1);
+    q = [...q].slice(0, -1).join(''); // whole characters, never half an emoji
   return q;
 }
