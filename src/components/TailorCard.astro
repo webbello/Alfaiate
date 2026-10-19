@@ -4,6 +4,7 @@ import { dictionary } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 import { priceText } from '../modules/directory/format';
 import type { CardView } from '../modules/directory/view';
+import { swatchVariant } from './story/variant';
 
 interface Props {
   lang: Lang;
@@ -30,6 +31,12 @@ const photo = tailor.photo;
       alt={photo.alt}
       loading="lazy"
     />
+  )}
+  {!photo && (
+    <div
+      class={`card__swatch card__swatch--${swatchVariant(tailor.slug)}`}
+      aria-hidden="true"
+    ></div>
   )}
   <div class="card__body">
     <h3 class="card__title">

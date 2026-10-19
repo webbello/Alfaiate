@@ -57,7 +57,7 @@ const BUDGET = {
     request: 5700,
     howItWorks: 4300,
   },
-  css: 7800,
+  css: 9600, // measured 7952 plus about 20% (Phase 7c T5; re-measured in T9)
   homeCss: 15100, // site + story stylesheet, measured 12587 plus about 20% (Phase 7c T4; re-measured in T9)
   adminCss: 8200, // measured 6793 plus about 20%
   js: 400,

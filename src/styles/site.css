@@ -367,7 +367,51 @@ body:has(.sticky-bar) .site-footer {
 }
 .card__title {
   margin: 0 0 0.5rem;
-  font-size: 1.15rem;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 1.6rem;
+  line-height: 1.1;
+}
+/* Illustrated stand-in for a missing photo: woven cloth with a stitched edge (decorative, aria-hidden). */
+.card__swatch,
+.profile__swatch {
+  position: relative;
+  background-color: var(--indigo);
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgb(255 255 255 / 7%) 0 1px,
+      transparent 1px 5px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgb(0 0 0 / 12%) 0 1px,
+      transparent 1px 5px
+    );
+}
+.card__swatch {
+  aspect-ratio: 4 / 3;
+}
+.profile__swatch {
+  aspect-ratio: 5 / 1;
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+}
+.card__swatch::after,
+.profile__swatch::after {
+  content: '';
+  position: absolute;
+  inset: 0.6rem;
+  border: 2px dashed var(--thread-light);
+  border-radius: 0.2rem;
+}
+.card__swatch--1,
+.profile__swatch--1 {
+  background-color: var(--accent);
+}
+.card__swatch--2,
+.profile__swatch--2 {
+  background-color: var(--deep);
 }
 .card__title a {
   display: inline-block;

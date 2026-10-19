@@ -14,6 +14,7 @@ import { siteConfig } from '../modules/config';
 import { localBusinessJsonLd } from '../modules/seo/jsonld';
 import { metaText } from '../modules/seo/meta';
 import type { ProfileView } from '../modules/directory/view';
+import { swatchVariant } from '../components/story/variant';
 
 interface Props {
   lang: Lang;
@@ -73,6 +74,12 @@ const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') =>
         sizes="(min-width: 48rem) 40rem, 100vw"
         alt={tailor.profilePhoto.alt}
       />
+    )}
+    {!tailor.profilePhoto && (
+      <div
+        class={`profile__swatch profile__swatch--${swatchVariant(tailor.slug)}`}
+        aria-hidden="true"
+      ></div>
     )}
     <p class="notice" role="note">
       <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}

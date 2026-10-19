@@ -22,7 +22,7 @@
   - Verify: tests that the page has no digits claiming counts or ratings, no `<input>` in the tape measure, every point reachable by keyboard; story CSS loaded only on pages that use it; axe, reflow, text spacing; screenshots to the owner.
   - Files: `src/pages/index.astro`, `src/components/story/*`, `src/styles/story.css`, `src/i18n/public/*`, tests
 
-- [ ] **T5 Directory, category and profile**
+- [x] **T5 Directory, category and profile**
   - Acceptance: editorial cards and profile layout; illustrated swatch when there is no permitted photo; photo slots use only permitted, visible images; "supplied by the tailor" labels kept (BR-11); filters and tap counter unchanged.
   - Verify: existing directory, profile, privacy and image-permission tests unchanged and green; new tests that no photo shows without permission and no stock image exists; axe both languages; screenshots.
   - Files: `src/pages/tailors/**`, `src/pages/categories/**`, `src/components/TailorCard.astro`, `src/styles/*.css`, tests
