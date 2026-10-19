@@ -90,6 +90,16 @@ describe('static pages (FR-PUB-06)', () => {
     }
   });
 
+  it('has exactly one of each landmark, so screen readers are not told twice', async () => {
+    const { html } = await page('/how-it-works');
+    expect(html.match(/<header/g)).toHaveLength(1);
+    expect(html.match(/<main/g)).toHaveLength(1);
+    expect(html.match(/<footer/g)).toHaveLength(1);
+    expect(html.match(/class="site-nav"/g)).toHaveLength(1);
+    expect(html.match(/class="footer-nav"/g)).toHaveLength(1);
+    expect(html.match(/<h1/g)).toHaveLength(1);
+  });
+
   it('offers the browse and request buttons at the end of the long pages only', async () => {
     expect((await page('/how-it-works')).html).toContain('href="/request"');
     expect((await page('/privacy')).html).not.toContain('href="/request"');

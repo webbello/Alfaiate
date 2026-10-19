@@ -405,14 +405,3 @@ dl.facts dd {
   align-items: center;
   min-height: 2.75rem;
 }
-
-.footer-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 1rem;
-}
-.footer-nav a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-}
