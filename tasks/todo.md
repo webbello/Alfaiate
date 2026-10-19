@@ -1,6 +1,6 @@
 # Tasks: Phase 5
 
-- [ ] **T1 Validation schema and reference code**
+- [x] **T1 Validation schema and reference code**
   - Acceptance: Zod schema for the form (name 1-100 chars, number via `normalisePhone`, channel `whatsapp|phone|either`, optional category and area ids that must be active, optional service text, area text, preferred time text, notes with length caps, consent required true); field-level errors keyed by field with message keys (not text); `?tailor=slug` resolved only to a published tailor, otherwise ignored; reference code `AT-` plus 8 characters from an unambiguous alphabet, random, non-sequential.
   - Verify: unit tests (each field valid/invalid, hostile strings kept as plain text, inactive category refused, unknown or unpublished tailor ignored, code alphabet and length, 10,000 codes without duplicates); fail first.
   - Files: `src/modules/enquiry/schema.ts`, `src/modules/enquiry/reference.ts`, `tests/workers/enquiry-schema.test.ts`, `tests/workers/enquiry-reference.test.ts`
