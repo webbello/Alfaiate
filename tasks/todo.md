@@ -15,7 +15,7 @@
   - Verify: unit tests for AC-04 forms, encoding of names with quotes/ampersands/non-ASCII, cents rounding, hostile filter values.
   - Files: `src/modules/contact-links/tel.ts`, `src/modules/contact-links/whatsapp.ts`, `src/modules/directory/format.ts`, `src/modules/directory/filters.ts`, `tests/workers/contact-links.test.ts`
 
-- [ ] **T4 Directory data module (explicit columns, view models)**
+- [x] **T4 Directory data module (explicit columns, view models)**
   - Acceptance: `listPublished(filters)`, `getPublishedBySlug(slug)`, `listActiveCategories()`, `listActiveAreas()`, `listPublishedForCategory(slug)` select named columns only; contacts and address only when `contact_publish_consent = 1`; photos only when permitted, visible and the tailor is published; profile photo only if eligible; verified marks computed from `verified_fields` and `price_source`; alphabetical, cap 200; filters bind values, never build SQL from them.
   - Verify: D1 tests: published only; consent gating; photo permission; each filter alone and combined (AC-02); inactive categories excluded; view-model key whitelist test (no private, fee, permission or note fields anywhere); mutation checks on published, consent and photo rules.
   - Files: `src/modules/directory/queries.ts`, `src/modules/directory/view.ts`, `tests/workers/directory.test.ts`, `tests/workers/directory-privacy.test.ts`
