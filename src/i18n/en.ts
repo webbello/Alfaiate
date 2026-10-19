@@ -11,6 +11,7 @@ export const en = {
   adminLoginLimited: 'Too many attempts. Try again in a few minutes.',
   adminDashboardHeading: 'Dashboard',
   adminSignedInAs: 'Signed in as',
+  adminNavDashboard: 'Dashboard',
   adminNavAccount: 'My account',
   adminNavTailors: 'Tailors',
   tailorListHeading: 'Tailors',

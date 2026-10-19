@@ -1,0 +1,400 @@
+{
+  "manager account": {
+    "controls": ["csrf", "current_password", "new_password"],
+    "forms": ["POST "],
+    "links": ["/admin"]
+  },
+  "manager areas": {
+    "controls": ["action", "active", "csrf", "id", "name", "sort_order"],
+    "forms": ["POST /admin/areas"],
+    "links": ["/admin"]
+  },
+  "manager categories": {
+    "controls": [
+      "action",
+      "active",
+      "csrf",
+      "description",
+      "id",
+      "name",
+      "sort_order"
+    ],
+    "forms": ["POST /admin/categories"],
+    "links": ["/admin"]
+  },
+  "manager dashboard": {
+    "controls": ["csrf"],
+    "forms": ["POST /admin/logout"],
+    "links": [
+      "/admin/account",
+      "/admin/areas",
+      "/admin/categories",
+      "/admin/enquiries",
+      "/admin/tailors",
+      "/admin?period=Nd",
+      "/admin?period=all",
+      "/admin?period=month"
+    ]
+  },
+  "manager draft tailor": {
+    "controls": [
+      "action",
+      "alt_text",
+      "body",
+      "caption",
+      "cat_1",
+      "confirmed_1",
+      "contact_publish_consent",
+      "csrf",
+      "description",
+      "display_name",
+      "from_1",
+      "home_visits",
+      "languages",
+      "permission_date",
+      "permission_note",
+      "phone",
+      "price_confirmed_on",
+      "price_note",
+      "private_contact_name",
+      "private_phone",
+      "serves_1",
+      "shop_1",
+      "shop_address_text",
+      "slug",
+      "source_1",
+      "to_1",
+      "unit_1",
+      "verified_description",
+      "verified_home_visits",
+      "verified_languages",
+      "verified_phone",
+      "verified_price_note",
+      "verified_shop_address_text",
+      "verified_whatsapp",
+      "whatsapp"
+    ],
+    "forms": [
+      "POST /admin/tailors/N/actions",
+      "POST /admin/tailors/N/images",
+      "POST /admin/tailors/N/publish"
+    ],
+    "links": ["/admin/tailors"]
+  },
+  "manager enquiry": {
+    "controls": [
+      "action",
+      "body",
+      "closed_reason",
+      "completion_reported_at",
+      "completion_reported_by",
+      "csrf",
+      "fields_shared_note",
+      "forwarded_at",
+      "forwarded_via",
+      "responded_at",
+      "spam",
+      "status",
+      "tailor_id",
+      "tailor_response"
+    ],
+    "forms": [
+      "POST /admin/enquiries/N/actions",
+      "POST /admin/enquiries/N/referrals",
+      "POST /admin/enquiries/N/referrals/N"
+    ],
+    "links": ["/admin/enquiries"]
+  },
+  "manager inbox": {
+    "controls": ["q", "spam", "status"],
+    "forms": ["GET /admin/enquiries"],
+    "links": ["/admin", "/admin/enquiries/N"]
+  },
+  "manager inbox with spam": {
+    "controls": ["q", "spam", "status"],
+    "forms": ["GET /admin/enquiries"],
+    "links": ["/admin", "/admin/enquiries/N"]
+  },
+  "manager new tailor": {
+    "controls": [
+      "csrf",
+      "description",
+      "display_name",
+      "home_visits",
+      "languages",
+      "phone",
+      "price_confirmed_on",
+      "price_note",
+      "private_contact_name",
+      "private_phone",
+      "shop_address_text",
+      "whatsapp"
+    ],
+    "forms": ["POST "],
+    "links": ["/admin/tailors"]
+  },
+  "manager published tailor": {
+    "controls": [
+      "action",
+      "alt_text",
+      "body",
+      "caption",
+      "cat_1",
+      "confirmed_1",
+      "contact_publish_consent",
+      "csrf",
+      "description",
+      "display_name",
+      "from_1",
+      "home_visits",
+      "languages",
+      "permission_date",
+      "permission_note",
+      "phone",
+      "price_confirmed_on",
+      "price_note",
+      "private_contact_name",
+      "private_phone",
+      "serves_1",
+      "shop_1",
+      "shop_address_text",
+      "source_1",
+      "to_1",
+      "unit_1",
+      "verified_description",
+      "verified_home_visits",
+      "verified_languages",
+      "verified_phone",
+      "verified_price_note",
+      "verified_shop_address_text",
+      "verified_whatsapp",
+      "whatsapp"
+    ],
+    "forms": [
+      "POST /admin/tailors/N/actions",
+      "POST /admin/tailors/N/images",
+      "POST /admin/tailors/N/publish"
+    ],
+    "links": ["/admin/tailors"]
+  },
+  "manager tailors": {
+    "controls": [],
+    "forms": [],
+    "links": [
+      "/admin",
+      "/admin/tailors",
+      "/admin/tailors/N",
+      "/admin/tailors/new",
+      "/admin/tailors?published=N"
+    ]
+  },
+  "owner account": {
+    "controls": ["csrf", "current_password", "new_password"],
+    "forms": ["POST "],
+    "links": ["/admin"]
+  },
+  "owner areas": {
+    "controls": ["action", "active", "csrf", "id", "name", "sort_order"],
+    "forms": ["POST /admin/areas"],
+    "links": ["/admin"]
+  },
+  "owner categories": {
+    "controls": [
+      "action",
+      "active",
+      "csrf",
+      "description",
+      "id",
+      "name",
+      "sort_order"
+    ],
+    "forms": ["POST /admin/categories"],
+    "links": ["/admin"]
+  },
+  "owner dashboard": {
+    "controls": ["csrf"],
+    "forms": ["POST /admin/logout"],
+    "links": [
+      "/admin/account",
+      "/admin/areas",
+      "/admin/categories",
+      "/admin/enquiries",
+      "/admin/tailors",
+      "/admin/users",
+      "/admin?period=Nd",
+      "/admin?period=all",
+      "/admin?period=month"
+    ]
+  },
+  "owner draft tailor": {
+    "controls": [
+      "action",
+      "alt_text",
+      "body",
+      "caption",
+      "cat_1",
+      "confirmed_1",
+      "contact_publish_consent",
+      "csrf",
+      "description",
+      "display_name",
+      "fee_terms_agreed_on",
+      "fee_terms_text",
+      "from_1",
+      "home_visits",
+      "languages",
+      "permission_date",
+      "permission_note",
+      "phone",
+      "price_confirmed_on",
+      "price_note",
+      "private_contact_name",
+      "private_phone",
+      "serves_1",
+      "shop_1",
+      "shop_address_text",
+      "slug",
+      "source_1",
+      "to_1",
+      "unit_1",
+      "verified_description",
+      "verified_home_visits",
+      "verified_languages",
+      "verified_phone",
+      "verified_price_note",
+      "verified_shop_address_text",
+      "verified_whatsapp",
+      "whatsapp"
+    ],
+    "forms": [
+      "POST /admin/tailors/N/actions",
+      "POST /admin/tailors/N/fees",
+      "POST /admin/tailors/N/images",
+      "POST /admin/tailors/N/publish"
+    ],
+    "links": ["/admin/tailors"]
+  },
+  "owner enquiry": {
+    "controls": [
+      "action",
+      "body",
+      "closed_reason",
+      "completion_reported_at",
+      "completion_reported_by",
+      "confirm_reference",
+      "csrf",
+      "fee_amount",
+      "fee_basis_note",
+      "fee_paid_at",
+      "fee_status",
+      "fields_shared_note",
+      "forwarded_at",
+      "forwarded_via",
+      "order_value_note",
+      "responded_at",
+      "spam",
+      "status",
+      "tailor_id",
+      "tailor_response"
+    ],
+    "forms": [
+      "POST /admin/enquiries/N/actions",
+      "POST /admin/enquiries/N/anonymise",
+      "POST /admin/enquiries/N/referrals",
+      "POST /admin/enquiries/N/referrals/N",
+      "POST /admin/enquiries/N/referrals/N/fee"
+    ],
+    "links": ["/admin/enquiries"]
+  },
+  "owner inbox": {
+    "controls": ["q", "spam", "status"],
+    "forms": ["GET /admin/enquiries"],
+    "links": ["/admin", "/admin/enquiries/N"]
+  },
+  "owner inbox with spam": {
+    "controls": ["q", "spam", "status"],
+    "forms": ["GET /admin/enquiries"],
+    "links": ["/admin", "/admin/enquiries/N"]
+  },
+  "owner new tailor": {
+    "controls": [
+      "csrf",
+      "description",
+      "display_name",
+      "home_visits",
+      "languages",
+      "phone",
+      "price_confirmed_on",
+      "price_note",
+      "private_contact_name",
+      "private_phone",
+      "shop_address_text",
+      "whatsapp"
+    ],
+    "forms": ["POST "],
+    "links": ["/admin/tailors"]
+  },
+  "owner published tailor": {
+    "controls": [
+      "action",
+      "alt_text",
+      "body",
+      "caption",
+      "cat_1",
+      "confirmed_1",
+      "contact_publish_consent",
+      "csrf",
+      "description",
+      "display_name",
+      "fee_terms_agreed_on",
+      "fee_terms_text",
+      "from_1",
+      "home_visits",
+      "languages",
+      "permission_date",
+      "permission_note",
+      "phone",
+      "price_confirmed_on",
+      "price_note",
+      "private_contact_name",
+      "private_phone",
+      "serves_1",
+      "shop_1",
+      "shop_address_text",
+      "source_1",
+      "to_1",
+      "unit_1",
+      "verified_description",
+      "verified_home_visits",
+      "verified_languages",
+      "verified_phone",
+      "verified_price_note",
+      "verified_shop_address_text",
+      "verified_whatsapp",
+      "whatsapp"
+    ],
+    "forms": [
+      "POST /admin/tailors/N/actions",
+      "POST /admin/tailors/N/fees",
+      "POST /admin/tailors/N/images",
+      "POST /admin/tailors/N/publish"
+    ],
+    "links": ["/admin/tailors"]
+  },
+  "owner tailors": {
+    "controls": [],
+    "forms": [],
+    "links": [
+      "/admin",
+      "/admin/tailors",
+      "/admin/tailors/N",
+      "/admin/tailors/new",
+      "/admin/tailors?published=N"
+    ]
+  },
+  "owner users": {
+    "controls": ["action", "csrf", "email", "password", "role", "user_id"],
+    "forms": ["POST /admin/users/actions"],
+    "links": ["/admin"]
+  }
+}

@@ -1,0 +1,269 @@
+/* Admin stylesheet: plain CSS in one external file (the CSP has no 'unsafe-inline'). Same palette as the public site, so the product looks
+   like one thing. Contrast ratios checked 2026-10-19: text 16.9:1, muted 8.3:1, accent on white 9.2:1, focus ring 6.3:1. Controls are 44 px
+   tall (WCAG 2.2 target size), focus is always visible, and nothing animates. */
+:root {
+  --ink: #1b1b1b;
+  --muted: #4d4d4d;
+  --paper: #fffdf9;
+  --band: #f4efe7;
+  --line: #d9d0c3;
+  --accent: #8a1c2b;
+  --accent-ink: #ffffff;
+  --focus: #0b57d0;
+  --radius: 0.5rem;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper);
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-size: 1rem;
+}
+a {
+  color: var(--accent);
+}
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.skip-link {
+  position: absolute;
+  left: -10000px;
+  top: 0;
+  background: var(--ink);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+/* Header bar: brand, links for this role, who is signed in. Wraps on a phone; no menu button, no script. */
+.admin-header {
+  background: var(--band);
+  border-bottom: 1px solid var(--line);
+}
+.admin-header__inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
+}
+.admin-brand {
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  margin-right: 0.5rem;
+}
+.admin-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  flex: 1 1 auto;
+}
+.admin-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border-radius: var(--radius);
+  color: var(--ink);
+  text-decoration: none;
+}
+.admin-nav a:hover {
+  background: #fff;
+}
+.admin-nav a[aria-current='page'] {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+.admin-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.admin-user form {
+  margin: 0;
+}
+
+.admin-main {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+.admin-main > h1 {
+  margin: 0 0 1rem;
+  font-size: 1.75rem;
+  line-height: 1.25;
+}
+.admin-main h2 {
+  margin: 2rem 0 0.5rem;
+  font-size: 1.25rem;
+}
+.admin-main h3 {
+  margin: 1.25rem 0 0.25rem;
+  font-size: 1.05rem;
+}
+.admin-main p,
+.admin-main ul,
+.admin-main ol,
+.admin-main dl,
+.admin-main form {
+  max-width: 48rem;
+}
+
+/* Forms and buttons */
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+input:not([type='checkbox'], [type='radio'], [type='hidden']),
+select,
+textarea,
+button {
+  font: inherit;
+  min-height: 2.75rem;
+}
+input:not([type='checkbox'], [type='radio'], [type='hidden']),
+select,
+textarea {
+  width: 100%;
+  max-width: 32rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--ink);
+  background: #fff;
+  border: 2px solid var(--muted);
+  border-radius: var(--radius);
+}
+textarea {
+  max-width: 48rem;
+}
+input[type='checkbox'],
+input[type='radio'] {
+  width: 1.5rem;
+  height: 1.5rem;
+  vertical-align: middle;
+}
+label:has(> input[type='checkbox']),
+label:has(> input[type='radio']) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 400;
+  min-height: 2.75rem;
+}
+button {
+  padding: 0 1.25rem;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+}
+button:hover {
+  background: #6f1522;
+  border-color: #6f1522;
+}
+.admin-user button {
+  color: var(--ink);
+  background: #fff;
+  border-color: var(--muted);
+}
+.admin-user button:hover {
+  background: var(--band);
+  border-color: var(--muted);
+}
+
+/* Tables and lists */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+th,
+td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+th {
+  background: var(--band);
+  font-weight: 600;
+}
+dl {
+  display: grid;
+  grid-template-columns: minmax(8rem, max-content) 1fr;
+  gap: 0.25rem 1rem;
+}
+dt {
+  font-weight: 600;
+}
+dd {
+  margin: 0;
+}
+details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+}
+code {
+  background: var(--band);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+}
+small {
+  color: var(--muted);
+}
+
+/* Sign-in page: a small centred card, no header bar */
+.admin-card-page {
+  max-width: 26rem;
+  margin: 3rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+@media (max-width: 40rem) {
+  dl {
+    grid-template-columns: 1fr;
+  }
+  .admin-user {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

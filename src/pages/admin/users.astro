@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 import { env } from 'cloudflare:workers';
-import Base from '../../layouts/Base.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { requirePermission } from '../../modules/auth/require';
@@ -21,7 +21,11 @@ const message = Object.hasOwn(en.adminMessages, code)
   : '';
 ---
 
-<Base title={en.adminUsersHeading} description={en.adminUsersHeading} noindex>
+<AdminLayout
+  title={en.adminUsersHeading}
+  description={en.adminUsersHeading}
+  auth={auth}
+>
   <h1>{en.adminUsersHeading}</h1>
   <p>
     <a href="/admin">{en.adminDashboardHeading}</a>
@@ -114,4 +118,4 @@ const message = Object.hasOwn(en.adminMessages, code)
     </p>
     <button type="submit">{en.adminUsersCreate}</button>
   </form>
-</Base>
+</AdminLayout>

@@ -1,6 +1,6 @@
 ---
 export const prerender = false;
-import Base from '../../layouts/Base.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 import { en } from '../../i18n/en';
 import { requirePermission } from '../../modules/auth/require';
 import { can } from '../../modules/auth/permissions';
@@ -33,11 +33,8 @@ const ratio = (r: Ratio) =>
       });
 ---
 
-<Base title={en.adminTitle} description={en.adminTitle} noindex>
+<AdminLayout title={en.adminTitle} description={en.adminTitle} auth={auth}>
   <h1>{en.adminDashboardHeading}</h1>
-  <p>
-    {en.adminSignedInAs} {auth.email} ({auth.role})
-  </p>
   {figures && (
     <section aria-labelledby="figures">
       <h2 id="figures">{d.heading}</h2>
@@ -136,24 +133,4 @@ const ratio = (r: Ratio) =>
       )}
     </section>
   )}
-  <nav>
-    <a href="/admin/account">{en.adminNavAccount}</a>
-    {can(auth.role, 'tailor.edit') && (
-      <>
-        <a href="/admin/tailors">{en.adminNavTailors}</a>
-        <a href="/admin/categories">{en.adminNavCategories}</a>
-        <a href="/admin/areas">{en.adminNavAreas}</a>
-      </>
-    )}
-    {can(auth.role, 'enquiry.view') && (
-      <a href="/admin/enquiries">{en.adminNavEnquiries}</a>
-    )}
-    {can(auth.role, 'user.manage') && (
-      <a href="/admin/users">{en.adminNavUsers}</a>
-    )}
-  </nav>
-  <form method="post" action="/admin/logout">
-    <input type="hidden" name="csrf" value={auth.csrfToken} />
-    <button type="submit">{en.adminSignOut}</button>
-  </form>
-</Base>
+</AdminLayout>

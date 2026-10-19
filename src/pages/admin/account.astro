@@ -2,7 +2,7 @@
 export const prerender = false;
 import { readForm } from '../../modules/http/body';
 import { env } from 'cloudflare:workers';
-import Base from '../../layouts/Base.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { requirePermission } from '../../modules/auth/require';
@@ -36,10 +36,10 @@ const message = Object.hasOwn(en.adminMessages, code)
   : '';
 ---
 
-<Base
+<AdminLayout
   title={en.adminAccountHeading}
   description={en.adminAccountHeading}
-  noindex
+  auth={auth}
 >
   <h1>{en.adminAccountHeading}</h1>
   <p>
@@ -76,4 +76,4 @@ const message = Object.hasOwn(en.adminMessages, code)
     </p>
     <button type="submit">{en.adminChangePassword}</button>
   </form>
-</Base>
+</AdminLayout>

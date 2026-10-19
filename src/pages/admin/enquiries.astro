@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 import { env } from 'cloudflare:workers';
-import Base from '../../layouts/Base.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { requirePermission } from '../../modules/auth/require';
@@ -22,7 +22,7 @@ const { rows, truncated } = await listEnquiries(requireBindings(env).DB, {
 const text = en.enquiry;
 ---
 
-<Base title={text.heading} description={text.heading} noindex>
+<AdminLayout title={text.heading} description={text.heading} auth={auth}>
   <h1>{text.heading}</h1>
   <p>
     <a href="/admin">{en.adminDashboardHeading}</a>
@@ -82,4 +82,4 @@ const text = en.enquiry;
     </table>
   )}
   {truncated && <p>{text.truncated}</p>}
-</Base>
+</AdminLayout>

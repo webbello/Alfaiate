@@ -3,7 +3,7 @@ export const prerender = false;
 import { readForm } from '../../modules/http/body';
 import { env } from 'cloudflare:workers';
 import { z } from 'zod';
-import Base from '../../layouts/Base.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { login } from '../../modules/auth/login';
@@ -43,7 +43,7 @@ if (Astro.request.method === 'POST') {
 }
 ---
 
-<Base title={en.adminLoginTitle} description={en.adminLoginTitle} noindex>
+<AdminLayout title={en.adminLoginTitle} description={en.adminLoginTitle}>
   <h1>{en.adminLoginHeading}</h1>
   {message && <p role="alert">{message}</p>}
   <form method="post">
@@ -72,4 +72,4 @@ if (Astro.request.method === 'POST') {
     </p>
     <button type="submit">{en.adminSignIn}</button>
   </form>
-</Base>
+</AdminLayout>

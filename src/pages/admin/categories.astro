@@ -2,7 +2,7 @@
 export const prerender = false;
 import { readForm } from '../../modules/http/body';
 import { env } from 'cloudflare:workers';
-import Base from '../../layouts/Base.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 import CatalogAdmin from '../../components/CatalogAdmin.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
@@ -33,7 +33,11 @@ const message = Object.hasOwn(en.adminMessages, code)
   : '';
 ---
 
-<Base title={en.adminNavCategories} description={en.adminNavCategories} noindex>
+<AdminLayout
+  title={en.adminNavCategories}
+  description={en.adminNavCategories}
+  auth={auth}
+>
   <CatalogAdmin
     action="/admin/categories"
     heading={en.adminNavCategories}
@@ -42,4 +46,4 @@ const message = Object.hasOwn(en.adminMessages, code)
     message={message}
     withDescription={true}
   />
-</Base>
+</AdminLayout>

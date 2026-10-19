@@ -1,6 +1,6 @@
 # Tasks: Phase 7b
 
-- [ ] **T1 Contract test, admin layout, navigation and base stylesheet**
+- [x] **T1 Contract test, admin layout, navigation and base stylesheet**
   - Acceptance: first, `tests/integration/admin-contract.test.ts` records for every admin page, as owner and as manager where allowed, the form actions, input and select names, hidden fields and link targets (in a stable, sorted form) and passes on today's code; then `AdminLayout.astro` (header bar with site name, role-based links from `modules/admin-ui/nav.ts`, current page `aria-current="page"`, signed-in email and role, Sign out form, skip link, main landmark) and `src/styles/admin.css` (tokens shared with the public site, 44 px controls, focus styles, reduced motion) replace `Base.astro` on every admin page except the sign-in page, which gets a small centred card; the contract test passes unchanged except for the new nav links (updated in the same commit and listed).
   - Verify: contract test green before and after; unit test of nav links per role (owner, manager, editor, viewer) and per permission; integration tests that each admin page marks its own link current, that the sign-in page has no nav, and that no admin page loads a script; full AC-09 matrix and existing admin tests unchanged; mutation checks on a link's permission and on the current-page marker.
   - Files: `tests/integration/admin-contract.test.ts`, `src/layouts/AdminLayout.astro`, `src/styles/admin.css`, `src/modules/admin-ui/nav.ts`, `src/pages/admin/**` (layout swap only)

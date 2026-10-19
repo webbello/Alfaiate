@@ -2,7 +2,7 @@
 export const prerender = false;
 import { readForm } from '../../../modules/http/body';
 import { env } from 'cloudflare:workers';
-import Base from '../../../layouts/Base.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import ProfileFields from '../../../components/ProfileFields.astro';
 import { en } from '../../../i18n/en';
 import { requireBindings } from '../../../modules/config';
@@ -41,7 +41,11 @@ if (Astro.request.method === 'POST') {
 const { message, fields } = messageFrom(Astro.url);
 ---
 
-<Base title={en.tailorNewHeading} description={en.tailorNewHeading} noindex>
+<AdminLayout
+  title={en.tailorNewHeading}
+  description={en.tailorNewHeading}
+  auth={auth}
+>
   <h1>{en.tailorNewHeading}</h1>
   <p>
     <a href="/admin/tailors">{en.tailorListHeading}</a>
@@ -62,4 +66,4 @@ const { message, fields } = messageFrom(Astro.url);
     <ProfileFields />
     <button type="submit">{en.tailorCreate}</button>
   </form>
-</Base>
+</AdminLayout>

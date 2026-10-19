@@ -2,7 +2,7 @@
 export const prerender = false;
 import { parseId } from '../../../modules/http/body';
 import { env } from 'cloudflare:workers';
-import Base from '../../../layouts/Base.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import ProfileFields from '../../../components/ProfileFields.astro';
 import { en } from '../../../i18n/en';
 import { requireBindings } from '../../../modules/config';
@@ -59,7 +59,11 @@ const publishAction = `/admin/tailors/${id}/publish`;
 const action = `/admin/tailors/${id}/actions`;
 ---
 
-<Base title={tailor.display_name} description={tailor.display_name} noindex>
+<AdminLayout
+  title={tailor.display_name}
+  description={tailor.display_name}
+  auth={auth}
+>
   <h1>{tailor.display_name}</h1>
   <p>
     <a href="/admin/tailors">{en.tailorListHeading}</a> · {tailor.status} ·{' '}
@@ -518,4 +522,4 @@ const action = `/admin/tailors/${id}/actions`;
       </li>
     ))}
   </ul>
-</Base>
+</AdminLayout>

@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 import { env } from 'cloudflare:workers';
-import Base from '../../../layouts/Base.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { en } from '../../../i18n/en';
 import { fill } from '../../../i18n/public';
 import { requireBindings } from '../../../modules/config';
@@ -48,10 +48,10 @@ const forward = forwardingText(e);
 const action = `/admin/enquiries/${id}/actions`;
 ---
 
-<Base
+<AdminLayout
   title={`${text.heading} ${e.reference_code}`}
   description={text.heading}
-  noindex
+  auth={auth}
 >
   <h1>{e.reference_code}</h1>
   <p>
@@ -445,4 +445,4 @@ const action = `/admin/enquiries/${id}/actions`;
       </form>
     </>
   )}
-</Base>
+</AdminLayout>
