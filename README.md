@@ -15,7 +15,7 @@ npm run owner:create             # first admin account (prompts; password is nev
 npm run dev                      # http://localhost:4321, admin at /admin
 ```
 
-Note: `npm run dev` inlines CSS, which the strict CSP blocks, so pages look unstyled in dev (they still work). To see the real, styled site locally, run `npm run preview` (builds, then serves the built Worker at http://localhost:4322 with the same local database).
+Note: `npm run dev` inlines CSS, which the strict CSP blocks, so pages look unstyled in dev (they still work). To see the real, styled site locally, run `npm run preview` (builds, then serves the built Worker at http://localhost:4322 with the same local database). It serves the build it just made: after any command that rebuilds (`npm run check`, `npm run test:e2e`, `npm run build`) stop it (Ctrl+C) and run `npm run preview` again, otherwise the page loses its styles. If `npm run dev` says another server is already running, stop it with `npx astro dev stop`.
 
 ## Check before finishing any change
 
