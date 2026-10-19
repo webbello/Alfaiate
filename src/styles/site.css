@@ -9,6 +9,13 @@
   --accent: #8a1c2b;
   --accent-ink: #ffffff;
   --focus: #0b57d0;
+  /* Art direction (Phase 7c): tailor's-atelier palette. Contrast of every text/background pair is tested in tests/integration/contrast.test.ts. */
+  --chalk: #efe8da;
+  --deep: #14110f;
+  --indigo: #1f2a4d;
+  --thread: #7a5a12;
+  --thread-light: #e2c27a;
+  --display: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
   --radius: 0.5rem;
   --gap: 1rem;
   --measure: 42rem;
