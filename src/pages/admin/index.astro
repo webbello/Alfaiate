@@ -4,9 +4,33 @@ import Base from '../../layouts/Base.astro';
 import { en } from '../../i18n/en';
 import { requirePermission } from '../../modules/auth/require';
 import { can } from '../../modules/auth/permissions';
+import { env } from 'cloudflare:workers';
+import { requireBindings } from '../../modules/config';
+import { fill } from '../../i18n/public';
+import { formatMoney } from '../../modules/directory/format';
+import { metrics, type Ratio } from '../../modules/reporting/metrics';
+import { PERIODS, parsePeriod } from '../../modules/reporting/period';
+import { STATUSES } from '../../modules/enquiry/queries';
 
 const auth = await requirePermission(Astro, 'dashboard.view');
 if (auth instanceof Response) return auth;
+
+const d = en.dashboard;
+const period = parsePeriod(Astro.url.searchParams.get('period'));
+// Figures are for roles that may read enquiries; fee figures are queried only for the owner (fee.view).
+const figures = can(auth.role, 'enquiry.view')
+  ? await metrics(requireBindings(env).DB, period, {
+      withFees: can(auth.role, 'fee.view'),
+    })
+  : null;
+const ratio = (r: Ratio) =>
+  r.value === null
+    ? d.noData
+    : fill(d.ratio, {
+        n: r.numerator,
+        d: r.denominator,
+        pct: Math.round(r.value * 100),
+      });
 ---
 
 <Base title={en.adminTitle} description={en.adminTitle} noindex>
@@ -14,6 +38,104 @@ if (auth instanceof Response) return auth;
   <p>
     {en.adminSignedInAs} {auth.email} ({auth.role})
   </p>
+  {figures && (
+    <section aria-labelledby="figures">
+      <h2 id="figures">{d.heading}</h2>
+      <p>{d.note}</p>
+      <nav aria-label={d.periodLabel}>
+        {PERIODS.map((p) => (
+          <a
+            href={`/admin?period=${p}`}
+            aria-current={p === period ? 'page' : undefined}
+          >
+            {d.periods[p]}
+          </a>
+        ))}
+      </nav>
+      <dl>
+        <dt>{d.received}</dt>
+        <dd>
+          {figures.enquiries} <small>{d.receivedHelp}</small>
+        </dd>
+        <dt>{d.byStatus}</dt>
+        <dd>
+          <ul>
+            {STATUSES.map((s) => (
+              <li>
+                {en.enquiry.statuses[s]}: {figures.byStatus[s]}
+              </li>
+            ))}
+          </ul>
+        </dd>
+        <dt>{d.forwarded}</dt>
+        <dd>
+          {figures.referralsForwarded} <small>{d.forwardedHelp}</small>
+        </dd>
+        <dt>{d.accepted}</dt>
+        <dd>{figures.referralsAccepted}</dd>
+        <dt>{d.acceptance}</dt>
+        <dd>
+          {ratio(figures.m3)} <small>{d.acceptanceHelp}</small>
+        </dd>
+        <dt>{d.referralRate}</dt>
+        <dd>
+          {ratio(figures.m2)} <small>{d.referralRateHelp}</small>
+        </dd>
+        <dt>{d.completions}</dt>
+        <dd>{figures.completions}</dd>
+        <dt>{d.conversion}</dt>
+        <dd>
+          {ratio(figures.m4)} <small>{d.conversionHelp}</small>
+        </dd>
+        <dt>{d.tailors}</dt>
+        <dd>
+          {figures.activeTailors} <small>{d.tailorsHelp}</small>
+        </dd>
+        <dt>{d.clicks}</dt>
+        <dd>
+          {figures.contactClicks} <small>{d.clicksHelp}</small>
+        </dd>
+        <dt>{d.firstContact}</dt>
+        <dd>
+          {figures.timeToFirstContact.averageHours === null
+            ? d.noData
+            : fill(d.hours, {
+                hours: figures.timeToFirstContact.averageHours,
+                count: figures.timeToFirstContact.count,
+              })}
+          <small>{d.firstContactHelp}</small>
+        </dd>
+      </dl>
+      {figures.fees && (
+        <>
+          <h3>{d.feesHeading}</h3>
+          <dl>
+            <dt>{d.feesDue}</dt>
+            <dd>
+              {formatMoney(figures.fees.due)} <small>{d.feesHelp}</small>
+            </dd>
+            <dt>{d.feesDisputed}</dt>
+            <dd>{formatMoney(figures.fees.disputed)}</dd>
+            <dt>{d.revenue}</dt>
+            <dd>
+              {formatMoney(figures.fees.m7)} <small>{d.revenueHelp}</small>
+            </dd>
+            <dt>{d.collection}</dt>
+            <dd>
+              {figures.fees.m9.value === null
+                ? d.noData
+                : fill(d.money, {
+                    paid: formatMoney(figures.fees.m9.numerator),
+                    total: formatMoney(figures.fees.m9.denominator),
+                    pct: Math.round(figures.fees.m9.value * 100),
+                  })}
+              <small>{d.collectionHelp}</small>
+            </dd>
+          </dl>
+        </>
+      )}
+    </section>
+  )}
   <nav>
     <a href="/admin/account">{en.adminNavAccount}</a>
     {can(auth.role, 'tailor.edit') && (

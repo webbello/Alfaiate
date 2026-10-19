@@ -196,6 +196,50 @@ export const en = {
     limited: 'Too many attempts. Try again in a few minutes.',
     password_changed: 'Password changed. Other sessions were signed out.',
   },
+  dashboard: {
+    heading: 'Figures',
+    periodLabel: 'Period',
+    periods: { month: 'This month', '30d': 'Last 30 days', all: 'All time' },
+    note: 'Dates are Dili dates. Figures marked "reported" come from records typed in by hand; completion is what someone reported, not something we verified. Spam is left out.',
+    noData: 'no data',
+    received: 'Enquiries received',
+    receivedHelp: 'Enquiries created in the period.',
+    byStatus: 'Enquiries by status (reported)',
+    forwarded: 'Referrals forwarded (reported)',
+    forwardedHelp: 'Referrals with a forwarded date in the period.',
+    accepted: 'Referrals accepted (reported)',
+    acceptance: 'Tailor acceptance (reported)',
+    acceptanceHelp: 'Accepted referrals out of those forwarded in the period.',
+    referralRate: 'Referral rate (reported)',
+    referralRateHelp:
+      'Enquiries received that have at least one referral, out of enquiries received.',
+    completions: 'Completed, as reported',
+    conversion: 'Reported conversion (reported)',
+    conversionHelp:
+      'Enquiries now marked completed as reported, out of enquiries received.',
+    tailors: 'Active tailors (reported)',
+    tailorsHelp:
+      'Published tailors that were sent at least one referral in the period.',
+    clicks: 'Direct contact taps',
+    clicksHelp:
+      'WhatsApp and Call button taps on profiles. An indicator, not a confirmed contact.',
+    firstContact: 'Time to first contact (reported)',
+    firstContactHelp:
+      'Average from creation until the status first became Contacted or Referred.',
+    hours: '{hours} hours (from {count} enquiries)',
+    feesHeading: 'Fees (owner only)',
+    feesDue: 'Fees due (reported)',
+    feesDisputed: 'Fees disputed (reported)',
+    feesHelp:
+      'Fee amounts of referrals whose completion was reported in the period.',
+    revenue: 'Referral revenue (reported)',
+    revenueHelp: 'Fees marked paid with a paid date in the period.',
+    collection: 'Fee collection (reported)',
+    collectionHelp:
+      'Paid out of paid plus due plus disputed, for completions reported in the period. Waived fees are left out.',
+    ratio: '{n} of {d} ({pct}%)',
+    money: '{paid} of {total} ({pct}%)',
+  },
   referral: {
     heading: 'Referrals',
     intro:

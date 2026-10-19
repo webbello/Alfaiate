@@ -30,7 +30,7 @@
   - Verify: a seeded dataset with every expected value written by hand (AC-14), events just inside and outside each period edge, spam and anonymised enquiries, a waived fee, zero-denominator cases, a cross-check against plain counts over the same rows, `withFees: false` has no fee keys; mutation checks on each metric's edge, denominator and the spam filter.
   - Files: `src/modules/reporting/metrics.ts`, `tests/workers/reporting-metrics.test.ts`
 
-- [ ] **T7 Dashboard on /admin**
+- [x] **T7 Dashboard on /admin**
   - Acceptance: `/admin` shows the figures for `?period=month|30d|all` (default `month`) to roles with `enquiry.view`, with the period links, each figure's definition in plain words, "reported" labels on manual figures and "no data" for empty ratios; fee figures only for the owner and queried only for the owner; editors and viewers see no figures; no customer data on the page.
   - Verify: integration tests per role and period, seeded customer name and fee amounts absent where they must be, labels present, the existing dashboard tests still pass; mutation checks on the owner-only flag and the default period.
   - Files: `src/pages/admin/index.astro`, `src/i18n/en.ts`, `tests/integration/dashboard.test.ts`
