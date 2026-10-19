@@ -23,11 +23,15 @@ describe('public routes (scope guard)', () => {
   // Every public page is listed here on purpose. Adding a page means adding it here, in both languages.
   const EXPECTED = [
     '404.astro',
+    'categories/[slug].astro',
     'index.astro',
     'media/[...key].ts',
     'request.astro',
+    'tailors/index.astro',
+    'tet/categories/[slug].astro',
     'tet/index.astro',
     'tet/request.astro',
+    'tet/tailors/index.astro',
   ];
 
   it('are exactly the expected public pages', () => {

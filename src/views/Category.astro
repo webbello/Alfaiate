@@ -1,0 +1,62 @@
+---
+import { env } from 'cloudflare:workers';
+import PublicLayout from '../layouts/PublicLayout.astro';
+import TailorCard from '../components/TailorCard.astro';
+import { dictionary, fill } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+import { requireBindings } from '../modules/config';
+import { listPublished } from '../modules/directory/queries';
+import type { Choice } from '../modules/directory/view';
+
+interface Props {
+  lang: Lang;
+  category: Choice;
+}
+const { lang, category } = Astro.props;
+const t = dictionary(lang);
+const { DB } = requireBindings(env);
+const { tailors } = await listPublished(DB, {
+  category: category.slug,
+  area: undefined,
+  homeVisit: false,
+});
+const name = category.name;
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${fill(t.category.title, { name })} · ${t.siteName}`}
+  description={t.category.intro}
+  rest={`/categories/${category.slug}`}
+>
+  <h1>{fill(t.category.heading, { name })}</h1>
+  <p class="lead">{t.category.intro}</p>
+  <p class="notice" role="note">
+    <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
+  </p>
+  <p class="actions">
+    <a class="button" href={pathFor(lang, '/request')}>
+      {t.cta.requestHome}
+    </a>
+    <a
+      class="button button--secondary"
+      href={`${pathFor(lang, '/tailors')}?category=${category.slug}`}
+    >
+      {t.directory.moreFilters}
+    </a>
+  </p>
+  <p role="status" class="count">
+    {fill(t.directory.found, { count: tailors.length })}
+  </p>
+  {tailors.length === 0 ? (
+    <p>{t.category.emptyBody}</p>
+  ) : (
+    <ul class="grid">
+      {tailors.map((tailor) => (
+        <li>
+          <TailorCard lang={lang} tailor={tailor} />
+        </li>
+      ))}
+    </ul>
+  )}
+</PublicLayout>

@@ -1,7 +1,7 @@
 export const en = {
   siteName: 'Alfaiate TL',
   skipToContent: 'Skip to main content',
-  nav: { label: 'Main menu', home: 'Home' },
+  nav: { label: 'Main menu', home: 'Home', tailors: 'Find a tailor' },
   language: { switchLabel: 'Language', en: 'English', tet: 'Tetun' },
   cta: { requestHome: 'Request a tailor at home' },
   contact: {
@@ -40,6 +40,33 @@ export const en = {
         'You and the tailor agree the price, measurements and dates between yourselves.',
     },
     categoriesHeading: 'What do you need?',
+  },
+  directory: {
+    title: 'Find a tailor',
+    heading: 'Find a tailor',
+    intro:
+      'These tailors have agreed to be listed on Alfaiate TL. Open a profile to see their work and contact them directly.',
+    filtersHeading: 'Narrow the list',
+    category: 'Garment or service',
+    area: 'Area',
+    any: 'Any',
+    homeVisit: 'Offers home visits',
+    apply: 'Show tailors',
+    clear: 'Clear filters',
+    found: 'Tailors found: {count}',
+    emptyHeading: 'No tailors match',
+    emptyBody: 'Try removing a filter, or ask for a tailor to come to you.',
+    truncated:
+      'Showing the first 200 tailors. Use the filters to narrow the list.',
+    homeVisits: 'Home visits offered',
+    viewProfile: 'View profile',
+    moreFilters: 'Filter by area or home visits',
+  },
+  category: {
+    title: '{name} tailors',
+    heading: '{name}',
+    intro: 'Tailors who offer this.',
+    emptyBody: 'No tailors are listed for this yet.',
   },
   request: {
     title: 'Request a tailor at home',

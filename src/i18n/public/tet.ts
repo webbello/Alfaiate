@@ -6,7 +6,11 @@ import type { Dictionary } from './en';
 export const tet: Dictionary = {
   siteName: 'Alfaiate TL',
   skipToContent: 'Salta ba konteúdu prinsipál',
-  nav: { label: 'Menu prinsipál', home: 'Pájina inísiu' },
+  nav: {
+    label: 'Menu prinsipál',
+    home: 'Pájina inísiu',
+    tailors: 'Buka alfaiate',
+  },
   language: { switchLabel: 'Lian', en: 'English', tet: 'Tetun' },
   cta: { requestHome: 'Husu alfaiate ba uma' },
   contact: {
@@ -44,6 +48,32 @@ export const tet: Dictionary = {
       step3: 'Ita no alfaiate rasik konkorda ba folin, medida no data.',
     },
     categoriesHeading: 'Ita presiza saida?',
+  },
+  directory: {
+    title: 'Buka alfaiate',
+    heading: 'Buka alfaiate',
+    intro:
+      "Alfaiate sira ne'e konkorda atu lista iha Alfaiate TL. Loke perfíl atu haree sira-nia serbisu no kontaktu sira diretamente.",
+    filtersHeading: 'Hamenus lista',
+    category: 'Tipu roupa ka serbisu',
+    area: 'Área',
+    any: 'Hotu-hotu',
+    homeVisit: 'Bele vizita iha uma',
+    apply: 'Hatudu alfaiate sira',
+    clear: 'Hamoos filtru sira',
+    found: 'Alfaiate hetan: {count}',
+    emptyHeading: "La iha alfaiate ne'ebé hanesan",
+    emptyBody: 'Koko hasai filtru ida, ka husu alfaiate atu mai ita-nia uma.',
+    truncated: 'Hatudu alfaiate 200 uluk. Uza filtru sira atu hamenus lista.',
+    homeVisits: 'Bele vizita iha uma',
+    viewProfile: 'Haree perfíl',
+    moreFilters: 'Filtru ba área ka vizita iha uma',
+  },
+  category: {
+    title: 'Alfaiate {name}',
+    heading: '{name}',
+    intro: "Alfaiate sira ne'ebé halo ne'e.",
+    emptyBody: "Seidauk iha alfaiate lista ba ne'e.",
   },
   request: {
     title: 'Husu alfaiate ba uma',

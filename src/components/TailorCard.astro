@@ -1,0 +1,54 @@
+---
+import { dictionary } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+import { priceText } from '../modules/directory/format';
+import type { CardView } from '../modules/directory/view';
+
+interface Props {
+  lang: Lang;
+  tailor: CardView;
+}
+const { lang, tailor } = Astro.props;
+const t = dictionary(lang);
+const price = priceText(
+  t,
+  tailor.priceHint?.from ?? null,
+  tailor.priceHint?.to ?? null,
+);
+const profile = pathFor(lang, `/tailors/${tailor.slug}`);
+const photo = tailor.photo;
+---
+
+<article class="card">
+  {photo && (
+    <img
+      class="card__photo"
+      src={`/media/${photo.base}/medium.jpg`}
+      srcset={`/media/${photo.base}/thumb.jpg 320w, /media/${photo.base}/medium.jpg 800w`}
+      sizes="(min-width: 48rem) 20rem, 100vw"
+      alt={photo.alt}
+      loading="lazy"
+    />
+  )}
+  <div class="card__body">
+    <h3 class="card__title">
+      <a href={profile}>{tailor.name}</a>
+    </h3>
+    {tailor.specialties.length > 0 && (
+      <p class="card__line">{tailor.specialties.join(' · ')}</p>
+    )}
+    {tailor.areas.length > 0 && (
+      <p class="card__line">{tailor.areas.join(' · ')}</p>
+    )}
+    {tailor.homeVisits === 'yes' && (
+      <p class="card__line">
+        <span class="tag">{t.directory.homeVisits}</span>
+      </p>
+    )}
+    {price && (
+      <p class="card__line">
+        {t.price.approximate}: {price}
+      </p>
+    )}
+  </div>
+</article>

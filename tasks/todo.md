@@ -25,7 +25,7 @@
   - Verify: integration for AC-01 (explanation, disclaimer, CTA appear before any later section in the markup) in both languages; no form element on the placeholder; scope-guard test updated with the new public routes.
   - Files: `src/views/Home.astro`, `src/views/RequestPlaceholder.astro`, `src/pages/index.astro`, `src/pages/request.astro`, `src/pages/tet/index.astro` (+ `tet/request.astro`), `tests/workers/public-pages.test.ts`, `tests/integration/home.test.ts`
 
-- [ ] **T6 Directory and category pages**
+- [x] **T6 Directory and category pages**
   - Acceptance: `/tailors` with a GET filter form (category, area, home visits) that works without JavaScript; cards per FR-DIR-03; empty state with clear-filters and request CTA; `/categories/[slug]` lists published tailors of an active category, 404 otherwise; request CTA on both; both languages.
   - Verify: integration for AC-02 over real HTTP with seeded fake tailors (published/draft/unpublished, with and without consent and photos); hostile filter values do not break or leak; filtered URLs carry `noindex,follow` and canonical `/tailors`; no inline script or style.
   - Files: `src/views/Directory.astro`, `src/views/Category.astro`, `src/pages/tailors/index.astro`, `src/pages/categories/[slug].astro`, `tests/integration/directory.test.ts` (+ `tet/` wrappers)
