@@ -1,41 +1,43 @@
-# Plan: Phase 6 — Referral tracking and basic reporting
+# Plan: Phase 7 — SEO, accessibility, security, privacy and testing
 
-Spec: [docs/SPEC-phase-6.md](../docs/SPEC-phase-6.md) (approved 2026-10-19). Tasks: [todo.md](todo.md). Earlier plans are in git history (Phase 5: `8f6d57c`).
+Spec: [docs/SPEC-phase-7.md](../docs/SPEC-phase-7.md) (approved 2026-10-19). Tasks: [todo.md](todo.md). Earlier plans are in git history (Phase 6: `02b6e86`).
 
 ## Order and dependencies
 
 ```
-T1 Dili date helpers + period ranges (pure)
-T1 ──> T2 create referral (consent, approval, one active) + list query (fee columns only on request)
-T2 ──> T3 update referral: forwarding, response, completion (+ audit, owner_confirmed rule)
-T3 ──> T4 fee rules (amount, status, paid date, BR-09 agreed terms) + audit
-T2 + T3 + T4 ──> T5 admin routes (3) + Referrals section on the enquiry page + route inventory ([rid])
-T1 ──> T6 reporting metrics (M1–M9, hand-computed seeded dataset, AC-14)
-T6 ──> T7 dashboard on /admin (period selector, fee figures owner-only)
-T5 + T7 ──> T8 Playwright + axe (referral journey, dashboard)
-all ──> T9 docs, reviewers, security audit, fresh clone, manual look
+T1 SITE_INDEXABLE flag (robots, sitemap, meta, header)
+T1 ──> T2 structured data + Open Graph in the shared layout
+T3 carried-over security fixes (public permission clause, malformed phone, friendly 403, sitemap index)   (independent)
+T4 anonymise enquiry (module, route, page form)                                                          (independent)
+T3 + T4 ──> T5 security and privacy tests (repo check, whole-tree console check, header matrix, cookies, extended AC-15 sweep)
+T2 + T4 ──> T6 accessibility (axe 2.2 on public and admin pages, CSP watcher, no-JavaScript, reflow and zoom)
+T2 ──> T7 performance (perf script, measured numbers, budgets, byte-budget test)
+T5 + T6 + T7 ──> T8 dependency audit and the written security and privacy reviews
+all ──> T9 docs, reviewers, security audit, fresh clone, manual accessibility checks
 ```
 
-One task at a time, one commit each, commit only when `npm run check` exits 0 (`npm run test:e2e` must pass before T8 and T9 are ticked). No migration: every rule is enforced in the module and, where it already exists, by the database.
+One task at a time, one commit each, commit only when `npm run check` exits 0 (`npm run test:e2e` must pass before T6 and T9 are ticked). No migration and no new dependency.
 
 ## Risks
 
 | Risk | Mitigation |
 |---|---|
-| A manager sees fee data | The referral query selects fee columns only when the caller passes `withFees` (set only for `fee.view`); the fee route needs `fee.view`; integration test searches a manager's page and response for seeded fee values; mutation check on the flag |
-| Rules only in the form | Every rule lives in the module and is tested there; AC-12 rules also have database triggers, and tests prove both layers (a direct INSERT is refused by the trigger) |
-| Two admins create an active referral at once | The "one active" check is inside the INSERT (insert-select with a NOT EXISTS clause), so a second concurrent create inserts nothing; test with two parallel creates |
-| Wrong period boundaries (UTC vs Dili) | One helper module converts Dili days to UTC bounds; tests at midnight edges on both sides and across month ends; metrics tests use events just inside and just outside each boundary |
-| Metrics that look right but count wrong | Expected values for the seeded dataset are written out by hand, plus a cross-check against plain counts; zero denominators tested; spam exclusion tested; each figure has a mutation check |
-| Ratios mislead on small numbers | Each ratio is shown with numerator and denominator and labelled "reported"; "no data" for zero denominators |
-| A completion is shown as verified | The wording is "reported" everywhere (test scans the dashboard and enquiry page); `owner_confirmed` is owner-only |
-| BR-09 bypass (fee due before terms agreed) | The fee module checks the tailor's `fee_terms_agreed_on` for `due` and `paid`; test and mutation check; the form says why it was refused |
-| Customer data on the dashboard | The dashboard queries only counts and sums, never names, numbers or notes; test seeds a recognisable customer and searches the page |
-| Fee amount parsing mistakes | Reuse `dollarsToCents` (already tested); reject negatives, more than two decimals and absurd sizes; stored as integer cents |
-| Dashboard slows `/admin` | A few indexed aggregate queries on pilot-size data, run in one batch; no caching needed now |
+| Structured data leaks something unverified or unconsented | A builder with an explicit allow-list of keys; tests for consent, permission and publication gates; hostile text cannot close the block; mutation checks on each gate |
+| JSON-LD interacts with the strict CSP | Data blocks are not executed; an integration test compares the CSP header before and after, and the e2e CSP watcher fails on any violation |
+| `SITE_INDEXABLE` misread leaves staging indexable | Only the exact string `true` enables indexing; missing, empty or any other value means not indexable; tests for each; header, meta, robots and sitemap all read the same function |
+| Performance numbers differ run to run | Median of five runs, same profile, local machine stated as a limit; budgets only on bytes in `npm run check`; timings reported, not enforced |
+| Accessibility fixes change layout | Fix only what axe or a manual check reports; re-run the full e2e; keep tokens and spacing unless a ratio fails |
+| Axe on admin pages finds many issues | Triage by severity; fix in the same task; anything not fixed is listed in DECISIONS.md with a reason, never silenced in the test |
+| Anonymise destroys data by mistake | Owner only (`enquiry.delete`), reference code typed to confirm, one atomic batch, audit row, idempotent; tests prove the cleared and kept fields exactly |
+| Anonymise leaves customer text behind | The clear list comes from the CHECK and the spec (six columns, referral free text, internal notes); a test seeds every one with a marker and searches the whole database for it afterwards |
+| Repo check blocks legitimate files | An explicit allow-list for the few tracked image files (if any) and a clear message naming the file; tested with fake tracked names in a temporary repo |
+| Whole-tree `console.*` check is too strict | It allows constant strings only, fails with file and line, and the few legitimate dynamic cases (none today) would need an explicit, commented allow-list entry |
+| Dependency audit needs the network | Run once for the record; findings recorded in DECISIONS.md; not part of `npm run check` (so offline work still passes) |
+| Scope creep into features | The spec's exclusions stand (no new pages, no retention timer, no deployment); every task cites the finding it fixes |
 
 ## Verification checkpoints
 
-- After T2: AC-12 holds at module and database level, and two parallel creates leave one active referral.
-- After T5: a manager can run the whole referral journey except fees; the owner can also record a fee; nothing changes an enquiry's status.
-- After T7: AC-14 passes for each period against the seeded dataset.
+- After T1: staging mode gives disallow-all robots, noindex everywhere and an empty sitemap, production unchanged.
+- After T4: the database search for seeded personal markers finds none after anonymising, and reporting figures are unchanged.
+- After T6: axe (WCAG 2.2 AA) is clean on all public and admin pages, and browse and the request form work with JavaScript off.
+- After T7: numbers and budgets are recorded in IMPLEMENTATION_PLAN.md and the byte-budget test passes.

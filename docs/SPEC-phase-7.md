@@ -1,9 +1,9 @@
 # Spec: Phase 7 — SEO, accessibility, security, privacy and testing
 
-Status: Draft for approval · Source: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 7 · [PRD.md](PRD.md) NFR-PERF-01, NFR-A11Y-01, NFR-SEO-01, NFR-BRW-01, SEC-01–08, PRV-04/05, FR-PRO-07, FR-ADM-09, AC-15, AC-17 · [ARCHITECTURE.md](ARCHITECTURE.md) §10, §11 · open items carried from the Phase 3–6 audits in [DECISIONS.md](DECISIONS.md)
+Status: Approved 2026-10-19 (all six open-question defaults accepted) · Source: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 7 · [PRD.md](PRD.md) NFR-PERF-01, NFR-A11Y-01, NFR-SEO-01, NFR-BRW-01, SEC-01–08, PRV-04/05, FR-PRO-07, FR-ADM-09, AC-15, AC-17 · [ARCHITECTURE.md](ARCHITECTURE.md) §10, §11 · open items carried from the Phase 3–6 audits in [DECISIONS.md](DECISIONS.md)
 
 **Requirements:** NFR-PERF-01, NFR-A11Y-01, NFR-SEO-01, NFR-BRW-01, SEC-01–08, PRV-04, PRV-05, FR-PRO-07, FR-ADM-09 (anonymise only). **Acceptance:** AC-15 (full sweep), AC-17, AC-09 (re-run), AC-05 (staging rule); no unresolved high-severity security finding; performance numbers recorded.
-**Owner answers for this phase** (2026-10-19, to be logged in DECISIONS.md on approval): speed is measured with **Playwright and the DevTools protocol, no new dependency**; the **anonymise action is built now** and the **retention period stays open** (OQ-09); staging is kept out of search engines with a **`SITE_INDEXABLE` flag**.
+**Owner answers for this phase** (2026-10-19, logged in DECISIONS.md): speed is measured with **Playwright and the DevTools protocol, no new dependency**; the **anonymise action is built now** and the **retention period stays open** (OQ-09); staging is kept out of search engines with a **`SITE_INDEXABLE` flag**.
 
 **Scope check.** Six independent slices share one goal (verify and harden what exists): (A) search visibility (structured data, social tags, staging flag), (B) speed budgets, (C) accessibility, (D) security review and fixes, (E) privacy review and the enquiry anonymise action, (F) test expansion (no-JavaScript runs, repo checks). They can each be built, tested and committed alone. **Not in this phase:** deployment, real domain, backups or restore drills (Phase 8), a real notification sender, Turnstile, hard deletion of enquiries, automatic retention purge, new features of any kind.
 
