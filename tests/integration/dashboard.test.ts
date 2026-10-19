@@ -155,3 +155,55 @@ describe('the /admin dashboard figures (FR-RPT-01/02, ANA-04/05, AC-14)', () => 
     expect(r.headers.get('cache-control')).toMatch(/no-store/);
   });
 });
+
+describe('the dashboard as cards (Phase 7b T3)', () => {
+  const count = (html: string, needle: string) => html.split(needle).length - 1;
+
+  it('shows the period as tabs, with the current one marked', async () => {
+    const html = await page('manager', '?period=30d');
+    expect(html).toContain('<nav class="tabs" aria-label="Period">');
+    expect(count(html, 'href="/admin?period=')).toBe(3);
+    expect(html).toMatch(
+      /<a href="\/admin\?period=30d"[^>]*aria-current="page"/,
+    );
+  });
+
+  it('shows the status counts as chips that open the inbox on that status', async () => {
+    const html = await page('manager', '?period=all');
+    for (const [status, n] of [
+      ['new', 1],
+      ['contacted', 1],
+      ['completed_reported', 1],
+    ] as const)
+      expect(html).toMatch(
+        new RegExp(
+          `<a class="chip chip--[a-z]+" href="/admin/enquiries\\?status=${status}">[^<]*${n}[^<]*</a>`,
+        ),
+      );
+    expect(count(html, 'href="/admin/enquiries?status=')).toBe(7);
+  });
+
+  it('shows every figure as a card: ten for a manager, and the owner gets the fee figures as four more in their own block', async () => {
+    const manager = await page('manager', '?period=all');
+    expect(count(manager, '<div class="stat">')).toBe(10);
+    expect(manager).not.toContain('Fees (owner only)');
+    const owner = await page('owner', '?period=all');
+    expect(count(owner, '<div class="stat">')).toBe(14);
+    expect(owner).toMatch(/<h2[^>]*>Fees \(owner only\)<\/h2>/);
+  });
+
+  it('keeps "no data" literal in a card', async () => {
+    const t = text(await page('manager', '?period=30d'));
+    expect(t).toMatch(
+      /Time to first contact \(reported\) [^A-Za-z]*(no data|\d)/,
+    );
+    expect(t).not.toContain('NaN');
+  });
+
+  it('is titled Dashboard, and gives roles without figures a short hint instead of an empty page', async () => {
+    const html = await page('editor');
+    expect(html).toContain('<title>Dashboard · Admin</title>');
+    expect(html).not.toContain('Enquiries received');
+    expect(html).toContain('class="empty"');
+  });
+});

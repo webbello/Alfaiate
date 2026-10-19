@@ -51,9 +51,7 @@ test('the owner records a referral, a reported completion and a fee, and sees it
 
   await page.goto('/admin?period=all');
   await expect(
-    page
-      .locator('dt', { hasText: 'Fees due (reported)' })
-      .locator('xpath=following-sibling::dd[1]'),
+    page.locator('.stat', { hasText: 'Fees due (reported)' }),
   ).toContainText('$12.50');
   expect(await violationsOf(page)).toEqual([]);
 });

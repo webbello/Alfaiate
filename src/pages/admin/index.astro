@@ -10,6 +10,11 @@ import { fill } from '../../i18n/public';
 import { formatMoney } from '../../modules/directory/format';
 import { metrics, type Ratio } from '../../modules/reporting/metrics';
 import { PERIODS, parsePeriod } from '../../modules/reporting/period';
+import { isSystemEmpty } from '../../modules/admin-ui/system';
+import EmptyState from '../../components/admin/EmptyState.astro';
+import Card from '../../components/admin/Card.astro';
+import StatCard from '../../components/admin/StatCard.astro';
+import { toneFor } from '../../modules/admin-ui/tone';
 import { STATUSES } from '../../modules/enquiry/queries';
 
 const auth = await requirePermission(Astro, 'dashboard.view');
@@ -31,15 +36,47 @@ const ratio = (r: Ratio) =>
         d: r.denominator,
         pct: Math.round(r.value * 100),
       });
+const gettingStarted =
+  can(auth.role, 'tailor.edit') &&
+  (await isSystemEmpty(requireBindings(env).DB));
+const hours = (h: number, count: number) => fill(d.hours, { hours: h, count });
 ---
 
-<AdminLayout title={en.adminTitle} description={en.adminTitle} auth={auth}>
+<AdminLayout
+  title={en.adminDashboardHeading}
+  description={en.adminDashboardHeading}
+  auth={auth}
+>
   <h1>{en.adminDashboardHeading}</h1>
+  {gettingStarted && (
+    <Card title={d.gettingStartedHeading} id="getting-started">
+      <p>{d.gettingStartedIntro}</p>
+      <ol>
+        <li>
+          <a href="/admin/categories">{en.adminNavCategories}</a>:{' '}
+          {d.gettingStarted.categories}
+        </li>
+        <li>
+          <a href="/admin/areas">{en.adminNavAreas}</a>:{' '}
+          {d.gettingStarted.areas}
+        </li>
+        <li>
+          <a href="/admin/tailors/new">{en.tailorNew}</a>:{' '}
+          {d.gettingStarted.tailor}
+        </li>
+        <li>{d.gettingStarted.publish}</li>
+      </ol>
+    </Card>
+  )}
+  {!figures && (
+    <EmptyState title={d.noFiguresTitle}>
+      <p>{d.noFiguresBody}</p>
+    </EmptyState>
+  )}
   {figures && (
     <section aria-labelledby="figures">
       <h2 id="figures">{d.heading}</h2>
-      <p>{d.note}</p>
-      <nav aria-label={d.periodLabel}>
+      <nav class="tabs" aria-label={d.periodLabel}>
         {PERIODS.map((p) => (
           <a
             href={`/admin?period=${p}`}
@@ -49,86 +86,107 @@ const ratio = (r: Ratio) =>
           </a>
         ))}
       </nav>
-      <dl>
-        <dt>{d.received}</dt>
-        <dd>
-          {figures.enquiries} <small>{d.receivedHelp}</small>
-        </dd>
-        <dt>{d.byStatus}</dt>
-        <dd>
-          <ul>
-            {STATUSES.map((s) => (
-              <li>
-                {en.enquiry.statuses[s]}: {figures.byStatus[s]}
-              </li>
-            ))}
-          </ul>
-        </dd>
-        <dt>{d.forwarded}</dt>
-        <dd>
-          {figures.referralsForwarded} <small>{d.forwardedHelp}</small>
-        </dd>
-        <dt>{d.accepted}</dt>
-        <dd>{figures.referralsAccepted}</dd>
-        <dt>{d.acceptance}</dt>
-        <dd>
-          {ratio(figures.m3)} <small>{d.acceptanceHelp}</small>
-        </dd>
-        <dt>{d.referralRate}</dt>
-        <dd>
-          {ratio(figures.m2)} <small>{d.referralRateHelp}</small>
-        </dd>
-        <dt>{d.completions}</dt>
-        <dd>{figures.completions}</dd>
-        <dt>{d.conversion}</dt>
-        <dd>
-          {ratio(figures.m4)} <small>{d.conversionHelp}</small>
-        </dd>
-        <dt>{d.tailors}</dt>
-        <dd>
-          {figures.activeTailors} <small>{d.tailorsHelp}</small>
-        </dd>
-        <dt>{d.clicks}</dt>
-        <dd>
-          {figures.contactClicks} <small>{d.clicksHelp}</small>
-        </dd>
-        <dt>{d.firstContact}</dt>
-        <dd>
-          {figures.timeToFirstContact.averageHours === null
-            ? d.noData
-            : fill(d.hours, {
-                hours: figures.timeToFirstContact.averageHours,
-                count: figures.timeToFirstContact.count,
-              })}
-          <small>{d.firstContactHelp}</small>
-        </dd>
-      </dl>
+      <p>{d.note}</p>
+
+      <h3>{d.byStatus}</h3>
+      <p class="chips">
+        {STATUSES.map((s) => (
+          <a
+            class={`chip chip--${toneFor(s)}`}
+            href={`/admin/enquiries?status=${s}`}
+          >
+            {en.enquiry.statuses[s]}: {figures.byStatus[s]}
+          </a>
+        ))}
+      </p>
+
+      <div class="stat-grid">
+        <StatCard
+          label={d.received}
+          value={String(figures.enquiries)}
+          help={d.receivedHelp}
+        />
+        <StatCard
+          label={d.forwarded}
+          value={String(figures.referralsForwarded)}
+          help={d.forwardedHelp}
+        />
+        <StatCard
+          label={d.accepted}
+          value={String(figures.referralsAccepted)}
+        />
+        <StatCard
+          label={d.acceptance}
+          value={ratio(figures.m3)}
+          help={d.acceptanceHelp}
+        />
+        <StatCard
+          label={d.referralRate}
+          value={ratio(figures.m2)}
+          help={d.referralRateHelp}
+        />
+        <StatCard label={d.completions} value={String(figures.completions)} />
+        <StatCard
+          label={d.conversion}
+          value={ratio(figures.m4)}
+          help={d.conversionHelp}
+        />
+        <StatCard
+          label={d.tailors}
+          value={String(figures.activeTailors)}
+          help={d.tailorsHelp}
+        />
+        <StatCard
+          label={d.clicks}
+          value={String(figures.contactClicks)}
+          help={d.clicksHelp}
+        />
+        <StatCard
+          label={d.firstContact}
+          value={
+            figures.timeToFirstContact.averageHours === null
+              ? d.noData
+              : hours(
+                  figures.timeToFirstContact.averageHours,
+                  figures.timeToFirstContact.count,
+                )
+          }
+          help={d.firstContactHelp}
+        />
+      </div>
+
       {figures.fees && (
         <>
-          <h3>{d.feesHeading}</h3>
-          <dl>
-            <dt>{d.feesDue}</dt>
-            <dd>
-              {formatMoney(figures.fees.due)} <small>{d.feesHelp}</small>
-            </dd>
-            <dt>{d.feesDisputed}</dt>
-            <dd>{formatMoney(figures.fees.disputed)}</dd>
-            <dt>{d.revenue}</dt>
-            <dd>
-              {formatMoney(figures.fees.m7)} <small>{d.revenueHelp}</small>
-            </dd>
-            <dt>{d.collection}</dt>
-            <dd>
-              {figures.fees.m9.value === null
-                ? d.noData
-                : fill(d.money, {
-                    paid: formatMoney(figures.fees.m9.numerator),
-                    total: formatMoney(figures.fees.m9.denominator),
-                    pct: Math.round(figures.fees.m9.value * 100),
-                  })}
-              <small>{d.collectionHelp}</small>
-            </dd>
-          </dl>
+          <h2>{d.feesHeading}</h2>
+          <div class="stat-grid">
+            <StatCard
+              label={d.feesDue}
+              value={formatMoney(figures.fees.due)}
+              help={d.feesHelp}
+            />
+            <StatCard
+              label={d.feesDisputed}
+              value={formatMoney(figures.fees.disputed)}
+            />
+            <StatCard
+              label={d.revenue}
+              value={formatMoney(figures.fees.m7)}
+              help={d.revenueHelp}
+            />
+            <StatCard
+              label={d.collection}
+              value={
+                figures.fees.m9.value === null
+                  ? d.noData
+                  : fill(d.money, {
+                      paid: formatMoney(figures.fees.m9.numerator),
+                      total: formatMoney(figures.fees.m9.denominator),
+                      pct: Math.round(figures.fees.m9.value * 100),
+                    })
+              }
+              help={d.collectionHelp}
+            />
+          </div>
         </>
       )}
     </section>

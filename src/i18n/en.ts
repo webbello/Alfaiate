@@ -199,6 +199,20 @@ export const en = {
   },
   dashboard: {
     heading: 'Figures',
+    gettingStartedHeading: 'Getting started',
+    gettingStartedIntro:
+      'Nothing is set up yet. Work through these steps in order:',
+    gettingStarted: {
+      categories:
+        'Add the garment categories tailors can offer (for example suits, dresses, alterations).',
+      areas: 'Add the neighbourhoods you cover.',
+      tailor: 'Add a tailor and fill in what you know.',
+      publish:
+        "Record the tailor's permission and a contact number they agree to show, then publish. The checklist on the tailor page tells you what is missing.",
+    },
+    noFiguresTitle: 'No figures for your role',
+    noFiguresBody:
+      'Use the links above to work on tailors, categories and areas.',
     periodLabel: 'Period',
     periods: { month: 'This month', '30d': 'Last 30 days', all: 'All time' },
     note: 'Dates are Dili dates. Figures marked "reported" come from records typed in by hand; completion is what someone reported, not something we verified. Spam is left out.',

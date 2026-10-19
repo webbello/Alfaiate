@@ -10,7 +10,7 @@
   - Verify: a test iterates all message dictionaries and fails on an unclassified key; integration tests that a problem uses `role="alert"` and a success `role="status"`, and that `?msg=` text is still allow-listed (hostile codes show nothing); contrast test for chip and banner colours (at least 4.5:1); contract test unchanged; mutation checks on the classification of one success and one problem code.
   - Files: `src/modules/admin-ui/messages.ts`, `src/components/admin/*.astro`, `src/styles/admin.css`, `src/pages/admin/**`, tests
 
-- [ ] **T3 Dashboard as cards**
+- [x] **T3 Dashboard as cards**
   - Acceptance: period as three tab-style links (current marked), the Phase 6 figures as a responsive card grid with the same numbers, labels, definitions and "no data", the status counts as a chip row linking to the inbox filtered by status, the fee block a separate owner-only card, and a getting-started card when there is no data at all (create categories and areas, add a tailor, record permission, publish).
   - Verify: the existing dashboard integration expectations pass unchanged; new tests for the period tabs, the chip links, the owner-only fee card and the getting-started card; the e2e dashboard check still passes; screenshots at desktop and 375 px shown to the owner.
   - Files: `src/pages/admin/index.astro`, `src/components/admin/StatCard.astro`, `src/styles/admin.css`, tests
