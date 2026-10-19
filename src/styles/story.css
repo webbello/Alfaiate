@@ -1,0 +1,130 @@
+/* Story pieces (Phase 7c): hero and decorative 3D. Loaded only on pages that use them. All decoration is aria-hidden; motion is opt-in. */
+.hero {
+  display: grid;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.hero h1 {
+  font-size: clamp(2.5rem, 9vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+}
+.hero .lead {
+  font-size: 1.2rem;
+}
+.hero__art {
+  max-width: 22rem;
+  margin: 0 auto;
+  width: 100%;
+  overflow: clip; /* the tilted cloth and tape never widen the page */
+}
+.swatch-scene {
+  perspective: 900px;
+  padding: 1rem;
+}
+.swatch {
+  position: relative;
+  aspect-ratio: 1;
+  transform-style: preserve-3d;
+  transform: rotateX(52deg) rotateZ(-30deg);
+}
+.swatch__cloth {
+  position: absolute;
+  inset: 0;
+  border-radius: 0.3rem;
+  box-shadow: 0 0.6rem 1rem rgb(20 17 15 / 35%);
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgb(255 255 255 / 7%) 0 1px,
+      transparent 1px 5px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgb(0 0 0 / 10%) 0 1px,
+      transparent 1px 5px
+    );
+}
+.swatch__cloth--back {
+  background-color: var(--chalk);
+  transform: translateZ(0);
+}
+.swatch__cloth--mid {
+  background-color: var(--accent);
+  transform: translateZ(1.4rem) translate(-4%, -4%);
+}
+.swatch__cloth--front {
+  background-color: var(--indigo);
+  transform: translateZ(2.8rem) translate(-8%, -8%);
+}
+.stitch {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.stitch path {
+  fill: none;
+  stroke: var(--thread-light);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 4 4;
+}
+.swatch__tape {
+  position: absolute;
+  left: -6%;
+  right: -6%;
+  top: 62%;
+  height: 1.6rem;
+  transform: translateZ(3.4rem) rotateZ(-8deg);
+  background-color: var(--thread-light);
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--deep) 0 1px,
+    transparent 1px 0.75rem
+  );
+  box-shadow: 0 0.3rem 0.6rem rgb(20 17 15 / 40%);
+}
+@media (min-width: 48rem) {
+  .hero {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 3rem;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .swatch {
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+  .stitch path {
+    animation: run 2.4s linear infinite;
+  }
+}
+@keyframes drift {
+  from {
+    transform: rotateX(52deg) rotateZ(-36deg);
+  }
+  to {
+    transform: rotateX(46deg) rotateZ(-24deg);
+  }
+}
+@keyframes run {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .swatch {
+    transform: none;
+  }
+  .swatch__cloth--mid,
+  .swatch__cloth--front {
+    transform: translate(-4%, -4%);
+  }
+  .swatch__cloth--front {
+    transform: translate(-8%, -8%);
+  }
+  .swatch__tape {
+    transform: rotateZ(-8deg);
+  }
+}

@@ -58,6 +58,7 @@ const BUDGET = {
     howItWorks: 4300,
   },
   css: 7800,
+  homeCss: 11100, // site + story stylesheet, measured 9223 plus about 20% (Phase 7c T3; re-measured in T9)
   adminCss: 8200, // measured 6793 plus about 20%
   js: 400,
 } as const;
@@ -85,7 +86,7 @@ describe('page weight budgets (NFR-PERF-01)', () => {
       expect(
         await assetsOf(html, /<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g),
         `${name} css`,
-      ).toBeLessThanOrEqual(BUDGET.css);
+      ).toBeLessThanOrEqual(name === 'home' ? BUDGET.homeCss : BUDGET.css);
       expect(
         await assetsOf(html, /<script[^>]*src="([^"]+)"/g),
         `${name} js`,

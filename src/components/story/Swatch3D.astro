@@ -1,0 +1,16 @@
+---
+import '../../styles/story.css';
+import Stitch from './Stitch.astro';
+// Decorative only: three layers of cloth in CSS 3D, a tape and a stitch line. No text, no links; hidden from assistive technology.
+---
+
+<div class="swatch-scene" aria-hidden="true">
+  <div class="swatch">
+    <div class="swatch__cloth swatch__cloth--back"></div>
+    <div class="swatch__cloth swatch__cloth--mid"></div>
+    <div class="swatch__cloth swatch__cloth--front">
+      <Stitch />
+    </div>
+    <div class="swatch__tape"></div>
+  </div>
+</div>

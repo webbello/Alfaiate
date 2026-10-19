@@ -12,7 +12,7 @@
   - Verify: integration tests for landmarks, one `<nav>` per purpose, bar absent on the request page, WhatsApp link absent without config; axe and 320 px reflow; screenshots.
   - Files: `src/layouts/PublicLayout.astro`, `src/styles/site.css`, `src/i18n/public/*`, tests
 
-- [ ] **T3 Home hero with 3D swatch**
+- [x] **T3 Home hero with 3D swatch**
   - Acceptance: hero headline, subline, primary and secondary calls to action, CSS 3D folded swatch with a drawing stitch line; decorative parts `aria-hidden`; motion only under `prefers-reduced-motion: no-preference`.
   - Verify: integration test for one `<h1>` and both links; e2e with reduced motion (computed style shows no animation and no 3D transform); axe; perf measured; screenshots to the owner.
   - Files: `src/pages/index.astro`, `src/components/story/Swatch3D.astro`, `src/components/story/Stitch.astro`, `src/styles/story.css`, tests

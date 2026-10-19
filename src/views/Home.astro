@@ -5,6 +5,7 @@ import { dictionary } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 import { requireBindings, siteConfig } from '../modules/config';
 import { websiteJsonLd } from '../modules/seo/jsonld';
+import Swatch3D from '../components/story/Swatch3D.astro';
 import { listActiveCategories } from '../modules/directory/queries';
 
 interface Props {
@@ -24,19 +25,26 @@ const categories = await listActiveCategories(requireBindings(env).DB, {
   rest="/"
   jsonLd={websiteJsonLd(siteConfig(env).siteUrl, t.siteName, lang)}
 >
-  <h1>{t.home.heading}</h1>
-  <p class="lead">{t.home.intro}</p>
-  <p class="notice" role="note">
-    <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
-  </p>
-  <p class="actions">
-    <a class="button" href={pathFor(lang, '/request')}>
-      {t.cta.requestHome}
-    </a>
-    <a class="button button--secondary" href={pathFor(lang, '/tailors')}>
-      {t.home.browse}
-    </a>
-  </p>
+  <section class="hero">
+    <div class="hero__copy">
+      <h1>{t.home.heading}</h1>
+      <p class="lead">{t.home.intro}</p>
+      <p class="notice" role="note">
+        <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
+      </p>
+      <p class="actions">
+        <a class="button" href={pathFor(lang, '/request')}>
+          {t.cta.requestHome}
+        </a>
+        <a class="button button--secondary" href={pathFor(lang, '/tailors')}>
+          {t.home.browse}
+        </a>
+      </p>
+    </div>
+    <div class="hero__art">
+      <Swatch3D />
+    </div>
+  </section>
 
   <section aria-labelledby="how">
     <h2 id="how">{t.home.how.heading}</h2>
