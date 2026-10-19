@@ -17,6 +17,15 @@ npm run dev                      # http://localhost:4321, admin at /admin
 
 Note: `npm run dev` inlines CSS, which the strict CSP blocks, so pages look unstyled in dev (they still work). To see the real, styled site locally, run `npm run preview` (builds, then serves the built Worker at http://localhost:4322 with the same local database). It serves the build it just made: after any command that rebuilds (`npm run check`, `npm run test:e2e`, `npm run build`) stop it (Ctrl+C) and run `npm run preview` again, otherwise the page loses its styles. If `npm run dev` says another server is already running, stop it with `npx astro dev stop`.
 
+To see the site and admin filled in, load clearly fake demo data into the **local** database only (tailors named "[Demo] ...", enquiries `AT-DEMO0001`..., made-up numbers, no photos):
+
+```bash
+npm run db:demo                  # adds it (safe to repeat: earlier demo rows are cleared first)
+npm run db:demo:remove           # deletes exactly those rows (slug prefix demo-, reference prefix AT-DEMO); run before launch
+```
+
+The scripts take no options and always use `--local`; they cannot reach a remote database.
+
 ## Check before finishing any change
 
 ```bash

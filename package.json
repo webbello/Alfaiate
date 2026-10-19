@@ -26,6 +26,8 @@
     "check:repo": "node scripts/check-repo.mjs",
     "perf": "npm run build && node scripts/perf.mjs",
     "setup:local": "node scripts/setup-local.mjs",
+    "db:demo": "node scripts/demo.mjs add",
+    "db:demo:remove": "node scripts/demo.mjs remove",
     "preview": "npm run build && wrangler dev --port 4322"
   },
   "dependencies": {

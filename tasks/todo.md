@@ -30,7 +30,7 @@
   - Verify: a test compares the checklist with `publishBlockers` for every blocker and for a ready tailor; integration tests for the empty states and chips; contract test unchanged; publish and permission tests unchanged; mutation checks on one checklist rule and on the chip for unpublished tailors; screenshots shown to the owner.
   - Files: `src/pages/admin/tailors/[id].astro`, `src/pages/admin/tailors.astro`, `src/pages/admin/categories.astro`, `src/pages/admin/areas.astro`, `src/components/admin/Checklist.astro`, tests
 
-- [ ] **T7 Demo data (local only)**
+- [x] **T7 Demo data (local only)**
   - Acceptance: `seeds/demo.sql` and `scripts/demo.mjs`: `npm run db:demo` adds clearly fake data to the local database only (published "[Demo]" tailors with permission and consent, categories and areas, enquiries in several statuses with referrals and fees, a few tap counts, no photos); `npm run db:demo:remove` deletes exactly those rows (slug prefix `demo-`, reference prefix `AT-DEMO`) and nothing else; the runner refuses `--remote` and any non-local target.
   - Verify: tests on a scratch database: add then remove leaves the database as it was; every inserted row carries a demo marker; no real-looking contact details beyond the made-up pattern; the scripts in `package.json` contain `--local`; the runner exits non-zero when asked for a remote target; running add twice does not duplicate; the check:repo rules still pass.
   - Files: `seeds/demo.sql`, `scripts/demo.mjs`, `scripts/demo-lib.mjs`, `package.json`, `README.md`, `tests/workers/demo-seed.test.ts`
