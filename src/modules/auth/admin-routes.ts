@@ -107,6 +107,12 @@ export const ADMIN_ROUTES: readonly {
     permission: 'tailor.edit',
     methods: ['POST'],
   },
+  {
+    file: 'media/[...key].ts',
+    path: '/admin/media/[...key]',
+    permission: 'tailor.edit',
+    methods: ['GET'],
+  },
 ];
 
 /** Fills the dynamic segments of a route template ([id], [...key]) so tests can request it. */

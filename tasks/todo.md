@@ -55,7 +55,7 @@
   - Verify: integration with a real multipart POST against the built Worker: valid upload succeeds; EXIF file, wrong type, oversize, missing variant, 11th image all refused with nothing stored; editor cannot set permission (403); permission withdrawal removes the public copy.
   - Files: `src/pages/admin/tailors/[id]/images.ts`, `src/pages/admin/tailors/[id]/images/actions.ts`, `src/modules/media/service.ts`, `tests/integration/images.test.ts`
 
-- [ ] **T12 Public `/media` route and admin preview**
+- [x] **T12 Public `/media` route and admin preview**
   - Acceptance: `GET /media/<key>` reads only the public bucket, strict key parsing, `Cache-Control: public, max-age=3600`, `nosniff`, `Content-Type: image/jpeg`, 404 for everything else, no listing; `GET /admin/media/<key>` reads the private bucket for `tailor.edit` with `no-store`.
   - Verify: integration: permitted+visible+published image served; private, unpermitted, hidden, unpublished, malformed, traversal (`..`, encoded) and unknown keys 404; anonymous 302 on the admin preview; headers asserted.
   - Files: `src/pages/media/[...key].ts`, `src/pages/admin/media/[...key].ts`, `src/modules/auth/admin-routes.ts`, `tests/integration/media-route.test.ts`
