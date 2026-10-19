@@ -35,7 +35,7 @@
   - Verify: the script runs end to end and prints a table; the byte-budget test passes and fails when a budget is lowered; the recorded numbers match a fresh run within the stated headroom.
   - Files: `scripts/perf.mjs`, `package.json`, `docs/IMPLEMENTATION_PLAN.md`, `tests/integration/budgets.test.ts`
 
-- [ ] **T8 Dependency audit and the written security and privacy reviews**
+- [x] **T8 Dependency audit and the written security and privacy reviews**
   - Acceptance: `npm audit --omit=dev` run and the result recorded (high and critical zero, or each justified); the security checklist (headers, cookies, sessions, CSRF, origin checks, rate limits, uploads, error pages, secrets, carried-over items) and the privacy review (logs, analytics, cookies, backups, third parties, role visibility) written in DECISIONS.md with what was and was not checked; open items moved to Phase 8 with an owner-visible note in STATUS.
   - Verify: the audit output is pasted in summary form; each checklist line names the test or check that covers it, or says "manual" or "not checked".
   - Files: `docs/DECISIONS.md`, `docs/STATUS.md`, `docs/ARCHITECTURE.md`
