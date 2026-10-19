@@ -1,6 +1,6 @@
 # Spec: Phase 3 — Tailor profiles, images and publishing (admin side)
 
-Status: Draft for owner approval · 2026-10-19 · Source: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 3 · [DATA_MODEL.md](DATA_MODEL.md) §3.1-3.6, 5 · [ARCHITECTURE.md](ARCHITECTURE.md) §6, §8
+Status: Approved 2026-10-19 (all five open-question defaults accepted) · Source: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 3 · [DATA_MODEL.md](DATA_MODEL.md) §3.1-3.6, 5 · [ARCHITECTURE.md](ARCHITECTURE.md) §6, §8
 
 **Requirements:** FR-ADM-02/03/04/05/08, FR-REF-08, BR-05/06/11, SEC-04. **Acceptance:** AC-10, plus the Phase 3 lines of the plan: unpermitted images never reach the public directory, EXIF is stripped, no image bytes in D1.
 **Answers already given:** AD-04 (R2, browser resize, `/media` route), AD-07 (10 photos, 8 MB originals), OQ-14 (US dollars) — see [DECISIONS.md](DECISIONS.md).
