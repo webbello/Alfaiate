@@ -15,6 +15,11 @@ describe('security headers on every response (SEC-08)', () => {
       expect(csp).toContain("frame-ancestors 'none'");
       expect(csp).toContain("default-src 'self'");
       expect(csp).toContain("object-src 'none'");
+      expect(csp).toContain("img-src 'self'");
+      expect(csp).not.toContain('data:');
+      expect(h.get('permissions-policy')).toBe(
+        'camera=(), microphone=(), geolocation=(), payment=()',
+      );
       expect(csp).not.toContain('unsafe-inline');
       expect(csp).not.toContain('unsafe-eval');
     });

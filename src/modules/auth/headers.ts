@@ -1,7 +1,7 @@
 // Security headers for every response (SEC-08) and indexing/caching rules for /admin (SEC-06).
 const CSP = [
   "default-src 'self'",
-  "img-src 'self' data:",
+  "img-src 'self'",
   "style-src 'self'",
   "script-src 'self'",
   "object-src 'none'",
@@ -33,6 +33,10 @@ export function applySecurityHeaders(
   h.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   h.set('Strict-Transport-Security', 'max-age=31536000');
   h.set('X-Frame-Options', 'DENY');
+  h.set(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=()',
+  );
   const admin = isAdminPath(pathname);
   if (admin) h.set('X-Robots-Tag', 'noindex, nofollow');
   // Admin pages, and anything that sets a cookie (a session) whatever its path, must not be cached.

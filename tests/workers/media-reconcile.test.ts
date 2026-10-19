@@ -276,6 +276,27 @@ describe('reconcileImages: transitions', () => {
     expect(await keysIn(env.MEDIA_PUBLIC, tailorId)).toEqual([]);
   });
 
+  it('does not leave a stale public copy when permission is withdrawn while the sync is copying (race)', async () => {
+    const { tailorId, imageId } = await setup({
+      published: true,
+      permission: true,
+      visible: true,
+    });
+    const racing = override(env.MEDIA_PRIVATE, {
+      get: async (...args: Parameters<R2Bucket['get']>) => {
+        // The manager withdraws permission right after this sync has decided to copy the file.
+        await env.DB.prepare(
+          'UPDATE portfolio_image SET permission_granted = 0 WHERE id = ?',
+        )
+          .bind(imageId)
+          .run();
+        return env.MEDIA_PRIVATE.get(...args);
+      },
+    } as never);
+    await reconcileImages({ ...b, MEDIA_PRIVATE: racing }, tailorId);
+    expect(await keysIn(env.MEDIA_PUBLIC, tailorId)).toEqual([]);
+  });
+
   it('handles more than one page of public objects', async () => {
     const { tailorId } = await setup({
       published: false,

@@ -56,7 +56,12 @@ export type UpdateResult =
   | {
       ok: false;
       error:
-        'locked' | 'not_found' | 'slug_locked' | 'slug_taken' | 'needs_contact';
+        | 'locked'
+        | 'not_found'
+        | 'slug_locked'
+        | 'slug_taken'
+        | 'needs_contact'
+        | 'conflict';
     };
 
 const STATUSES = ['draft', 'approved', 'suspended', 'archived'] as const;
@@ -229,12 +234,14 @@ export async function updateProfile(
       return { ok: false, error: 'needs_contact' };
   }
   if (sets.length > 0) {
-    await db
+    // `is_published` must still be what the lock check above saw; otherwise someone published (or unpublished) in between.
+    const written = await db
       .prepare(
-        `UPDATE tailor SET ${sets.join(', ')}, updated_at = ${NOW} WHERE id = ?`,
+        `UPDATE tailor SET ${sets.join(', ')}, updated_at = ${NOW} WHERE id = ? AND is_published = ?`,
       )
-      .bind(...binds, id)
+      .bind(...binds, id, tailor.is_published)
       .run();
+    if (written.meta.changes === 0) return { ok: false, error: 'conflict' };
   }
   await audit(db, {
     userId: actorId,

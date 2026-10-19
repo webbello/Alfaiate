@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { env } from 'cloudflare:workers';
+import { override } from './fixtures/override';
 import {
   canEdit,
   createDraft,
@@ -359,5 +360,37 @@ describe('verification and the contact rule on edit (BR-11)', () => {
         whatsapp: '7712 8888',
       }),
     ).toEqual({ ok: true });
+  });
+});
+
+describe('profile saves re-check the lock at the moment of writing (race)', () => {
+  it('does not apply an editor save if the tailor was published after the check', async () => {
+    const { by, id } = await draft('Race Lock');
+    const flipping = override(env.DB, {
+      prepare: (sql: string) => {
+        const real = env.DB.prepare(sql);
+        if (!sql.startsWith('UPDATE tailor SET display_name')) return real;
+        return {
+          bind: (...args: unknown[]) => ({
+            run: async () => {
+              await env.DB.prepare(
+                "UPDATE tailor SET status = 'approved', permission_recorded = 1, contact_publish_consent = 1, phone_e164 = '+67077123456', is_published = 1 WHERE id = ?",
+              )
+                .bind(id)
+                .run();
+              return real.bind(...args).run();
+            },
+          }),
+        };
+      },
+    } as never);
+    expect(
+      await updateProfile(flipping, by, 'editor', id, {
+        display_name: 'Slipped Through',
+      }),
+    ).toEqual({ ok: false, error: 'conflict' });
+    expect((await getTailor(env.DB, id))?.display_name).not.toBe(
+      'Slipped Through',
+    );
   });
 });

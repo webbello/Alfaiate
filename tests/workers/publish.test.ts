@@ -15,6 +15,7 @@ import { reconcileImages } from '../../src/modules/media/reconcile';
 import { imagePrefix } from '../../src/modules/media/keys';
 import { getTailor } from '../../src/modules/tailors/repo';
 import { jpeg } from './fixtures/images';
+import { override } from './fixtures/override';
 
 const b = {
   DB: env.DB,
@@ -209,6 +210,58 @@ describe('publishTailor (AC-10)', () => {
     expect(actions).toEqual(
       expect.arrayContaining(['tailor_published', 'tailor_unpublished']),
     );
+  });
+});
+
+/** Runs `before` right before any statement whose SQL contains `marker` executes: a stand-in for a concurrent request. */
+function racing(marker: string, before: () => Promise<unknown>): D1Database {
+  return override(env.DB, {
+    prepare: (sql: string) => {
+      const real = env.DB.prepare(sql);
+      if (!sql.includes(marker)) return real;
+      return {
+        bind: (...args: unknown[]) => ({
+          run: async () => {
+            await before();
+            return real.bind(...args).run();
+          },
+        }),
+      };
+    },
+  } as never);
+}
+
+describe('publishing re-checks the requirements at the moment of writing (race)', () => {
+  it('refuses to publish if consent is withdrawn between the check and the update', async () => {
+    const { by, id } = await ready();
+    const db = racing('SET is_published = 1', () =>
+      env.DB.prepare(
+        'UPDATE tailor SET contact_publish_consent = 0 WHERE id = ?',
+      )
+        .bind(id)
+        .run(),
+    );
+    expect(await publishTailor({ ...b, DB: db }, by, 'manager', id)).toEqual({
+      ok: false,
+      error: 'blocked',
+      blockers: ['no_consented_contact'],
+    });
+    expect((await getTailor(env.DB, id))?.is_published).toBe(0);
+  });
+
+  it('refuses to publish if the contact numbers are removed between the check and the update', async () => {
+    const { by, id } = await ready();
+    const db = racing('SET is_published = 1', () =>
+      env.DB.prepare(
+        'UPDATE tailor SET phone_e164 = NULL, whatsapp_e164 = NULL WHERE id = ?',
+      )
+        .bind(id)
+        .run(),
+    );
+    expect(
+      await publishTailor({ ...b, DB: db }, by, 'manager', id),
+    ).toMatchObject({ ok: false, error: 'blocked' });
+    expect((await getTailor(env.DB, id))?.is_published).toBe(0);
   });
 });
 

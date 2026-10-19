@@ -65,7 +65,7 @@
   - Verify: integration: page has `<script src>` and no inline script; build output contains the script file. **Manual run in a real browser** with a real photo kept outside the repo: variants upload, server accepts, downloaded variant has no EXIF (`exiftool`/`identify` if available; otherwise the server's own EXIF rejection is the evidence), result recorded in DECISIONS.md.
   - Files: `src/scripts/image-upload.ts`, `src/pages/admin/tailors/[id].astro`, `src/i18n/en.ts`, `tests/integration/photos-page.test.ts`
 
-- [ ] **T14 Docs, reviewers, security audit, fresh clone**
+- [x] **T14 Docs, reviewers, security audit, fresh clone**
   - Acceptance: README, STATUS, DECISIONS, ARCHITECTURE §8 and §15, DATA_MODEL (any change) in sync; `privacy-scope-reviewer`, `docs-sync` and `security-auditor` run with no unresolved blockers; fixes or deferrals recorded.
   - Verify: `npm ci && npm run check` from a fresh clone; `git ls-files` shows no secrets, databases or real photos.
   - Files: `README.md`, `docs/STATUS.md`, `docs/DECISIONS.md`, `docs/ARCHITECTURE.md`, `AGENTS.md` (lessons)

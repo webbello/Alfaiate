@@ -157,18 +157,29 @@ export async function publishTailor(
   if (!found.ok) return found;
   const blockers = publishBlockers(found.tailor);
   if (blockers.length > 0) return { ok: false, error: 'blocked', blockers };
+  // The requirements are repeated in the WHERE clause, so a change made by another request since the check above
+  // (consent withdrawn, numbers removed, status changed) makes this update do nothing instead of publishing.
+  let changes: number;
   try {
-    await b.DB.prepare(
-      `UPDATE tailor SET is_published = 1, published_at = coalesce(published_at, ${NOW}), updated_at = ${NOW} WHERE id = ?`,
-    )
-      .bind(id)
-      .run();
+    changes = (
+      await b.DB.prepare(
+        `UPDATE tailor SET is_published = 1, published_at = coalesce(published_at, ${NOW}), updated_at = ${NOW}
+         WHERE id = ? AND status = 'approved' AND permission_recorded = 1 AND contact_publish_consent = 1
+           AND (whatsapp_e164 IS NOT NULL OR phone_e164 IS NOT NULL)`,
+      )
+        .bind(id)
+        .run()
+    ).meta.changes;
   } catch {
+    changes = 0; // the database CHECK is a further backstop
+  }
+  if (changes === 0) {
+    const fresh = await getTailor(b.DB, id);
     return {
       ok: false,
       error: 'blocked',
-      blockers: publishBlockers(found.tailor),
-    }; // the database CHECK is the backstop
+      blockers: fresh ? publishBlockers(fresh) : publishBlockers(found.tailor),
+    };
   }
   await audit(b.DB, {
     userId: actorId,

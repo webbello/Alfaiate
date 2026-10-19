@@ -154,6 +154,8 @@ export const en = {
   adminChangePassword: 'Change password',
   adminMessages: {
     created: 'User created.',
+    conflict:
+      'Someone else changed this tailor at the same moment. Reload the page and try again.',
     uploaded:
       "Photo uploaded. It stays private until a manager records the tailor's permission.",
     metadata:
