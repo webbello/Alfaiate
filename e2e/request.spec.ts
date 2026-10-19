@@ -1,0 +1,86 @@
+import AxeBuilder from '@axe-core/playwright';
+import { expect, test, type Page } from '@playwright/test';
+
+// AC-06/07: the request form on a 375 px phone, by keyboard only. The form refuses a submission under 3 seconds, so each test waits.
+const FILL_DELAY = 3200;
+
+async function tabTo(page: Page, id: string) {
+  for (let i = 0; i < 20; i++) {
+    if ((await page.evaluate(() => document.activeElement?.id)) === id) return;
+    await page.keyboard.press('Tab');
+  }
+  throw new Error(`Never reached #${id} by keyboard`);
+}
+
+test('a customer completes the request with the keyboard only and sees a reference code (AC-07)', async ({
+  page,
+}) => {
+  await page.goto('/request');
+  await page.locator('#name').focus();
+  await page.keyboard.type('E2E Fake Customer');
+  await tabTo(page, 'phone');
+  await page.keyboard.type('7712 3456');
+  await tabTo(page, 'channel-whatsapp');
+  await page.keyboard.press('Space');
+  await tabTo(page, 'consent');
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(FILL_DELAY);
+  await tabTo(page, 'consent');
+  await page.keyboard.press('Tab'); // privacy link
+  await page.keyboard.press('Tab'); // submit
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/request\/thanks\?ref=AT-[A-HJ-NP-Z2-9]{8}$/);
+  await expect(page.locator('.reference')).toHaveText(/^AT-/);
+  await expect(page.getByText(/not a confirmed appointment/)).toBeVisible();
+  expect(page.url()).not.toMatch(/Fake|7712|3456/);
+});
+
+test('mistakes show a summary and field errors, keep what was typed, and pass axe (AC-06)', async ({
+  page,
+}) => {
+  await page.goto('/request');
+  await page
+    .locator('form.request')
+    .evaluate((form: HTMLFormElement) => (form.noValidate = true)); // reach the server-side messages
+  await page.locator('#notes').fill('keep these words');
+  await page.waitForTimeout(FILL_DELAY);
+  await page.getByRole('button', { name: 'Send request' }).click();
+  await expect(page.getByRole('alert')).toContainText(
+    'Please fix the following',
+  );
+  await expect(page.locator('#name-error')).toBeVisible();
+  await expect(page.locator('#consent-error')).toBeVisible();
+  await expect(page.locator('#notes')).toHaveValue('keep these words');
+  await expect(page.locator('#consent')).not.toBeChecked();
+  const { violations } = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze();
+  expect(violations.map((v) => `${v.id}: ${v.nodes[0]?.target}`)).toEqual([]);
+});
+
+test('the request page does not scroll sideways at 375 px', async ({
+  page,
+}) => {
+  for (const url of ['/request', '/tet/request']) {
+    await page.goto(url);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+  }
+});
+
+test('the Tetum form submits to the Tetum acknowledgement', async ({
+  page,
+}) => {
+  await page.goto('/tet/request');
+  await page.locator('#name').fill('E2E Fake Customer');
+  await page.locator('#phone').fill('7712 3456');
+  await page.locator('#channel-phone').check();
+  await page.locator('#consent').check();
+  await page.waitForTimeout(FILL_DELAY);
+  await page.locator('button[type="submit"]').click();
+  await expect(page).toHaveURL(/\/tet\/request\/thanks\?ref=AT-/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'tet');
+});

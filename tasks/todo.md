@@ -35,7 +35,7 @@
   - Verify: tests for all seven statuses (log row each time), audit row content, notes never in public pages, forwarding text exact, 403 for editor/viewer/missing CSRF, route inventory; mutation checks on permission, the log write and the consented-fields list.
   - Files: `src/pages/admin/enquiries/[id].astro`, `src/pages/admin/enquiries/[id]/actions.ts`, `src/modules/enquiry/status.ts`, `src/modules/enquiry/forwarding.ts`, `src/modules/auth/admin-routes.ts`, `tests/workers/enquiry-status.test.ts`, `tests/integration/admin-enquiries.test.ts`
 
-- [ ] **T8 Playwright and axe for the form and inbox**
+- [x] **T8 Playwright and axe for the form and inbox**
   - Acceptance: e2e fills and submits the form on a 375 px viewport and by keyboard only, sees the reference; error state reachable and announced; axe zero violations on `/request` (clean and error state), `/request/thanks` in both languages and on the admin inbox and detail pages (signed in with a throwaway fake owner created in the e2e seed).
   - Verify: `npm run test:e2e` passes; a deliberately removed label fails it once, then is reverted.
   - Files: `e2e/request.spec.ts`, `e2e/a11y.spec.ts`, `e2e/seed.sql`, `e2e/run.mjs`

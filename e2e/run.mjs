@@ -4,6 +4,8 @@ import { spawn, spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { randomUUID } from 'node:crypto';
+import { hashPassword } from '../src/modules/auth/password.ts';
 
 const PORT = 8799;
 const state = mkdtempSync(join(tmpdir(), 'alfaiate-e2e-'));
@@ -49,6 +51,23 @@ try {
   ])
     if (wrangler(args).status !== 0) throw new Error('database setup failed');
 
+  // A throwaway owner for the admin pages. The password exists only in this run, and only its hash reaches the database.
+  const adminPassword = `${randomUUID()}-${randomUUID()}`;
+  const adminHash = await hashPassword(adminPassword, 1000);
+  if (
+    wrangler([
+      'd1',
+      'execute',
+      'DB',
+      '--local',
+      '--persist-to',
+      state,
+      '--command',
+      `INSERT INTO admin_user (email, password_hash, role) VALUES ('e2e-owner@example.test', '${adminHash}', 'owner')`,
+    ]).status !== 0
+  )
+    throw new Error('admin setup failed');
+
   server = spawn(
     'npx',
     [
@@ -60,6 +79,8 @@ try {
       state,
       '--var',
       'PUBLIC_LANGUAGES:en,tet',
+      '--var',
+      `FORM_TOKEN_SECRET:${randomUUID()}${randomUUID()}`,
       '--var',
       `SITE_URL:http://localhost:${PORT}`,
     ],
@@ -80,7 +101,15 @@ try {
   const result = spawnSync(
     'npx',
     ['playwright', 'test', ...process.argv.slice(2)],
-    { stdio: 'inherit', env: { ...process.env, E2E_BASE_URL: url } },
+    {
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        E2E_BASE_URL: url,
+        E2E_ADMIN_EMAIL: 'e2e-owner@example.test',
+        E2E_ADMIN_PASSWORD: adminPassword,
+      },
+    },
   );
   process.exitCode = result.status ?? 1;
 } catch (error) {
