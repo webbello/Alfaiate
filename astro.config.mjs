@@ -11,6 +11,8 @@ export default defineConfig({
   // The CSP has no 'unsafe-inline' (SEC-08): no inline styles, no dev toolbar scripts.
   build: { inlineStylesheets: 'never' },
   devToolbar: { enabled: false },
+  // Never inline scripts into pages: the CSP has no 'unsafe-inline' (SEC-08).
+  vite: { build: { assetsInlineLimit: 0 } },
   adapter: process.env.VITEST
     ? undefined
     : cloudflare({ imageService: 'passthrough' }),

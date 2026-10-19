@@ -60,7 +60,7 @@
   - Verify: integration: permitted+visible+published image served; private, unpermitted, hidden, unpublished, malformed, traversal (`..`, encoded) and unknown keys 404; anonymous 302 on the admin preview; headers asserted.
   - Files: `src/pages/media/[...key].ts`, `src/pages/admin/media/[...key].ts`, `src/modules/auth/admin-routes.ts`, `tests/integration/media-route.test.ts`
 
-- [ ] **T13 Upload script and photos section**
+- [x] **T13 Upload script and photos section**
   - Acceptance: `src/scripts/image-upload.ts` resizes with canvas to 320/800/1600 px JPEG, checks the 8 MB original limit and the 10 photo limit, posts the form; photos section lists thumbnails (admin preview URLs), alt/caption edit, order, visibility, permission (managers), profile photo, delete.
   - Verify: integration: page has `<script src>` and no inline script; build output contains the script file. **Manual run in a real browser** with a real photo kept outside the repo: variants upload, server accepts, downloaded variant has no EXIF (`exiftool`/`identify` if available; otherwise the server's own EXIF rejection is the evidence), result recorded in DECISIONS.md.
   - Files: `src/scripts/image-upload.ts`, `src/pages/admin/tailors/[id].astro`, `src/i18n/en.ts`, `tests/integration/photos-page.test.ts`

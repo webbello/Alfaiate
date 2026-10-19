@@ -15,6 +15,8 @@ import {
   getTailorCategories,
 } from '../../../modules/tailors/links';
 import { listNotes } from '../../../modules/tailors/notes';
+import { listImages } from '../../../modules/media/list';
+import { MAX_IMAGES } from '../../../modules/media/store';
 import { messageFrom } from '../../../modules/tailors/messages';
 import { publishBlockers } from '../../../modules/tailors/publish';
 import { VERIFIABLE_FIELDS } from '../../../modules/tailors/verification';
@@ -29,13 +31,15 @@ if (!tailor) return new Response('Not found', { status: 404 });
 
 const editable = canEdit(auth.role, tailor);
 const mayVerify = can(auth.role, 'tailor.publish');
-const [categories, areas, links, areaLinks, notes] = await Promise.all([
+const [categories, areas, links, areaLinks, notes, images] = await Promise.all([
   listEntries(DB, 'category'),
   listEntries(DB, 'area'),
   getTailorCategories(DB, id),
   getTailorAreas(DB, id),
   listNotes(DB, id),
+  listImages(DB, id),
 ]);
+const imageAction = `/admin/tailors/${id}/images/actions`;
 const linkFor = new Map(links.map((l) => [l.category_id, l]));
 const shop = new Set(
   areaLinks.filter((a) => a.kind === 'shop_location').map((a) => a.area_id),
@@ -305,6 +309,159 @@ const action = `/admin/tailors/${id}/actions`;
       </form>
     </>
   )}
+
+  <h2>{en.photosHeading}</h2>
+  <p>{en.photosPrivateNote}</p>
+  {images.length === 0 && <p>{en.photosNone}</p>}
+  <ul>
+    {images.map((image) => {
+      const preview = `/admin/media/tailor/${id}/${image.file_key}/thumb.jpg`;
+      return (
+        <li>
+          <img src={preview} alt={image.alt_text} width="160" loading="lazy" />
+          <p>
+            {image.is_visible ? en.photosVisible : en.photosHidden} ·
+            {image.permission_granted
+              ? ` ${en.photosPermitted} ${image.permission_date}`
+              : ` ${en.photosNotPermitted}`}
+            {tailor.profile_photo_id === image.id && ` · ${en.photosIsProfile}`}
+          </p>
+          {editable && (
+            <>
+              <form method="post" action={imageAction}>
+                <input type="hidden" name="csrf" value={auth.csrfToken} />
+                <input type="hidden" name="action" value="details" />
+                <input type="hidden" name="image_id" value={image.id} />
+                <input
+                  name="alt_text"
+                  value={image.alt_text}
+                  maxlength="200"
+                  required
+                  aria-label={en.photosAlt}
+                />
+                <input
+                  name="caption"
+                  value={image.caption ?? ''}
+                  maxlength="200"
+                  aria-label={en.photosCaption}
+                />
+                <button type="submit">{en.photosSave}</button>
+              </form>
+              <form method="post" action={imageAction}>
+                <input type="hidden" name="csrf" value={auth.csrfToken} />
+                <input type="hidden" name="action" value="order" />
+                <input type="hidden" name="image_id" value={image.id} />
+                <input
+                  name="sort_order"
+                  type="number"
+                  value={image.sort_order}
+                  required
+                  aria-label={en.photosOrder}
+                />
+                <button type="submit">{en.photosSave}</button>
+              </form>
+              <form method="post" action={imageAction}>
+                <input type="hidden" name="csrf" value={auth.csrfToken} />
+                <input type="hidden" name="action" value="visibility" />
+                <input type="hidden" name="image_id" value={image.id} />
+                <input
+                  type="hidden"
+                  name="visible"
+                  value={image.is_visible ? '0' : '1'}
+                />
+                <button type="submit">
+                  {image.is_visible ? en.photosHide : en.photosShow}
+                </button>
+              </form>
+              {image.permission_granted &&
+              image.is_visible &&
+              tailor.profile_photo_id !== image.id ? (
+                <form method="post" action={imageAction}>
+                  <input type="hidden" name="csrf" value={auth.csrfToken} />
+                  <input type="hidden" name="action" value="profile_photo" />
+                  <input type="hidden" name="image_id" value={image.id} />
+                  <button type="submit">{en.photosProfile}</button>
+                </form>
+              ) : null}
+              <form method="post" action={imageAction}>
+                <input type="hidden" name="csrf" value={auth.csrfToken} />
+                <input type="hidden" name="action" value="delete" />
+                <input type="hidden" name="image_id" value={image.id} />
+                <button type="submit">{en.photosDelete}</button>
+              </form>
+            </>
+          )}
+          {mayVerify && (
+            <form method="post" action={publishAction}>
+              <input type="hidden" name="csrf" value={auth.csrfToken} />
+              <input type="hidden" name="action" value="image_permission" />
+              <input type="hidden" name="image_id" value={image.id} />
+              {image.permission_granted ? (
+                <>
+                  <input type="hidden" name="granted" value="0" />
+                  <button type="submit">{en.photosWithdraw}</button>
+                </>
+              ) : (
+                <>
+                  <input type="hidden" name="granted" value="1" />
+                  <label>
+                    {en.photosPermissionDate}{' '}
+                    <input type="date" name="permission_date" required />
+                  </label>
+                  <button type="submit">{en.photosGrant}</button>
+                </>
+              )}
+            </form>
+          )}
+        </li>
+      );
+    })}
+  </ul>
+  {editable && images.length < MAX_IMAGES && (
+    <>
+      <h3>{en.photosUploadHeading}</h3>
+      <form
+        method="post"
+        action={`/admin/tailors/${id}/images`}
+        enctype="multipart/form-data"
+        data-photo-upload
+        data-msg-choose={en.photosChoose}
+        data-msg-type={en.photosBadType}
+        data-msg-empty={en.photosEmpty}
+        data-msg-size={en.photosTooBig}
+        data-msg-working={en.photosWorking}
+        data-msg-failed={en.photosFailed}
+      >
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <p>
+          <label for="photo-file">{en.photosFile}</label>
+          <br />
+          <input
+            id="photo-file"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            required
+          />
+        </p>
+        <p>
+          <label for="photo-alt">{en.photosAlt}</label>
+          <br />
+          <input id="photo-alt" name="alt_text" maxlength="200" required />
+        </p>
+        <p>
+          <label for="photo-caption">{en.photosCaption}</label>
+          <br />
+          <input id="photo-caption" name="caption" maxlength="200" />
+        </p>
+        <p role="status" data-upload-status></p>
+        <button type="submit">{en.photosUpload}</button>
+      </form>
+      <script>
+        import '../../../scripts/image-upload';
+      </script>
+    </>
+  )}
+  {editable && images.length >= MAX_IMAGES && <p>{en.photosLimit}</p>}
 
   {can(auth.role, 'fee.view') && (
     <>
