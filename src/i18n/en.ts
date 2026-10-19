@@ -124,6 +124,24 @@ export const en = {
   adminChangePassword: 'Change password',
   adminMessages: {
     created: 'User created.',
+    uploaded:
+      "Photo uploaded. It stays private until a manager records the tailor's permission.",
+    metadata:
+      'That photo contains hidden data (such as location or camera details) and was rejected. Use the upload button, which cleans photos first.',
+    too_large: 'That photo is too large.',
+    not_jpeg: 'That file is not a usable photo.',
+    truncated: 'That photo file is incomplete.',
+    trailing_data:
+      'That photo file has unexpected extra data and was rejected.',
+    unsupported: 'That photo type is not supported.',
+    dimensions: 'That photo has the wrong size.',
+    missing_variant:
+      'The photo upload was incomplete. Please try again with JavaScript turned on.',
+    limit: 'This tailor already has the maximum of 10 photos.',
+    storage:
+      'The photo could not be saved. Nothing was stored; please try again.',
+    not_permitted:
+      'Only a photo with recorded permission that is not hidden can be the profile photo.',
     published: 'Published.',
     unpublished: 'Unpublished.',
     blocked: 'This tailor cannot be published yet.',

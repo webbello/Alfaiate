@@ -15,6 +15,7 @@ import {
   type PublishResult,
 } from '../../../../modules/tailors/publish';
 import { VERIFIABLE_FIELDS } from '../../../../modules/tailors/verification';
+import { setImagePermission } from '../../../../modules/media/service';
 
 export const POST: APIRoute = async (context) => {
   const auth = await requirePermission(context, 'tailor.publish');
@@ -77,6 +78,24 @@ export const POST: APIRoute = async (context) => {
         ),
         'saved',
       );
+    case 'image_permission': {
+      const r = await setImagePermission(
+        bindings,
+        auth.userId,
+        auth.role,
+        id,
+        Number(field('image_id')),
+        {
+          granted: field('granted') === '1',
+          date: field('permission_date'),
+        },
+      );
+      return r.ok
+        ? back('msg=saved')
+        : r.error === 'forbidden'
+          ? new Response('Forbidden', { status: 403 })
+          : back(`msg=${r.error}`);
+    }
     case 'publish':
       return answer(
         await publishTailor(bindings, auth.userId, auth.role, id),

@@ -52,12 +52,19 @@ export async function reconcileImages(
     added++;
   }
 
-  const publicIds = results.map((r) => r.id);
-  const marks = publicIds.map(() => '?').join(', ');
+  // The profile photo only needs permission and visibility; it stays set while the tailor is a draft.
+  const eligible = (
+    await b.DB.prepare(
+      'SELECT id FROM portfolio_image WHERE tailor_id = ? AND permission_granted = 1 AND is_visible = 1',
+    )
+      .bind(tailorId)
+      .all<{ id: number }>()
+  ).results.map((r) => r.id);
+  const marks = eligible.map(() => '?').join(', ');
   await b.DB.prepare(
-    `UPDATE tailor SET profile_photo_id = NULL WHERE id = ? AND profile_photo_id IS NOT NULL${publicIds.length ? ` AND profile_photo_id NOT IN (${marks})` : ''}`,
+    `UPDATE tailor SET profile_photo_id = NULL WHERE id = ? AND profile_photo_id IS NOT NULL${eligible.length ? ` AND profile_photo_id NOT IN (${marks})` : ''}`,
   )
-    .bind(tailorId, ...publicIds)
+    .bind(tailorId, ...eligible)
     .run();
   return { added, removed: extra.length, missing };
 }

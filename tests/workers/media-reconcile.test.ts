@@ -196,6 +196,32 @@ describe('reconcileImages: transitions', () => {
     ).toBeNull();
   });
 
+  it('keeps a profile photo pointer while the tailor is unpublished, and clears it when the image is hidden or loses permission', async () => {
+    const { tailorId, imageId } = await setup({
+      published: false,
+      permission: true,
+      visible: true,
+    });
+    await env.DB.prepare('UPDATE tailor SET profile_photo_id = ? WHERE id = ?')
+      .bind(imageId, tailorId)
+      .run();
+    await reconcileImages(b, tailorId);
+    const pointer = async () =>
+      (
+        await env.DB.prepare('SELECT profile_photo_id FROM tailor WHERE id = ?')
+          .bind(tailorId)
+          .first<{ profile_photo_id: number | null }>()
+      )?.profile_photo_id;
+    expect(await pointer()).toBe(imageId);
+    await setState(tailorId, imageId, {
+      published: false,
+      permission: true,
+      visible: false,
+    });
+    await reconcileImages(b, tailorId);
+    expect(await pointer()).toBeNull();
+  });
+
   it('only touches the given tailor: tailor 1 never disturbs tailor 10-style prefixes or other tailors', async () => {
     const a = await setup({ published: true, permission: true, visible: true });
     const other = await setup({

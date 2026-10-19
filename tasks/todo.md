@@ -50,7 +50,7 @@
   - Verify: integration matrix: owner ok; manager, editor, viewer 403; page HTML for a manager contains no fee text; CSRF refusal.
   - Files: `src/pages/admin/tailors/[id]/fees.ts`, `src/pages/admin/tailors/[id].astro`, `src/modules/tailors/repo.ts`, `tests/integration/fees.test.ts`
 
-- [ ] **T11 Image upload and image actions (server)**
+- [x] **T11 Image upload and image actions (server)**
   - Acceptance: `POST /admin/tailors/[id]/images` takes alt text (required), caption and three variant files as multipart plus CSRF, validates all, stores, audits; `POST /admin/tailors/[id]/images/actions` handles alt/caption, order, visibility, delete, set profile photo (`tailor.edit`) and permission granted/withdrawn with date (`tailor.publish`); the edit lock applies; each change ends with `reconcileImages`.
   - Verify: integration with a real multipart POST against the built Worker: valid upload succeeds; EXIF file, wrong type, oversize, missing variant, 11th image all refused with nothing stored; editor cannot set permission (403); permission withdrawal removes the public copy.
   - Files: `src/pages/admin/tailors/[id]/images.ts`, `src/pages/admin/tailors/[id]/images/actions.ts`, `src/modules/media/service.ts`, `tests/integration/images.test.ts`
