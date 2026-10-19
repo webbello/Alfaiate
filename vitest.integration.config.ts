@@ -7,7 +7,12 @@ export default defineConfig({
     cloudflareTest(async () => ({
       wrangler: { configPath: './dist/server/wrangler.json' },
       miniflare: {
-        bindings: { TEST_MIGRATIONS: await readD1Migrations('./migrations') },
+        bindings: {
+          TEST_MIGRATIONS: await readD1Migrations('./migrations'),
+          // The built worker's own settings say English only; the integration suite tests both languages.
+          PUBLIC_LANGUAGES: 'en,tet',
+          SITE_URL: 'https://alfaiate-tl.example',
+        },
       },
     })),
   ],

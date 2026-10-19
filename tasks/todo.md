@@ -1,6 +1,6 @@
 # Tasks: Phase 4
 
-- [ ] **T1 Language helpers and site configuration**
+- [x] **T1 Language helpers and site configuration**
   - Acceptance: `PUBLIC_LANGUAGES` (default `en`; `en,tet` enables Tetum) and `SITE_URL` (placeholder) are typed configuration (`wrangler.jsonc` vars, `config` module, test override); `parsePath('/tet/tailors/x')` gives `{lang:'tet', rest:'/tailors/x'}`; `pathFor(lang, rest)` and `twinUrl` build the other language's URL; unknown or disabled languages are rejected.
   - Verify: unit tests fail first, including hostile paths (`/tet/../admin`, `//tet`, `/TET`), missing config falling back to English only and a bad `SITE_URL` failing closed; regenerate Worker types.
   - Files: `src/i18n/lang.ts`, `src/modules/config/index.ts`, `wrangler.jsonc`, `worker-configuration.d.ts`, `tests/workers/lang.test.ts`

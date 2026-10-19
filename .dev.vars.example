@@ -1,3 +1,6 @@
 # Copy to .dev.vars (git-ignored). Placeholders only; never commit real values.
 SESSION_SECRET=replace-me
 TURNSTILE_SECRET_KEY=replace-me
+# Local development: turn Tetum on and use the dev server address (the committed defaults serve English only).
+PUBLIC_LANGUAGES=en,tet
+SITE_URL=http://localhost:4321
