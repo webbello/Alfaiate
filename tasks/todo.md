@@ -35,7 +35,7 @@
   - Verify: tests on a scratch database: add then remove leaves the database as it was; every inserted row carries a demo marker; no real-looking contact details beyond the made-up pattern; the scripts in `package.json` contain `--local`; the runner exits non-zero when asked for a remote target; running add twice does not duplicate; the check:repo rules still pass.
   - Files: `seeds/demo.sql`, `scripts/demo.mjs`, `scripts/demo-lib.mjs`, `package.json`, `README.md`, `tests/workers/demo-seed.test.ts`
 
-- [ ] **T8 Browser checks and budgets**
+- [x] **T8 Browser checks and budgets**
   - Acceptance: admin pages added to the 320 px reflow and text-spacing e2e checks; a keyboard path through the header bar; a first-run journey as the throwaway owner (empty system, create category and area, create a tailor, follow the checklist to publish) and a demo-data journey; a byte budget for `admin.css` (measured plus about 20%) enforced in the integration budget test; no admin page loads a script.
   - Verify: `npm run test:e2e` and `npm run check` pass; a removed label on an admin page and an inline script were each seen failing and reverted.
   - Files: `e2e/admin-reflow.spec.ts`, `e2e/first-run.spec.ts`, `tests/integration/budgets.test.ts`, `e2e/seed.sql` if needed

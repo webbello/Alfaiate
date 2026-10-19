@@ -58,6 +58,7 @@ const BUDGET = {
     howItWorks: 4300,
   },
   css: 7800,
+  adminCss: 8200, // measured 6793 plus about 20%
   js: 400,
 } as const;
 
@@ -100,6 +101,16 @@ describe('page weight budgets (NFR-PERF-01)', () => {
       );
       expect(html, path).not.toMatch(/@font-face|fonts\.googleapis/);
     }
+  });
+});
+
+describe('the admin stylesheet stays small (Phase 7b)', () => {
+  it('is within its budget on the dashboard and ships no admin script', async () => {
+    const html = await (await get('/admin/login')).text();
+    expect(
+      await assetsOf(html, /<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g),
+    ).toBeLessThanOrEqual(BUDGET.adminCss);
+    expect(html).not.toContain('<script');
   });
 });
 

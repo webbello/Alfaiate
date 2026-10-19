@@ -215,6 +215,13 @@ th {
   background: var(--band);
   font-weight: 600;
 }
+/* On a narrow screen a wide table scrolls inside itself, so the page never scrolls sideways (WCAG 1.4.10). */
+@media (max-width: 48rem) {
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+}
 dl {
   display: grid;
   grid-template-columns: minmax(8rem, max-content) 1fr;
