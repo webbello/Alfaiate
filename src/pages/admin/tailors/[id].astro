@@ -21,6 +21,8 @@ import { listImages } from '../../../modules/media/list';
 import { MAX_IMAGES } from '../../../modules/media/store';
 import { messageFrom } from '../../../modules/tailors/messages';
 import { publishBlockers } from '../../../modules/tailors/publish';
+import Card from '../../../components/admin/Card.astro';
+import { publishChecklist } from '../../../modules/admin-ui/checklist';
 import { VERIFIABLE_FIELDS } from '../../../modules/tailors/verification';
 
 const auth = await requirePermission(Astro, 'tailor.edit');
@@ -53,6 +55,8 @@ const { message, kind, fields, blockers } = messageFrom(Astro.url);
 const currentBlockers = publishBlockers(tailor).map(
   (b) => en.publishBlockers[b],
 );
+const checklist = publishChecklist(tailor);
+const missingCount = checklist.filter((i) => !i.done).length;
 const verified = new Set<string>(
   JSON.parse(tailor.verified_fields) as string[],
 );
@@ -88,9 +92,44 @@ const action = `/admin/tailors/${id}/actions`;
   )}
   {!editable && <p role="note">{en.tailorLocked}</p>}
 
+  {tailor.is_published ? (
+    <Card title="Published" level={2} id="live">
+      <p>
+        This tailor is live.{' '}
+        <a href={`/tailors/${tailor.slug}`}>View the public page</a>
+      </p>
+    </Card>
+  ) : (
+    <Card
+      title="Ready to publish?"
+      level={2}
+      id="checklist"
+      warning={missingCount > 0}
+    >
+      <p>
+        {missingCount === 0
+          ? 'Ready to publish'
+          : `Not ready to publish: ${missingCount} ${missingCount === 1 ? 'thing is' : 'things are'} still missing`}
+      </p>
+      <ul class="checks">
+        {checklist.map((i) => (
+          <li class={`check check--${i.done ? 'done' : 'missing'}`}>
+            <strong>{i.done ? 'Done' : 'Missing'}:</strong> {i.label}
+            {!i.done && (
+              <>
+                {' '}
+                · <a href={i.fixHref}>Fix this</a>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Card>
+  )}
+
   {mayVerify && (
     <>
-      <h2>{en.publishHeading}</h2>
+      <h2 id="publish">{en.publishHeading}</h2>
       {tailor.is_published ? (
         <p>{en.tailorPublished}</p>
       ) : currentBlockers.length > 0 ? (
@@ -195,7 +234,7 @@ const action = `/admin/tailors/${id}/actions`;
 
   {editable && (
     <>
-      <h2>{en.tailorProfileHeading}</h2>
+      <h2 id="profile">{en.tailorProfileHeading}</h2>
       <form method="post" action={action}>
         <input type="hidden" name="csrf" value={auth.csrfToken} />
         <input type="hidden" name="action" value="save_profile" />

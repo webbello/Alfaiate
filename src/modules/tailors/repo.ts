@@ -45,6 +45,9 @@ export type ListRow = Pick<
   | 'is_published'
   | 'permission_recorded'
   | 'home_visits'
+  | 'contact_publish_consent'
+  | 'whatsapp_e164'
+  | 'phone_e164'
 > & { updated_at: string };
 
 export type CreateResult =
@@ -121,7 +124,7 @@ export async function listTailors(
   }
   const { results } = await db
     .prepare(
-      `SELECT id, slug, display_name, status, is_published, permission_recorded, home_visits, updated_at FROM tailor ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY display_name`,
+      `SELECT id, slug, display_name, status, is_published, permission_recorded, home_visits, contact_publish_consent, whatsapp_e164, phone_e164, updated_at FROM tailor ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY display_name`,
     )
     .bind(...binds)
     .all<ListRow>();

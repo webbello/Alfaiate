@@ -25,7 +25,7 @@
   - Verify: contract test unchanged; unit tests for `nextStep` in every state; integration tests that the warning box is owner-only and last, that fees stay hidden from managers, and that anonymised enquiries show the right state; e2e referral journey unchanged; screenshots shown to the owner.
   - Files: `src/pages/admin/enquiries/[id].astro`, `src/modules/admin-ui/next-step.ts`, `src/components/admin/*.astro`, `src/styles/admin.css`, tests
 
-- [ ] **T6 Tailor page checklist, tailors list, empty states**
+- [x] **T6 Tailor page checklist, tailors list, empty states**
   - Acceptance: a publish checklist at the top of the tailor page built from `publishBlockers` (each requirement done or missing, with a link to the field that fixes it, and the reason the Publish button cannot be used yet); the tailors list shows status chips and a "needs attention" count; tailors, categories and areas have empty states with the next step; categories and areas lists get the same card styling.
   - Verify: a test compares the checklist with `publishBlockers` for every blocker and for a ready tailor; integration tests for the empty states and chips; contract test unchanged; publish and permission tests unchanged; mutation checks on one checklist rule and on the chip for unpublished tailors; screenshots shown to the owner.
   - Files: `src/pages/admin/tailors/[id].astro`, `src/pages/admin/tailors.astro`, `src/pages/admin/categories.astro`, `src/pages/admin/areas.astro`, `src/components/admin/Checklist.astro`, tests

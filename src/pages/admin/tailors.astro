@@ -6,6 +6,12 @@ import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { requirePermission } from '../../modules/auth/require';
 import { listTailors } from '../../modules/tailors/repo';
+import EmptyState from '../../components/admin/EmptyState.astro';
+import StatusChip from '../../components/admin/StatusChip.astro';
+import {
+  missingSummary,
+  publishChecklist,
+} from '../../modules/admin-ui/checklist';
 
 const auth = await requirePermission(Astro, 'tailor.edit');
 if (auth instanceof Response) return auth;
@@ -17,6 +23,10 @@ const tailors = await listTailors(
     ? { published: published === '1' }
     : {},
 );
+const notReady = tailors.filter(
+  (t) => !t.is_published && publishChecklist(t).some((i) => !i.done),
+).length;
+const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 ---
 
 <AdminLayout
@@ -34,24 +44,50 @@ const tailors = await listTailors(
     <a href="/admin/tailors?published=1">{en.tailorPublished}</a> ·{' '}
     <a href="/admin/tailors?published=0">{en.tailorNotPublished}</a>
   </p>
-  <table>
-    <thead>
-      <tr>
-        <th>{en.tailorFields.display_name}</th>
-        <th>{en.tailorStatus}</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {tailors.map((t) => (
-        <tr>
-          <td>
-            <a href={`/admin/tailors/${t.id}`}>{t.display_name}</a>
-          </td>
-          <td>{t.status}</td>
-          <td>{t.is_published ? en.tailorPublished : en.tailorNotPublished}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
+  {tailors.length === 0 && (
+    <EmptyState title="No tailors yet">
+      <p>
+        Add the first tailor, then follow the checklist on their page to
+        publish.
+      </p>
+      <p>
+        <a class="button-link" href="/admin/tailors/new">
+          {en.tailorNew}
+        </a>
+      </p>
+    </EmptyState>
+  )}
+  {tailors.length > 0 && (
+    <>
+      <p>Not ready to publish: {notReady}</p>
+      <table>
+        <thead>
+          <tr>
+            <th>{en.tailorFields.display_name}</th>
+            <th>{en.tailorStatus}</th>
+            <th>Publishing</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tailors.map((t) => (
+            <tr>
+              <td>
+                <a href={`/admin/tailors/${t.id}`}>{t.display_name}</a>
+              </td>
+              <td>
+                <StatusChip state={t.status} label={label(t.status)} />
+              </td>
+              <td>
+                {t.is_published ? (
+                  <StatusChip state="published" label={en.tailorPublished} />
+                ) : (
+                  <small>{missingSummary(t)}</small>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  )}
 </AdminLayout>

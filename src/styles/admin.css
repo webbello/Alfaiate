@@ -489,3 +489,18 @@ details[open] > summary {
   border-bottom: 1px solid var(--line);
   margin-bottom: 0.5rem;
 }
+
+.checks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.check {
+  padding: 0.35rem 0;
+}
+.check--done strong {
+  color: #1d5c2e;
+}
+.check--missing strong {
+  color: #8a1c1c;
+}
