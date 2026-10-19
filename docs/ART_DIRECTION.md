@@ -1,6 +1,10 @@
-# Art direction (Phase 7c)
+# Art direction (Phases 7c and 7d)
 
 Status: built in Phase 7c (T1-T9); copy and motifs still need the owner's approval. Spec: [SPEC-phase-7c.md](SPEC-phase-7c.md). All copy is a draft marked REVIEW until the owner approves it (BR-11).
+
+## Phase 7d update
+
+The owner supplied a reference image for the home page; Phase 7d recreates it. Palette (tokens in `site.css`): ivory #f8f6f0, white, cream #f1ece2, charcoal #242622, olive #69745b, forest #35483b, terracotta #a45f44 (reference #b66d50 kept for decoration only, darkened for AA text), muted #66685f, border #e7e4dc. Type: Playfair Display (as "Alfaiate Display") for headings, Allura (as "Alfaiate Script") for the handwritten notes, system sans for everything else. Photos: credited Unsplash scenes in `public/images/site` (never on tailor cards). Motion: hover zoom, arrow nudge, CSS 3D tilt on service cards and the craft tiles, scroll-driven reveals, all off under reduced motion. The sections below describe Phase 7c; where they differ, this section wins.
 
 ## Idea
 

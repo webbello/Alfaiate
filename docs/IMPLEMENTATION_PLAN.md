@@ -106,6 +106,13 @@ No web fonts, no third-party requests; JavaScript only on a profile with contact
 - **Status (2026-10-19):** built T1-T9; T10 (reviews, fresh clone, owner sign-off) in progress. The join form ships switched off (`JOIN_ENABLED`) until the owner approves its wording (OQ-08).
 - **Measured after T9 (2026-10-19), median of 5 runs, 375 px, 4x CPU slowdown, 1.6 Mbps, 750 ms RTT, empty cache:** home 3 requests, HTML 2.8 KB transfer (6.8 decoded), CSS 4.7 (14.4), LCP 1600 ms; directory 2.7 KB CSS transfer (9.0 decoded), LCP 1584 ms; category, profile and request LCP 1576 to 1580 ms with the 18.6 KB display font loading after first paint (`font-display: swap`). Before Phase 7c the LCP was about 1588 ms, so the redesign did not move it on this profile. Budgets, uncompressed bytes (measurement plus about 20%): HTML home 7800, directory 4700, category 3400, profile 5400, request 8200, how it works 4400, join 4600; CSS 11000 per page and 17600 on the home page (site plus story sheet); admin CSS 8200; JS 400. The font is capped at 30 KB in `font.test.ts`. The home page is the heaviest page by design; it is still one request for HTML plus two small CSS files and no images.
 
+## Phase 7d — Reference-design home page and missing public workflows (added 2026-10-19)
+
+- **Objective:** match the owner's reference home page (layout, palette, type, imagery, motion) and add the workflows it implies.
+- **Deliverables:** tokens, fonts, credited scene photos; header, footer, ten home sections as components; directory search; Contact; business enquiries (FR-ENQ-09); gated newsletter (FR-PUB-08).
+- **Status (2026-10-19):** built in five commits; reviews and owner sign-off pending. No separate spec (owner chose to build straight away); decisions in DECISIONS.md.
+- **Measured budgets:** see `tests/integration/budgets.test.ts` (home HTML 27700 incl. the footer form, CSS 17900, home CSS 33000, JS 900).
+
 ## Phase 8 — Deployment and initial pilot
 
 - **Objective:** go live with a small set of real tailors and learn.

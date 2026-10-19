@@ -26,7 +26,7 @@ npm run db:demo:remove           # deletes exactly those rows (slug prefix demo-
 
 The scripts take no options and always use `--local`; they cannot reach a remote database.
 
-Optional: set `JOIN_ENABLED=true` to switch on the public "Join as a tailor" form (it is off by default until the owner approves its wording, OQ-08), and `SITE_WHATSAPP` in `.dev.vars` (and as a Worker variable at deploy) to show a WhatsApp button in the phone quick-action bar; without it the button is simply not shown (OQ-06). The public "Join as a tailor" form is at `/join`; the people who used it are listed at `/admin/interest`.
+Optional: set `NEWSLETTER_ENABLED=true` to switch on the footer "Stay updated" sign-up (off by default: no sender yet, OQ-06, and the Privacy text must cover it, OQ-08; addresses are listed at `/admin/newsletter`). Set `JOIN_ENABLED=true` to switch on the public "Join as a tailor" form (it is off by default until the owner approves its wording, OQ-08), and `SITE_WHATSAPP` in `.dev.vars` (and as a Worker variable at deploy) to show a WhatsApp button in the phone quick-action bar; without it the button is simply not shown (OQ-06). The public "Join as a tailor" form is at `/join`; the people who used it are listed at `/admin/interest`.
 
 ## Check before finishing any change
 
