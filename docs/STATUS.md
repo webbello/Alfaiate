@@ -2,7 +2,7 @@
 
 Update this file at the end of every working session. Keep it short.
 
-- **Current phase:** Phase 4 built (2026-10-19): tasks T1-T11 done and committed; T12 (reviewers, fresh-clone check, manual phone look) in progress. Next: Phase 5 (enquiry form) — write its spec first.
+- **Current phase:** Phase 4 complete (2026-10-19): T1-T12 done, reviewed (privacy-scope, docs-sync, security audit) and fixed. Next: Phase 5 (enquiry form) — write its spec first.
 - **Done:** docs, agent setup; Phase 1 skeleton; Phase 2 (schema, auth, RBAC, sessions, headers, user management, owner scripts); Phase 3 admin side (categories and areas, tailor profiles with edit lock, categories/prices/areas/notes, approval and publishing with reasons, verified facts, owner-only fee terms, photo upload with server validation, permission-gated public image route); Phase 4 public site (bilingual home, directory with filters, category and profile pages, static pages, SEO head, sitemap, robots, contact tap counter, Playwright and axe suite).
 - **Check command:** `npm run check` = lint + typecheck + unit/D1 tests + build + integration tests. `npm run test:e2e` (browser and axe) is separate and not part of `check`.
 - **Blocked on owner:** nothing blocks Phase 5. Before launch: a native-speaker review of the Tetum text (production keeps `PUBLIC_LANGUAGES=en` until then); Privacy and Terms text (OQ-08) and approval of How it works and About before their `reviewed` flag is set; the real domain for `SITE_URL` (OQ-11/AD-08). Later: OQ-10 (real categories and areas; placeholders until then), OQ-06 (notification channel, Phase 5), OQ-08/09 (privacy text, retention, Phases 5/8), OQ-03/04 (fee model, Phase 6).

@@ -194,6 +194,19 @@ describe('recordContactClick (ANA-02, M6)', () => {
     );
   });
 
+  it('still limits taps when no client address is available (shared bucket)', async () => {
+    const t = await tailor();
+    let last = 'recorded';
+    for (let i = 0; i <= CLICK_LIMIT; i++)
+      last = await recordContactClick(
+        db,
+        { slug: t.slug, channel: 'phone' },
+        undefined,
+        T0,
+      );
+    expect(last).toBe('limited');
+  });
+
   it('limits one address to a fixed number of taps per hour, without affecting others', async () => {
     const t = await tailor();
     const busy = '192.0.2.200';

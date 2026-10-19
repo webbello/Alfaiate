@@ -9,6 +9,15 @@ const PORT = 8799;
 const state = mkdtempSync(join(tmpdir(), 'alfaiate-e2e-'));
 const wrangler = (args) =>
   spawnSync('npx', ['wrangler', ...args], { stdio: 'inherit' });
+if (
+  await fetch(`http://localhost:${PORT}`).then(
+    () => true,
+    () => false,
+  )
+) {
+  console.error(`Port ${PORT} is already in use; stop that server first.`);
+  process.exit(1);
+}
 let server;
 const stop = () => {
   server?.kill('SIGTERM');

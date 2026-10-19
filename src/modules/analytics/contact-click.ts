@@ -24,9 +24,12 @@ export async function recordContactClick(
     return 'invalid';
 
   if (
-    address &&
-    (await hit(db, `contact-click:${ipBucket(address)}`, WINDOW_SECONDS, now)) >
-      CLICK_LIMIT
+    (await hit(
+      db,
+      `contact-click:${address ? ipBucket(address) : 'unknown'}`,
+      WINDOW_SECONDS,
+      now,
+    )) > CLICK_LIMIT
   )
     return 'limited';
 

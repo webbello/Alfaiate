@@ -55,7 +55,7 @@
   - Verify: the suite passes; a deliberately broken page (missing label or low contrast) makes it fail once, then is reverted; any fallback to the Astro dev server is recorded.
   - Files: `package.json`, `playwright.config.ts`, `e2e/seed.sql`, `e2e/run.mjs`, `e2e/journey.spec.ts`, `e2e/a11y.spec.ts`
 
-- [ ] **T12 Docs, reviewers, security audit, fresh clone, manual look**
+- [x] **T12 Docs, reviewers, security audit, fresh clone, manual look**
   - Acceptance: README, STATUS, DECISIONS, ARCHITECTURE §5 and §7, SPEC deviations updated; `privacy-scope-reviewer`, `docs-sync` and `security-auditor` run with no unresolved blockers; one manual look at phone size recorded; Tetum review gate and launch checklist item written down.
   - Verify: `npm ci && npm run check` from a fresh clone and `npm run test:e2e`; `git ls-files` has no secrets, databases or photos.
   - Files: `README.md`, `docs/STATUS.md`, `docs/DECISIONS.md`, `docs/ARCHITECTURE.md`, `AGENTS.md` (lessons)
