@@ -23,7 +23,7 @@ const phone = z
   });
 
 /** True for a real calendar date; `new Date` throws RangeError on out-of-range months, so check first. */
-function isRealDate(d: string): boolean {
+export function isRealDate(d: string): boolean {
   const time = Date.parse(`${d}T00:00:00Z`);
   return !Number.isNaN(time) && new Date(time).toISOString().startsWith(d);
 }

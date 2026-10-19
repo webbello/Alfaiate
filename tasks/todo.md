@@ -20,8 +20,8 @@
   - Verify: D1 tests: bad phone, long fields, duplicate names get distinct slugs, slug frozen after publish, edit-lock for each role x published state; mutation check on the lock.
   - Files: `src/modules/tailors/schemas.ts`, `src/modules/tailors/repo.ts`, `tests/workers/tailors-repo.test.ts`
 
-- [ ] **T5 Tailor categories, prices, areas and notes**
-  - Acceptance: set a tailor's categories with optional price from/to (dollars in, cents stored), unit note, source (`verified` only with `tailor.publish`), date confirmed; set shop-location and serves areas (active ones only for new links); add and list internal notes; all respect the edit lock.
+- [x] **T5 Tailor categories, prices, areas and notes**
+  - Acceptance: set a tailor's categories with optional price from/to (dollars in, cents stored), unit note, source (`verified` only with `tailor.publish`), date confirmed; set shop-location and serves areas (active ones only for new links); add and list internal notes; categories, prices and areas respect the edit lock; internal notes do not (a note changes nothing the public sees).
   - Verify: D1 tests: dollars to cents, inverted range refused, `verified` refused for editors, inactive category refused for new link but kept for existing, notes ordering, lock applies.
   - Files: `src/modules/tailors/links.ts`, `src/modules/tailors/notes.ts`, `tests/workers/tailors-links.test.ts`, `tests/workers/tailors-notes.test.ts`
 
