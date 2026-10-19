@@ -1,6 +1,6 @@
 # Spec: Phase 7c — Public site art direction and conversion
 
-Status: DRAFT for owner approval (2026-10-19) · Not in the original [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md): requested by the owner; on approval insert as Phase 7c between 7b and Phase 8 · Related: PRD §5, §7.3, BR-01..BR-11, FR-PUB-*, FR-DIR-*, FR-PRO-*, FR-ENQ-*, NFR-A11Y-01, NFR-PERF-01, NFR-I18N-01
+Status: Approved 2026-10-19 (all seven open-question defaults accepted) · Not in the original [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md): requested by the owner; inserted as Phase 7c between 7b and Phase 8 · Related: PRD §5, §7.3, BR-01..BR-11, FR-PUB-*, FR-DIR-*, FR-PRO-*, FR-ENQ-*, NFR-A11Y-01, NFR-PERF-01, NFR-I18N-01
 
 **Owner answers (2026-10-19):** "fast enrollment" means both a faster customer request and a small tailor "Join us" interest form; imagery is both illustrated CSS/SVG art now and photo slots for later; one self-hosted subset display serif; Phase 7c before Phase 8.
 

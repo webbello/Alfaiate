@@ -95,6 +95,15 @@ No web fonts, no third-party requests; JavaScript only on a profile with contact
 - **Acceptance:** behaviour unchanged (all earlier tests pass); axe clean on every admin page; owner sign-off after a click-through.
 - **Tests:** a contract test that every admin page keeps its forms, fields and links; component, helper and integration tests; Playwright journeys and reflow; byte budget for the admin stylesheet.
 
+## Phase 7c — Public site art direction and conversion (added 2026-10-19)
+
+- **Objective:** a fashion-editorial, story-led public site that converts visitors into requests and tailor interest, fast on weak phones.
+- **Dependencies:** Phase 7b (owner sign-off). Spec: [SPEC-phase-7c.md](SPEC-phase-7c.md).
+- **Deliverables:** art direction and tokens; one self-hosted display serif; redesigned shell, home story (CSS 3D swatch, pattern steps, tape-measure illustration), directory, profile and static pages; two-step request; tailor interest form `/join` with admin list (no accounts or profiles); motion and reduced-motion rules; measured budgets.
+- **Requirements:** no change to FR-ENQ, BR-06/07/08/11; new FR-JOIN-* added to the PRD in T7; NFR-A11Y-01 and NFR-PERF-01 kept.
+- **Acceptance:** behaviour of existing flows unchanged; axe clean in both languages; reduced-motion and no-JavaScript runs pass; budgets met; owner sign-off.
+- **Tests:** consent, honeypot and permission tests for `/join`; contrast test for tokens; Playwright for motion, reflow and keyboard; `npm run perf` before and after.
+
 ## Phase 8 — Deployment and initial pilot
 
 - **Objective:** go live with a small set of real tailors and learn.
