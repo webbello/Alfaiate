@@ -10,3 +10,5 @@ SITE_URL=http://localhost:4321
 SITE_INDEXABLE=false
 # Optional: the owner WhatsApp number for the quick-action bar on phones (OQ-06). Without it the WhatsApp button is simply not shown.
 # SITE_WHATSAPP=+670XXXXXXXX
+# The tailor "Join us" form is off until the owner approves its consent wording and the Privacy text (OQ-08). Set to true to try it locally.
+JOIN_ENABLED=false

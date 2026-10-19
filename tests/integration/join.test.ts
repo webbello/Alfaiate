@@ -159,21 +159,24 @@ describe('admin list (FR-JOIN-03)', () => {
     ).meta.last_row_id as number;
     return { id, ref };
   };
-  it('is closed to anonymous visitors and to roles without tailor.edit, and open to the others', async () => {
+  it('is closed to anonymous visitors and to editors and viewers (customer-facing data stays with the owner and managers), and open to managers and the owner', async () => {
     expect((await get('/admin/interest')).status).toBe(302);
     expect((await get('/admin/interest', await signIn('viewer'))).status).toBe(
       403,
     );
-    for (const role of ['editor', 'manager', 'owner'])
+    expect((await get('/admin/interest', await signIn('editor'))).status).toBe(
+      403,
+    );
+    for (const role of ['manager', 'owner'])
       expect(
         (await get('/admin/interest', await signIn(role))).status,
         role,
       ).toBe(200);
   });
-  it('lists records with details for editors, but only the owner gets the remove form', async () => {
+  it('lists records with details for managers, but only the owner gets the remove form', async () => {
     const { id, ref } = await addRow('List Name Fake');
     const editor = await (
-      await get('/admin/interest', await signIn('editor'))
+      await get('/admin/interest', await signIn('manager'))
     ).text();
     expect(editor).toContain('List Name Fake');
     expect(editor).toContain('+67077123456');

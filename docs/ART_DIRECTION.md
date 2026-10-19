@@ -1,6 +1,6 @@
 # Art direction (Phase 7c)
 
-Status: draft, grows with each Phase 7c task. Spec: [SPEC-phase-7c.md](SPEC-phase-7c.md). All copy is a draft marked REVIEW until the owner approves it (BR-11).
+Status: built in Phase 7c (T1-T9); copy and motifs still need the owner's approval. Spec: [SPEC-phase-7c.md](SPEC-phase-7c.md). All copy is a draft marked REVIEW until the owner approves it (BR-11).
 
 ## Idea
 
@@ -24,7 +24,7 @@ Every pair used is tested for WCAG AA 4.5:1 (`tests/integration/contrast.test.ts
 
 ## Type
 
-Display: Instrument Serif (SIL OFL, owner's pick 2026-10-19), Latin subset, 18.8 KB WOFF2 at `public/fonts/instrument-serif-regular.woff2` with `public/fonts/OFL.txt`; regular weight only, `font-display: swap`, system serif fallback; used for headings, numerals and pull quotes only. The italic (19.8 KB) is not shipped; add it only if a pull quote needs it. Subset made with fonttools (Latin, Latin-1, general punctuation), kept out of the project dependencies. Body: system sans for speed. Scale and spacing are set in T2 onward.
+Display: Instrument Serif (SIL OFL, owner's pick 2026-10-19), Latin subset, 18.8 KB WOFF2 at `public/fonts/instrument-serif-regular.woff2` with `public/fonts/OFL.txt`; regular weight only, `font-display: swap`, system serif fallback; used for headings, numerals and pull quotes only. The italic (19.8 KB) is not shipped; add it only if a pull quote needs it. Subset made with fonttools (Latin, Latin-1, general punctuation), kept out of the project dependencies. Body: system sans for speed. Scale and spacing are in `site.css`.
 
 ## Motion and 3D
 
@@ -33,6 +33,10 @@ CSS only. Decorative pieces (swatch, tape measure, pattern pieces, stitch) are `
 ## Motifs
 
 Abstract geometry only, inspired by the rhythm of woven borders; nothing named or copied from a specific cloth. The owner reviews before use.
+
+## As built
+
+Hero swatch (three cloth layers, tape, running stitch), pattern-piece steps, tape-measure explainer (native `<details>`, five points: shoulder, chest, waist, inseam, sleeve), garment swatches that tilt on hover or focus, a woven-border motif made of two crossed diagonal lines, indigo trust block, editorial static pages. When a listing has no permitted photo, an illustrated swatch (three looks, stable per tailor) stands in; real photos appear only where permission is recorded. Measured budgets are in `tests/integration/budgets.test.ts` and `IMPLEMENTATION_PLAN.md` (Phase 7c).
 
 ## Copy rules
 

@@ -38,7 +38,7 @@ export const ADMIN_ROUTES: readonly {
   {
     file: 'interest.astro',
     path: '/admin/interest',
-    permission: 'tailor.edit',
+    permission: 'enquiry.view',
     methods: ['GET'],
   },
   {

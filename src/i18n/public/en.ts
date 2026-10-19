@@ -106,7 +106,7 @@ export const en = {
     },
     ask: {
       heading: 'Ready to ask?',
-      body: 'Tell us what you need and where you are. We will introduce you to a tailor.',
+      body: 'Tell us what you need and where you are. With your consent, we will pass your request to a tailor.',
       button: 'Ask for a tailor',
     },
   },

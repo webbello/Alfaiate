@@ -1,6 +1,6 @@
 import { env } from 'cloudflare:workers';
 import type { Lang } from '../../i18n/lang';
-import { formSecret, requireBindings } from '../config';
+import { formSecret, joinEnabled, requireBindings } from '../config';
 import { showJoinForm, submitJoinForm, type Outcome } from './submit';
 
 /** What the join pages share between English and Tetum; mirrors runRequestPage (method check, Origin check, bindings). */
@@ -8,6 +8,8 @@ export async function runJoinPage(
   request: Request,
   lang: Lang,
 ): Promise<Outcome | Response> {
+  if (!joinEnabled(env as { JOIN_ENABLED?: string }))
+    return new Response('Not found', { status: 404 });
   if (
     request.method !== 'GET' &&
     request.method !== 'POST' &&

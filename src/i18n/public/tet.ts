@@ -110,7 +110,7 @@ export const tet: Dictionary = {
     },
     ask: {
       heading: 'Prontu atu husu?',
-      body: 'Hatete mai ami saida mak ita presiza no ita iha ne’ebé. Ami sei aprezenta ita ba alfaiate ida.',
+      body: 'Hatete mai ami saida mak ita presiza no ita iha ne’ebé. Ho ita-nia konsentimentu, ami sei haruka ita-nia pedidu ba alfaiate ida.',
       button: 'Husu alfaiate',
     },
   },

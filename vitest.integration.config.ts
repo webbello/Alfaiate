@@ -13,6 +13,7 @@ export default defineConfig({
           PUBLIC_LANGUAGES: 'en,tet',
           FORM_TOKEN_SECRET: 'integration-form-secret-0123456789',
           SITE_INDEXABLE: 'true',
+          JOIN_ENABLED: 'true',
           SITE_URL: 'https://alfaiate-tl.example',
         },
       },

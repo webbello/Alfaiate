@@ -30,7 +30,6 @@ describe('navLinks (the header bar of every admin page)', () => {
       'tailors',
       'categories',
       'areas',
-      'interest',
       'account',
     ]);
     expect(keys('viewer')).toEqual(['dashboard', 'account']);

@@ -61,3 +61,7 @@ export function formSecret(env: { FORM_TOKEN_SECRET?: string }): string {
 export function siteWhatsapp(env: { SITE_WHATSAPP?: string }): string | null {
   return env.SITE_WHATSAPP ? normalisePhone(env.SITE_WHATSAPP) : null;
 }
+
+/** The tailor interest form stays off until the owner has approved its consent wording and the Privacy text (OQ-08). Exactly "true" turns it on; anything else is off. */
+export const joinEnabled = (env: { JOIN_ENABLED?: string }): boolean =>
+  env.JOIN_ENABLED === 'true';

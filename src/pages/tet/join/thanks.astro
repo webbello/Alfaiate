@@ -2,8 +2,12 @@
 export const prerender = false;
 import JoinThanks from '../../../views/JoinThanks.astro';
 import { joinReferenceParam } from '../../../modules/interest/page';
+import { env } from 'cloudflare:workers';
+import { joinEnabled } from '../../../modules/config';
 import { pathFor } from '../../../i18n/lang';
 
+if (!joinEnabled(env as { JOIN_ENABLED?: string }))
+  return new Response('Not found', { status: 404 });
 const reference = joinReferenceParam(Astro.url);
 if (!reference) return Astro.redirect(pathFor('tet', '/join'), 303);
 Astro.response.headers.set('Cache-Control', 'no-store');

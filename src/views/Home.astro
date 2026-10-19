@@ -3,7 +3,7 @@ import { env } from 'cloudflare:workers';
 import PublicLayout from '../layouts/PublicLayout.astro';
 import { dictionary } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
-import { requireBindings, siteConfig } from '../modules/config';
+import { joinEnabled, requireBindings, siteConfig } from '../modules/config';
 import { websiteJsonLd } from '../modules/seo/jsonld';
 import Swatch3D from '../components/story/Swatch3D.astro';
 import TapeMeasure from '../components/story/TapeMeasure.astro';
@@ -138,13 +138,15 @@ const categories = await listActiveCategories(requireBindings(env).DB, {
       </a>
     </p>
   </section>
-  <section class="tailor-invite" aria-labelledby="tailors">
-    <h2 id="tailors">{t.join.banner.heading}</h2>
-    <p>{t.join.banner.body}</p>
-    <p>
-      <a class="button button--secondary" href={pathFor(lang, '/join')}>
-        {t.join.banner.link}
-      </a>
-    </p>
-  </section>
+  {joinEnabled(env as { JOIN_ENABLED?: string }) && (
+    <section class="tailor-invite" aria-labelledby="tailors">
+      <h2 id="tailors">{t.join.banner.heading}</h2>
+      <p>{t.join.banner.body}</p>
+      <p>
+        <a class="button button--secondary" href={pathFor(lang, '/join')}>
+          {t.join.banner.link}
+        </a>
+      </p>
+    </section>
+  )}
 </PublicLayout>

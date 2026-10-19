@@ -83,6 +83,8 @@ export async function startWorker() {
         '--var',
         'SITE_INDEXABLE:true', // as in production, so structured data and social tags are on the pages that are measured and checked
         '--var',
+        'JOIN_ENABLED:true', // the interest form is off by default (OQ-08); the browser tests exercise it
+        '--var',
         `FORM_TOKEN_SECRET:${randomUUID()}${randomUUID()}`,
         '--var',
         `SITE_URL:${url}`,

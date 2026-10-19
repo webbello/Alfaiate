@@ -4,7 +4,7 @@ import { ORIGIN, get, unique } from './helpers';
 import { worker } from './worker';
 
 // NFR-PERF-01: byte budgets for the pages the pilot cares about, measured on a fixed dataset below. Budgets are what `npm run perf` measured
-// plus about 20% headroom (see IMPLEMENTATION_PLAN.md, Phase 7). Sizes are uncompressed bytes, which do not vary from run to run.
+// plus about 20% headroom (see IMPLEMENTATION_PLAN.md, Phases 7 and 7c). Sizes are uncompressed bytes, which do not vary from run to run.
 const db = env.DB;
 const assetsOf = async (html: string, pattern: RegExp) => {
   let total = 0;

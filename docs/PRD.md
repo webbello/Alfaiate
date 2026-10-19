@@ -175,7 +175,7 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 
 ### 7.3 Explicitly excluded from the MVP
 
-Customer accounts; tailor self-service registration or dashboards; booking calendars/real-time availability; online payments, escrow, holding funds; in-app chat; automatic dispatch/matching; delivery fleet; production management; fabric inventory; automated commission collection; native apps; AI recommendations; ratings and reviews. Unrequested extras (loyalty, coupons, blogs, marketplaces) are also out of scope.
+Customer accounts; tailor self-service registration or dashboards (the Phase 7c interest form, FR-JOIN-01..03, is not registration: it creates no account, profile or listing); booking calendars/real-time availability; online payments, escrow, holding funds; in-app chat; automatic dispatch/matching; delivery fleet; production management; fabric inventory; automated commission collection; native apps; AI recommendations; ratings and reviews. Unrequested extras (loyalty, coupons, blogs, marketplaces) are also out of scope.
 
 ### 7.4 Future enhancements (not designed here)
 

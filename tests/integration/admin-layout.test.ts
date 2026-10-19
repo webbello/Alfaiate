@@ -90,7 +90,6 @@ describe('the admin header bar', () => {
       '/admin/tailors',
       '/admin/categories',
       '/admin/areas',
-      '/admin/interest',
       '/admin/account',
     ]);
     expect(await hrefs('viewer')).toEqual(['/admin', '/admin/account']);

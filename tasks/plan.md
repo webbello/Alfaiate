@@ -2,7 +2,7 @@
 
 Spec: [docs/SPEC-phase-7c.md](../docs/SPEC-phase-7c.md) (approved 2026-10-19, all open-question defaults accepted). Tasks: [todo.md](todo.md). Phase 7b plan is in git history (before this commit).
 
-**Carried over:** Phase 7b T9 is not finished: the owner's click-through and sign-off are pending (reviews, fresh clone, e2e and perf already passed). Phase 7c does not start building until the owner says 7b is signed off or says to go ahead anyway.
+**Carried over:** Phase 7b T9 is not finished: the owner's click-through and sign-off are pending (reviews, fresh clone, e2e and perf already passed). The owner said to go ahead with 7c on 2026-10-19; 7b T9 stays open.
 
 ## Order and dependencies
 

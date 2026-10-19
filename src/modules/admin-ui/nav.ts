@@ -53,7 +53,7 @@ const ALL: NavLink[] = [
     key: 'interest',
     href: '/admin/interest',
     label: en.adminNavInterest,
-    permission: 'tailor.edit',
+    permission: 'enquiry.view',
   },
   {
     key: 'users',

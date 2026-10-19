@@ -1,6 +1,6 @@
 # Spec: Phase 7c — Public site art direction and conversion
 
-Status: Approved 2026-10-19 (all seven open-question defaults accepted) · Not in the original [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md): requested by the owner; inserted as Phase 7c between 7b and Phase 8 · Related: PRD §5, §7.3, BR-01..BR-11, FR-PUB-*, FR-DIR-*, FR-PRO-*, FR-ENQ-*, NFR-A11Y-01, NFR-PERF-01, NFR-I18N-01
+Status: Approved 2026-10-19 (all seven open-question defaults accepted); built T1-T9, T10 in progress · Not in the original [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md): requested by the owner; inserted as Phase 7c between 7b and Phase 8 · Related: PRD §5, §7.3, BR-01..BR-11, FR-PUB-*, FR-DIR-*, FR-PRO-*, FR-ENQ-*, NFR-A11Y-01, NFR-PERF-01, NFR-I18N-01
 
 **Owner answers (2026-10-19):** "fast enrollment" means both a faster customer request and a small tailor "Join us" interest form; imagery is both illustrated CSS/SVG art now and photo slots for later; one self-hosted subset display serif; Phase 7c before Phase 8.
 
@@ -137,7 +137,9 @@ T1 art direction doc, tokens, type scale, font and palette contrast tests · T2 
 - The tape measure is native `<details>` (keyboard-operable, no script) rather than hover points on a drawn tape.
 - The tailor invitation banner lives on the home page; the final-call section links to the request page rather than embedding its first step (the request page itself is two steps).
 - Sticky bar is hidden on request and legal pages; WhatsApp in it needs `SITE_WHATSAPP` (OQ-06).
-- Budgets are set from measurements after the build, as the spec said they would be.
+- Budgets are set from measurements after the build, as the spec said they would be. Budgets as enforced: see IMPLEMENTATION_PLAN.md Phase 7c (home HTML 7800, CSS 11000, home CSS 17600 including the story sheet, JS 400, join HTML 4600); the figures in this spec were placeholders.
+- `/join` ships off by default (`JOIN_ENABLED` exactly `true` turns it on) because the consent wording and Privacy text are the owner's (OQ-08); the home invitation is hidden with it. `/admin/interest` needs `enquiry.view` (owner and manager), not `tailor.edit`, so editors do not see tailors' details.
+- The spec names no callback promise: `/join` says "we will contact you" and promises no timing (OQ-05).
 
 ## Open questions
 
