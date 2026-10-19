@@ -1,6 +1,6 @@
 # Spec: Phase 5 — Enquiry and doorstep request workflow
 
-Status: Draft for approval · Source: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 5 · [PRD.md](PRD.md) §7.2, FR-ENQ, FR-ADM-06/07/08, SEC-05/07, PRV-01/02/03 · [ARCHITECTURE.md](ARCHITECTURE.md) §4, 7, 10 · [DATA_MODEL.md](DATA_MODEL.md) §3.7, 3.9
+Status: Approved 2026-10-19 (all five open-question defaults accepted) · Source: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) Phase 5 · [PRD.md](PRD.md) §7.2, FR-ENQ, FR-ADM-06/07/08, SEC-05/07, PRV-01/02/03 · [ARCHITECTURE.md](ARCHITECTURE.md) §4, 7, 10 · [DATA_MODEL.md](DATA_MODEL.md) §3.7, 3.9
 
 **Requirements:** FR-ENQ-01–06, FR-ENQ-08 (adapter only, see decision 1), FR-ADM-06/07/08, SEC-05, SEC-07, PRV-01/02/03, BR-03/07/08, ANA-03. **Acceptance:** AC-06, AC-07, AC-08, AC-11, and the enquiry part of AC-15.
 **Owner answers for this phase** (2026-10-19, to be logged in [DECISIONS.md](DECISIONS.md) on approval): notification = adapter built, no real sender yet; no Turnstile in Phase 5; no reference images (FR-ENQ-07 left out); neutral wording for response time (OQ-05) and retention (OQ-09).
