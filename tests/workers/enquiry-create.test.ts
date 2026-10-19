@@ -144,13 +144,13 @@ describe('createEnquiry (FR-ENQ-04, PRV-03, AC-07)', () => {
     expect(always).toEqual({ ok: false });
   });
 
-  it('reports failure and creates nothing when the database fails', async () => {
+  it('reports failure at once (no retry) and creates nothing when the database fails', async () => {
     const before = await count();
+    let calls = 0;
     const broken = {
-      prepare: () => {
-        throw new Error('db down');
-      },
+      prepare: () => ({ bind: () => ({}) }),
       batch: async () => {
+        calls++;
         throw new Error('db down');
       },
     } as unknown as D1Database;
@@ -162,6 +162,7 @@ describe('createEnquiry (FR-ENQ-04, PRV-03, AC-07)', () => {
         now: NOW,
       }),
     ).toEqual({ ok: false });
+    expect(calls).toBe(1);
     expect(await count()).toBe(before);
   });
 
