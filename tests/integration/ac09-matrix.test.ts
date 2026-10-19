@@ -71,6 +71,11 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     body: 'matrix note',
   }),
   '/admin/tailors/[id]/publish': (csrf) => ({ csrf, action: 'approve' }),
+  '/admin/tailors/[id]/fees': (csrf) => ({
+    csrf,
+    fee_terms_text: 'matrix terms',
+    fee_terms_agreed_on: '2026-01-01',
+  }),
   '/admin/users/actions': (csrf) => ({
     csrf,
     action: 'create',

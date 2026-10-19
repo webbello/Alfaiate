@@ -45,7 +45,7 @@
   - Verify: unit tests for every blocker combination; D1 test that the database CHECK also refuses; publish then unpublish moves images between buckets; editor refused; unknown verified field refused; mutation check on each blocker. Endpoint `/admin/tailors/[id]/publish` (`tailor.publish`) with integration role matrix and CSRF.
   - Files: `src/modules/tailors/publish.ts`, `src/pages/admin/tailors/[id]/publish.ts`, `src/pages/admin/tailors/[id].astro`, `tests/workers/publish.test.ts`, `tests/integration/publish.test.ts`
 
-- [ ] **T10 Fee terms (owner only)**
+- [x] **T10 Fee terms (owner only)**
   - Acceptance: fee terms text and agreed date editable at `/admin/tailors/[id]/fees` (`fee.view`); the section appears on the tailor page only for roles with `fee.view`; audited.
   - Verify: integration matrix: owner ok; manager, editor, viewer 403; page HTML for a manager contains no fee text; CSRF refusal.
   - Files: `src/pages/admin/tailors/[id]/fees.ts`, `src/pages/admin/tailors/[id].astro`, `src/modules/tailors/repo.ts`, `tests/integration/fees.test.ts`

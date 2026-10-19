@@ -306,6 +306,36 @@ const action = `/admin/tailors/${id}/actions`;
     </>
   )}
 
+  {can(auth.role, 'fee.view') && (
+    <>
+      <h2>{en.feeHeading}</h2>
+      <form method="post" action={`/admin/tailors/${id}/fees`}>
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <p>
+          <label for="fee_terms_text">{en.feeTerms}</label>
+          <br />
+          <textarea
+            id="fee_terms_text"
+            name="fee_terms_text"
+            maxlength="2000"
+            rows="3"
+          >{tailor.fee_terms_text ?? ''}</textarea>
+        </p>
+        <p>
+          <label for="fee_terms_agreed_on">{en.feeAgreedOn}</label>
+          <br />
+          <input
+            id="fee_terms_agreed_on"
+            name="fee_terms_agreed_on"
+            type="date"
+            value={tailor.fee_terms_agreed_on ?? ''}
+          />
+        </p>
+        <button type="submit">{en.feeSave}</button>
+      </form>
+    </>
+  )}
+
   <h2>{en.tailorNotesHeading}</h2>
   <form method="post" action={action}>
     <input type="hidden" name="csrf" value={auth.csrfToken} />
