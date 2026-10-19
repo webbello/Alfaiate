@@ -1,4 +1,5 @@
 import { enabledLanguages, type Lang } from '../../i18n/lang';
+import { isIndexable } from '../seo/indexable';
 
 export class ConfigError extends Error {}
 
@@ -18,7 +19,8 @@ export function requireBindings(env: Partial<Bindings>): Bindings {
 export function siteConfig(env: {
   SITE_URL?: string;
   PUBLIC_LANGUAGES?: string;
-}): { siteUrl: string; languages: Lang[] } {
+  SITE_INDEXABLE?: string;
+}): { siteUrl: string; languages: Lang[]; indexable: boolean } {
   let url: URL;
   try {
     url = new URL(env.SITE_URL ?? '');
@@ -41,6 +43,7 @@ export function siteConfig(env: {
   return {
     siteUrl: url.origin,
     languages: enabledLanguages(env.PUBLIC_LANGUAGES),
+    indexable: isIndexable(env.SITE_INDEXABLE),
   };
 }
 

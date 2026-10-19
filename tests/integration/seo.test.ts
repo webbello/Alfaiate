@@ -126,3 +126,15 @@ describe('robots.txt', () => {
     expect(text).not.toMatch(/Disallow: \/\s*$/m);
   });
 });
+
+describe('production mode: SITE_INDEXABLE is "true"', () => {
+  it('public pages carry no X-Robots-Tag and robots.txt offers the sitemap', async () => {
+    for (const path of ['/', '/tailors', '/how-it-works'])
+      expect((await get(path)).headers.get('x-robots-tag'), path).toBeNull();
+    const robots = await (await get('/robots.txt')).text();
+    expect(robots).toContain(
+      'Sitemap: https://alfaiate-tl.example/sitemap.xml',
+    );
+    expect(robots).not.toMatch(/^Disallow: \/$/m);
+  });
+});

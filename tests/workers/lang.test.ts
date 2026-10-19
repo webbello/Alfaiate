@@ -95,7 +95,11 @@ describe('siteConfig', () => {
   it('returns a normalised site URL without a trailing slash and the enabled languages', () => {
     expect(
       siteConfig({ ...ok, SITE_URL: 'https://alfaiate-tl.example/' }),
-    ).toEqual({ siteUrl: 'https://alfaiate-tl.example', languages: ['en'] });
+    ).toEqual({
+      siteUrl: 'https://alfaiate-tl.example',
+      languages: ['en'],
+      indexable: false,
+    });
     expect(siteConfig({ ...ok, PUBLIC_LANGUAGES: 'en,tet' }).languages).toEqual(
       ['en', 'tet'],
     );

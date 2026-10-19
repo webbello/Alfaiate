@@ -43,7 +43,9 @@ export function buildSitemap({
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join('\n')}\n</urlset>\n`;
 }
 
-export function buildRobots(siteUrl: string): string {
+export function buildRobots(siteUrl: string, indexable: boolean): string {
+  // Not indexable (staging, local): ask every crawler to stay away and offer no sitemap.
+  if (!indexable) return ['User-agent: *', 'Disallow: /', ''].join('\n');
   return [
     'User-agent: *',
     'Disallow: /admin',

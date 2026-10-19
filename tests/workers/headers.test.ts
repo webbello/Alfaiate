@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { applySecurityHeaders } from '../../src/modules/auth/headers';
 
 const get = (path: string, init?: ResponseInit) =>
-  applySecurityHeaders(new Response('body', init), path);
+  applySecurityHeaders(new Response('body', init), path, true);
 
 describe('security headers on every response (SEC-08)', () => {
   for (const path of ['/', '/tailors', '/admin', '/admin/login']) {
@@ -63,7 +63,7 @@ describe('admin pages are never indexed or cached (SEC-06)', () => {
 describe('applySecurityHeaders', () => {
   it('works on a response whose headers are immutable (a redirect) and keeps its status and location', () => {
     const redirect = Response.redirect('https://example.test/admin/login', 302);
-    const result = applySecurityHeaders(redirect, '/admin');
+    const result = applySecurityHeaders(redirect, '/admin', true);
     expect(result.status).toBe(302);
     expect(result.headers.get('location')).toBe(
       'https://example.test/admin/login',

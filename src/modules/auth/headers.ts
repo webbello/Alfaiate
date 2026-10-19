@@ -25,6 +25,7 @@ function isAdminPath(pathname: string): boolean {
 export function applySecurityHeaders(
   response: Response,
   pathname: string,
+  indexable: boolean,
 ): Response {
   const result = new Response(response.body, response);
   const h = result.headers;
@@ -38,7 +39,8 @@ export function applySecurityHeaders(
     'camera=(), microphone=(), geolocation=(), payment=()',
   );
   const admin = isAdminPath(pathname);
-  if (admin) h.set('X-Robots-Tag', 'noindex, nofollow');
+  // /admin is never indexed; when the whole site is not indexable (staging) nothing is.
+  if (admin || !indexable) h.set('X-Robots-Tag', 'noindex, nofollow');
   // Admin pages, and anything that sets a cookie (a session) whatever its path, must not be cached.
   if (admin || h.has('Set-Cookie')) h.set('Cache-Control', 'no-store');
   return result;

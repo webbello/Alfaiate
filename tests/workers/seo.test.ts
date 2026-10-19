@@ -58,7 +58,7 @@ describe('buildSitemap', () => {
 
 describe('buildRobots', () => {
   it('blocks the admin and API areas and names the sitemap', () => {
-    const text = buildRobots('https://alfaiate-tl.example');
+    const text = buildRobots('https://alfaiate-tl.example', true);
     expect(text).toContain('User-agent: *');
     expect(text).toContain('Disallow: /admin');
     expect(text).toContain('Disallow: /api');

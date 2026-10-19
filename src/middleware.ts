@@ -6,12 +6,14 @@ import { siteConfig } from './modules/config';
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
+  const { languages, indexable } = siteConfig(env);
   // Tetum is served only when PUBLIC_LANGUAGES includes it; otherwise every /tet/... address is a plain 404.
-  if (
-    parsePath(pathname).lang === 'tet' &&
-    !isEnabled('tet', siteConfig(env).languages)
-  ) {
-    return applySecurityHeaders(await context.rewrite('/404'), pathname);
+  if (parsePath(pathname).lang === 'tet' && !isEnabled('tet', languages)) {
+    return applySecurityHeaders(
+      await context.rewrite('/404'),
+      pathname,
+      indexable,
+    );
   }
-  return applySecurityHeaders(await next(), pathname);
+  return applySecurityHeaders(await next(), pathname, indexable);
 });

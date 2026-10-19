@@ -12,6 +12,7 @@ export default defineConfig({
           // The built worker's own settings say English only; the integration suite tests both languages.
           PUBLIC_LANGUAGES: 'en,tet',
           FORM_TOKEN_SECRET: 'integration-form-secret-0123456789',
+          SITE_INDEXABLE: 'true',
           SITE_URL: 'https://alfaiate-tl.example',
         },
       },

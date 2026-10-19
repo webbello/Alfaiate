@@ -6,6 +6,7 @@ export default defineConfig({
       'vitest.workers.config.ts',
       'vitest.integration.config.ts',
       'vitest.integration-en.config.ts',
+      'vitest.integration-staging.config.ts',
     ],
   },
 });

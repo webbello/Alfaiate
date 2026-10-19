@@ -27,8 +27,9 @@ const {
   realPage = true,
 } = Astro.props;
 const t = dictionary(lang);
-const { siteUrl, languages } = siteConfig(env);
+const { siteUrl, languages, indexable } = siteConfig(env);
 const head = buildHead({
+  indexable,
   siteUrl,
   languages,
   lang,

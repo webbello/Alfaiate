@@ -12,13 +12,16 @@ export type HeadInput = {
   canonicalRest?: string;
   /** false for pages that are not real addresses (the 404 page): no canonical, no alternates. */
   canonical?: boolean;
+  /** false (staging, local): every page is noindex,nofollow whatever else is set. */
+  indexable: boolean;
 };
 
 const cleanPath = (path: string) => path.split(/[?#]/)[0];
 
 export function buildHead(input: HeadInput) {
-  const robots =
-    input.noindex === 'nofollow'
+  const robots = !input.indexable
+    ? 'noindex,nofollow'
+    : input.noindex === 'nofollow'
       ? 'noindex,nofollow'
       : input.noindex
         ? 'noindex,follow'

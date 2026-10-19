@@ -4,6 +4,7 @@ import { buildHead } from '../../src/modules/seo/head';
 const base = {
   siteUrl: 'https://alfaiate-tl.example',
   languages: ['en', 'tet'] as ('en' | 'tet')[],
+  indexable: true,
 };
 
 describe('buildHead', () => {

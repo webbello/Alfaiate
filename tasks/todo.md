@@ -1,6 +1,6 @@
 # Tasks: Phase 7
 
-- [ ] **T1 SITE_INDEXABLE flag**
+- [x] **T1 SITE_INDEXABLE flag**
   - Acceptance: `isIndexable(env)` is true only when `SITE_INDEXABLE` is exactly `"true"`; when false, `robots.txt` is `User-agent: *` + `Disallow: /`, the sitemap is a valid empty `urlset`, every response (public, API, media, 404) sends `X-Robots-Tag: noindex, nofollow`, and the layout adds `noindex,nofollow` to the meta robots; when true, behaviour is exactly as today; `wrangler.jsonc` sets it `"true"` in production only; `.dev.vars.example` documents it; the integration test configs cover both modes.
   - Verify: unit tests for the parser (true, TRUE, "1", empty, missing, spaces) and robots/sitemap builders; integration tests in both modes (robots, sitemap, header and meta on home, profile, 404 and media); mutation checks on the exact-match rule and on each of the four places reading it; regenerate Worker types.
   - Files: `src/modules/seo/indexable.ts`, `src/modules/seo/sitemap.ts`, `src/pages/robots.txt.ts`, `src/pages/sitemap.xml.ts`, `src/modules/auth/headers.ts`, `src/layouts/PublicLayout.astro`, `wrangler.jsonc`, `.dev.vars.example`, tests
