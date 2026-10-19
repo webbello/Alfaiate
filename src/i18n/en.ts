@@ -367,7 +367,16 @@ export const en = {
       note_added: 'Note added.',
       spam_saved: 'Spam setting saved.',
       invalid: 'Please check the details and try again.',
+      anonymised: 'The personal data of this enquiry has been removed.',
+      already_anonymised: 'This enquiry was already anonymised.',
+      anonymise_wrong_reference:
+        'The reference code did not match, so nothing was changed.',
     },
+    anonymiseHeading: 'Anonymise this enquiry (owner only)',
+    anonymiseHelp:
+      'Removes the name, number, notes and other personal text of this enquiry, the free text on its referrals and its internal notes. It cannot be undone. Statuses, dates, categories and fee records stay so the figures do not change. Backups taken earlier keep the old data until they expire.',
+    anonymiseLabel: 'Type the reference code ({reference}) to confirm',
+    anonymiseButton: 'Anonymise permanently',
     spamMark: 'spam',
     statuses: {
       new: 'New',

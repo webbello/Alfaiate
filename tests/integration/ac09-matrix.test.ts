@@ -65,6 +65,10 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     csrf,
     display_name: `Matrix Tailor ${Date.now()}${n++}`,
   }),
+  '/admin/enquiries/[id]/anonymise': (csrf) => ({
+    csrf,
+    confirm_reference: 'AT-MATRIX',
+  }),
   '/admin/enquiries/[id]/referrals': (csrf) => ({ csrf, tailor_id: '1' }),
   '/admin/enquiries/[id]/referrals/[rid]': (csrf) => ({
     csrf,

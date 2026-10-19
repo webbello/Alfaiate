@@ -20,7 +20,8 @@ export type AuditAction =
   | 'enquiry_spam_changed'
   | 'referral_created'
   | 'referral_updated'
-  | 'referral_fee_updated';
+  | 'referral_fee_updated'
+  | 'enquiry_anonymised';
 
 type Entry = {
   userId: number | null;

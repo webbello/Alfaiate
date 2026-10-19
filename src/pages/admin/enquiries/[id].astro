@@ -37,6 +37,7 @@ const messages: Record<string, string> = { ...text.messages, ...ref.messages };
 const message = Object.hasOwn(messages, code) ? messages[code] : '';
 const canReferral = can(auth.role, 'referral.edit');
 const canFees = can(auth.role, 'fee.view');
+const canAnonymise = can(auth.role, 'enquiry.delete') && !e.anonymised_at;
 // Fee columns are selected only for a caller who may see them: a manager's page never receives them.
 const referrals = await listReferrals(DB, id, { withFees: canFees });
 const tailors =
@@ -165,6 +166,31 @@ const action = `/admin/enquiries/${id}/actions`;
       </li>
     ))}
   </ul>
+
+  {canAnonymise && (
+    <>
+      <h2>{text.anonymiseHeading}</h2>
+      <p>{text.anonymiseHelp}</p>
+      <form method="post" action={`/admin/enquiries/${id}/anonymise`}>
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <p>
+          <label for="confirm-reference">
+            {fill(text.anonymiseLabel, { reference: e.reference_code })}
+          </label>
+          <input
+            type="text"
+            id="confirm-reference"
+            name="confirm_reference"
+            autocomplete="off"
+            required
+          />
+        </p>
+        <p>
+          <button type="submit">{text.anonymiseButton}</button>
+        </p>
+      </form>
+    </>
+  )}
 
   <h2 id="referrals">{ref.heading}</h2>
   <p>

@@ -120,6 +120,12 @@ export const ADMIN_ROUTES: readonly {
     methods: ['GET'],
   },
   {
+    file: 'enquiries/[id]/anonymise.ts',
+    path: '/admin/enquiries/[id]/anonymise',
+    permission: 'enquiry.delete',
+    methods: ['POST'],
+  },
+  {
     file: 'enquiries/[id]/referrals.ts',
     path: '/admin/enquiries/[id]/referrals',
     permission: 'referral.edit',
