@@ -73,7 +73,7 @@ describe('GET /request (FR-ENQ-01/02/03, AC-06)', () => {
       'notes',
       'consent',
       'form_token',
-      'website',
+      'extra_info',
     ])
       expect(html, name).toMatch(new RegExp(`name="${name}"`));
     expect(html).toMatch(/<input[^>]*name="consent"(?![^>]*checked)[^>]*>/);
@@ -235,7 +235,10 @@ describe('POST /request (AC-06, AC-07)', () => {
 describe('spam controls (SEC-07, AC-08)', () => {
   it('a filled honeypot looks like success but stores nothing', async () => {
     const before = await rows();
-    const r = await send('/request', fields({ website: 'http://spam.test' }));
+    const r = await send(
+      '/request',
+      fields({ extra_info: 'http://spam.test' }),
+    );
     expect(r.status).toBe(303);
     expect(r.headers.get('location')).toMatch(/\/request\/thanks\?ref=AT-/);
     expect(await enquiry(refOf(r))).toBeNull();

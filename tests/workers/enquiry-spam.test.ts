@@ -100,6 +100,9 @@ describe('formSecret', () => {
     expect(() => formSecret({ FORM_TOKEN_SECRET: 'short' })).toThrow(
       ConfigError,
     );
+    expect(() =>
+      formSecret({ FORM_TOKEN_SECRET: 'replace-me-with-at-least-16-chars' }),
+    ).toThrow(ConfigError);
     expect(formSecret({ FORM_TOKEN_SECRET: SECRET })).toBe(SECRET);
   });
 });

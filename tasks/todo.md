@@ -1,12 +1,12 @@
 # Tasks: Phase 5
 
 - [x] **T1 Validation schema and reference code**
-  - Acceptance: Zod schema for the form (name 1-100 chars, number via `normalisePhone`, channel `whatsapp|phone|either`, optional category and area ids that must be active, optional service text, area text, preferred time text, notes with length caps, consent required true); field-level errors keyed by field with message keys (not text); `?tailor=slug` resolved only to a published tailor, otherwise ignored; reference code `AT-` plus 8 characters from an unambiguous alphabet, random, non-sequential.
+  - Acceptance: Hand-written validation (not Zod; see DECISIONS) for the form (name 1-100 chars, number via `normalisePhone`, channel `whatsapp|phone|either`, optional category and area ids that must be active, optional service text, area text, preferred time text, notes with length caps, consent required true); field-level errors keyed by field with message keys (not text); `?tailor=slug` resolved only to a published tailor, otherwise ignored; reference code `AT-` plus 8 characters from an unambiguous alphabet, random, non-sequential.
   - Verify: unit tests (each field valid/invalid, hostile strings kept as plain text, inactive category refused, unknown or unpublished tailor ignored, code alphabet and length, 10,000 codes without duplicates); fail first.
   - Files: `src/modules/enquiry/schema.ts`, `src/modules/enquiry/reference.ts`, `tests/workers/enquiry-schema.test.ts`, `tests/workers/enquiry-reference.test.ts`
 
 - [x] **T2 Spam controls**
-  - Acceptance: hidden honeypot field; signed time token (HMAC of the render time with `FORM_TOKEN_SECRET`; too fast under 3 s, older than 24 h or tampered is rejected as `too_fast`/`invalid`); per-address limit of 5 submissions per hour using the hashed `hit` counter, shared "unknown" bucket without an address; missing secret fails closed (form does not render); `.dev.vars.example` placeholder, typed binding, `npm run types`.
+  - Acceptance: hidden honeypot field; signed time token (HMAC of the render time with `FORM_TOKEN_SECRET`; too fast under 3 s, older than 24 h or tampered is rejected as `too_fast`/`invalid`); per-address limit of 5 submissions per hour using the hashed `hit` counter, shared "unknown" bucket without an address; missing secret fails closed (form does not render); `.dev.vars.example` placeholder, read through `formSecret`, cast instead of a typed binding because secrets are not in `wrangler.jsonc`.
   - Verify: unit tests for each control, the sixth submission refused while another address and a later normal submission still work (AC-08); mutation checks on honeypot, time trap and limit.
   - Files: `src/modules/enquiry/spam.ts`, `src/modules/config/index.ts`, `.dev.vars.example`, `worker-configuration.d.ts`, `tests/workers/enquiry-spam.test.ts`
 
@@ -40,6 +40,6 @@
   - Verify: `npm run test:e2e` passes; a deliberately removed label fails it once, then is reverted.
   - Files: `e2e/request.spec.ts`, `e2e/a11y.spec.ts`, `e2e/seed.sql`, `e2e/run.mjs`
 
-- [ ] **T9 Docs, reviewers, security audit, fresh clone, manual look**
+- [x] **T9 Docs, reviewers, security audit, fresh clone, manual look**
   - Acceptance: README, STATUS, DECISIONS, ARCHITECTURE §4, §5, §7, §10, DATA_MODEL (if anything changed), SPEC deviations and AGENTS lessons updated; `privacy-scope-reviewer`, `docs-sync` and `agent-skills:security-auditor` run with no unresolved blockers; one manual look at phone size recorded; launch items written down (real sender OQ-06, privacy text OQ-08, retention OQ-09, `FORM_TOKEN_SECRET` set in Phase 8, Tetum review).
   - Verify: `npm ci && npm run check` from a fresh clone and `npm run test:e2e`; `git ls-files` has no secrets, databases or uploads.

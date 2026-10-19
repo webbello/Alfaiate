@@ -1,7 +1,7 @@
 import { hit, ipBucket } from '../auth/rate-limit';
 
 // Spam controls for the public form (SEC-07, AC-08): a hidden field, a signed fill-time token and a per-address limit.
-export const HONEYPOT_FIELD = 'website';
+export const HONEYPOT_FIELD = 'extra_info'; // not an autofill-friendly name (website, email, phone), so a real customer's browser never fills it;
 export const SUBMIT_LIMIT = 5;
 export const MIN_FILL_SECONDS = 3;
 export const MAX_AGE_SECONDS = 24 * 60 * 60;

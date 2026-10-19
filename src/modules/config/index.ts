@@ -47,7 +47,8 @@ export function siteConfig(env: {
 /** Signing secret for the form's fill-time token. Missing or short fails closed: the form must not run without its time check. */
 export function formSecret(env: { FORM_TOKEN_SECRET?: string }): string {
   const secret = env.FORM_TOKEN_SECRET ?? '';
-  if (secret.length < 16)
+  // the example value from .dev.vars.example is public, so it must never count as a secret
+  if (secret.length < 16 || secret.startsWith('replace-me'))
     throw new ConfigError('FORM_TOKEN_SECRET is missing or too short');
   return secret;
 }

@@ -84,22 +84,23 @@ export async function setStatus(
   if (!current) return 'not_found';
   if (current.status === status) return 'unchanged';
   const at = (args.now ?? new Date()).toISOString();
+  // The old status is read inside the batch and every statement repeats `status != new`, so two changes at once cannot log a wrong from_status.
   await db.batch([
     db
       .prepare(
-        'INSERT INTO enquiry_status_log (enquiry_id, from_status, to_status, changed_by, changed_at) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO enquiry_status_log (enquiry_id, from_status, to_status, changed_by, changed_at) SELECT id, status, ?, ?, ? FROM enquiry WHERE id = ? AND status != ?',
       )
-      .bind(id, current.status, status, userId, at),
+      .bind(status, userId, at, id, status),
     db
       .prepare(
-        'UPDATE enquiry SET status = ?, status_changed_at = ?, updated_at = ? WHERE id = ?',
+        'UPDATE enquiry SET status = ?, status_changed_at = ?, updated_at = ? WHERE id = ? AND status != ?',
       )
-      .bind(status, at, at, id),
+      .bind(status, at, at, id, status),
     db
       .prepare(
-        "INSERT INTO audit_log (admin_user_id, action, entity_type, entity_id) VALUES (?, 'enquiry_status_changed', 'enquiry', ?)",
+        "INSERT INTO audit_log (admin_user_id, action, entity_type, entity_id) SELECT ?, 'enquiry_status_changed', 'enquiry', id FROM enquiry WHERE id = ? AND status = ? AND status_changed_at = ?",
       )
-      .bind(userId, id),
+      .bind(userId, id, status, at),
   ]);
   return 'ok';
 }

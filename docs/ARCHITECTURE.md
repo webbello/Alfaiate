@@ -17,8 +17,8 @@ Inspected 2026-10-16 at `/Users/apple/Sites/AlfaiateTL`: empty directory, no con
 | Database | **Cloudflare D1** | Confirmed | All structured data (see DATA_MODEL). SQL migrations via the Wrangler migration tooling. |
 | Image storage | **Cloudflare R2** | Confirmed; AD-04 resolved 2026-10-19 (R2, `/media` route, browser resize) | Separate from the database; D1 stores only keys and metadata. |
 | Admin | Custom, server-rendered Astro pages under `/admin` with RBAC | Confirmed | No third-party admin framework or CMS. |
-| Bot protection | Cloudflare Turnstile | Proposed | Privacy-friendly, no puzzle for most users; see §10. |
-| Validation | Zod (or equivalent) | Proposed | One schema per form/endpoint. |
+| Bot protection | Honeypot, signed fill-time token and per-address limit; no Turnstile in Phase 5 | Implemented (Phase 5); Turnstile declined by owner, revisit before launch | See §10 (SEC-07). |
+| Validation | Hand-written per-form validators returning message keys (Zod 4.6.7 is installed but unused for enquiries) | Implemented (Phase 5) | `src/modules/enquiry/schema.ts` |
 | Styling | Plain CSS with tokens | Proposed | Small payloads. |
 | Tests | Vitest 4.1.12 with three projects (`workers`: workerd + local D1/R2 via `@cloudflare/vitest-plugin`; `integration`: the built Worker with real HTTP requests, English+Tetum; `integration-en`: the built Worker with Tetum off); Playwright + axe (`e2e/`) | Implemented (Phase 2; browser tests Phase 4) | `npm test` runs `workers`; `npm run test:integration` builds, then runs the other two; `npm run check` runs all of these; `npm run test:e2e` (separate) builds and runs Playwright and axe on a throwaway database. |
 
@@ -67,7 +67,7 @@ Pages call modules; modules call `db`/`media`. Modules do not query each other's
 
 ## 5. Routes
 
-Unchanged in intent from v0.1. Phase 4 added the Tetum language prefix: every page below exists in English at the path shown and in Tetum under `/tet/` (e.g. `/tet/tailors`); Tetum returns 404 unless `PUBLIC_LANGUAGES` includes `tet`. `/areas/[slug]` was decided against (directory filters only, 2026-10-19). `/request` is a placeholder until Phase 5, and `/request/thanks` does not exist yet. Privacy and Terms are placeholders (noindex, outside the sitemap) until the owner supplies text. `POST /api/contact-click` is language-neutral.
+Unchanged in intent from v0.1. Phase 4 added the Tetum language prefix: every page below exists in English at the path shown and in Tetum under `/tet/` (e.g. `/tet/tailors`); Tetum returns 404 unless `PUBLIC_LANGUAGES` includes `tet`. `/areas/[slug]` was decided against (directory filters only, 2026-10-19). `/request` (GET and POST) and `/request/thanks` were built in Phase 5. Privacy and Terms are placeholders (noindex, outside the sitemap) until the owner supplies text. `POST /api/contact-click` is language-neutral.
 
 **Public:** `/`, `/tailors` (filters `category`, `area`, `home_visit`), `/tailors/[slug]`, `/categories/[slug]`, `/request` (`?tailor=slug`), `/request/thanks`, `/how-it-works`, `/about`, `/privacy`, `/terms`, `/sitemap.xml`, `/robots.txt`, `/media/*`, `POST /api/contact-click`. `/request` handles both GET and POST (`/tet/request` in Tetum); `/request/thanks` shows only a well-formed reference code.
 
@@ -107,7 +107,7 @@ Rules: least privilege by default; denied by default when a permission is unmapp
 | WhatsApp | `https://wa.me/<digits>?text=<encoded>` links only; no API in MVP. Prefilled text names the listing, never customer data. |
 | Telephone | `tel:+670…`; numbers stored E.164 (Timor-Leste +670). |
 | Forwarding to tailors | Manual by the owner from a "copy details" admin view. |
-| Owner notification | Adapter in `notify`. Options: an email-sending service reachable from Workers via HTTPS, or a Cloudflare email feature — to be chosen (OQ-06, AD-05). Optional; the app works without it. The message contains only the reference code and a link to the admin enquiry page — never the customer's name, phone or notes (SEC-05). |
+| Owner notification | Adapter in `notify`. Options: an email-sending service reachable from Workers via HTTPS, or a Cloudflare email feature — to be chosen (OQ-06, AD-05). Optional; the app works without it. The message contains only the reference code and a link to the admin enquiry page — never the customer's name, phone or notes (SEC-05). The adapter exists in `src/modules/notify` with a no-op default; no real sender is connected yet. |
 | Turnstile | Not used in Phase 5 (owner decision); revisit before launch if spam appears. |
 | Maps | None in MVP. |
 | Analytics | Decided 2026-10-19: own counters only. `POST /api/contact-click` (same-origin, 1 KB body, rate limited per address bucket) adds one to a per-tailor, per-channel, per-UTC-day count in `contact_click_daily`; no visitor data is stored. Page visits only via Cloudflare's cookieless analytics if the owner switches it on (PRV-05). |
@@ -130,7 +130,7 @@ Implemented in Phase 3 (decisions AD-04 and AD-07 resolved 2026-10-19).
 
 ## 9. Validation and error handling
 
-- Server-side Zod validation for every form/endpoint; client checks are convenience only.
+- Server-side validation for every form/endpoint (hand-written in `src/modules/enquiry/schema.ts` for the request form); client checks are convenience only.
 - Phones normalised to E.164 (accept local formats and +670).
 - Inline field errors, input preserved; unexpected errors show a friendly page with direct-contact fallback; no success page when the write failed.
 - Logging uses a request ID and excludes customer data and request bodies.

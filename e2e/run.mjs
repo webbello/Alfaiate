@@ -25,7 +25,8 @@ const stop = () => {
   server?.kill('SIGTERM');
   rmSync(state, { recursive: true, force: true });
 };
-process.on('SIGINT', () => (stop(), process.exit(130)));
+for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'])
+  process.on(signal, () => (stop(), process.exit(130)));
 
 try {
   for (const args of [
