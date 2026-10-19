@@ -86,6 +86,15 @@ No web fonts, no third-party requests; JavaScript only on a profile with contact
 
 **Budgets (enforced in `npm run check` by `tests/integration/budgets.test.ts`, uncompressed bytes, measured + about 20%):** HTML home 4,300, directory 4,300, category 3,400, profile 5,400, request 5,700, how it works 4,300; stylesheet 7,800; JavaScript 400. Images: every image needs alt text, `srcset` and `sizes`, and all but the profile hero are `loading="lazy"`; image weight comes from the three resize widths (320, 800, 1600) and the upload caps, since the test data has no photos. Timings are reported by `npm run perf`, not enforced. The budgets come from the byte counts of the fixed dataset in the budget test (home 3,513 B, directory 3,476, category 2,796, profile 4,400, request 4,728, how it works 3,510, CSS 6,474, JS 287), which is slightly different from the `perf` seed data in the table above (the how-it-works page is budgeted and tested but not in the `perf` table). A directory with many tailors grows the HTML (cap 200 cards): re-measure with real content in Phase 8.
 
+## Phase 7b — Admin UX polish and first-run experience (added 2026-10-19)
+
+- **Objective:** make the admin pleasant and obvious to use before real tailors and customers appear.
+- **Dependencies:** Phase 7. Spec: [SPEC-phase-7b.md](SPEC-phase-7b.md).
+- **Deliverables:** shared admin layout and navigation; banners for messages; status chips; dashboard cards; inbox counts, order and referral state; reorganised enquiry page; tailor publish checklist; empty states; local-only demo data and its remove command.
+- **Requirements:** no new requirement; presentation of FR-ADM-02–09 and FR-RPT-01/02 with NFR-A11Y-01 kept.
+- **Acceptance:** behaviour unchanged (all earlier tests pass); axe clean on every admin page; owner sign-off after a click-through.
+- **Tests:** a contract test that every admin page keeps its forms, fields and links; component, helper and integration tests; Playwright journeys and reflow; byte budget for the admin stylesheet.
+
 ## Phase 8 — Deployment and initial pilot
 
 - **Objective:** go live with a small set of real tailors and learn.

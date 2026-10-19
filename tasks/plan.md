@@ -1,43 +1,41 @@
-# Plan: Phase 7 — SEO, accessibility, security, privacy and testing
+# Plan: Phase 7b — Admin UX polish and first-run experience
 
-Spec: [docs/SPEC-phase-7.md](../docs/SPEC-phase-7.md) (approved 2026-10-19). Tasks: [todo.md](todo.md). Earlier plans are in git history (Phase 6: `02b6e86`).
+Spec: [docs/SPEC-phase-7b.md](../docs/SPEC-phase-7b.md) (approved 2026-10-19). Tasks: [todo.md](todo.md). Earlier plans are in git history (Phase 7: `fa9bab3`).
 
 ## Order and dependencies
 
 ```
-T1 SITE_INDEXABLE flag (robots, sitemap, meta, header)
-T1 ──> T2 structured data + Open Graph in the shared layout
-T3 carried-over security fixes (public permission clause, malformed phone, friendly 403, sitemap index)   (independent)
-T4 anonymise enquiry (module, route, page form)                                                          (independent)
-T3 + T4 ──> T5 security and privacy tests (repo check, whole-tree console check, header matrix, cookies, extended AC-15 sweep)
-T2 + T4 ──> T6 accessibility (axe 2.2 on public and admin pages, CSP watcher, no-JavaScript, reflow and zoom)
-T2 ──> T7 performance (perf script, measured numbers, budgets, byte-budget test)
-T5 + T6 + T7 ──> T8 dependency audit and the written security and privacy reviews
-all ──> T9 docs, reviewers, security audit, fresh clone, manual accessibility checks
+T1 contract test (baseline of every admin page's forms, fields, links) + AdminLayout + nav + admin.css; move all pages onto it
+T1 ──> T2 banners (message classification), status chips, cards, empty-state component, form and button styles
+T2 ──> T3 dashboard: cards, period tabs, status chips, getting-started card
+T2 ──> T4 inbox: per-status counts, new-first order, referral state, empty state
+T2 ──> T5 enquiry page: reorder into cards, next-step hint, warning box (same forms and rules)
+T2 ──> T6 tailor page: publish checklist from the server's rules; tailors list chips; categories and areas empty states
+T6 ──> T7 demo data: seeds/demo.sql, local-only runner, remove command, safety tests
+T3..T7 ──> T8 browser: admin reflow and text spacing, nav keyboard path, first-run and demo journeys, admin stylesheet budget
+all ──> T9 docs, reviewers, security audit, fresh clone, owner click-through with screenshots, sign-off
 ```
 
-One task at a time, one commit each, commit only when `npm run check` exits 0 (`npm run test:e2e` must pass before T6 and T9 are ticked). No migration and no new dependency.
+One task at a time, one commit each, commit only when `npm run check` exits 0 (`npm run test:e2e` must pass before T8 and T9 are ticked). After T1, T3, T5 and T6 I show screenshots (built-in browser) so the owner can steer before the next slice. No migration, no dependency.
 
 ## Risks
 
 | Risk | Mitigation |
 |---|---|
-| Structured data leaks something unverified or unconsented | A builder with an explicit allow-list of keys; tests for consent, permission and publication gates; hostile text cannot close the block; mutation checks on each gate |
-| JSON-LD interacts with the strict CSP | Data blocks are not executed; an integration test compares the CSP header before and after, and the e2e CSP watcher fails on any violation |
-| `SITE_INDEXABLE` misread leaves staging indexable | Only the exact string `true` enables indexing; missing, empty or any other value means not indexable; tests for each; header, meta, robots and sitemap all read the same function |
-| Performance numbers differ run to run | Median of five runs, same profile, local machine stated as a limit; budgets only on bytes in `npm run check`; timings reported, not enforced |
-| Accessibility fixes change layout | Fix only what axe or a manual check reports; re-run the full e2e; keep tokens and spacing unless a ratio fails |
-| Axe on admin pages finds many issues | Triage by severity; fix in the same task; anything not fixed is listed in DECISIONS.md with a reason, never silenced in the test |
-| Anonymise destroys data by mistake | Owner only (`enquiry.delete`), reference code typed to confirm, one atomic batch, audit row, idempotent; tests prove the cleared and kept fields exactly |
-| Anonymise leaves customer text behind | The clear list comes from the CHECK and the spec (six columns, referral free text, internal notes); a test seeds every one with a marker and searches the whole database for it afterwards |
-| Repo check blocks legitimate files | An explicit allow-list for the few tracked image files (if any) and a clear message naming the file; tested with fake tracked names in a temporary repo |
-| Whole-tree `console.*` check is too strict | It allows constant strings only, fails with file and line, and the few legitimate dynamic cases (none today) would need an explicit, commented allow-list entry |
-| Dependency audit needs the network | Run once for the record; findings recorded in DECISIONS.md; not part of `npm run check` (so offline work still passes) |
-| Scope creep into features | The spec's exclusions stand (no new pages, no retention timer, no deployment); every task cites the finding it fixes |
+| A refactor of 1,700 lines of admin markup silently drops a form, field or link | T1 starts with a contract test that records, for every admin page and role, its form actions, input names and link targets, passing on today's code; it must stay green unchanged through T1 to T6 (updated only where the spec adds something, in the same commit) |
+| A new layout breaks the sign-in or owner flows | Sign-in keeps its own small card layout; the full integration, AC-09 matrix and e2e suites run after every task |
+| Message classification misses a key and a problem shows as success | One module maps every code to success or problem; a test iterates every message dictionary and fails on an unclassified key |
+| Colour used as the only signal, or low contrast | Chips and banners carry words; colours checked with the contrast calculator in a test; axe runs over all admin pages |
+| Checklist disagrees with the server's publish rules | The checklist is built from `publishBlockers`, the server's own function; a test compares them for every blocker |
+| Layout looks fine on desktop but breaks at 320 px | Admin pages join the reflow and text-spacing e2e checks; screenshots at phone width before sign-off |
+| Demo data reaches a real database | Not a migration; the runner uses `--local` only and refuses anything else; tests assert both; every row carries the demo prefix; remove deletes by prefix; STATUS lists "run db:demo:remove" as a pre-launch item |
+| Demo numbers collide with real people's numbers | Made-up numbers in a clearly unassigned pattern, names prefixed "[Demo]", local database only |
+| Stylesheet grows without limit | Byte budget from the measured size plus about 20%, enforced in `npm run check` |
+| Scope creep into public site or new features | The spec's exclusions stand; every task cites the review item it implements |
 
 ## Verification checkpoints
 
-- After T1: staging mode gives disallow-all robots, noindex everywhere and an empty sitemap, production unchanged.
-- After T4: the database search for seeded personal markers finds none after anonymising, and reporting figures are unchanged.
-- After T6: axe (WCAG 2.2 AA) is clean on all public and admin pages, and browse and the request form work with JavaScript off.
-- After T7: numbers and budgets are recorded in IMPLEMENTATION_PLAN.md and the byte-budget test passes.
+- After T1: the contract test is green, every admin page shows the header bar with role-correct links and the current page marked, and screenshots are approved by the owner.
+- After T5: the enquiry page keeps every earlier form and rule (contract test) and the anonymise warning is last and owner-only.
+- After T7: demo data loads and removes cleanly on a scratch database and cannot target a remote one.
+- After T8: axe, reflow, CSP and budget checks are green on all admin pages.

@@ -1,6 +1,6 @@
 # Spec: Phase 7b — Admin UX polish and first-run experience
 
-Status: Draft for approval · Not in the original [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md): added on the owner's request (2026-10-19) after the first look at the admin in a browser, to be inserted between Phase 7 and Phase 8 · Related: PRD §5 (users and needs), FR-ADM-01–09, FR-RPT-01/02, NFR-A11Y-01, PRD §7.3 (exclusions)
+Status: Approved 2026-10-19 (all six open-question defaults accepted) · Not in the original [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md): added on the owner's request (2026-10-19) after the first look at the admin in a browser, to be inserted between Phase 7 and Phase 8 · Related: PRD §5 (users and needs), FR-ADM-01–09, FR-RPT-01/02, NFR-A11Y-01, PRD §7.3 (exclusions)
 
 **Requirements touched:** FR-ADM-02/03/04/05/06/07/08/09, FR-RPT-01/02, ANA-04/05, NFR-A11Y-01 (kept, not weakened). **No new feature and no change to who may do what.**
 **Owner decision (2026-10-19):** spec and build the UX polish as its own short phase before Phase 8, covering items 1 to 7 of the review below; the public-site items (8) stay out.
