@@ -30,7 +30,7 @@
   - Verify: integration for AC-02 over real HTTP with seeded fake tailors (published/draft/unpublished, with and without consent and photos); hostile filter values do not break or leak; filtered URLs carry `noindex,follow` and canonical `/tailors`; no inline script or style.
   - Files: `src/views/Directory.astro`, `src/views/Category.astro`, `src/pages/tailors/index.astro`, `src/pages/categories/[slug].astro`, `tests/integration/directory.test.ts` (+ `tet/` wrappers)
 
-- [ ] **T7 Tailor profile page**
+- [x] **T7 Tailor profile page**
   - Acceptance: `/tailors/[slug]`: only fields with data, no empty sections; approximate prices with confirmed date; areas and home-visit flag; languages only if verified; address and contacts only with consent; gallery with alt text and `srcset` over `/media`; verified marks and the "supplied by the tailor" line; separate WhatsApp and Call buttons with prefilled text; request CTA; 404 for unpublished or unknown slugs; both languages.
   - Verify: integration for AC-03, AC-04, AC-05; HTML sweep proving seeded private values (private phone, permission note, fee terms, internal notes) never appear on any public page so far; mutation checks on the verified label, approximate label and 404 rules.
   - Files: `src/views/Profile.astro`, `src/pages/tailors/[slug].astro`, `src/pages/tet/tailors/[slug].astro`, `tests/integration/profile.test.ts`, `tests/integration/public-privacy.test.ts`

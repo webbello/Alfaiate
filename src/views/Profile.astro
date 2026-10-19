@@ -1,0 +1,224 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import Source from '../components/Source.astro';
+import { dictionary, fill } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+import { telLink } from '../modules/contact-links/tel';
+import {
+  whatsappLink,
+  whatsappMessage,
+} from '../modules/contact-links/whatsapp';
+import { priceText } from '../modules/directory/format';
+import { metaText } from '../modules/seo/meta';
+import type { ProfileView } from '../modules/directory/view';
+
+interface Props {
+  lang: Lang;
+  tailor: ProfileView;
+}
+const { lang, tailor } = Astro.props;
+const t = dictionary(lang);
+const { contacts } = tailor;
+const whatsapp = contacts.whatsapp
+  ? whatsappLink(contacts.whatsapp.value, whatsappMessage(t, tailor.name))
+  : null;
+const phone = contacts.phone ? telLink(contacts.phone.value) : null;
+const shop = tailor.areas.filter((a) => a.kind === 'shop_location');
+const serves = tailor.areas.filter((a) => a.kind === 'serves');
+const description =
+  metaText(tailor.description?.value ?? '', 155) ||
+  fill(t.profile.metaDescription, { name: tailor.name });
+const requestHref = `${pathFor(lang, '/request')}?tailor=${tailor.slug}`;
+const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') =>
+  `/media/${base}/${size}.jpg`;
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${tailor.name} · ${t.siteName}`}
+  description={description}
+  rest={`/tailors/${tailor.slug}`}
+>
+  <article class="profile">
+    <p>
+      <a href={pathFor(lang, '/tailors')}>{t.profile.back}</a>
+    </p>
+    <h1>{tailor.name}</h1>
+    {tailor.profilePhoto && (
+      <img
+        class="profile__photo"
+        src={imageSrc(tailor.profilePhoto.base, 'medium')}
+        srcset={`${imageSrc(tailor.profilePhoto.base, 'medium')} 800w, ${imageSrc(tailor.profilePhoto.base, 'large')} 1600w`}
+        sizes="(min-width: 48rem) 40rem, 100vw"
+        alt={tailor.profilePhoto.alt}
+      />
+    )}
+    <p class="notice" role="note">
+      <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
+    </p>
+
+    <section aria-labelledby="contact">
+      <h2 id="contact">{t.profile.contact}</h2>
+      <p class="actions">
+        {whatsapp && (
+          <a
+            class="button"
+            href={whatsapp}
+            data-contact-channel="whatsapp"
+            data-tailor={tailor.slug}
+          >
+            {t.contact.whatsapp}
+          </a>
+        )}
+        {phone && (
+          <a
+            class="button"
+            href={phone}
+            data-contact-channel="phone"
+            data-tailor={tailor.slug}
+          >
+            {t.contact.call}
+          </a>
+        )}
+        <a class="button button--secondary" href={requestHref}>
+          {t.profile.requestThis}
+        </a>
+      </p>
+      <p>{t.profile.contactNote}</p>
+    </section>
+
+    {tailor.description && (
+      <section aria-labelledby="about">
+        <h2 id="about">{t.profile.about}</h2>
+        <p>{tailor.description.value}</p>
+        <p class="meta">
+          <Source lang={lang} verified={tailor.description.verified} />
+        </p>
+      </section>
+    )}
+
+    {tailor.categories.length > 0 && (
+      <section aria-labelledby="makes">
+        <h2 id="makes">{t.profile.makes}</h2>
+        <ul class="facts">
+          {tailor.categories.map((c) => {
+            const price = priceText(t, c.priceFrom, c.priceTo);
+            return (
+              <li>
+                <a href={pathFor(lang, `/categories/${c.slug}`)}>{c.name}</a>
+                {price && (
+                  <>
+                    <br />
+                    <span>
+                      {t.price.approximate}: {price}
+                      {c.unit ? ` (${c.unit})` : ''}
+                    </span>
+                    {c.confirmedOn && (
+                      <span>
+                        {' '}
+                        · {fill(t.price.confirmedOn, { date: c.confirmedOn })}
+                      </span>
+                    )}
+                    <br />
+                    <Source lang={lang} verified={c.verified} />
+                  </>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    )}
+
+    {tailor.priceNote && (
+      <section aria-labelledby="pricenote">
+        <h2 id="pricenote">{t.profile.priceNote}</h2>
+        <p>{tailor.priceNote.value}</p>
+        <p class="meta">
+          <Source lang={lang} verified={tailor.priceNote.verified} />
+        </p>
+      </section>
+    )}
+
+    {tailor.areas.length > 0 && (
+      <section aria-labelledby="where">
+        <h2 id="where">{t.profile.where}</h2>
+        <ul class="facts">
+          {shop.length > 0 && (
+            <li>
+              <strong>{t.profile.shopLocation}:</strong>{' '}
+              {shop.map((a) => a.name).join(' · ')}
+            </li>
+          )}
+          {serves.length > 0 && (
+            <li>
+              <strong>{t.profile.serves}:</strong>{' '}
+              {serves.map((a) => a.name).join(' · ')}
+            </li>
+          )}
+        </ul>
+      </section>
+    )}
+
+    {(tailor.homeVisits || tailor.languages || tailor.address) && (
+      <section aria-labelledby="details">
+        <h2 id="details">{t.profile.homeVisits}</h2>
+        <dl class="facts">
+          {tailor.homeVisits && (
+            <>
+              <dt>{t.profile.homeVisits}</dt>
+              <dd>
+                {tailor.homeVisits.value === 'yes'
+                  ? t.profile.homeYes
+                  : t.profile.homeNo}{' '}
+                <Source lang={lang} verified={tailor.homeVisits.verified} />
+              </dd>
+            </>
+          )}
+          {tailor.languages && (
+            <>
+              <dt>{t.profile.languages}</dt>
+              <dd>
+                {tailor.languages.value}{' '}
+                <Source lang={lang} verified={tailor.languages.verified} />
+              </dd>
+            </>
+          )}
+          {tailor.address && (
+            <>
+              <dt>{t.profile.address}</dt>
+              <dd>
+                {tailor.address.value}{' '}
+                <Source lang={lang} verified={tailor.address.verified} />
+              </dd>
+            </>
+          )}
+        </dl>
+      </section>
+    )}
+
+    {tailor.photos.length > 0 && (
+      <section aria-labelledby="work">
+        <h2 id="work">{t.profile.work}</h2>
+        <ul class="gallery">
+          {tailor.photos.map((p) => (
+            <li>
+              <figure>
+                <img
+                  src={imageSrc(p.base, 'medium')}
+                  srcset={`${imageSrc(p.base, 'thumb')} 320w, ${imageSrc(p.base, 'medium')} 800w, ${imageSrc(p.base, 'large')} 1600w`}
+                  sizes="(min-width: 48rem) 20rem, 100vw"
+                  alt={p.alt}
+                  loading="lazy"
+                />
+                {p.caption && <figcaption>{p.caption}</figcaption>}
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <p class="meta">{t.profile.suppliedNote}</p>
+  </article>
+</PublicLayout>

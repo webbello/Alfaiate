@@ -1,0 +1,16 @@
+---
+import { dictionary } from '../i18n/public';
+import type { Lang } from '../i18n/lang';
+
+/** The label every published fact carries: verified by us, or supplied by the tailor (BR-11, FR-PRO-05). */
+interface Props {
+  lang: Lang;
+  verified: boolean;
+}
+const { lang, verified } = Astro.props;
+const t = dictionary(lang);
+---
+
+<span class={verified ? 'source source--verified' : 'source'}>
+  {verified ? t.profile.verified : t.profile.supplied}
+</span>

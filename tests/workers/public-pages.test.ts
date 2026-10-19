@@ -27,10 +27,12 @@ describe('public routes (scope guard)', () => {
     'index.astro',
     'media/[...key].ts',
     'request.astro',
+    'tailors/[slug].astro',
     'tailors/index.astro',
     'tet/categories/[slug].astro',
     'tet/index.astro',
     'tet/request.astro',
+    'tet/tailors/[slug].astro',
     'tet/tailors/index.astro',
   ];
 

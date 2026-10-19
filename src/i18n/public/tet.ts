@@ -69,6 +69,33 @@ export const tet: Dictionary = {
     viewProfile: 'Haree perfíl',
     moreFilters: 'Filtru ba área ka vizita iha uma',
   },
+  profile: {
+    metaDescription:
+      '{name}: alfaiate iha Dili. Haree sira-nia serbisu, folin aproximadu no oinsá atu kontaktu sira.',
+    contact: 'Kontaktu alfaiate',
+    contactNote:
+      'Ita konkorda ba folin, medida no data diretamente ho alfaiate.',
+    about: 'Kona-ba',
+    makes: 'Saida mak sira halo',
+    where: 'Fatin',
+    shopLocation: 'Loja',
+    serves: 'Serbisu iha',
+    languages: 'Lian sira',
+    homeVisits: 'Vizita iha uma',
+    homeYes: 'Bele vizita iha uma',
+    homeNo: 'La vizita iha uma',
+    address: 'Enderesu loja',
+    priceNote: 'Kona-ba folin',
+    prices: 'Folin',
+    pricesIntro: 'Folin hotu-hotu aproximadu no alfaiate rasik mak hili.',
+    work: 'Sira-nia serbisu',
+    verified: 'Verifika husi Alfaiate TL',
+    supplied: 'Informasaun husi alfaiate',
+    suppliedNote:
+      'Informasaun ne\'ebé marka "Informasaun husi alfaiate" mai husi alfaiate rasik no Alfaiate TL seidauk verifika.',
+    back: 'Fila ba alfaiate hotu-hotu',
+    requestThis: "Husu alfaiate ida-ne'e ba uma",
+  },
   category: {
     title: 'Alfaiate {name}',
     heading: '{name}',

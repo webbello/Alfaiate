@@ -1,0 +1,16 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Profile from '../../views/Profile.astro';
+import { requireBindings } from '../../modules/config';
+import { getPublishedBySlug } from '../../modules/directory/queries';
+
+// The 404 decision is made here, before any HTML is sent. Unpublished and unknown tailors look the same (FR-PRO-06, AC-05).
+const slug = Astro.params.slug;
+const tailor = slug
+  ? await getPublishedBySlug(requireBindings(env).DB, slug)
+  : null;
+if (!tailor) return Astro.rewrite('/404');
+---
+
+<Profile lang="en" tailor={tailor} />

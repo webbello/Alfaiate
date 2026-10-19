@@ -62,6 +62,33 @@ export const en = {
     viewProfile: 'View profile',
     moreFilters: 'Filter by area or home visits',
   },
+  profile: {
+    metaDescription:
+      '{name}: tailor in Dili. See their work, approximate prices and how to contact them.',
+    contact: 'Contact the tailor',
+    contactNote:
+      'You agree the price, measurements and dates directly with the tailor.',
+    about: 'About',
+    makes: 'What they make',
+    where: 'Where',
+    shopLocation: 'Shop',
+    serves: 'Serves',
+    languages: 'Languages',
+    homeVisits: 'Home visits',
+    homeYes: 'Offers home visits',
+    homeNo: 'Does not offer home visits',
+    address: 'Shop address',
+    priceNote: 'About prices',
+    prices: 'Prices',
+    pricesIntro: 'All prices are approximate and set by the tailor.',
+    work: 'Their work',
+    verified: 'Verified by Alfaiate TL',
+    supplied: 'Supplied by the tailor',
+    suppliedNote:
+      'Details marked "Supplied by the tailor" come from the tailor and have not been checked by Alfaiate TL.',
+    back: 'Back to all tailors',
+    requestThis: 'Request this tailor at home',
+  },
   category: {
     title: '{name} tailors',
     heading: '{name}',
