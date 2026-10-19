@@ -1,0 +1,53 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { requirePermission } from '../../modules/auth/require';
+import { listTailors } from '../../modules/tailors/repo';
+
+const auth = await requirePermission(Astro, 'tailor.edit');
+if (auth instanceof Response) return auth;
+
+const published = Astro.url.searchParams.get('published');
+const tailors = await listTailors(
+  requireBindings(env).DB,
+  published === '1' || published === '0'
+    ? { published: published === '1' }
+    : {},
+);
+---
+
+<Base title={en.tailorListHeading} description={en.tailorListHeading} noindex>
+  <h1>{en.tailorListHeading}</h1>
+  <p>
+    <a href="/admin">{en.adminDashboardHeading}</a> ·{' '}
+    <a href="/admin/tailors/new">{en.tailorNew}</a>
+  </p>
+  <p>
+    <a href="/admin/tailors">{en.tailorFilterAll}</a> ·{' '}
+    <a href="/admin/tailors?published=1">{en.tailorPublished}</a> ·{' '}
+    <a href="/admin/tailors?published=0">{en.tailorNotPublished}</a>
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>{en.tailorFields.display_name}</th>
+        <th>{en.tailorStatus}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {tailors.map((t) => (
+        <tr>
+          <td>
+            <a href={`/admin/tailors/${t.id}`}>{t.display_name}</a>
+          </td>
+          <td>{t.status}</td>
+          <td>{t.is_published ? en.tailorPublished : en.tailorNotPublished}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</Base>

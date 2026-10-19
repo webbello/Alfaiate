@@ -1,0 +1,64 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Base from '../../../layouts/Base.astro';
+import ProfileFields from '../../../components/ProfileFields.astro';
+import { en } from '../../../i18n/en';
+import { requireBindings } from '../../../modules/config';
+import { requirePermission } from '../../../modules/auth/require';
+import { verifyCsrf } from '../../../modules/auth/csrf';
+import { SESSION_COOKIE } from '../../../modules/auth/session';
+import { createDraft } from '../../../modules/tailors/repo';
+import { profileFromForm } from '../../../modules/tailors/form';
+import { messageFrom } from '../../../modules/tailors/messages';
+
+const auth = await requirePermission(Astro, 'tailor.edit');
+if (auth instanceof Response) return auth;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData().catch(() => new FormData());
+  if (
+    !(await verifyCsrf(
+      Astro.cookies.get(SESSION_COOKIE)?.value ?? '',
+      form.get('csrf')?.toString(),
+    ))
+  ) {
+    return new Response('Forbidden', { status: 403 });
+  }
+  const created = await createDraft(
+    requireBindings(env).DB,
+    auth.userId,
+    profileFromForm(form),
+  );
+  return Astro.redirect(
+    created.ok
+      ? `/admin/tailors/${created.id}`
+      : `/admin/tailors/new?msg=invalid&fields=${created.fields.join(',')}`,
+    303,
+  );
+}
+const { message, fields } = messageFrom(Astro.url);
+---
+
+<Base title={en.tailorNewHeading} description={en.tailorNewHeading} noindex>
+  <h1>{en.tailorNewHeading}</h1>
+  <p>
+    <a href="/admin/tailors">{en.tailorListHeading}</a>
+  </p>
+  {message && (
+    <p role="alert">
+      {message}
+      {fields.length > 0 && (
+        <>
+          {' '}
+          {en.tailorCheck}: {fields.join(', ')}
+        </>
+      )}
+    </p>
+  )}
+  <form method="post">
+    <input type="hidden" name="csrf" value={auth.csrfToken} />
+    <ProfileFields />
+    <button type="submit">{en.tailorCreate}</button>
+  </form>
+</Base>

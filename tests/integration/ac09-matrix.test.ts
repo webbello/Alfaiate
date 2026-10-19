@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { env } from 'cloudflare:workers';
 import { worker } from './worker';
 import {
@@ -61,6 +61,15 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     action: 'create',
     name: `Matrix ${Date.now()}${n++}`,
   }),
+  '/admin/tailors/new': (csrf) => ({
+    csrf,
+    display_name: `Matrix Tailor ${Date.now()}${n++}`,
+  }),
+  '/admin/tailors/[id]/actions': (csrf) => ({
+    csrf,
+    action: 'add_note',
+    body: 'matrix note',
+  }),
   '/admin/users/actions': (csrf) => ({
     csrf,
     action: 'create',
@@ -69,6 +78,15 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     password: 'a-long-fake-test-passphrase',
   }),
 };
+
+let tailorId = 0;
+beforeAll(async () => {
+  tailorId = (
+    await env.DB.prepare(
+      "INSERT INTO tailor (slug, display_name) VALUES ('matrix-tailor', 'Matrix Tailor')",
+    ).run()
+  ).meta.last_row_id;
+});
 
 const protectedRoutes = ADMIN_ROUTES.filter((r) => r.permission !== null);
 
@@ -84,7 +102,7 @@ describe('AC-09 role matrix', () => {
             method === 'POST' ? validForm[route.path]?.(csrf) : undefined;
           const response = await worker.fetch(
             new Request(
-              `${ORIGIN}${concretePath(route.path, { id: 1, key: 'x' })}`,
+              `${ORIGIN}${concretePath(route.path, { id: tailorId, key: 'x' })}`,
               {
                 method,
                 headers: { Cookie: cookie, Origin: ORIGIN },
@@ -172,6 +190,7 @@ describe('user management through the real handlers', () => {
   });
 
   it('refuses to demote the only active owner through the handler', async () => {
+    await env.DB.prepare('DELETE FROM internal_note').run();
     await env.DB.prepare('DELETE FROM admin_user').run();
     const cookie = await signIn('owner');
     const csrf = await csrfOf(cookie);

@@ -59,6 +59,30 @@ export const ADMIN_ROUTES: readonly {
     permission: 'tailor.edit',
     methods: ['GET', 'POST'],
   },
+  {
+    file: 'tailors.astro',
+    path: '/admin/tailors',
+    permission: 'tailor.edit',
+    methods: ['GET'],
+  },
+  {
+    file: 'tailors/new.astro',
+    path: '/admin/tailors/new',
+    permission: 'tailor.edit',
+    methods: ['GET', 'POST'],
+  },
+  {
+    file: 'tailors/[id].astro',
+    path: '/admin/tailors/[id]',
+    permission: 'tailor.edit',
+    methods: ['GET'],
+  },
+  {
+    file: 'tailors/[id]/actions.ts',
+    path: '/admin/tailors/[id]/actions',
+    permission: 'tailor.edit',
+    methods: ['POST'],
+  },
 ];
 
 /** Fills the dynamic segments of a route template ([id], [...key]) so tests can request it. */

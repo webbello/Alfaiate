@@ -18,6 +18,7 @@ if (auth instanceof Response) return auth;
     <a href="/admin/account">{en.adminNavAccount}</a>
     {can(auth.role, 'tailor.edit') && (
       <>
+        <a href="/admin/tailors">{en.adminNavTailors}</a>
         <a href="/admin/categories">{en.adminNavCategories}</a>
         <a href="/admin/areas">{en.adminNavAreas}</a>
       </>

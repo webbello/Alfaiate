@@ -1,0 +1,141 @@
+---
+import { en } from '../i18n/en';
+import type { TailorRow } from '../modules/tailors/repo';
+
+interface Props {
+  values?: Partial<TailorRow>;
+  withSlug?: boolean;
+}
+const { values = {}, withSlug = false } = Astro.props;
+const text = (v: string | null | undefined) => v ?? '';
+const f = en.tailorFields;
+---
+
+<p>
+  <label for="display_name">{f.display_name}</label>
+  <br />
+  <input
+    id="display_name"
+    name="display_name"
+    value={text(values.display_name)}
+    maxlength="120"
+    required
+  />
+</p>
+{withSlug && (
+  <p>
+    <label for="slug">{f.slug}</label>
+    <br />
+    <input
+      id="slug"
+      name="slug"
+      value={text(values.slug)}
+      maxlength="60"
+      pattern="[a-z0-9]+(-[a-z0-9]+)*"
+    />
+  </p>
+)}
+<p>
+  <label for="description">{f.description}</label>
+  <br />
+  <textarea
+    id="description"
+    name="description"
+    maxlength="2000"
+    rows="4"
+  >{text(values.description)}</textarea>
+</p>
+<p>
+  <label for="shop_address_text">{f.shop_address_text}</label>
+  <br />
+  <input
+    id="shop_address_text"
+    name="shop_address_text"
+    value={text(values.shop_address_text)}
+    maxlength="300"
+  />
+</p>
+<p>
+  <label for="home_visits">{f.home_visits}</label>
+  <br />
+  <select id="home_visits" name="home_visits">
+    {Object.entries(en.homeVisitsOptions).map(([value, label]) => (
+      <option
+        value={value}
+        selected={(values.home_visits ?? 'unknown') === value}
+      >
+        {label}
+      </option>
+    ))}
+  </select>
+</p>
+<p>
+  <label for="languages">{f.languages}</label>
+  <br />
+  <input
+    id="languages"
+    name="languages"
+    value={text(values.languages)}
+    maxlength="200"
+  />
+</p>
+<p>
+  <label for="price_note">{f.price_note}</label>
+  <br />
+  <input
+    id="price_note"
+    name="price_note"
+    value={text(values.price_note)}
+    maxlength="200"
+  />
+</p>
+<p>
+  <label for="price_confirmed_on">{f.price_confirmed_on}</label>
+  <br />
+  <input
+    id="price_confirmed_on"
+    name="price_confirmed_on"
+    type="date"
+    value={text(values.price_confirmed_on)}
+  />
+</p>
+<p>
+  <label for="whatsapp">{f.whatsapp}</label>
+  <br />
+  <input
+    id="whatsapp"
+    name="whatsapp"
+    value={text(values.whatsapp_e164)}
+    inputmode="tel"
+  />
+</p>
+<p>
+  <label for="phone">{f.phone}</label>
+  <br />
+  <input
+    id="phone"
+    name="phone"
+    value={text(values.phone_e164)}
+    inputmode="tel"
+  />
+</p>
+<p>
+  <label for="private_contact_name">{f.private_contact_name}</label>
+  <br />
+  <input
+    id="private_contact_name"
+    name="private_contact_name"
+    value={text(values.private_contact_name)}
+    maxlength="120"
+  />
+</p>
+<p>
+  <label for="private_phone">{f.private_phone}</label>
+  <br />
+  <input
+    id="private_phone"
+    name="private_phone"
+    value={text(values.private_phone)}
+    inputmode="tel"
+  />
+</p>

@@ -25,7 +25,7 @@
   - Verify: D1 tests: dollars to cents, inverted range refused, `verified` refused for editors, inactive category refused for new link but kept for existing, notes ordering, lock applies.
   - Files: `src/modules/tailors/links.ts`, `src/modules/tailors/notes.ts`, `tests/workers/tailors-links.test.ts`, `tests/workers/tailors-notes.test.ts`
 
-- [ ] **T6 Tailor admin pages (list, new, edit, actions)**
+- [x] **T6 Tailor admin pages (list, new, edit, actions)**
   - Acceptance: `/admin/tailors`, `/admin/tailors/new`, `/admin/tailors/[id]` (profile, categories and prices, areas, notes sections) and `/admin/tailors/[id]/actions` POST, all `tailor.edit`; editors get 403 when the tailor is published; CSRF everywhere; no inline script/style.
   - Verify: integration: role matrix with a real tailor id, editor creates a draft end to end, editor refused on a published tailor, CSRF refusal, escaped output (a name containing `<script>` renders inert), no `<script` without `src`.
   - Files: `src/pages/admin/tailors.astro`, `src/pages/admin/tailors/new.astro`, `src/pages/admin/tailors/[id].astro`, `src/pages/admin/tailors/[id]/actions.ts`, `tests/integration/tailors.test.ts`

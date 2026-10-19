@@ -1,0 +1,217 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Base from '../../../layouts/Base.astro';
+import ProfileFields from '../../../components/ProfileFields.astro';
+import { en } from '../../../i18n/en';
+import { requireBindings } from '../../../modules/config';
+import { requirePermission } from '../../../modules/auth/require';
+import { can } from '../../../modules/auth/permissions';
+import { listEntries } from '../../../modules/catalog';
+import { canEdit, getTailor } from '../../../modules/tailors/repo';
+import {
+  centsToDollars,
+  getTailorAreas,
+  getTailorCategories,
+} from '../../../modules/tailors/links';
+import { listNotes } from '../../../modules/tailors/notes';
+import { messageFrom } from '../../../modules/tailors/messages';
+
+const auth = await requirePermission(Astro, 'tailor.edit');
+if (auth instanceof Response) return auth;
+
+const id = Number(Astro.params.id);
+const { DB } = requireBindings(env);
+const tailor = Number.isInteger(id) ? await getTailor(DB, id) : null;
+if (!tailor) return new Response('Not found', { status: 404 });
+
+const editable = canEdit(auth.role, tailor);
+const mayVerify = can(auth.role, 'tailor.publish');
+const [categories, areas, links, areaLinks, notes] = await Promise.all([
+  listEntries(DB, 'category'),
+  listEntries(DB, 'area'),
+  getTailorCategories(DB, id),
+  getTailorAreas(DB, id),
+  listNotes(DB, id),
+]);
+const linkFor = new Map(links.map((l) => [l.category_id, l]));
+const shop = new Set(
+  areaLinks.filter((a) => a.kind === 'shop_location').map((a) => a.area_id),
+);
+const serves = new Set(
+  areaLinks.filter((a) => a.kind === 'serves').map((a) => a.area_id),
+);
+const { message, fields } = messageFrom(Astro.url);
+const action = `/admin/tailors/${id}/actions`;
+---
+
+<Base title={tailor.display_name} description={tailor.display_name} noindex>
+  <h1>{tailor.display_name}</h1>
+  <p>
+    <a href="/admin/tailors">{en.tailorListHeading}</a> · {tailor.status} ·{' '}
+    {tailor.is_published ? en.tailorPublished : en.tailorNotPublished}
+  </p>
+  {message && (
+    <p role="status">
+      {message}
+      {fields.length > 0 && (
+        <>
+          {' '}
+          {en.tailorCheck}: {fields.join(', ')}
+        </>
+      )}
+    </p>
+  )}
+  {!editable && <p role="note">{en.tailorLocked}</p>}
+
+  {editable && (
+    <>
+      <h2>{en.tailorProfileHeading}</h2>
+      <form method="post" action={action}>
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <input type="hidden" name="action" value="save_profile" />
+        <ProfileFields
+          values={tailor}
+          withSlug={!tailor.published_at && !tailor.is_published}
+        />
+        <button type="submit">{en.tailorSave}</button>
+      </form>
+
+      <h2>{en.tailorCategoriesHeading}</h2>
+      {categories.length === 0 && <p>{en.tailorNoCategories}</p>}
+      <form method="post" action={action}>
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <input type="hidden" name="action" value="save_categories" />
+        {categories
+          .filter((c) => c.is_active || linkFor.has(c.id))
+          .map((c) => {
+            const link = linkFor.get(c.id);
+            return (
+              <fieldset>
+                <legend>
+                  <label>
+                    <input
+                      type="checkbox"
+                      name={`cat_${c.id}`}
+                      checked={!!link}
+                    />{' '}
+                    {c.name}
+                    {!c.is_active && ` ${en.tailorInactiveMark}`}
+                  </label>
+                </legend>
+                <label>
+                  {en.tailorPriceFrom}{' '}
+                  <input
+                    name={`from_${c.id}`}
+                    value={centsToDollars(link?.price_from ?? null)}
+                    inputmode="decimal"
+                  />
+                </label>
+                <label>
+                  {en.tailorPriceTo}{' '}
+                  <input
+                    name={`to_${c.id}`}
+                    value={centsToDollars(link?.price_to ?? null)}
+                    inputmode="decimal"
+                  />
+                </label>
+                <label>
+                  {en.tailorPriceUnit}{' '}
+                  <input
+                    name={`unit_${c.id}`}
+                    value={link?.price_unit_note ?? ''}
+                    maxlength="100"
+                  />
+                </label>
+                <label>
+                  {en.tailorPriceConfirmed}{' '}
+                  <input
+                    type="date"
+                    name={`confirmed_${c.id}`}
+                    value={link?.price_confirmed_on ?? ''}
+                  />
+                </label>
+                {mayVerify && (
+                  <label>
+                    {en.tailorPriceSource}
+                    <select name={`source_${c.id}`}>
+                      <option
+                        value="tailor_supplied"
+                        selected={link?.price_source !== 'verified'}
+                      >
+                        {en.tailorSourceSupplied}
+                      </option>
+                      <option
+                        value="verified"
+                        selected={link?.price_source === 'verified'}
+                      >
+                        {en.tailorSourceVerified}
+                      </option>
+                    </select>
+                  </label>
+                )}
+              </fieldset>
+            );
+          })}
+        <button type="submit">{en.tailorSave}</button>
+      </form>
+
+      <h2>{en.tailorAreasHeading}</h2>
+      {areas.length === 0 && <p>{en.tailorNoAreas}</p>}
+      <form method="post" action={action}>
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <input type="hidden" name="action" value="save_areas" />
+        {areas
+          .filter((a) => a.is_active || shop.has(a.id) || serves.has(a.id))
+          .map((a) => (
+            <p>
+              {a.name}
+              {!a.is_active && ` ${en.tailorInactiveMark}`}
+              <label>
+                <input
+                  type="checkbox"
+                  name={`shop_${a.id}`}
+                  checked={shop.has(a.id)}
+                />{' '}
+                {en.tailorShopLocation}
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name={`serves_${a.id}`}
+                  checked={serves.has(a.id)}
+                />{' '}
+                {en.tailorServes}
+              </label>
+            </p>
+          ))}
+        <button type="submit">{en.tailorSave}</button>
+      </form>
+    </>
+  )}
+
+  <h2>{en.tailorNotesHeading}</h2>
+  <form method="post" action={action}>
+    <input type="hidden" name="csrf" value={auth.csrfToken} />
+    <input type="hidden" name="action" value="add_note" />
+    <p>
+      <label for="note-body">{en.tailorNoteAdd}</label>
+      <br />
+      <textarea
+        id="note-body"
+        name="body"
+        maxlength="2000"
+        rows="3"
+        required
+      ></textarea>
+    </p>
+    <button type="submit">{en.tailorNoteButton}</button>
+  </form>
+  <ul>
+    {notes.map((n) => (
+      <li>
+        {n.created_at.slice(0, 10)} · {n.author_email}: {n.body}
+      </li>
+    ))}
+  </ul>
+</Base>
