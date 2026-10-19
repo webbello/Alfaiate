@@ -36,6 +36,11 @@ export function listReferrals(
   enquiryId: number,
   opts: { withFees: false },
 ): Promise<Referral[]>;
+export function listReferrals(
+  db: D1Database,
+  enquiryId: number,
+  opts: { withFees: boolean },
+): Promise<(Referral & Partial<ReferralFees>)[]>;
 export async function listReferrals(
   db: D1Database,
   enquiryId: number,

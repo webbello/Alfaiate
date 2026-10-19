@@ -120,6 +120,24 @@ export const ADMIN_ROUTES: readonly {
     methods: ['GET'],
   },
   {
+    file: 'enquiries/[id]/referrals.ts',
+    path: '/admin/enquiries/[id]/referrals',
+    permission: 'referral.edit',
+    methods: ['POST'],
+  },
+  {
+    file: 'enquiries/[id]/referrals/[rid].ts',
+    path: '/admin/enquiries/[id]/referrals/[rid]',
+    permission: 'referral.edit',
+    methods: ['POST'],
+  },
+  {
+    file: 'enquiries/[id]/referrals/[rid]/fee.ts',
+    path: '/admin/enquiries/[id]/referrals/[rid]/fee',
+    permission: 'fee.view',
+    methods: ['POST'],
+  },
+  {
     file: 'enquiries/[id]/actions.ts',
     path: '/admin/enquiries/[id]/actions',
     permission: 'enquiry.update',
@@ -136,9 +154,10 @@ export const ADMIN_ROUTES: readonly {
 /** Fills the dynamic segments of a route template ([id], [...key]) so tests can request it. */
 export function concretePath(
   path: string,
-  params: { id?: number | string; key?: string },
+  params: { id?: number | string; rid?: number | string; key?: string },
 ): string {
   return path
     .replace('[id]', String(params.id ?? ''))
+    .replace('[rid]', String(params.rid ?? 1))
     .replace('[...key]', params.key ?? '');
 }

@@ -20,7 +20,7 @@
   - Verify: unit tests for each rule and message, cents conversion edges, audit content without amounts; mutation checks on BR-09 and the completion rule.
   - Files: `src/modules/referral/fee.ts`, `tests/workers/referral-fee.test.ts`
 
-- [ ] **T5 Admin routes and the Referrals section on the enquiry page**
+- [x] **T5 Admin routes and the Referrals section on the enquiry page**
   - Acceptance: `POST /admin/enquiries/[id]/referrals` (`referral.edit`), `POST /admin/enquiries/[id]/referrals/[rid]` (`referral.edit`) and `POST /admin/enquiries/[id]/referrals/[rid]/fee` (`fee.view`) with CSRF, plain digit ids, redirect with an allow-listed message; the enquiry page lists referrals (history included) with forms for a manager and owner, and fee fields and the fee form for the owner only; the manager's page and response contain no fee value; `concretePath` and the route inventory learn `[rid]`; the role matrix gets valid forms; messages shown through an allow-list.
   - Verify: integration tests for anonymous 302, editor/viewer 403, manager allowed except the fee route 403, owner allowed, missing CSRF 403, bad ids 404, AC-12 end to end, a seeded fee amount absent from a manager's page and from every manager response, `owner_confirmed` refused for a manager; mutation checks on each route's permission and on `withFees`.
   - Files: `src/pages/admin/enquiries/[id]/referrals.ts`, `src/pages/admin/enquiries/[id]/referrals/[rid].ts`, `src/pages/admin/enquiries/[id]/referrals/[rid]/fee.ts`, `src/pages/admin/enquiries/[id].astro`, `src/modules/auth/admin-routes.ts`, `src/i18n/en.ts`, `tests/integration/referrals.test.ts`, `tests/integration/ac09-matrix.test.ts`

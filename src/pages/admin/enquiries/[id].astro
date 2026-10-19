@@ -15,6 +15,11 @@ import {
   listNotes,
 } from '../../../modules/enquiry/status';
 import { forwardingText } from '../../../modules/enquiry/forwarding';
+import {
+  approvedTailors,
+  listReferrals,
+} from '../../../modules/referral/queries';
+import { centsToDollars } from '../../../modules/tailors/links';
 
 const auth = await requirePermission(Astro, 'enquiry.view');
 if (auth instanceof Response) return auth;
@@ -27,9 +32,17 @@ const [log, notes] = await Promise.all([listLog(DB, id), listNotes(DB, id)]);
 const text = en.enquiry;
 const canUpdate = can(auth.role, 'enquiry.update');
 const code = Astro.url.searchParams.get('msg') ?? '';
-const message = Object.hasOwn(text.messages, code)
-  ? text.messages[code as keyof typeof text.messages]
-  : '';
+const ref = en.referral;
+const messages: Record<string, string> = { ...text.messages, ...ref.messages };
+const message = Object.hasOwn(messages, code) ? messages[code] : '';
+const canReferral = can(auth.role, 'referral.edit');
+const canFees = can(auth.role, 'fee.view');
+// Fee columns are selected only for a caller who may see them: a manager's page never receives them.
+const referrals = await listReferrals(DB, id, { withFees: canFees });
+const tailors =
+  canReferral && !e.anonymised_at
+    ? await approvedTailors(DB, e.preferred_tailor_id)
+    : [];
 const forward = forwardingText(e);
 const action = `/admin/enquiries/${id}/actions`;
 ---
@@ -152,6 +165,205 @@ const action = `/admin/enquiries/${id}/actions`;
       </li>
     ))}
   </ul>
+
+  <h2 id="referrals">{ref.heading}</h2>
+  <p>
+    {ref.intro} {ref.dateHelp}
+  </p>
+  {referrals.length === 0 && <p>{ref.none}</p>}
+  {referrals.map((r) => (
+    <section aria-labelledby={`referral-${r.id}`}>
+      <h3 id={`referral-${r.id}`}>
+        {fill(ref.refLabel, {
+          name: r.tailor_name,
+          date: r.created_at.slice(0, 10),
+        })}
+      </h3>
+      {canReferral ? (
+        <form method="post" action={`/admin/enquiries/${id}/referrals/${r.id}`}>
+          <input type="hidden" name="csrf" value={auth.csrfToken} />
+          <p>
+            <label for={`fa-${r.id}`}>{ref.forwardedAt}</label>
+            <input
+              type="date"
+              id={`fa-${r.id}`}
+              name="forwarded_at"
+              value={r.forwarded_at ?? ''}
+            />
+          </p>
+          <p>
+            <label for={`fv-${r.id}`}>{ref.forwardedVia}</label>
+            <select id={`fv-${r.id}`} name="forwarded_via">
+              {Object.entries(ref.via).map(([value, label]) => (
+                <option
+                  value={value}
+                  selected={(r.forwarded_via ?? '') === value}
+                >
+                  {label}
+                </option>
+              ))}
+            </select>
+          </p>
+          <p>
+            <label for={`sh-${r.id}`}>{ref.shared}</label>
+            <textarea
+              id={`sh-${r.id}`}
+              name="fields_shared_note"
+              rows="2"
+              cols="50"
+              maxlength="500"
+            >{r.fields_shared_note ?? ''}</textarea>
+          </p>
+          <p>
+            <label for={`rs-${r.id}`}>{ref.response}</label>
+            <select id={`rs-${r.id}`} name="tailor_response">
+              {Object.entries(ref.responses).map(([value, label]) => (
+                <option value={value} selected={r.tailor_response === value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </p>
+          <p>
+            <label for={`ra-${r.id}`}>{ref.respondedAt}</label>
+            <input
+              type="date"
+              id={`ra-${r.id}`}
+              name="responded_at"
+              value={r.responded_at ?? ''}
+            />
+          </p>
+          <p>
+            <label for={`ca-${r.id}`}>{ref.completedAt}</label>
+            <input
+              type="date"
+              id={`ca-${r.id}`}
+              name="completion_reported_at"
+              value={r.completion_reported_at ?? ''}
+            />
+          </p>
+          <p>
+            <label for={`cb-${r.id}`}>{ref.completedBy}</label>
+            <select id={`cb-${r.id}`} name="completion_reported_by">
+              {Object.entries(ref.reporters)
+                .filter(
+                  ([value]) =>
+                    value !== 'owner_confirmed' ||
+                    auth.role === 'owner' ||
+                    r.completion_reported_by === 'owner_confirmed',
+                )
+                .map(([value, label]) => (
+                  <option
+                    value={value}
+                    selected={(r.completion_reported_by ?? '') === value}
+                  >
+                    {label}
+                  </option>
+                ))}
+            </select>
+          </p>
+          <p>{ref.reportedNote}</p>
+          <p>
+            <label for={`cr-${r.id}`}>{ref.closedReason}</label>
+            <input
+              type="text"
+              id={`cr-${r.id}`}
+              name="closed_reason"
+              value={r.closed_reason ?? ''}
+              maxlength="300"
+            />
+          </p>
+          <p>
+            <button type="submit">{ref.saveButton}</button>
+          </p>
+        </form>
+      ) : (
+        <p>{ref.responses[r.tailor_response]}</p>
+      )}
+      {canFees && (
+        <form
+          method="post"
+          action={`/admin/enquiries/${id}/referrals/${r.id}/fee`}
+        >
+          <input type="hidden" name="csrf" value={auth.csrfToken} />
+          <h4>{ref.feeHeading}</h4>
+          <p>{ref.feeHelp}</p>
+          <p>
+            <label for={`fm-${r.id}`}>{ref.feeAmount}</label>
+            <input
+              type="text"
+              inputmode="decimal"
+              id={`fm-${r.id}`}
+              name="fee_amount"
+              value={centsToDollars(r.fee_amount ?? null)}
+            />
+          </p>
+          <p>
+            <label for={`fb-${r.id}`}>{ref.feeBasis}</label>
+            <input
+              type="text"
+              id={`fb-${r.id}`}
+              name="fee_basis_note"
+              value={r.fee_basis_note ?? ''}
+              maxlength="300"
+            />
+          </p>
+          <p>
+            <label for={`ov-${r.id}`}>{ref.orderValue}</label>
+            <input
+              type="text"
+              id={`ov-${r.id}`}
+              name="order_value_note"
+              value={r.order_value_note ?? ''}
+              maxlength="300"
+            />
+          </p>
+          <p>
+            <label for={`fs-${r.id}`}>{ref.feeStatus}</label>
+            <select id={`fs-${r.id}`} name="fee_status">
+              {Object.entries(ref.feeStatuses).map(([value, label]) => (
+                <option
+                  value={value}
+                  selected={(r.fee_status ?? 'not_due') === value}
+                >
+                  {label}
+                </option>
+              ))}
+            </select>
+          </p>
+          <p>
+            <label for={`fp-${r.id}`}>{ref.feePaidAt}</label>
+            <input
+              type="date"
+              id={`fp-${r.id}`}
+              name="fee_paid_at"
+              value={r.fee_paid_at ?? ''}
+            />
+          </p>
+          <p>
+            <button type="submit">{ref.feeButton}</button>
+          </p>
+        </form>
+      )}
+    </section>
+  ))}
+  {tailors.length > 0 && (
+    <form method="post" action={`/admin/enquiries/${id}/referrals`}>
+      <input type="hidden" name="csrf" value={auth.csrfToken} />
+      <h3>{ref.createHeading}</h3>
+      <p>
+        <label for="ref-tailor">{ref.tailor}</label>
+        <select id="ref-tailor" name="tailor_id">
+          {tailors.map((t) => (
+            <option value={String(t.id)}>{t.display_name}</option>
+          ))}
+        </select>
+      </p>
+      <p>
+        <button type="submit">{ref.createButton}</button>
+      </p>
+    </form>
+  )}
 
   {canUpdate && (
     <>
