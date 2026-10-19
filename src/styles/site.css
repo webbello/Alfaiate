@@ -1,5 +1,5 @@
 /* Public site styles: mobile first, system fonts, no images needed. Plain CSS in one external file (the CSP has no
-   'unsafe-inline'). Colours were chosen for WCAG AA contrast: body text 15.9:1, muted text 7.4:1, accent on white 8.6:1. */
+   'unsafe-inline'). Colours were chosen for WCAG AA contrast (computed 2026-10-19): body text 16.9:1, muted text 7.4 to 8.3:1, accent on white 9.2:1, error red 8.2:1, focus ring 6.3:1. */
 :root {
   --ink: #1b1b1b;
   --muted: #4d4d4d;

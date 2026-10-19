@@ -23,7 +23,7 @@
 - [x] **T5 Security and privacy tests**
   - Acceptance: `npm run check:repo` (in `npm run check`) fails on tracked secrets, environment files, databases, uploads and photos and on private-key or token patterns; a test over the whole `src` tree requires every `console.*` call to use constant arguments; a header matrix test checks the security header set on every public route class, API responses, media, admin (including redirects and errors) and the 404; a cookie test requires no `Set-Cookie` on any public page or API response; the AC-15 sweep covers every public route, the 404, the tap-counter responses, robots and the sitemap with a seeded customer, referral and fee.
   - Verify: each check fails on a deliberately planted violation (a fake tracked `.env`, a `console.log(name)` in a temporary file, a response without a header) and passes on the repo; mutation checks listed in the commit only after being seen failing.
-  - Files: `scripts/check-repo.mjs`, `package.json`, `tests/workers/console-constants.test.ts`, `tests/integration/headers-matrix.test.ts`, `tests/integration/cookies.test.ts`, `tests/integration/public-privacy.test.ts`, `tests/workers/check-repo.test.ts`
+  - Files: `scripts/check-repo.mjs`, `package.json`, `tests/workers/console-constants.test.ts`, `tests/integration/security-matrix.test.ts` (headers, cookies and caching), `tests/integration/public-privacy.test.ts`, `tests/workers/check-repo.test.ts`
 
 - [x] **T6 Accessibility (WCAG 2.2 AA) and no-JavaScript**
   - Acceptance: axe with the 2.0 to 2.2 A and AA tags is clean on every public page type in both languages, the request form (clean and error), the thanks pages and every admin page (signed in as the throwaway owner, including the anonymise form and referrals); an e2e watcher fails on any console error or CSP violation across the public pages; with JavaScript disabled browse, a profile and the whole request submission work; at 320 px width and 200% zoom there is no sideways scrolling and nothing is clipped; fixes made only where a check reports a problem.
@@ -38,8 +38,8 @@
 - [x] **T8 Dependency audit and the written security and privacy reviews**
   - Acceptance: `npm audit --omit=dev` run and the result recorded (high and critical zero, or each justified); the security checklist (headers, cookies, sessions, CSRF, origin checks, rate limits, uploads, error pages, secrets, carried-over items) and the privacy review (logs, analytics, cookies, backups, third parties, role visibility) written in DECISIONS.md with what was and was not checked; open items moved to Phase 8 with an owner-visible note in STATUS.
   - Verify: the audit output is pasted in summary form; each checklist line names the test or check that covers it, or says "manual" or "not checked".
-  - Files: `docs/DECISIONS.md`, `docs/STATUS.md`, `docs/ARCHITECTURE.md`
+  - Files: `docs/SECURITY_PRIVACY_REVIEW.md`, `docs/DECISIONS.md`, `docs/STATUS.md`
 
-- [ ] **T9 Docs, reviewers, security audit, fresh clone, manual accessibility checks**
+- [x] **T9 Docs, reviewers, security audit, fresh clone, manual accessibility checks**
   - Acceptance: README, STATUS, DECISIONS, ARCHITECTURE §10 and §11, PRD notes, SPEC deviations and AGENTS lessons updated; `privacy-scope-reviewer`, `docs-sync` and `agent-skills:security-auditor` run with no unresolved blockers; the manual accessibility checks (keyboard path, focus visibility, 200% zoom, 320 px reflow, text spacing, contrast spot checks, reduced motion) done in a real browser and recorded with what was not covered (screen readers, real devices).
   - Verify: `npm ci && npm run check` from a fresh clone, `npm run test:e2e` and `npm run perf`; `git ls-files` has no secrets, databases, uploads or photos.

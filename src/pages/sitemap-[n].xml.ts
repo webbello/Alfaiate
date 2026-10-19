@@ -19,6 +19,9 @@ export const GET: APIRoute = async ({ params }) => {
   const child = 'children' in plan ? plan.children[n - 1] : undefined;
   if (child === undefined) return new Response('Not found', { status: 404 });
   return new Response(child, {
-    headers: { 'Content-Type': 'application/xml; charset=utf-8' },
+    headers: {
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': 'public, max-age=3600',
+    },
   });
 };

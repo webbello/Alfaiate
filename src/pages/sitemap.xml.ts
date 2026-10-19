@@ -8,7 +8,10 @@ import { sitemapPlan } from '../modules/seo/sitemap';
 
 const xml = (body: string) =>
   new Response(body, {
-    headers: { 'Content-Type': 'application/xml; charset=utf-8' },
+    headers: {
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': 'public, max-age=3600',
+    },
   });
 
 /** The sitemap, or an index of child files (`/sitemap-1.xml`, ...) when there are many pages. Empty when the site is not indexable. */

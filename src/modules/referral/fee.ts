@@ -12,7 +12,8 @@ export type FeeResult =
         | 'not_found'
         | 'needs_completion'
         | 'needs_paid_date'
-        | 'no_agreed_terms';
+        | 'no_agreed_terms'
+        | 'locked_anonymised';
     };
 
 const STATUS = ['not_due', 'due', 'paid', 'waived', 'disputed'];
@@ -58,12 +59,19 @@ export async function setFee(
 
   const row = await db
     .prepare(
-      `SELECT r.completion_reported_at AS completed, t.fee_terms_agreed_on AS terms FROM referral r JOIN tailor t ON t.id = r.tailor_id
+      `SELECT r.completion_reported_at AS completed, t.fee_terms_agreed_on AS terms, e.anonymised_at AS anonymised FROM referral r JOIN tailor t ON t.id = r.tailor_id JOIN enquiry e ON e.id = r.enquiry_id
        WHERE r.id = ? AND r.enquiry_id = ?`,
     )
     .bind(referralId, enquiryId)
-    .first<{ completed: string | null; terms: string | null }>();
+    .first<{
+      completed: string | null;
+      terms: string | null;
+      anonymised: string | null;
+    }>();
   if (!row) return { ok: false, error: 'not_found' };
+  // Free text could name the customer, so it is refused once the enquiry is anonymised (PRV-04).
+  if (row.anonymised && (basis || orderValue))
+    return { ok: false, error: 'locked_anonymised' };
   if (cents !== null && row.completed === null)
     return { ok: false, error: 'needs_completion' };
   if ((status === 'due' || status === 'paid') && row.terms === null)

@@ -33,7 +33,13 @@ export const POST: APIRoute = async (context) => {
   const outcome = (result: string, saved: string) =>
     result === 'not_found'
       ? new Response('Not found', { status: 404 })
-      : back(result === 'ok' || result === 'unchanged' ? saved : 'invalid');
+      : back(
+          result === 'ok' || result === 'unchanged'
+            ? saved
+            : result === 'locked_anonymised'
+              ? result
+              : 'invalid',
+        );
 
   switch (form.get('action')?.toString()) {
     case 'set_status': {

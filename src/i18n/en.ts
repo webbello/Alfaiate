@@ -307,6 +307,8 @@ export const en = {
         'This enquiry already has a referral that is pending or accepted. Mark it declined or no response first.',
       forbidden:
         'Only the owner can set or change a completion confirmed by the owner.',
+      locked_anonymised:
+        'This enquiry is anonymised, so no free text can be added to it or its referrals.',
       has_fee:
         'A fee is recorded, so the reported completion cannot be cleared.',
       needs_completion: 'A fee amount needs a reported completion first.',

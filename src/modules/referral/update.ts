@@ -5,7 +5,12 @@ export type UpdateResult =
   | {
       ok: false;
       error:
-        'invalid' | 'not_found' | 'forbidden' | 'has_fee' | 'already_active';
+        | 'invalid'
+        | 'not_found'
+        | 'forbidden'
+        | 'has_fee'
+        | 'already_active'
+        | 'locked_anonymised';
     };
 
 const VIA = ['whatsapp', 'phone', 'sms', 'in_person', 'other'];
@@ -62,11 +67,19 @@ export async function updateReferral(
 
   const current = await db
     .prepare(
-      'SELECT completion_reported_at AS at, completion_reported_by AS by FROM referral WHERE id = ? AND enquiry_id = ?',
+      `SELECT r.completion_reported_at AS at, r.completion_reported_by AS by, e.anonymised_at AS anonymised
+       FROM referral r JOIN enquiry e ON e.id = r.enquiry_id WHERE r.id = ? AND r.enquiry_id = ?`,
     )
     .bind(referralId, enquiryId)
-    .first<{ at: string | null; by: string | null }>();
+    .first<{
+      at: string | null;
+      by: string | null;
+      anonymised: string | null;
+    }>();
   if (!current) return { ok: false, error: 'not_found' };
+  // Once an enquiry is anonymised no free text may be typed back in (PRV-04); the reporting fields stay editable.
+  if (current.anonymised && (shared || closed))
+    return { ok: false, error: 'locked_anonymised' };
 
   if (role !== 'owner') {
     // Re-posting an unchanged confirmed completion is fine; setting, changing or clearing one is the owner's.

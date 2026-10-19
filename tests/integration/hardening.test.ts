@@ -88,6 +88,9 @@ describe('the sitemap index (served only when there are many pages)', () => {
   it('serves the normal sitemap for a small site and 404 for a child file that does not exist', async () => {
     const xml = await (await get('/sitemap.xml')).text();
     expect(xml).toContain('<urlset');
+    expect((await get('/sitemap.xml')).headers.get('cache-control')).toBe(
+      'public, max-age=3600',
+    );
     for (const path of [
       '/sitemap-1.xml',
       '/sitemap-2.xml',

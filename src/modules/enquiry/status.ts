@@ -128,9 +128,16 @@ export async function setSpam(
 export async function addEnquiryNote(
   db: D1Database,
   args: { id: number; body: string; userId: number },
-): Promise<'ok' | 'invalid' | 'not_found'> {
+): Promise<'ok' | 'invalid' | 'not_found' | 'locked_anonymised'> {
   const body = args.body.trim();
   if (!body || body.length > 2000) return 'invalid';
+  const enquiry = await db
+    .prepare('SELECT anonymised_at FROM enquiry WHERE id = ?')
+    .bind(args.id)
+    .first<{ anonymised_at: string | null }>();
+  if (!enquiry) return 'not_found';
+  // Notes can quote the customer, so none may be added after anonymising (PRV-04).
+  if (enquiry.anonymised_at) return 'locked_anonymised';
   const result = await db
     .prepare(
       'INSERT INTO internal_note (body, author_id, enquiry_id) SELECT ?, ?, id FROM enquiry WHERE id = ?',

@@ -38,7 +38,7 @@ No new dependencies. Existing: Astro, D1, Playwright with `@axe-core/playwright`
 ```
 Check:      npm run check          # lint + typecheck + repo check + workers tests + build + integration tests
 Browser:    npm run test:e2e       # public and admin pages with axe (2.2 AA), CSP watcher, no-JavaScript runs
-Speed:      npm run perf           # builds, serves on a throwaway database, measures on a throttled mobile profile, prints and compares with budgets
+Speed:      npm run perf           # builds, serves on a throwaway database, measures on a throttled mobile profile and prints a table (the byte budgets are enforced by `tests/integration/budgets.test.ts` in `npm run check`)
 Repo:       npm run check:repo     # tracked files must not include secrets, environments, databases, uploads or photos
 Audit:      npm audit --omit=dev   # high and critical must be zero or justified in DECISIONS.md
 ```
@@ -54,7 +54,7 @@ src/pages/admin/enquiries/[id]/anonymise.ts   POST, permission enquiry.delete
 scripts/check-repo.mjs             the repository check
 scripts/perf.mjs                   the measurement run (reuses e2e/run.mjs setup helpers)
 e2e/                               + no-javascript.spec.ts, csp.spec.ts, wider axe lists, 200% zoom and reflow checks
-tests/workers/, tests/integration/ + jsonld, indexable, anonymise, console-constants, header matrix, cookies tests
+tests/workers/, tests/integration/ + jsonld, indexable, anonymise, console-constants, header, cookie and cache matrix (`security-matrix.test.ts`), hardening tests
 docs/IMPLEMENTATION_PLAN.md        measured numbers and budgets recorded under Phase 7
 ```
 

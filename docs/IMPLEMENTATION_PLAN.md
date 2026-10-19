@@ -66,7 +66,7 @@ Phases 1–5 produce a publicly usable directory with a working request form and
 - **Objective:** harden and verify against the non-functional requirements.
 - **Dependencies:** Phases 1–6.
 - **Deliverables:** structured data; canonical/noindex rules; image and CSS/JS budgets measured on throttled mobile (record the numbers and set budgets in this file); full accessibility pass (axe + manual keyboard/zoom/contrast); security review (headers, uploads, auth, dependency audit); privacy review (logs, analytics, backups); expand tests; fix findings.
-- **Requirements:** NFR-PERF-01, NFR-A11Y-01, NFR-SEO-01, NFR-BRW-01, SEC-01–08, PRV-04/05, FR-PRO-07.
+- **Requirements:** NFR-PERF-01, NFR-A11Y-01, NFR-SEO-01, NFR-BRW-01, SEC-01–08, PRV-04/05, FR-PRO-07, FR-ADM-09 (anonymise only; hard delete and automatic purge stay unbuilt). Built as in [SPEC-phase-7.md](SPEC-phase-7.md).
 - **Acceptance:** AC-15, AC-17; no unresolved high-severity security finding; performance numbers recorded.
 - **Tests:** full suite; Playwright + axe on key pages; security checklist; no-JavaScript run of browse and form.
 
@@ -84,7 +84,7 @@ Phases 1–5 produce a publicly usable directory with a working request form and
 
 No web fonts, no third-party requests; JavaScript only on a profile with contact buttons (the tap counter).
 
-**Budgets (enforced in `npm run check` by `tests/integration/budgets.test.ts`, uncompressed bytes, measured + about 20%):** HTML home 4,300, directory 4,300, category 3,400, profile 5,400, request 5,700, how it works 4,300; stylesheet 7,800; JavaScript 400. Images: every image needs alt text, `srcset` and `sizes`, and all but the profile hero are `loading="lazy"`; image weight comes from the three resize widths (320, 800, 1600) and the upload caps, since the test data has no photos. Timings are reported by `npm run perf`, not enforced. A directory with many tailors grows the HTML (cap 200 cards): re-measure with real content in Phase 8.
+**Budgets (enforced in `npm run check` by `tests/integration/budgets.test.ts`, uncompressed bytes, measured + about 20%):** HTML home 4,300, directory 4,300, category 3,400, profile 5,400, request 5,700, how it works 4,300; stylesheet 7,800; JavaScript 400. Images: every image needs alt text, `srcset` and `sizes`, and all but the profile hero are `loading="lazy"`; image weight comes from the three resize widths (320, 800, 1600) and the upload caps, since the test data has no photos. Timings are reported by `npm run perf`, not enforced. The budgets come from the byte counts of the fixed dataset in the budget test (home 3,513 B, directory 3,476, category 2,796, profile 4,400, request 4,728, how it works 3,510, CSS 6,474, JS 287), which is slightly different from the `perf` seed data in the table above (the how-it-works page is budgeted and tested but not in the `perf` table). A directory with many tailors grows the HTML (cap 200 cards): re-measure with real content in Phase 8.
 
 ## Phase 8 — Deployment and initial pilot
 
@@ -109,6 +109,6 @@ No web fonts, no third-party requests; JavaScript only on a profile with contact
 | FR-ADM-02/03/04/05/08, FR-REF-08 | 3 |
 | FR-PUB-*, FR-DIR-*, FR-PRO-*, ANA-01/02 | 4 |
 | FR-ENQ-*, FR-ADM-06/07, SEC-05/07, PRV-01/02/03 | 5 |
-| FR-REF-01–07, FR-RPT-*, FR-ADM-09, ANA-03/04/05 | 6 (ANA-03 funnel counts may start in 5) |
-| NFR-*, SEC-04 (3), PRV-04/05 | 7 |
+| FR-REF-01–07, FR-RPT-*, ANA-03/04/05 | 6 (ANA-03 funnel counts were left out of 5 and 6) |
+| NFR-*, SEC-04 (3), PRV-04/05, FR-ADM-09 (anonymise only) | 7 |
 | NFR-REL-01, NFR-COST-01, launch criteria | 8 |

@@ -3,8 +3,9 @@ export type AnonymiseResult =
 
 /**
  * Removes a customer's personal data from an enquiry on request (PRV-04, FR-ADM-09). Irreversible, so the reference code must be typed.
- * One batch: the six personal columns and `anonymised_at`; the free text on its referrals (what was shared, why it ended, the order note);
- * its internal notes (they can quote the customer); and an audit row with ids only. Status, status log, category, area, dates, source,
+ * One batch: the six personal columns and `anonymised_at`; the free text on its referrals (what was shared, why it ended, the order note, the fee basis note);
+ * its internal notes and the notes on its referrals (they can quote the customer); and an audit row with ids only. (Customer photos, `enquiry_attachment`, are not built yet:
+ * if they ever are, this must also delete those rows and their private files.) Status, status log, category, area, dates, source,
  * referral rows and fee fields stay, because reporting needs them. Nothing is automatic and nothing is hard-deleted.
  * Backups taken earlier still hold the old data until they expire (stated in the privacy review).
  */
@@ -32,10 +33,15 @@ export async function anonymiseEnquiry(
       .bind(at, at, id),
     db
       .prepare(
-        'UPDATE referral SET fields_shared_note = NULL, closed_reason = NULL, order_value_note = NULL WHERE enquiry_id = ?',
+        'UPDATE referral SET fields_shared_note = NULL, closed_reason = NULL, order_value_note = NULL, fee_basis_note = NULL WHERE enquiry_id = ?',
       )
       .bind(id),
     db.prepare('DELETE FROM internal_note WHERE enquiry_id = ?').bind(id),
+    db
+      .prepare(
+        'DELETE FROM internal_note WHERE referral_id IN (SELECT id FROM referral WHERE enquiry_id = ?)',
+      )
+      .bind(id),
     db
       .prepare(
         "INSERT INTO audit_log (admin_user_id, action, entity_type, entity_id) SELECT ?, 'enquiry_anonymised', 'enquiry', id FROM enquiry WHERE id = ? AND anonymised_at = ?",

@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { env } from 'cloudflare:workers';
 import { anonymiseEnquiry } from '../../src/modules/enquiry/anonymise';
 import { metrics } from '../../src/modules/reporting/metrics';
+import { updateReferral } from '../../src/modules/referral/update';
+import { setFee } from '../../src/modules/referral/fee';
+import { addEnquiryNote } from '../../src/modules/enquiry/status';
 
 // PRV-04, FR-ADM-09: after anonymising, no personal text of the customer remains anywhere in the database, and the reporting figures are unchanged.
 const db = env.DB;
@@ -15,7 +18,9 @@ const MARK = {
   shared: 'ANON-MARK-SHARED',
   closed: 'ANON-MARK-CLOSED',
   order: 'ANON-MARK-ORDER',
+  basis: 'ANON-MARK-BASIS',
   note: 'ANON-MARK-INTERNAL-NOTE',
+  refnote: 'ANON-MARK-REFERRAL-NOTE',
 };
 let n = 0;
 const seed = async () => {
@@ -70,9 +75,9 @@ const seed = async () => {
     await db
       .prepare(
         `INSERT INTO referral (enquiry_id, tailor_id, forwarded_at, tailor_response, completion_reported_at, completion_reported_by, fee_amount, fee_status, fee_basis_note, fields_shared_note, closed_reason, order_value_note)
-    VALUES (?, ?, '2026-06-01', 'accepted', '2026-06-05', 'tailor', 5000, 'due', 'agreed terms', ?, ?, ?)`,
+    VALUES (?, ?, '2026-06-01', 'accepted', '2026-06-05', 'tailor', 5000, 'due', ?, ?, ?, ?)`,
       )
-      .bind(id, tailor, MARK.shared, MARK.closed, MARK.order)
+      .bind(id, tailor, MARK.basis, MARK.shared, MARK.closed, MARK.order)
       .run()
   ).meta.last_row_id as number;
   await db
@@ -85,7 +90,7 @@ const seed = async () => {
     .prepare(
       'INSERT INTO internal_note (body, author_id, referral_id) VALUES (?, ?, ?)',
     )
-    .bind('unrelated referral note', who, referral)
+    .bind(MARK.refnote, who, referral)
     .run();
   return { who, id, reference, referral, cat, tailor };
 };
@@ -168,7 +173,7 @@ describe('anonymiseEnquiry (PRV-04, FR-ADM-09)', () => {
       fee_status: 'due',
       tailor_response: 'accepted',
       completion_reported_by: 'tailor',
-      fee_basis_note: 'agreed terms',
+      fee_basis_note: null,
       fields_shared_note: null,
       closed_reason: null,
       order_value_note: null,
@@ -183,27 +188,23 @@ describe('anonymiseEnquiry (PRV-04, FR-ADM-09)', () => {
     ).toBe(1);
   });
 
-  it("deletes only this enquiry's own notes and writes one audit row with ids only", async () => {
+  it("deletes the enquiry's notes and the notes on its referrals, but no other enquiry's notes, and writes one audit row with ids only", async () => {
     const s = await seed();
+    const other = await seed();
     await anonymiseEnquiry(db, {
       id: s.id,
       reference: s.reference,
       userId: s.who,
     });
-    expect(
+    const count = async (column: string, id: number) =>
       (await db
-        .prepare('SELECT count(*) AS c FROM internal_note WHERE enquiry_id = ?')
-        .bind(s.id)
-        .first<{ c: number }>())!.c,
-    ).toBe(0);
-    expect(
-      (await db
-        .prepare(
-          'SELECT count(*) AS c FROM internal_note WHERE referral_id = ?',
-        )
-        .bind(s.referral)
-        .first<{ c: number }>())!.c,
-    ).toBe(1);
+        .prepare(`SELECT count(*) AS c FROM internal_note WHERE ${column} = ?`)
+        .bind(id)
+        .first<{ c: number }>())!.c;
+    expect(await count('enquiry_id', s.id)).toBe(0);
+    expect(await count('referral_id', s.referral)).toBe(0);
+    expect(await count('enquiry_id', other.id)).toBe(1);
+    expect(await count('referral_id', other.referral)).toBe(1);
     const audit = (
       await db
         .prepare(
@@ -291,5 +292,82 @@ describe('anonymiseEnquiry (PRV-04, FR-ADM-09)', () => {
         .bind(s.id, s.tailor)
         .run(),
     ).rejects.toThrow(/sharing consent/);
+  });
+});
+
+describe('nothing personal can be typed back in afterwards', () => {
+  it('refuses free text on referrals, fees and notes of an anonymised enquiry, but still allows the reporting fields', async () => {
+    const s = await seed();
+    await anonymiseEnquiry(db, {
+      id: s.id,
+      reference: s.reference,
+      userId: s.who,
+    });
+    const base = {
+      forwarded_at: '2026-06-09',
+      forwarded_via: 'phone',
+      fields_shared_note: '',
+      tailor_response: 'accepted',
+      responded_at: '2026-06-10',
+      completion_reported_at: '2026-06-05',
+      completion_reported_by: 'tailor',
+      closed_reason: '',
+    };
+    const run = (input: Record<string, string>) =>
+      updateReferral(db, {
+        enquiryId: s.id,
+        referralId: s.referral,
+        userId: s.who,
+        role: 'owner',
+        input,
+      });
+    expect(
+      await run({ ...base, fields_shared_note: 'Maria at the market' }),
+    ).toEqual({ ok: false, error: 'locked_anonymised' });
+    expect(await run({ ...base, closed_reason: 'customer said' })).toEqual({
+      ok: false,
+      error: 'locked_anonymised',
+    });
+    expect(await run(base)).toEqual({ ok: true });
+    const fee = (input: Record<string, string>) =>
+      setFee(db, {
+        enquiryId: s.id,
+        referralId: s.referral,
+        userId: s.who,
+        role: 'owner',
+        input: {
+          fee_amount: '50',
+          fee_basis_note: '',
+          order_value_note: '',
+          fee_status: 'due',
+          fee_paid_at: '',
+          ...input,
+        },
+      });
+    expect(await fee({ fee_basis_note: 'for Maria' })).toEqual({
+      ok: false,
+      error: 'locked_anonymised',
+    });
+    expect(await fee({ order_value_note: 'Maria suit' })).toEqual({
+      ok: false,
+      error: 'locked_anonymised',
+    });
+    expect(await fee({})).toEqual({ ok: true });
+    expect(
+      await addEnquiryNote(db, {
+        id: s.id,
+        body: 'Maria called',
+        userId: s.who,
+      }),
+    ).toBe('locked_anonymised');
+    const after = await everything();
+    for (const text of [
+      'Maria at the market',
+      'customer said',
+      'for Maria',
+      'Maria suit',
+      'Maria called',
+    ])
+      expect(after, text).not.toContain(text);
   });
 });

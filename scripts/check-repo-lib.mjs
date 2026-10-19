@@ -4,6 +4,10 @@ const FILE_RULES = [
   [/(^|\/)\.env(\.[^/]*)?$/, 'environment file', (p) => !/\.example$/.test(p)],
   [/(^|\/)\.dev\.vars$/, 'local variables file (secrets)'],
   [/\.(sqlite3?|db)$/i, 'database file'],
+  [
+    /\.(dump|zip|tar|gz|tgz|7z|bak)$/i,
+    'archive or dump (could hold a database or customer data)',
+  ],
   [/\.(pem|key|p12|pfx)$/i, 'key or certificate file'],
   [/(^|\/)id_(rsa|dsa|ecdsa|ed25519)(\.pub)?$/, 'ssh key'],
   [/(^|\/)uploads\//, 'uploads directory'],
