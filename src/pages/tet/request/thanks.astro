@@ -1,0 +1,12 @@
+---
+export const prerender = false;
+import RequestThanks from '../../../views/RequestThanks.astro';
+import { referenceParam } from '../../../modules/enquiry/page';
+import { pathFor } from '../../../i18n/lang';
+
+const reference = referenceParam(Astro.url);
+if (!reference) return Astro.redirect(pathFor('tet', '/request'), 303);
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<RequestThanks lang="tet" reference={reference} />

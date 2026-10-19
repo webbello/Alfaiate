@@ -1,6 +1,13 @@
 ---
 export const prerender = false;
-import RequestPlaceholder from '../../views/RequestPlaceholder.astro';
+import Request from '../../views/Request.astro';
+import { runRequestPage } from '../../modules/enquiry/page';
+
+const outcome = await runRequestPage(Astro.request, 'tet');
+if (outcome instanceof Response) return outcome;
+if (outcome.kind === 'redirect') return Astro.redirect(outcome.to, 303);
+Astro.response.status = outcome.status;
+Astro.response.headers.set('Cache-Control', 'no-store');
 ---
 
-<RequestPlaceholder lang="tet" />
+<Request lang="tet" outcome={outcome} />

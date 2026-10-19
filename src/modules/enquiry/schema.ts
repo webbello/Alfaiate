@@ -44,6 +44,12 @@ const LIMITS = {
 const CHANNELS = ['whatsapp', 'phone', 'either'] as const;
 const ID = /^[0-9]{1,9}$/;
 
+/** The `?tailor=` / hidden `tailor` value: a plain slug or nothing. */
+export const tailorParam = (value: string | null): string | null => {
+  const slug = (value ?? '').trim();
+  return slug.length <= 60 && SLUG.test(slug) ? slug : null;
+};
+
 export function parseEnquiryForm(form: URLSearchParams): Parsed {
   const get = (key: string) => (form.get(key) ?? '').trim();
   const values: FormValues = {
@@ -93,7 +99,6 @@ export function parseEnquiryForm(form: URLSearchParams): Parsed {
     if (values[key].length > LIMITS[key]) errors[key] = 'too_long';
 
   if (Object.keys(errors).length > 0) return { ok: false, errors, values };
-  const slug = get('tailor');
   return {
     ok: true,
     data: {
@@ -106,7 +111,7 @@ export function parseEnquiryForm(form: URLSearchParams): Parsed {
       areaText,
       when: values.when || null,
       notes: values.notes || null,
-      tailorSlug: slug.length <= 60 && SLUG.test(slug) ? slug : null,
+      tailorSlug: tailorParam(form.get('tailor')),
     },
   };
 }

@@ -151,19 +151,3 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
     expect(headers.get('set-cookie')).toBeNull();
   });
 });
-
-describe('request placeholder (until Phase 5)', () => {
-  for (const [path, lang, browse] of [
-    ['/request', 'en', 'href="/tailors"'],
-    ['/tet/request', 'tet', 'href="/tet/tailors"'],
-  ] as const) {
-    it(`${path} explains the form is not open, has no form, and is not indexed`, async () => {
-      const { status, html } = await text(path);
-      expect(status).toBe(200);
-      expect(html).toContain(`<html lang="${lang}">`);
-      expect(html).not.toMatch(/<form|<input|<textarea|<select/);
-      expect(html).toContain('name="robots" content="noindex,follow"');
-      expect(html).toContain(browse);
-    });
-  }
-});

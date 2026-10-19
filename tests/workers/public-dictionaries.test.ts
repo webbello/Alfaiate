@@ -42,6 +42,7 @@ describe('public dictionaries', () => {
       'language.en',
       'language.tet',
       'contact.whatsapp',
+      'request.channelWhatsapp',
       'category.heading', // just the category name in both languages
     ]);
     for (const key of Object.keys(english)) {

@@ -405,3 +405,82 @@ dl.facts dd {
   align-items: center;
   min-height: 2.75rem;
 }
+
+/* Request form (Phase 5) */
+.request {
+  max-width: var(--measure);
+}
+.request .field {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border: 0;
+}
+.request label,
+.request legend {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  padding: 0;
+}
+.request label.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  font-weight: 400;
+}
+.request input[type='text'],
+.request input[type='tel'],
+.request select,
+.request textarea {
+  display: block;
+  width: 100%;
+  min-height: 2.75rem;
+  font: inherit;
+  padding: 0.5rem;
+  border: 2px solid var(--muted);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+}
+.request input[type='radio'],
+.request input[type='checkbox'] {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.6rem;
+}
+.request [aria-invalid='true'] {
+  border-color: #9b1c1c;
+}
+.hint {
+  margin: 0 0 0.25rem;
+  color: var(--muted);
+}
+.error {
+  margin: 0.25rem 0 0;
+  color: #9b1c1c;
+  font-weight: 600;
+}
+.error-summary {
+  max-width: var(--measure);
+  border: 2px solid #9b1c1c;
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+  background: #fff;
+}
+.error-summary h2 {
+  margin-top: 0.5rem;
+}
+.hp {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.reference {
+  font-size: 1.75rem;
+  letter-spacing: 0.05em;
+}

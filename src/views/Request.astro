@@ -1,0 +1,347 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import { dictionary, fill } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+import type { Outcome } from '../modules/enquiry/submit';
+import type { Field } from '../modules/enquiry/schema';
+
+interface Props {
+  lang: Lang;
+  outcome: Extract<Outcome, { kind: 'form' | 'message' }>;
+}
+const { lang, outcome } = Astro.props;
+const t = dictionary(lang);
+const r = t.request;
+const view = outcome.kind === 'form' ? outcome.view : null;
+const values = view?.values;
+const errors = view?.errors ?? {};
+const labels: Record<Field, string> = {
+  name: r.name,
+  phone: r.phone,
+  channel: r.channel,
+  category: r.category,
+  service: r.service,
+  area: r.area,
+  area_text: r.areaText,
+  when: r.when,
+  notes: r.notes,
+  consent: r.consentLegend,
+};
+const message = (field: Field) => {
+  const key = errors[field];
+  if (field === 'consent') return r.errorConsent;
+  if (field === 'phone' && key === 'invalid') return r.errorPhone;
+  return key === 'required'
+    ? r.errorRequired
+    : key === 'invalid'
+      ? r.errorInvalid
+      : r.errorTooLong;
+};
+const failing = (Object.keys(errors) as Field[]).filter((f) => errors[f]);
+const describedBy = (field: Field, hint?: string) =>
+  [hint, errors[field] ? `${field}-error` : undefined]
+    .filter(Boolean)
+    .join(' ') || undefined;
+const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${outcome.kind === 'message' ? (outcome.which === 'limited' ? r.limitedHeading : r.failedHeading) : r.title} · ${t.siteName}`}
+  description={r.intro}
+  rest="/request"
+  noindex
+>
+  {outcome.kind === 'message' ? (
+    <>
+      <h1>
+        {outcome.which === 'limited' ? r.limitedHeading : r.failedHeading}
+      </h1>
+      <p>{outcome.which === 'limited' ? r.limitedBody : r.failedBody}</p>
+      <p>
+        <a class="button" href={pathFor(lang, '/tailors')}>
+          {r.browse}
+        </a>
+      </p>
+    </>
+  ) : (
+    view &&
+    values && (
+      <>
+        <h1>{r.heading}</h1>
+        <p>{r.intro}</p>
+        {view.tailor && (
+          <p class="notice">{fill(r.fromTailor, { name: view.tailor.name })}</p>
+        )}
+        {(failing.length > 0 || view.formError) && (
+          <div class="error-summary" role="alert" tabindex="-1" autofocus>
+            <h2>{r.summaryHeading}</h2>
+            <ul>
+              {view.formError === 'too_fast' && <li>{r.tooFast}</li>}
+              {view.formError === 'expired' && <li>{r.expired}</li>}
+              {failing.map((f) => (
+                <li>
+                  <a href={`#${f}`}>
+                    {labels[f]}: {message(f)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <form class="request" method="post" action={pathFor(lang, '/request')}>
+          <input type="hidden" name="form_token" value={view.token} />
+          {view.tailor && (
+            <input type="hidden" name="tailor" value={view.tailor.slug} />
+          )}
+          <div class="hp" aria-hidden="true">
+            <label for="website">Website</label>
+            <input
+              type="text"
+              id="website"
+              name="website"
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field">
+            <label for="name">{r.name}</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={values.name}
+              autocomplete="name"
+              maxlength="100"
+              required
+              aria-invalid={invalid('name')}
+              aria-describedby={describedBy('name')}
+            />
+            {errors.name && (
+              <p class="error" id="name-error">
+                {message('name')}
+              </p>
+            )}
+          </div>
+
+          <div class="field">
+            <label for="phone">{r.phone}</label>
+            <p class="hint" id="phone-hint">
+              {r.phoneHint}
+            </p>
+            <input
+              type="tel"
+              inputmode="tel"
+              id="phone"
+              name="phone"
+              value={values.phone}
+              autocomplete="tel"
+              maxlength="40"
+              required
+              aria-invalid={invalid('phone')}
+              aria-describedby={describedBy('phone', 'phone-hint')}
+            />
+            {errors.phone && (
+              <p class="error" id="phone-error">
+                {message('phone')}
+              </p>
+            )}
+          </div>
+
+          <fieldset
+            class="field"
+            id="channel"
+            aria-describedby={describedBy('channel')}
+          >
+            <legend>{r.channel}</legend>
+            {(
+              [
+                ['whatsapp', r.channelWhatsapp],
+                ['phone', r.channelPhone],
+                ['either', r.channelEither],
+              ] as const
+            ).map(([value, text]) => (
+              <label class="choice" for={`channel-${value}`}>
+                <input
+                  type="radio"
+                  id={`channel-${value}`}
+                  name="channel"
+                  value={value}
+                  checked={values.channel === value}
+                  required
+                />
+                {text}
+              </label>
+            ))}
+            {errors.channel && (
+              <p class="error" id="channel-error">
+                {message('channel')}
+              </p>
+            )}
+          </fieldset>
+
+          <div class="field">
+            <label for="category">{r.category}</label>
+            <select
+              id="category"
+              name="category"
+              aria-invalid={invalid('category')}
+              aria-describedby={describedBy('category')}
+            >
+              <option value="">{r.choose}</option>
+              {view.categories.map((c) => (
+                <option
+                  value={String(c.id)}
+                  selected={values.category === String(c.id)}
+                >
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            {errors.category && (
+              <p class="error" id="category-error">
+                {message('category')}
+              </p>
+            )}
+          </div>
+
+          <div class="field">
+            <label for="service">{r.service}</label>
+            <input
+              type="text"
+              id="service"
+              name="service"
+              value={values.service}
+              maxlength="200"
+              aria-invalid={invalid('service')}
+              aria-describedby={describedBy('service')}
+            />
+            {errors.service && (
+              <p class="error" id="service-error">
+                {message('service')}
+              </p>
+            )}
+          </div>
+
+          <div class="field">
+            <label for="area">{r.area}</label>
+            <select
+              id="area"
+              name="area"
+              aria-invalid={invalid('area')}
+              aria-describedby={describedBy('area')}
+            >
+              <option value="">{r.choose}</option>
+              {view.areas.map((a) => (
+                <option
+                  value={String(a.id)}
+                  selected={values.area === String(a.id)}
+                >
+                  {a.name}
+                </option>
+              ))}
+              <option value="other" selected={values.area === 'other'}>
+                {r.areaOther}
+              </option>
+            </select>
+            {errors.area && (
+              <p class="error" id="area-error">
+                {message('area')}
+              </p>
+            )}
+          </div>
+
+          <div class="field">
+            <label for="area_text">{r.areaText}</label>
+            <input
+              type="text"
+              id="area_text"
+              name="area_text"
+              value={values.area_text}
+              maxlength="100"
+              aria-invalid={invalid('area_text')}
+              aria-describedby={describedBy('area_text')}
+            />
+            {errors.area_text && (
+              <p class="error" id="area_text-error">
+                {message('area_text')}
+              </p>
+            )}
+          </div>
+
+          <div class="field">
+            <label for="when">{r.when}</label>
+            <p class="hint" id="when-hint">
+              {r.whenHint}
+            </p>
+            <input
+              type="text"
+              id="when"
+              name="when"
+              value={values.when}
+              maxlength="100"
+              aria-invalid={invalid('when')}
+              aria-describedby={describedBy('when', 'when-hint')}
+            />
+            {errors.when && (
+              <p class="error" id="when-error">
+                {message('when')}
+              </p>
+            )}
+          </div>
+
+          <div class="field">
+            <label for="notes">{r.notes}</label>
+            <textarea
+              id="notes"
+              name="notes"
+              rows="4"
+              maxlength="1000"
+              aria-invalid={invalid('notes')}
+              aria-describedby={describedBy('notes')}
+            >{values.notes}</textarea>
+            {errors.notes && (
+              <p class="error" id="notes-error">
+                {message('notes')}
+              </p>
+            )}
+          </div>
+
+          <fieldset class="field">
+            <legend>{r.consentLegend}</legend>
+            <label class="choice" for="consent">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                value="yes"
+                required
+                aria-invalid={invalid('consent')}
+                aria-describedby={describedBy('consent')}
+              />
+              {r.consent}
+            </label>
+            {errors.consent && (
+              <p class="error" id="consent-error">
+                {message('consent')}
+              </p>
+            )}
+            <p>
+              <a href={pathFor(lang, '/privacy')}>{r.privacyLink}</a>
+            </p>
+          </fieldset>
+
+          <p class="notice" role="note">
+            <strong>{t.home.noteLabel}:</strong> {r.notBooking}
+          </p>
+          <p>
+            <button class="button" type="submit">
+              {r.submit}
+            </button>
+          </p>
+        </form>
+      </>
+    )
+  )}
+</PublicLayout>

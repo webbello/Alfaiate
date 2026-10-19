@@ -11,6 +11,7 @@ export default defineConfig({
           TEST_MIGRATIONS: await readD1Migrations('./migrations'),
           // The built worker's own settings say English only; the integration suite tests both languages.
           PUBLIC_LANGUAGES: 'en,tet',
+          FORM_TOKEN_SECRET: 'integration-form-secret-0123456789',
           SITE_URL: 'https://alfaiate-tl.example',
         },
       },
