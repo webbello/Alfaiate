@@ -11,7 +11,7 @@ try {
 }
 for (const args of steps)
   if (
-    spawnSync('npx', ['wrangler', ...args], { stdio: 'inherit' }).status !== 0
+    spawnSync('npx', ['--no-install', 'wrangler', ...args], { stdio: 'inherit' }).status !== 0
   )
     process.exit(1);
 console.log(

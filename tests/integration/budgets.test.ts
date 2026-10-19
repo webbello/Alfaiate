@@ -105,7 +105,7 @@ describe('page weight budgets (NFR-PERF-01)', () => {
 });
 
 describe('the admin stylesheet stays small (Phase 7b)', () => {
-  it('is within its budget on the dashboard and ships no admin script', async () => {
+  it('serves a stylesheet within its budget and no admin script', async () => {
     const html = await (await get('/admin/login')).text();
     expect(
       await assetsOf(html, /<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g),

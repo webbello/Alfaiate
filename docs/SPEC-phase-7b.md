@@ -1,6 +1,6 @@
 # Spec: Phase 7b — Admin UX polish and first-run experience
 
-Status: Approved 2026-10-19 (all six open-question defaults accepted) · Not in the original [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md): added on the owner's request (2026-10-19) after the first look at the admin in a browser, to be inserted between Phase 7 and Phase 8 · Related: PRD §5 (users and needs), FR-ADM-01–09, FR-RPT-01/02, NFR-A11Y-01, PRD §7.3 (exclusions)
+Status: Approved 2026-10-19 (all six open-question defaults accepted) · Not in the original [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md): added on the owner's request (2026-10-19) after the first look at the admin in a browser, inserted as Phase 7b in IMPLEMENTATION_PLAN.md between Phase 7 and Phase 8 · Related: PRD §5 (users and needs), FR-ADM-01–09, FR-RPT-01/02, NFR-A11Y-01, PRD §7.3 (exclusions)
 
 **Requirements touched:** FR-ADM-02/03/04/05/06/07/08/09, FR-RPT-01/02, ANA-04/05, NFR-A11Y-01 (kept, not weakened). **No new feature and no change to who may do what.**
 **Owner decision (2026-10-19):** spec and build the UX polish as its own short phase before Phase 8, covering items 1 to 7 of the review below; the public-site items (8) stay out.
@@ -48,8 +48,8 @@ Browser:    npm run test:e2e         # axe on every admin page, reflow, CSP watc
 ```
 src/layouts/AdminLayout.astro      header bar, role-based links, current page, sign out, flash banner slot
 src/styles/admin.css               the admin stylesheet (external file); tokens.css stays for the sign-in page
-src/components/admin/              Flash.astro, StatusChip.astro, Card.astro, StatCard.astro, Checklist.astro, EmptyState.astro
-src/modules/admin-ui/              nav.ts (links per permission), messages.ts (success or problem per code), next-step.ts (hint text from enquiry state)
+src/components/admin/              Flash.astro, StatusChip.astro, Card.astro, StatCard.astro, EmptyState.astro
+src/modules/admin-ui/              nav.ts (links per permission), messages.ts (success or problem per code), next-step.ts (hint text from enquiry state), checklist.ts, tone.ts, system.ts
 src/pages/admin/**                 every page moves to AdminLayout and the components; behaviour and routes unchanged
 seeds/demo.sql, scripts/demo.mjs   demo data and its local-only runner (add and remove)
 tests/workers/, tests/integration/, e2e/   as before, plus new tests below
@@ -98,6 +98,14 @@ export function nextStep(e: { status: Status; referralStates: string[]; anonymis
 8. `npm run db:demo` fills a local database with clearly fake data and `db:demo:remove` removes exactly it; neither can touch a remote database.
 9. axe (WCAG 2.2 AA) is clean on every admin page, 320 px reflow and text spacing pass on admin pages, the CSP watcher is clean, the admin stylesheet and pages meet their byte budgets, and there is no admin JavaScript.
 10. All earlier tests still pass unchanged (behaviour did not change); `npm run check` and `npm run test:e2e` pass; reviewers report no unresolved blockers; docs and STATUS are updated; the owner has clicked through and signed off.
+
+## Deviations recorded during the build
+
+- "No admin JavaScript" means no inline script; the tailor page keeps its existing external photo-upload script (tested in `admin-layout.test.ts`).
+- The tailors list and tailor page build the checklist from `src/modules/admin-ui/checklist.ts` and inline markup, not a separate `Checklist.astro` component.
+- No Playwright demo-data journey: the demo scripts only target the local database and cannot be pointed at the throwaway e2e database, so add, repeat and remove are tested in the D1 test runtime instead (`tests/workers/demo-seed.test.ts`); the run through wrangler was not automated.
+- Editors see the checklist but not the approve/permission forms (they lack `tailor.publish`), so its "Fix this" link to `#publish` has no target for them.
+- Tables scroll inside themselves below 48rem instead of stacking, so wide admin tables never make the page scroll sideways.
 
 ## Open questions
 

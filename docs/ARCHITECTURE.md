@@ -53,6 +53,8 @@ Browser ──> Cloudflare edge ──> Worker (Astro SSR)
 
 Pages call modules; modules call `db`/`media`. Modules do not query each other's tables directly.
 
+**Admin layout (Phase 7b).** Every admin page uses `src/layouts/AdminLayout.astro` (the sign-in page passes no `auth` and gets a centred card instead; otherwise a header bar, links from `navLinks(role)`, current page marked, signed-in user, Sign out) and one external stylesheet, `src/styles/admin.css` (byte budget enforced in `tests/integration/budgets.test.ts`). Small components in `src/components/admin/` (Flash, StatusChip, Card, EmptyState, StatCard) and pure helpers in `src/modules/admin-ui/` (nav, message classification, tone, next-step hint, publish checklist built from `publishBlockers`) hold the presentation; routes, forms, permissions and server rules are unchanged, guarded by `tests/integration/admin-contract.test.ts`. Admin pages ship no inline script; the only external script is the existing photo upload tool on a tailor page. Demo data (`seeds/demo.sql`, `npm run db:demo`) is local-only and not a migration.
+
 ## 4. Request and data flows
 
 **Public browse.** Request → Worker → D1 query restricted to published tailors and permitted images → HTML. Public pages may use edge caching (cache API/CDN) with short TTLs and purge/expiry on publish changes; cache only responses containing no customer data. No enquiry table is read on public paths.

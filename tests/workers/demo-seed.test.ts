@@ -81,7 +81,7 @@ describe('the runner', () => {
 describe('loading and removing on a scratch database', () => {
   it('adds only demo rows, twice without duplicating, and removing leaves the database as it was', async () => {
     await run(
-      "INSERT INTO tailor (slug, display_name) VALUES ('real-one', 'Real One'), ('demolition-co', 'Demolition Co');",
+      "INSERT INTO tailor (slug, display_name) VALUES ('real-one', 'Real One'), ('demolition-co', 'Demolition Co'), ('demo-not-ours', 'Not a demo');",
     );
     const before = await counts();
     await run(removeSql);
@@ -101,10 +101,10 @@ describe('loading and removing on a scratch database', () => {
         await one(
           `SELECT count(*) AS n FROM ${t} WHERE ${col} NOT LIKE '${like}'`,
         ),
-      ).toBe(before[t]);
+      ).toBe(before[t] - (t === 'tailor' ? 1 : 0));
     expect(
       await one(
-        "SELECT count(*) AS n FROM tailor WHERE slug LIKE 'demo-%' AND display_name NOT LIKE '[Demo]%'",
+        "SELECT count(*) AS n FROM tailor WHERE slug LIKE 'demo-%' AND display_name NOT LIKE '[Demo]%' AND slug <> 'demo-not-ours'",
       ),
     ).toBe(0);
     expect(
@@ -130,8 +130,8 @@ describe('loading and removing on a scratch database', () => {
     expect(await counts()).toEqual(before);
     expect(
       await one(
-        "SELECT count(*) AS n FROM tailor WHERE slug IN ('real-one', 'demolition-co')",
+        "SELECT count(*) AS n FROM tailor WHERE slug IN ('real-one', 'demolition-co', 'demo-not-ours')",
       ),
-    ).toBe(2);
+    ).toBe(3);
   });
 });

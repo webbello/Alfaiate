@@ -28,7 +28,7 @@
 - [x] **T6 Tailor page checklist, tailors list, empty states**
   - Acceptance: a publish checklist at the top of the tailor page built from `publishBlockers` (each requirement done or missing, with a link to the field that fixes it, and the reason the Publish button cannot be used yet); the tailors list shows status chips and a "needs attention" count; tailors, categories and areas have empty states with the next step; categories and areas lists get the same card styling.
   - Verify: a test compares the checklist with `publishBlockers` for every blocker and for a ready tailor; integration tests for the empty states and chips; contract test unchanged; publish and permission tests unchanged; mutation checks on one checklist rule and on the chip for unpublished tailors; screenshots shown to the owner.
-  - Files: `src/pages/admin/tailors/[id].astro`, `src/pages/admin/tailors.astro`, `src/pages/admin/categories.astro`, `src/pages/admin/areas.astro`, `src/components/admin/Checklist.astro`, tests
+  - Files: `src/pages/admin/tailors/[id].astro`, `src/pages/admin/tailors.astro`, `src/pages/admin/categories.astro`, `src/pages/admin/areas.astro`, `src/modules/admin-ui/checklist.ts`, tests
 
 - [x] **T7 Demo data (local only)**
   - Acceptance: `seeds/demo.sql` and `scripts/demo.mjs`: `npm run db:demo` adds clearly fake data to the local database only (published "[Demo]" tailors with permission and consent, categories and areas, enquiries in several statuses with referrals and fees, a few tap counts, no photos); `npm run db:demo:remove` deletes exactly those rows (slug prefix `demo-`, reference prefix `AT-DEMO`) and nothing else; the runner refuses `--remote` and any non-local target.
@@ -36,7 +36,7 @@
   - Files: `seeds/demo.sql`, `scripts/demo.mjs`, `scripts/demo-lib.mjs`, `package.json`, `README.md`, `tests/workers/demo-seed.test.ts`
 
 - [x] **T8 Browser checks and budgets**
-  - Acceptance: admin pages added to the 320 px reflow and text-spacing e2e checks; a keyboard path through the header bar; a first-run journey as the throwaway owner (empty system, create category and area, create a tailor, follow the checklist to publish) and a demo-data journey; a byte budget for `admin.css` (measured plus about 20%) enforced in the integration budget test; no admin page loads a script.
+  - Acceptance: admin pages added to the 320 px reflow and text-spacing e2e checks; a keyboard path through the header bar; a first-run journey as the throwaway owner (empty system, create category and area, create a tailor, follow the checklist to publish) (no demo-data journey: see the deviation in SPEC-phase-7b.md); a byte budget for `admin.css` (measured plus about 20%) enforced in the integration budget test; no admin page loads a script.
   - Verify: `npm run test:e2e` and `npm run check` pass; a removed label on an admin page and an inline script were each seen failing and reverted.
   - Files: `e2e/admin-reflow.spec.ts`, `e2e/first-run.spec.ts`, `tests/integration/budgets.test.ts`, `e2e/seed.sql` if needed
 

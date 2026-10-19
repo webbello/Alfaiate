@@ -46,4 +46,5 @@ Append one line when the user corrects you, a check catches a mistake, or someth
 - 2026-10-19 — a test searched the page for `<script` and failed on the hostile name that Astro leaves unescaped inside attribute values (like `og:title`) → check markup after blanking attribute values, and run attribute text through `metaText` when it is customer-controlled.
 - 2026-10-19 — e2e requests shared one rate-limit bucket because the local Worker sees no client address, so the sixth form submission was refused → give each e2e file that posts its own `cf-connecting-ip`.
 - 2026-10-19 — an imprecise mutation (changing a bound-parameter count) "failed" for the wrong reason → mutate so the bind count stays valid (add `OR 1 = 1`, swap a constant) and look at which test failed.
-
+- 2026-10-19 — a UI commit passed `npm run check` while e2e was failing, and a `grep -c` after a failed Python edit still printed EDIT-OK → for UI changes run `npm run test:e2e` before committing, and chain `echo EDIT-OK` only with `&&` after the Python step (or `set -e`).
+- 2026-10-19 — an integration-test mutation "passed" because those tests run the built Worker, not the source → rebuild (run `npm run test:integration`, which builds) before judging a mutation of a page or component.
