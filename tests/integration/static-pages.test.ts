@@ -24,7 +24,9 @@ describe('static pages (FR-PUB-06)', () => {
           `<link rel="canonical" href="https://alfaiate-tl.example${prefix}/${slug}"`,
         );
         expect(html).not.toContain('<style');
-        expect(html).not.toMatch(/<script(?![^>]*src=)/);
+        expect(html).not.toMatch(
+          /<script(?![^>]*(src=|type="application\/ld\+json"))/,
+        );
       });
     }
   }

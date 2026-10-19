@@ -82,7 +82,9 @@ describe('GET /request (FR-ENQ-01/02/03, AC-06)', () => {
       html.indexOf('type="submit"'),
     );
     expect(html).toContain('href="/privacy"');
-    expect(html).not.toMatch(/<script(?![^>]*src=)/);
+    expect(html).not.toMatch(
+      /<script(?![^>]*(src=|type="application\/ld\+json"))/,
+    );
     for (const id of ['name', 'phone', 'consent'])
       expect(html).toMatch(new RegExp(`<label[^>]*for="${id}"`));
   });

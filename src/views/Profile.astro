@@ -9,6 +9,9 @@ import {
   whatsappMessage,
 } from '../modules/contact-links/whatsapp';
 import { priceText } from '../modules/directory/format';
+import { env } from 'cloudflare:workers';
+import { siteConfig } from '../modules/config';
+import { localBusinessJsonLd } from '../modules/seo/jsonld';
 import { metaText } from '../modules/seo/meta';
 import type { ProfileView } from '../modules/directory/view';
 
@@ -38,6 +41,12 @@ const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') =>
   title={`${tailor.name} · ${t.siteName}`}
   description={description}
   rest={`/tailors/${tailor.slug}`}
+  jsonLd={[localBusinessJsonLd(tailor, siteConfig(env).siteUrl, lang)]}
+  ogImage={
+    tailor.profilePhoto
+      ? `${siteConfig(env).siteUrl}${imageSrc(tailor.profilePhoto.base, 'large')}`
+      : undefined
+  }
 >
   <article class="profile">
     <p>

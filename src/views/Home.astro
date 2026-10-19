@@ -3,7 +3,8 @@ import { env } from 'cloudflare:workers';
 import PublicLayout from '../layouts/PublicLayout.astro';
 import { dictionary } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
-import { requireBindings } from '../modules/config';
+import { requireBindings, siteConfig } from '../modules/config';
+import { websiteJsonLd } from '../modules/seo/jsonld';
 import { listActiveCategories } from '../modules/directory/queries';
 
 interface Props {
@@ -21,6 +22,7 @@ const categories = await listActiveCategories(requireBindings(env).DB, {
   title={`${t.home.title} · ${t.siteName}`}
   description={t.home.description}
   rest="/"
+  jsonLd={websiteJsonLd(siteConfig(env).siteUrl, t.siteName, lang)}
 >
   <h1>{t.home.heading}</h1>
   <p class="lead">{t.home.intro}</p>

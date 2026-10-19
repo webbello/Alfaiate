@@ -5,6 +5,8 @@ import { dictionary } from '../i18n/public';
 import { isEnabled, pathFor, twinPath, type Lang } from '../i18n/lang';
 import { siteConfig } from '../modules/config';
 import { buildHead } from '../modules/seo/head';
+import { serialiseJsonLd } from '../modules/seo/jsonld';
+import { metaText } from '../modules/seo/meta';
 
 interface Props {
   lang: Lang;
@@ -16,6 +18,10 @@ interface Props {
   canonicalRest?: string;
   /** false for the 404 page: no canonical, no alternates, no language twin. */
   realPage?: boolean;
+  /** Structured data blocks (JSON-LD). Only rendered on indexable pages. */
+  jsonLd?: object[];
+  /** Absolute URL of a permitted photo for Open Graph. */
+  ogImage?: string;
 }
 const {
   lang,
@@ -25,6 +31,8 @@ const {
   noindex = false,
   canonicalRest,
   realPage = true,
+  jsonLd = [],
+  ogImage,
 } = Astro.props;
 const t = dictionary(lang);
 const { siteUrl, languages, indexable } = siteConfig(env);
@@ -51,6 +59,26 @@ const twin = showSwitch ? twinPath(pathFor(lang, rest)) : null;
     <meta name="description" content={description} />
     {head.robots && <meta name="robots" content={head.robots} />}
     {head.canonical && <link rel="canonical" href={head.canonical} />}
+    {
+      // Social tags and structured data only on pages that search engines may index.
+      !head.robots && head.canonical && (
+        <>
+          <meta property="og:title" content={metaText(title, 200)} />
+          <meta property="og:description" content={description} />
+          <meta property="og:url" content={head.canonical} />
+          <meta property="og:type" content="website" />
+          <meta property="og:site_name" content={t.siteName} />
+          {ogImage && <meta property="og:image" content={ogImage} />}
+          {jsonLd.map((block) => (
+            <script
+              type="application/ld+json"
+              is:inline
+              set:html={serialiseJsonLd(block)}
+            />
+          ))}
+        </>
+      )
+    }
     {head.alternates.map((a) => (
       <link rel="alternate" hreflang={a.hreflang} href={a.href} />
     ))}

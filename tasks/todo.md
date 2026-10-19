@@ -5,7 +5,7 @@
   - Verify: unit tests for the parser (true, TRUE, "1", empty, missing, spaces) and robots/sitemap builders; integration tests in both modes (robots, sitemap, header and meta on home, profile, 404 and media); mutation checks on the exact-match rule and on each of the four places reading it; regenerate Worker types.
   - Files: `src/modules/seo/indexable.ts`, `src/modules/seo/sitemap.ts`, `src/pages/robots.txt.ts`, `src/pages/sitemap.xml.ts`, `src/modules/auth/headers.ts`, `src/layouts/PublicLayout.astro`, `wrangler.jsonc`, `.dev.vars.example`, tests
 
-- [ ] **T2 Structured data and Open Graph (FR-PRO-07, NFR-SEO-01)**
+- [x] **T2 Structured data and Open Graph (FR-PRO-07, NFR-SEO-01)**
   - Acceptance: `WebSite` and `Organization` JSON-LD on the home page; `LocalBusiness` on profiles with only name, canonical URL, description, address text, telephone (only with recorded contact consent) and image (only a permitted profile photo); nothing on unpublished, noindex, request, static or 404 pages; values JSON-encoded with `<`, `>`, `&`, U+2028 and U+2029 escaped; Open Graph title, description, url, type, site_name and (permitted photo only) image on public pages; the CSP header is unchanged.
   - Verify: unit tests of the builders (allowed keys only, hostile text, no phone without consent, no image without permission); integration tests parse the JSON from the built Worker for home and a profile, check absence elsewhere, compare the CSP header with the value in `headers.ts`; mutation checks on the consent gate, the photo gate, the escaping and the allowed-key list.
   - Files: `src/modules/seo/jsonld.ts`, `src/modules/seo/head.ts`, `src/layouts/PublicLayout.astro`, `src/views/Home.astro`, `src/views/Profile.astro`, tests

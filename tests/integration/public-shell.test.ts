@@ -61,7 +61,9 @@ describe('public shell: 404 page in both languages', () => {
       "default-src 'self'",
     );
     expect(html).not.toContain('<style');
-    expect(html).not.toMatch(/<script(?![^>]*src=)/);
+    expect(html).not.toMatch(
+      /<script(?![^>]*(src=|type="application\/ld\+json"))/,
+    );
     expect(html).not.toMatch(/\sstyle="/);
     const href = html.match(/<link rel="stylesheet" href="([^"]+)"/)?.[1];
     expect(href).toBeTruthy();

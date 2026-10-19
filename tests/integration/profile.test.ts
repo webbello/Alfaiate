@@ -372,7 +372,9 @@ describe('hostile content stays inert, in both languages', () => {
       expect(html).toContain('&lt;i&gt;caption&lt;/i&gt;');
       expect(html).not.toContain('<b>x</b>');
       expect(html).not.toContain('<i>caption</i>');
-      expect(html).not.toMatch(/<script(?![^>]*src=)/);
+      expect(html).not.toMatch(
+        /<script(?![^>]*(src=|type="application\/ld\+json"))/,
+      );
       expect(html).not.toContain('<style');
     }
   });

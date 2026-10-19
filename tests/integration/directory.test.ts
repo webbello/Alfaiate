@@ -322,7 +322,9 @@ describe('directory (AC-02, FR-DIR-01..04)', () => {
     expect(html).not.toContain('<img src=x');
     expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;');
     expect(html).not.toContain('<style');
-    expect(html).not.toMatch(/<script(?![^>]*src=)/);
+    expect(html).not.toMatch(
+      /<script(?![^>]*(src=|type="application\/ld\+json"))/,
+    );
     expect(html).not.toMatch(/\sstyle="/);
   });
 });

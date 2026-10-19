@@ -144,7 +144,9 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
   it('has no inline script or style and keeps the security headers', async () => {
     const { html, headers } = await text('/');
     expect(html).not.toContain('<style');
-    expect(html).not.toMatch(/<script(?![^>]*src=)/);
+    expect(html).not.toMatch(
+      /<script(?![^>]*(src=|type="application\/ld\+json"))/,
+    );
     expect(headers.get('content-security-policy')).toContain(
       "default-src 'self'",
     );

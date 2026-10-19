@@ -147,7 +147,9 @@ describe('the beacon script on profile pages', () => {
     const html = await (await get(`/tailors/${withContacts.slug}`)).text();
     const src = html.match(/<script[^>]*\bsrc="([^"]+)"/)?.[1];
     expect(src).toBeTruthy();
-    expect(html).not.toMatch(/<script(?![^>]*src=)/);
+    expect(html).not.toMatch(
+      /<script(?![^>]*(src=|type="application\/ld\+json"))/,
+    );
     const script = await worker.fetch(new Request(`${ORIGIN}${src}`));
     expect(script.status).toBe(200);
     const code = await script.text();
@@ -155,8 +157,11 @@ describe('the beacon script on profile pages', () => {
     expect(code).toContain('/api/contact-click');
 
     const bare = await tailor({ consent: false });
-    expect(await (await get(`/tailors/${bare.slug}`)).text()).not.toContain(
-      '<script',
+    // only the structured-data block remains: no beacon script and no other script
+    const bareHtml = await (await get(`/tailors/${bare.slug}`)).text();
+    expect(bareHtml).not.toMatch(
+      /<script(?![^>]*type="application\/ld\+json")/,
     );
+    expect(bareHtml).not.toContain('contact-click');
   });
 });
