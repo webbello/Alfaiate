@@ -24,7 +24,9 @@
     "owner:reset": "node scripts/owner.mjs reset",
     "test:e2e": "npm run build && node e2e/run.mjs",
     "check:repo": "node scripts/check-repo.mjs",
-    "perf": "npm run build && node scripts/perf.mjs"
+    "perf": "npm run build && node scripts/perf.mjs",
+    "setup:local": "node scripts/setup-local.mjs",
+    "preview": "npm run build && wrangler dev --port 4322"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.4.0",
