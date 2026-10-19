@@ -37,7 +37,7 @@
   - Verify: unit tests per rule (consent required, honeypot, rate limit, anonymise); test that submitting creates no `tailor` row; AC-09 matrix and route inventory updated; contract test baseline updated on purpose; public-pages scope guard updated; mutation checks on consent and the permission; axe; screenshots.
   - Files: `docs/PRD.md`, `docs/DATA_MODEL.md`, `migrations/0003_tailor_interest.sql`, `src/modules/interest/*`, `src/pages/join.astro`, `src/pages/tet/join.astro`, `src/pages/admin/interest.astro`, tests
 
-- [ ] **T8 Static pages, 404 and Tetum parity**
+- [x] **T8 Static pages, 404 and Tetum parity**
   - Acceptance: about, how it works, privacy, terms and 404 restyled to the new type scale (text unchanged); every new public string in the dictionary with Tetum parity (Tetum text marked for review, language still gated).
   - Verify: dictionary parity tests; privacy/terms text byte-identical in the integration test; axe both languages.
   - Files: `src/pages/*.astro`, `src/pages/tet/**`, `src/i18n/public/*`, tests

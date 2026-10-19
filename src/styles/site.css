@@ -636,3 +636,29 @@ dl.facts dd {
   font-size: 1.75rem;
   letter-spacing: 0.05em;
 }
+
+/* Static pages (Phase 7c T8): editorial reading layout, text unchanged. */
+.prose h1 {
+  font-size: clamp(2.4rem, 8vw, 3.8rem);
+  line-height: 1.05;
+  margin-bottom: 1rem;
+}
+.prose .lead {
+  font-size: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px dashed var(--thread-light);
+  max-width: var(--measure);
+}
+.prose section h2 {
+  font-size: 1.9rem;
+  margin-top: 2.25rem;
+}
+.prose section p {
+  line-height: 1.75;
+}
+.stitch-rule {
+  height: 0;
+  margin: 1rem 0 0.5rem;
+  border-top: 3px dashed var(--thread-light);
+  max-width: 12rem;
+}

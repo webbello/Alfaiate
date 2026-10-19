@@ -30,14 +30,16 @@ const sections = (['s1', 's2', 's3', 's4', 's5', 's6'] as const).flatMap(
   rest={`/${slug}`}
   noindex={!isIndexable(slug)}
 >
-  <h1>{page.title}</h1>
-  <p class="lead">{page.intro}</p>
-  {sections.map((s) => (
-    <section aria-labelledby={s.id}>
-      <h2 id={s.id}>{s.heading}</h2>
-      <p>{s.text}</p>
-    </section>
-  ))}
+  <div class="prose">
+    <h1>{page.title}</h1>
+    <p class="lead">{page.intro}</p>
+    {sections.map((s) => (
+      <section aria-labelledby={s.id}>
+        <h2 id={s.id}>{s.heading}</h2>
+        <p>{s.text}</p>
+      </section>
+    ))}
+  </div>
   {sections.length > 0 && slug !== 'privacy' && slug !== 'terms' && (
     <p class="actions">
       <a class="button" href={pathFor(lang, '/tailors')}>
