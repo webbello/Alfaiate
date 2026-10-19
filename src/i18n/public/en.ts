@@ -121,6 +121,7 @@ export const en = {
     any: 'Any',
     homeVisit: 'Offers home visits',
     apply: 'Show tailors',
+    search: 'Tailor or shop name',
     clear: 'Clear filters',
     found: 'Tailors found: {count}',
     emptyHeading: 'No tailors match',
@@ -207,6 +208,19 @@ export const en = {
     heading: '{name}',
     intro: 'Tailors who offer this.',
     emptyBody: 'No tailors are listed for this yet.',
+  },
+  contactPage: {
+    title: 'Contact',
+    heading: 'Contact us',
+    intro:
+      'The quickest way to reach us is a request: tell us what you need and where you are, and with your consent we pass it to a tailor.',
+    requestLink: 'Request a tailor',
+    whatsappHeading: 'WhatsApp',
+    whatsappBody: 'You can also send us a message on WhatsApp.',
+    whatsappLink: 'WhatsApp us',
+    tailorsHeading: 'Are you a tailor?',
+    tailorsBody: 'Leave your details and we will call you to talk.',
+    tailorsLink: 'Join as a tailor',
   },
   join: {
     title: 'Join as a tailor',

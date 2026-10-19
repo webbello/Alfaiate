@@ -706,3 +706,14 @@ dl.facts dd {
   border-top: 3px dashed var(--thread-light);
   max-width: 12rem;
 }
+
+.filters input[type='search'] {
+  width: 100%;
+  min-height: var(--button-height);
+  padding: 0 0.5rem;
+  font: inherit;
+  border: 2px solid var(--muted);
+  border-radius: var(--radius);
+  background: var(--color-white);
+  color: var(--ink);
+}

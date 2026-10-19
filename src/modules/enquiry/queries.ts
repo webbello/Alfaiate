@@ -1,3 +1,4 @@
+import { fitLike, likeAnywhere } from '../db/like';
 export type Choice = { id: number; name: string };
 
 /** Active categories and areas for the request form (ids, because the form posts ids and the server re-checks them). */
@@ -55,8 +56,6 @@ export type EnquiryRow = {
   referral_state: 'pending' | 'accepted' | 'declined' | 'no_response' | null;
 };
 
-/** Escapes LIKE wildcards so a search for "%" or "_" matches only those characters. */
-const like = (text: string) => `%${text.replace(/[\\%_]/g, '\\$&')}%`;
 
 /** Admin inbox (FR-ADM-06): newest first, spam hidden unless asked, optional status and search (reference, name or phone). */
 export async function listEnquiries(
@@ -71,19 +70,17 @@ export async function listEnquiries(
     where.push('status = ?');
     binds.push(status);
   }
-  // D1 rejects LIKE patterns over 50 bytes, so cut the search until its escaped pattern fits (emoji and % cost more bytes).
-  let q = (filters.q ?? '').trim();
-  while (q && new TextEncoder().encode(like(q)).length > 50) q = q.slice(0, -1);
+  const q = fitLike(filters.q ?? '');
   if (q) {
     const digits = q.replace(/\D/g, '');
     const parts = [
       "reference_code LIKE ? ESCAPE '\\'",
       "customer_name LIKE ? ESCAPE '\\'",
     ];
-    binds.push(like(q), like(q));
+    binds.push(likeAnywhere(q), likeAnywhere(q));
     if (digits.length >= 3) {
       parts.push("contact_number_e164 LIKE ? ESCAPE '\\'");
-      binds.push(like(digits.replace(/^(00)?670/, '')));
+      binds.push(likeAnywhere(digits.replace(/^(00)?670/, '')));
     }
     where.push(`(${parts.join(' OR ')})`);
   }

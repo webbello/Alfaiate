@@ -54,6 +54,17 @@ const variant = Astro.url.search !== '';
   <form class="filters" method="get" action={action}>
     <h2>{t.directory.filtersHeading}</h2>
     <p>
+      <label for="search">{t.directory.search}</label>
+      <input
+        type="search"
+        id="search"
+        name="q"
+        value={filters.q ?? ''}
+        maxlength="60"
+        autocomplete="off"
+      />
+    </p>
+    <p>
       <label for="filter-category">{t.directory.category}</label>
       <select id="filter-category" name="category">
         <option value="">{t.directory.any}</option>

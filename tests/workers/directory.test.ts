@@ -494,3 +494,25 @@ describe('filters (AC-02)', () => {
     expect(await names({ ...none, area: "x' OR 1=1 --" })).toEqual([]);
   });
 });
+
+// Phase 7d: the header search finds published tailors by part of their name; wildcards are literal and a long search never breaks D1.
+describe('searching by name', () => {
+  it('matches part of a published name, case-insensitively, and never a draft', async () => {
+    await tailor({ name: 'Searchable Atelier Fake' });
+    await tailor({ name: 'Searchable Draft Fake', published: false });
+    expect(await names({ ...none, q: 'searchable atel' })).toEqual([
+      'Searchable Atelier Fake',
+    ]);
+    expect(await names({ ...none, q: 'Draft Fake' })).not.toContain(
+      'Searchable Draft Fake',
+    );
+  });
+  it('treats % and _ literally and survives a very long or emoji-heavy search', async () => {
+    await tailor({ name: 'Percent 100% Fake' });
+    expect(await names({ ...none, q: '100%' })).toEqual(['Percent 100% Fake']);
+    expect(await names({ ...none, q: '%' })).toEqual(['Percent 100% Fake']);
+    expect(await names({ ...none, q: '_' })).toEqual([]);
+    await expect(names({ ...none, q: '🧵'.repeat(40) })).resolves.toEqual([]);
+    await expect(names({ ...none, q: 'x'.repeat(200) })).resolves.toEqual([]);
+  });
+});

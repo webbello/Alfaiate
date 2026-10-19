@@ -9,6 +9,7 @@ const PATHS = [
   '/tailors/e2e-fake-tailor',
   '/request',
   '/join',
+  '/contact',
   '/request/thanks?ref=AT-ABCD2345',
   '/how-it-works',
   '/about',

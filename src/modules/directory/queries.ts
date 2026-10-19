@@ -1,3 +1,4 @@
+import { fitLike, likeAnywhere } from '../db/like';
 import { isVerifiable } from '../tailors/verification';
 import type { DirectoryFilters } from './filters';
 import type { CardView, Choice, PhotoView, Price, ProfileView } from './view';
@@ -132,6 +133,11 @@ export async function listPublished(
     binds.push(filters.area);
   }
   if (filters.homeVisit) where.push("t.home_visits = 'yes'");
+  const q = fitLike(filters.q ?? '');
+  if (q) {
+    where.push("t.display_name LIKE ? ESCAPE '\\'");
+    binds.push(likeAnywhere(q));
+  }
 
   const { results } = await db
     .prepare(

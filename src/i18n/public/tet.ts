@@ -125,6 +125,7 @@ export const tet: Dictionary = {
     any: 'Hotu-hotu',
     homeVisit: 'Bele vizita iha uma',
     apply: 'Hatudu alfaiate sira',
+    search: 'Naran alfaiate ka loja',
     clear: 'Hamoos filtru sira',
     found: 'Alfaiate hetan: {count}',
     emptyHeading: "La iha alfaiate ne'ebé hanesan",
@@ -210,6 +211,19 @@ export const tet: Dictionary = {
     heading: '{name}',
     intro: "Alfaiate sira ne'ebé halo ne'e.",
     emptyBody: "Seidauk iha alfaiate lista ba ne'e.",
+  },
+  contactPage: {
+    title: 'Kontaktu',
+    heading: 'Kontaktu ami',
+    intro:
+      'Dalan lais liu atu kontaktu ami mak haruka pedidu: hatete saida mak ita presiza no ita iha ne’ebé, no ho ita-nia konsentimentu ami haruka ba alfaiate ida.',
+    requestLink: 'Husu alfaiate',
+    whatsappHeading: 'WhatsApp',
+    whatsappBody: 'Ita mós bele haruka mensajen mai ami iha WhatsApp.',
+    whatsappLink: 'WhatsApp ba ami',
+    tailorsHeading: 'Ita alfaiate?',
+    tailorsBody: 'Husik ita-nia detalle no ami sei telefone ita atu koalia.',
+    tailorsLink: 'Hakbesik hanesan alfaiate',
   },
   join: {
     title: 'Hakbesik hanesan alfaiate',

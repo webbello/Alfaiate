@@ -1,0 +1,59 @@
+---
+import { env } from 'cloudflare:workers';
+import PublicLayout from '../layouts/PublicLayout.astro';
+import { dictionary } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+import { joinEnabled, siteWhatsapp } from '../modules/config';
+import { whatsappLink } from '../modules/contact-links/whatsapp';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dictionary(lang);
+const c = t.contactPage;
+const settings = env as { SITE_WHATSAPP?: string; JOIN_ENABLED?: string };
+const whatsapp = siteWhatsapp(settings);
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${c.title} · ${t.siteName}`}
+  description={c.intro}
+  rest="/contact"
+>
+  <div class="prose">
+    <h1>{c.heading}</h1>
+    <p class="lead">{c.intro}</p>
+    <p class="actions">
+      <a class="button" href={pathFor(lang, '/request')}>
+        {c.requestLink}
+      </a>
+    </p>
+    {whatsapp && (
+      <section aria-labelledby="contact-whatsapp">
+        <h2 id="contact-whatsapp">{c.whatsappHeading}</h2>
+        <p>{c.whatsappBody}</p>
+        <p>
+          <a
+            class="button button--secondary"
+            href={whatsappLink(whatsapp, t.bar.whatsappMessage)}
+          >
+            {c.whatsappLink}
+          </a>
+        </p>
+      </section>
+    )}
+    {joinEnabled(settings) && (
+      <section aria-labelledby="contact-tailors">
+        <h2 id="contact-tailors">{c.tailorsHeading}</h2>
+        <p>{c.tailorsBody}</p>
+        <p>
+          <a class="button button--secondary" href={pathFor(lang, '/join')}>
+            {c.tailorsLink}
+          </a>
+        </p>
+      </section>
+    )}
+  </div>
+</PublicLayout>
