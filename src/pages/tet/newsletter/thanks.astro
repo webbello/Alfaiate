@@ -1,0 +1,12 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import NewsletterThanks from '../../../views/NewsletterThanks.astro';
+import { newsletterEnabled } from '../../../modules/newsletter';
+
+if (!newsletterEnabled(env as { NEWSLETTER_ENABLED?: string }))
+  return new Response('Not found', { status: 404 });
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<NewsletterThanks lang="tet" />

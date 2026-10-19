@@ -3,6 +3,8 @@ import { env } from 'cloudflare:workers';
 import '../styles/site.css';
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
+import NewsletterForm from '../components/newsletter/NewsletterForm.astro';
+import { newsletterEnabled } from '../modules/newsletter';
 import { dictionary } from '../i18n/public';
 import { isEnabled, pathFor, twinPath, type Lang } from '../i18n/lang';
 import { siteConfig, siteWhatsapp } from '../modules/config';
@@ -122,7 +124,18 @@ const ownerWhatsapp = siteWhatsapp(env as { SITE_WHATSAPP?: string });
     <main id="main" class={bare ? 'main--bare' : undefined}>
       <slot />
     </main>
-    <SiteFooter lang={lang} t={t} />
+    <SiteFooter lang={lang} t={t}>
+      {newsletterEnabled(env as { NEWSLETTER_ENABLED?: string }) &&
+        !['/newsletter', '/request', '/business', '/join'].some((p) =>
+          rest.startsWith(p),
+        ) && (
+          <div class="footer-col footer-col--wide">
+            <h2 class="footer-col__title">{t.newsletter.heading}</h2>
+            <p class="site-footer__note">{t.newsletter.body}</p>
+            <NewsletterForm lang={lang} t={t} />
+          </div>
+        )}
+    </SiteFooter>
     {showBar && (
       <nav class="sticky-bar" aria-label={t.bar.label}>
         <a class="button" href={pathFor(lang, '/request')}>

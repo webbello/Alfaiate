@@ -1,0 +1,30 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import { dictionary } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dictionary(lang);
+const n = t.newsletter;
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${n.thanksTitle} · ${t.siteName}`}
+  description={n.thanksBody}
+  rest="/newsletter/thanks"
+  noindex
+>
+  <div class="prose">
+    <h1>{n.thanksHeading}</h1>
+    <p class="lead">{n.thanksBody}</p>
+    <p>
+      <a class="button" href={pathFor(lang, '/')}>
+        {t.nav.home}
+      </a>
+    </p>
+  </div>
+</PublicLayout>

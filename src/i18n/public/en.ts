@@ -251,6 +251,23 @@ export const en = {
     intro: 'Tailors who offer this.',
     emptyBody: 'No tailors are listed for this yet.',
   },
+  newsletter: {
+    heading: 'Stay Updated',
+    body: 'Get the latest updates and stories from our local tailoring community.',
+    email: 'Email address',
+    consent:
+      'I agree that Alfaiate TL may email me updates. I can ask to be removed at any time.',
+    submit: 'Sign up',
+    title: 'Stay updated',
+    intro: 'Leave your email address to hear about new tailors and stories from Dili.',
+    errorInvalid: 'Please enter an email address like name@example.com.',
+    errorConsent: 'Please tick the box so we may email you.',
+    errorTiming: 'Please try again: this form needs a moment to fill in.',
+    thanksTitle: 'Thank you',
+    thanksHeading: 'Thank you, you are signed up',
+    thanksBody:
+      'We will only email you about Alfaiate TL. Ask us at any time and we remove your address.',
+  },
   business: {
     title: 'For businesses, schools and organisations',
     heading: 'Made for teams, schools and businesses',

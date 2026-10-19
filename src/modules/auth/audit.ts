@@ -18,6 +18,7 @@ export type AuditAction =
   | 'fee_terms_changed'
   | 'enquiry_status_changed'
   | 'interest_anonymised'
+  | 'newsletter_removed'
   | 'enquiry_spam_changed'
   | 'referral_created'
   | 'referral_updated'

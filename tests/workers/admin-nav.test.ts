@@ -13,6 +13,7 @@ describe('navLinks (the header bar of every admin page)', () => {
       'categories',
       'areas',
       'interest',
+      'newsletter',
       'users',
       'account',
     ]);
@@ -61,6 +62,7 @@ describe('currentKey (which link is the current page)', () => {
     expect(currentKey('/admin/categories')).toBe('categories');
     expect(currentKey('/admin/areas')).toBe('areas');
     expect(currentKey('/admin/interest')).toBe('interest');
+    expect(currentKey('/admin/newsletter')).toBe('newsletter');
     expect(currentKey('/admin/users')).toBe('users');
     expect(currentKey('/admin/account')).toBe('account');
   });

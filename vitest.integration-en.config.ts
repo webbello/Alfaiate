@@ -15,7 +15,8 @@ export default defineConfig({
           SITE_INDEXABLE: 'true',
           SITE_URL: 'https://alfaiate-tl.example',
           SITE_WHATSAPP: '+67077000000',
-          JOIN_ENABLED: 'false', // pinned: a developer's .dev.vars must not change what the tests see
+          JOIN_ENABLED: 'false',
+          NEWSLETTER_ENABLED: 'false', // pinned: a developer's .dev.vars must not change what the tests see
         },
       },
     })),

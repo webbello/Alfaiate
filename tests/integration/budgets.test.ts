@@ -49,17 +49,18 @@ const seed = async () => {
 
 // Uncompressed bytes, measured on 2026-10-19 after Phase 7d (the owner's reference design): home 21505, directory 6611, category 4997, profile 6381,
 // request 9418, how-it-works 6222, join 6291; site CSS 14854, home CSS 27493 (site plus home sheet), admin CSS 6852; JS 410 (header menu) and 745 on the
-// home page (menu plus carousel); display font 17 KB (font.test.ts). Each budget is the measurement plus about 20%. Scene photos are not counted here:
+// home page (menu plus carousel); display font 17 KB (font.test.ts). The HTML budgets include the footer newsletter form (about 1.6 KB),
+// which this test project switches on; production serves it only once NEWSLETTER_ENABLED is true. Each budget is the measurement plus about 20%. Scene photos are not counted here:
 // they are lazy except the hero, and `npm run perf` reports them.
 const BUDGET = {
   html: {
-    home: 25800,
-    directory: 7900,
-    category: 6000,
-    profile: 7700,
-    request: 11300,
-    howItWorks: 7500,
-    join: 7600,
+    home: 27700,
+    directory: 9800,
+    category: 7900,
+    profile: 9600,
+    request: 13200,
+    howItWorks: 9400,
+    join: 9500,
   },
   css: 17900,
   homeCss: 33000,

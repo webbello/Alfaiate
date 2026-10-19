@@ -85,6 +85,8 @@ export async function startWorker() {
         '--var',
         'JOIN_ENABLED:true', // the interest form is off by default (OQ-08); the browser tests exercise it
         '--var',
+        'NEWSLETTER_ENABLED:true', // likewise the footer sign-up (OQ-06, OQ-08)
+        '--var',
         `FORM_TOKEN_SECRET:${randomUUID()}${randomUUID()}`,
         '--var',
         `SITE_URL:${url}`,

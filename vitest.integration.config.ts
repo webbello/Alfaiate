@@ -14,6 +14,7 @@ export default defineConfig({
           FORM_TOKEN_SECRET: 'integration-form-secret-0123456789',
           SITE_INDEXABLE: 'true',
           JOIN_ENABLED: 'true',
+          NEWSLETTER_ENABLED: 'true',
           SITE_WHATSAPP: '', // pinned: a developer's .dev.vars must not change what the tests see
           SITE_URL: 'https://alfaiate-tl.example',
         },

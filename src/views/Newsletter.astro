@@ -1,0 +1,39 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import NewsletterForm from '../components/newsletter/NewsletterForm.astro';
+import { dictionary } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+
+interface Props {
+  lang: Lang;
+  error?: 'invalid' | 'consent' | 'timing';
+}
+const { lang, error } = Astro.props;
+const t = dictionary(lang);
+const n = t.newsletter;
+const message =
+  error === 'invalid'
+    ? n.errorInvalid
+    : error === 'consent'
+      ? n.errorConsent
+      : error === 'timing'
+        ? n.errorTiming
+        : undefined;
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${n.title} · ${t.siteName}`}
+  description={n.intro}
+  rest="/newsletter"
+  noindex
+>
+  <div class="prose">
+    <h1>{n.heading}</h1>
+    <p class="lead">{n.intro}</p>
+    <NewsletterForm lang={lang} t={t} error={message} idPrefix="page" />
+    <p>
+      <a href={pathFor(lang, '/privacy')}>{t.join.privacyLink}</a>
+    </p>
+  </div>
+</PublicLayout>

@@ -256,6 +256,23 @@ export const tet: Dictionary = {
     intro: "Alfaiate sira ne'ebé halo ne'e.",
     emptyBody: "Seidauk iha alfaiate lista ba ne'e.",
   },
+  newsletter: {
+    heading: 'Hetan Notísia',
+    body: 'Simu notísia foun no istória husi ami-nia komunidade alfaiate lokál.',
+    email: 'Enderesu email',
+    consent:
+      'Ha’u konkorda katak Alfaiate TL bele haruka email ho notísia mai ha’u. Ha’u bele husu atu hasai ha’u-nia enderesu iha tempu hotu.',
+    submit: 'Rejista',
+    title: 'Hetan notísia',
+    intro: 'Husik ita-nia enderesu email atu rona kona-ba alfaiate foun no istória husi Dili.',
+    errorInvalid: 'Favór hakerek enderesu email hanesan naran@example.com.',
+    errorConsent: 'Favór marka kaixa atu ami bele haruka email ba ita.',
+    errorTiming: 'Favór koko fali: formuláriu ne’e presiza tempu uitoan atu prenxe.',
+    thanksTitle: 'Obrigadu',
+    thanksHeading: 'Obrigadu, ita rejista ona',
+    thanksBody:
+      'Ami sei haruka email de’it kona-ba Alfaiate TL. Husu ami iha tempu hotu no ami hasai ita-nia enderesu.',
+  },
   business: {
     title: 'Ba negósiu, eskola no organizasaun',
     heading: 'Halo ba ekipa, eskola no negósiu',

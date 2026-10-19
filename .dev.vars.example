@@ -12,3 +12,5 @@ SITE_INDEXABLE=false
 # SITE_WHATSAPP=+670XXXXXXXX
 # The tailor "Join us" form is off until the owner approves its consent wording and the Privacy text (OQ-08). Set to true to try it locally.
 JOIN_ENABLED=false
+# The footer "Stay updated" sign-up is off until a sender exists (OQ-06) and the Privacy text covers it (OQ-08).
+NEWSLETTER_ENABLED=false

@@ -947,3 +947,39 @@ a:focus-visible > .icon--arrow {
     grid-template-columns: 1.4fr 1fr 1fr 1.4fr;
   }
 }
+
+/* Footer newsletter (off unless NEWSLETTER_ENABLED) */
+.newsletter label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-1);
+}
+.newsletter__row {
+  display: flex;
+  gap: var(--space-2);
+}
+.newsletter input[type='email'] {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--button-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  font: inherit;
+}
+.newsletter label.newsletter__consent {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  margin-top: var(--space-2);
+  font-weight: 400;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+.newsletter__consent input {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+}

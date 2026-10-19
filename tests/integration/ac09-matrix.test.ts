@@ -105,6 +105,7 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     csrf,
     confirm_reference: 'JN-MATRIX00',
   }),
+  '/admin/newsletter/[id]/remove': (csrf) => ({ csrf }),
   '/admin/users/actions': (csrf) => ({
     csrf,
     action: 'create',

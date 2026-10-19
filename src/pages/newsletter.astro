@@ -1,0 +1,35 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Newsletter from '../views/Newsletter.astro';
+import { formSecret, requireBindings } from '../modules/config';
+import { newsletterEnabled, signUp } from '../modules/newsletter';
+
+// Off until the owner switches it on (no sender yet, OQ-06; Privacy text, OQ-08).
+if (!newsletterEnabled(env as { NEWSLETTER_ENABLED?: string }))
+  return new Response('Not found', { status: 404 });
+let error: 'invalid' | 'consent' | 'timing' | undefined;
+if (Astro.request.method === 'POST') {
+  const result = await signUp(
+    {
+      db: requireBindings(env).DB,
+      secret: formSecret(env as { FORM_TOKEN_SECRET?: string }),
+      lang: 'en',
+    },
+    Astro.request,
+    Astro.request.headers.get('cf-connecting-ip') ?? undefined,
+  );
+  if ('to' in result) return Astro.redirect(result.to, 303);
+  if (
+    result.error === 'forbidden' ||
+    result.error === 'too_large' ||
+    result.error === 'limited'
+  )
+    return new Response(null, { status: result.status });
+  error = result.error;
+  Astro.response.status = 400;
+}
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<Newsletter lang="en" error={error} />

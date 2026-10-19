@@ -10,7 +10,7 @@ describe('contact page', () => {
     expect(en).toContain('href="/request"');
     expect(en).toContain('href="/join"'); // JOIN_ENABLED is true in this test project
     expect(en).not.toContain('wa.me'); // no owner number configured here
-    expect(en).not.toMatch(/<form/);
+    expect(/<main[\s\S]*<\/main>/.exec(en)![0]).not.toMatch(/<form/); // the footer may hold the newsletter form
     const tet = await (await get('/tet/contact')).text();
     expect(tet).toContain('<html lang="tet">');
     expect(tet).toContain('href="/tet/request"');

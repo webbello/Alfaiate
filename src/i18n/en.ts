@@ -14,6 +14,7 @@ export const en = {
   adminNavDashboard: 'Dashboard',
   adminNavAccount: 'My account',
   adminNavInterest: 'Tailor interest',
+  adminNavNewsletter: 'Newsletter',
   adminNavTailors: 'Tailors',
   tailorListHeading: 'Tailors',
   tailorNew: 'New tailor',
@@ -154,6 +155,7 @@ export const en = {
   adminMessages: {
     created: 'User created.',
     interest_anonymised: 'Details removed.',
+    newsletter_removed: 'Address removed.',
     interest_already_anonymised: 'Those details were already removed.',
     interest_wrong_reference:
       'The reference code you typed does not match. Nothing was removed.',

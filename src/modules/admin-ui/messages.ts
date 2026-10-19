@@ -17,6 +17,7 @@ export const SUCCESS_CODES: readonly string[] = [
   'anonymised',
   'already_anonymised',
   'interest_anonymised',
+  'newsletter_removed',
   'interest_already_anonymised',
   'referral_created',
   'referral_saved',

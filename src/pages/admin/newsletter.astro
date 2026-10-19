@@ -1,0 +1,71 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Flash from '../../components/admin/Flash.astro';
+import EmptyState from '../../components/admin/EmptyState.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { messageKind } from '../../modules/admin-ui/messages';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { requirePermission } from '../../modules/auth/require';
+import { listSignups } from '../../modules/newsletter';
+
+// Email addresses are personal data: owner only (enquiry.delete), like removing customer details.
+const auth = await requirePermission(Astro, 'enquiry.delete');
+if (auth instanceof Response) return auth;
+const rows = await listSignups(requireBindings(env).DB);
+const code = Astro.url.searchParams.get('msg') ?? '';
+const message = Object.hasOwn(en.adminMessages, code)
+  ? en.adminMessages[code as keyof typeof en.adminMessages]
+  : '';
+---
+
+<AdminLayout
+  title={en.adminNavNewsletter}
+  description={en.adminNavNewsletter}
+  auth={auth}
+>
+  <h1>{en.adminNavNewsletter}</h1>
+  <p>
+    Addresses left in the footer "Stay updated" form, newest first. Nothing is
+    sent automatically. Remove an address when someone asks.
+  </p>
+  {message && <Flash message={message} kind={messageKind(code)} />}
+  {rows.length === 0 ? (
+    <EmptyState title="No sign-ups yet">
+      <p>The form is off unless NEWSLETTER_ENABLED is true.</p>
+    </EmptyState>
+  ) : (
+    <table>
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Signed up</th>
+          <th>Consent wording</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr>
+            <td>{r.email}</td>
+            <td>{r.created_at.slice(0, 10)}</td>
+            <td>{r.consent_text_version}</td>
+            <td>
+              <form method="post" action={`/admin/newsletter/${r.id}/remove`}>
+                <input type="hidden" name="csrf" value={auth.csrfToken} />
+                <button
+                  type="submit"
+                  class="danger"
+                  aria-label={`Remove ${r.email}`}
+                >
+                  Remove
+                </button>
+              </form>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</AdminLayout>

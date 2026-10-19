@@ -13,7 +13,8 @@ export default defineConfig({
           PUBLIC_LANGUAGES: 'en,tet',
           FORM_TOKEN_SECRET: 'integration-form-secret-0123456789',
           SITE_INDEXABLE: 'false',
-          JOIN_ENABLED: 'false', // pinned: a developer's .dev.vars must not change what the tests see
+          JOIN_ENABLED: 'false',
+          NEWSLETTER_ENABLED: 'false', // pinned: a developer's .dev.vars must not change what the tests see
           SITE_WHATSAPP: '',
           SITE_URL: 'https://alfaiate-tl.example',
         },

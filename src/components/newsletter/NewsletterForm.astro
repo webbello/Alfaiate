@@ -1,0 +1,64 @@
+---
+import { env } from 'cloudflare:workers';
+import type { Dictionary } from '../../i18n/public/en';
+import { pathFor, type Lang } from '../../i18n/lang';
+import { formSecret } from '../../modules/config';
+import { issueToken } from '../../modules/enquiry/spam';
+
+interface Props {
+  lang: Lang;
+  t: Dictionary;
+  /** Shown on the stand-alone page after a mistake. */
+  error?: string;
+  idPrefix?: string;
+}
+const { lang, t, error, idPrefix = 'footer' } = Astro.props;
+const n = t.newsletter;
+const token = await issueToken(
+  formSecret(env as { FORM_TOKEN_SECRET?: string }),
+);
+const id = (name: string) => `${idPrefix}-${name}`;
+---
+
+<form class="newsletter" method="post" action={pathFor(lang, '/newsletter')}>
+  <input type="hidden" name="form_token" value={token} />
+  <div class="hp" aria-hidden="true">
+    <label for={id('extra')}>Leave this empty</label>
+    <input
+      type="text"
+      id={id('extra')}
+      name="extra_info"
+      tabindex="-1"
+      autocomplete="off"
+    />
+  </div>
+  {error && (
+    <p class="error" role="alert">
+      {error}
+    </p>
+  )}
+  <label for={id('email')}>{n.email}</label>
+  <div class="newsletter__row">
+    <input
+      type="email"
+      id={id('email')}
+      name="email"
+      autocomplete="email"
+      maxlength="254"
+      required
+    />
+    <button class="button button--forest" type="submit">
+      {n.submit}
+    </button>
+  </div>
+  <label class="newsletter__consent" for={id('consent')}>
+    <input
+      type="checkbox"
+      id={id('consent')}
+      name="consent"
+      value="yes"
+      required
+    />
+    {n.consent}
+  </label>
+</form>

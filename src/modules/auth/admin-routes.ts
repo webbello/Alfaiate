@@ -48,6 +48,18 @@ export const ADMIN_ROUTES: readonly {
     methods: ['POST'],
   },
   {
+    file: 'newsletter.astro',
+    path: '/admin/newsletter',
+    permission: 'enquiry.delete',
+    methods: ['GET'],
+  },
+  {
+    file: 'newsletter/[id]/remove.ts',
+    path: '/admin/newsletter/[id]/remove',
+    permission: 'enquiry.delete',
+    methods: ['POST'],
+  },
+  {
     file: 'users.astro',
     path: '/admin/users',
     permission: 'user.manage',

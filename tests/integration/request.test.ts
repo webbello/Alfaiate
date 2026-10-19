@@ -374,7 +374,9 @@ describe('two-step layout', () => {
   };
   it('has two numbered steps in one form: what and where first, then who and consent', async () => {
     const html = await (await get('/request')).text();
-    expect(html.match(/<form /g)).toHaveLength(1);
+    expect(/<main[\s\S]*<\/main>/.exec(html)![0].match(/<form /g)).toHaveLength(
+      1,
+    );
     const [one, two] = steps(html);
     expect(one, 'step 1').toContain('Step 1 of 2');
     expect(two, 'step 2').toContain('Step 2 of 2');
