@@ -1,8 +1,10 @@
-import AxeBuilder from '@axe-core/playwright';
+import { violationsOf } from './axe';
 import { expect, test, type Page } from '@playwright/test';
 
 // AC-06/07: the request form on a 375 px phone, by keyboard only. The form refuses a submission under 3 seconds, so each test waits.
 const FILL_DELAY = 3200;
+// The local Worker sees no client address, so every test would share one rate-limit bucket (5 sends per hour); give this file its own.
+test.use({ extraHTTPHeaders: { 'cf-connecting-ip': '198.51.100.21' } });
 
 async function tabTo(page: Page, id: string) {
   for (let i = 0; i < 20; i++) {
@@ -52,10 +54,7 @@ test('mistakes show a summary and field errors, keep what was typed, and pass ax
   await expect(page.locator('#consent-error')).toBeVisible();
   await expect(page.locator('#notes')).toHaveValue('keep these words');
   await expect(page.locator('#consent')).not.toBeChecked();
-  const { violations } = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze();
-  expect(violations.map((v) => `${v.id}: ${v.nodes[0]?.target}`)).toEqual([]);
+  expect(await violationsOf(page)).toEqual([]);
 });
 
 test('the request page does not scroll sideways at 375 px', async ({

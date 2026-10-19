@@ -1,4 +1,4 @@
-import AxeBuilder from '@axe-core/playwright';
+import { violationsOf } from './axe';
 import { expect, test } from '@playwright/test';
 
 declare const process: { env: Record<string, string | undefined> }; // no @types/node in this project
@@ -6,7 +6,6 @@ declare const process: { env: Record<string, string | undefined> }; // no @types
 // Referral journey as the throwaway owner created by e2e/run.mjs: pass an enquiry to a tailor, record what happened, then see it on the dashboard.
 const email = process.env.E2E_ADMIN_EMAIL ?? '';
 const password = process.env.E2E_ADMIN_PASSWORD ?? '';
-const tags = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
 test('the owner records a referral, a reported completion and a fee, and sees it on the dashboard (AC-12, AC-13, AC-14)', async ({
   page,
@@ -48,8 +47,7 @@ test('the owner records a referral, a reported completion and a fee, and sees it
     page.getByText(/already has a referral that is pending or accepted/),
   ).toBeVisible();
 
-  let { violations } = await new AxeBuilder({ page }).withTags(tags).analyze();
-  expect(violations.map((v) => `${v.id}: ${v.nodes[0]?.target}`)).toEqual([]);
+  expect(await violationsOf(page)).toEqual([]);
 
   await page.goto('/admin?period=all');
   await expect(
@@ -57,6 +55,5 @@ test('the owner records a referral, a reported completion and a fee, and sees it
       .locator('dt', { hasText: 'Fees due (reported)' })
       .locator('xpath=following-sibling::dd[1]'),
   ).toContainText('$12.50');
-  ({ violations } = await new AxeBuilder({ page }).withTags(tags).analyze());
-  expect(violations.map((v) => `${v.id}: ${v.nodes[0]?.target}`)).toEqual([]);
+  expect(await violationsOf(page)).toEqual([]);
 });

@@ -1,5 +1,5 @@
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { violationsOf } from './axe';
 
 // AC-14 / NFR-A11Y: no axe violations on any kind of public page, in both languages, at phone width.
 const PATHS = [
@@ -21,12 +21,7 @@ for (const prefix of ['', '/tet']) {
     const url = prefix ? (path === '/' ? '/tet/' : `/tet${path}`) : path;
     test(`axe: ${url}`, async ({ page }) => {
       await page.goto(url);
-      const { violations } = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-        .analyze();
-      expect(violations.map((v) => `${v.id}: ${v.nodes[0]?.target}`)).toEqual(
-        [],
-      );
+      expect(await violationsOf(page)).toEqual([]);
     });
   }
 }

@@ -24,3 +24,17 @@ main {
   max-width: var(--content-width);
   margin: 0 auto;
 }
+
+/* Admin controls: at least 44 px tall, so they are easy to hit and meet WCAG 2.2 target size (2.5.8). */
+button,
+select,
+input:not([type='checkbox'], [type='radio'], [type='hidden']),
+textarea {
+  min-height: 2.75rem;
+  font: inherit;
+}
+input[type='checkbox'],
+input[type='radio'] {
+  width: 1.5rem;
+  height: 1.5rem;
+}

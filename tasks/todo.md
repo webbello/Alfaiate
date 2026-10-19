@@ -25,7 +25,7 @@
   - Verify: each check fails on a deliberately planted violation (a fake tracked `.env`, a `console.log(name)` in a temporary file, a response without a header) and passes on the repo; mutation checks listed in the commit only after being seen failing.
   - Files: `scripts/check-repo.mjs`, `package.json`, `tests/workers/console-constants.test.ts`, `tests/integration/headers-matrix.test.ts`, `tests/integration/cookies.test.ts`, `tests/integration/public-privacy.test.ts`, `tests/workers/check-repo.test.ts`
 
-- [ ] **T6 Accessibility (WCAG 2.2 AA) and no-JavaScript**
+- [x] **T6 Accessibility (WCAG 2.2 AA) and no-JavaScript**
   - Acceptance: axe with the 2.0 to 2.2 A and AA tags is clean on every public page type in both languages, the request form (clean and error), the thanks pages and every admin page (signed in as the throwaway owner, including the anonymise form and referrals); an e2e watcher fails on any console error or CSP violation across the public pages; with JavaScript disabled browse, a profile and the whole request submission work; at 320 px width and 200% zoom there is no sideways scrolling and nothing is clipped; fixes made only where a check reports a problem.
   - Verify: `npm run test:e2e`; a deliberately removed label, a removed `alt` and a CSP-violating inline script each fail the suite once and are reverted; the fixes listed in DECISIONS.md with the check that found them.
   - Files: `e2e/a11y.spec.ts`, `e2e/admin-a11y.spec.ts`, `e2e/no-javascript.spec.ts`, `e2e/csp.spec.ts`, `e2e/reflow.spec.ts`, CSS or markup files as reported
