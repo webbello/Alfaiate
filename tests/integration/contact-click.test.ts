@@ -145,23 +145,28 @@ describe('the beacon script on profile pages', () => {
   it('loads from an external file on a profile that has contact buttons, and not on one that has none', async () => {
     const withContacts = await tailor();
     const html = await (await get(`/tailors/${withContacts.slug}`)).text();
-    const src = html.match(/<script[^>]*\bsrc="([^"]+)"/)?.[1];
-    expect(src).toBeTruthy();
+    const codeOf = async (page: string) =>
+      Promise.all(
+        [...page.matchAll(/<script[^>]*\bsrc="([^"]+)"/g)].map(async (m) => {
+          const r = await worker.fetch(new Request(`${ORIGIN}${m[1]}`));
+          expect(r.status).toBe(200);
+          return r.text();
+        }),
+      );
     expect(html).not.toMatch(
       /<script(?![^>]*(src=|type="application\/ld\+json"))/,
     );
-    const script = await worker.fetch(new Request(`${ORIGIN}${src}`));
-    expect(script.status).toBe(200);
-    const code = await script.text();
-    expect(code).toContain('sendBeacon');
-    expect(code).toContain('/api/contact-click');
+    const beacon = (await codeOf(html)).find((c) => c.includes('sendBeacon'));
+    expect(beacon).toBeTruthy();
+    expect(beacon).toContain('/api/contact-click');
 
     const bare = await tailor({ consent: false });
-    // only the structured-data block remains: no beacon script and no other script
+    // no beacon on a profile without contact buttons (the header-menu script is on every page)
     const bareHtml = await (await get(`/tailors/${bare.slug}`)).text();
     expect(bareHtml).not.toMatch(
-      /<script(?![^>]*type="application\/ld\+json")/,
+      /<script(?![^>]*(src=|type="application\/ld\+json"))/,
     );
-    expect(bareHtml).not.toContain('contact-click');
+    for (const code of await codeOf(bareHtml))
+      expect(code).not.toContain('contact-click');
   });
 });

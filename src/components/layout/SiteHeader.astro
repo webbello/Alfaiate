@@ -1,0 +1,92 @@
+---
+import Logo from '../ui/Logo.astro';
+import Icon from '../ui/Icon.astro';
+import type { Dictionary } from '../../i18n/public/en';
+import { pathFor, type Lang } from '../../i18n/lang';
+
+interface Props {
+  lang: Lang;
+  t: Dictionary;
+  twin: { path: string; lang: Lang } | null;
+}
+const { lang, t, twin } = Astro.props;
+const home = pathFor(lang, '/');
+---
+
+<header class="site-header">
+  <div class="site-header__inner container">
+    <a class="brand" href={home}>
+      <Logo />
+      <span class="brand__text">
+        <span class="site-name">{t.siteName}</span>
+        <span class="brand__tagline">{t.nav.tagline}</span>
+      </span>
+    </a>
+    <button
+      class="nav-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-menu"
+      hidden
+    >
+      <Icon name="menu" />
+      <span>{t.nav.menu}</span>
+    </button>
+    <div class="site-menu" id="site-menu">
+      <nav class="site-nav" aria-label={t.nav.label}>
+        <a href={pathFor(lang, '/tailors')}>{t.nav.tailors}</a>
+        <a href={`${home}#services`}>{t.nav.services}</a>
+        <a href={`${home}#craft`}>{t.nav.craft}</a>
+        <a href={pathFor(lang, '/business')}>{t.nav.business}</a>
+        <a href={pathFor(lang, '/about')}>{t.nav.about}</a>
+        <a href={pathFor(lang, '/contact')}>{t.nav.contact}</a>
+        {twin && (
+          <a
+            class="lang-switch"
+            href={twin.path}
+            lang={twin.lang}
+            hreflang={twin.lang}
+          >
+            {t.language[twin.lang]}
+          </a>
+        )}
+      </nav>
+      <div class="site-actions">
+        <a
+          class="icon-button"
+          href={`${pathFor(lang, '/tailors')}#search`}
+          aria-label={t.nav.search}
+        >
+          <Icon name="search" />
+        </a>
+        <a class="button button--accent" href={pathFor(lang, '/request')}>
+          {t.nav.request}
+          <Icon name="arrow" class="icon icon--arrow" />
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Phones: the menu folds behind a button. Without JavaScript the links simply stay visible.
+  const button = document.querySelector<HTMLButtonElement>('.nav-toggle');
+  const menu = document.getElementById('site-menu');
+  if (button && menu) {
+    button.hidden = false;
+    menu.classList.add('is-collapsible');
+    const set = (open: boolean) => {
+      button.setAttribute('aria-expanded', String(open));
+      menu.classList.toggle('is-open', open);
+    };
+    button.addEventListener('click', () =>
+      set(button.getAttribute('aria-expanded') !== 'true'),
+    );
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.classList.contains('is-open')) {
+        set(false);
+        button.focus();
+      }
+    });
+  }
+</script>

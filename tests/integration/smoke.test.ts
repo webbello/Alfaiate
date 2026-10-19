@@ -10,7 +10,7 @@ describe('built worker', () => {
     );
     expect(response.headers.get('cache-control')).toBeNull();
     const html = await response.text();
-    expect(html).toContain('<h1>Find a tailor in Dili</h1>');
+    expect(html).toContain('Find the Tailor Who Gets');
     expect(html).not.toContain('<style');
   });
 });

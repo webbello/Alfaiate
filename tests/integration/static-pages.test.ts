@@ -92,7 +92,7 @@ describe('static pages (FR-PUB-06)', () => {
       expect(html, prefix).toContain(`href="${prefix}/terms"`);
       for (const word of [how, about, privacy, terms])
         expect(html, `${prefix} ${word}`).toContain(word);
-      expect(html).toContain('class="footer-nav"');
+      expect(html).toMatch(/class="footer-nav[ "]/);
     }
   });
 
@@ -102,12 +102,16 @@ describe('static pages (FR-PUB-06)', () => {
     expect(html.match(/<main/g)).toHaveLength(1);
     expect(html.match(/<footer/g)).toHaveLength(1);
     expect(html.match(/class="site-nav"/g)).toHaveLength(1);
-    expect(html.match(/class="footer-nav"/g)).toHaveLength(1);
+    expect(html.match(/class="footer-nav[ "]/g)).toHaveLength(1);
     expect(html.match(/<h1/g)).toHaveLength(1);
   });
 
   it('offers the browse and request buttons at the end of the long pages only', async () => {
     expect((await page('/how-it-works')).html).toContain('href="/request"');
-    expect((await page('/privacy')).html).not.toContain('href="/request"');
+    // the header's Request a Tailor button is on every page; the legal page's own content has no call to action
+    const main = (await page('/privacy')).html.match(
+      /<main[\s\S]*<\/main>/,
+    )![0];
+    expect(main).not.toContain('href="/request"');
   });
 });

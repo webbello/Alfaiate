@@ -71,17 +71,18 @@ test('mistakes are explained next to the field with JavaScript off', async ({
   await expect(page).toHaveURL(/\/request/);
 });
 
-test('the home story and the join form work with JavaScript off (Phase 7c)', async ({
+test('the home page shows its menu links and the join form works with JavaScript off (Phase 7d)', async ({
   page,
 }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(page.locator('.tape-measure details')).toHaveCount(5);
-  await page.locator('.tape-measure summary').first().click(); // native <details>, no script
-  await expect(page.locator('.tape-measure details').first()).toHaveAttribute(
-    'open',
-    '',
-  );
+  // without the script the phone-menu button never appears and the links stay in the page
+  await expect(page.locator('.nav-toggle')).toBeHidden();
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Main menu' })
+      .getByRole('link', { name: 'For Businesses' }),
+  ).toBeVisible();
   await page.goto('/join');
   await page.locator('#name').fill('E2E No-JS Applicant');
   await page.locator('#phone').fill('7712 3456');

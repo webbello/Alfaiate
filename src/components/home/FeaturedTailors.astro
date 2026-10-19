@@ -1,0 +1,69 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import Icon from '../ui/Icon.astro';
+import TailorCard from './TailorCard.astro';
+import type { Dictionary } from '../../i18n/public/en';
+import { pathFor, type Lang } from '../../i18n/lang';
+import type { CardView } from '../../modules/directory/view';
+
+interface Props {
+  lang: Lang;
+  t: Dictionary;
+  tailors: CardView[];
+}
+const { lang, t, tailors } = Astro.props;
+const f = t.home.featured;
+---
+
+<section class="section featured" aria-labelledby="featured-heading">
+  <div class="container">
+    <SectionHeading
+      id="featured-heading"
+      eyebrow={f.eyebrow}
+      heading={f.heading}
+      intro={f.intro}
+    >
+      <div class="section-heading__tools">
+        <a class="text-link" href={pathFor(lang, '/tailors')}>
+          {f.all}
+          <Icon name="arrow" class="icon icon--arrow" />
+        </a>
+        {tailors.length > 4 && (
+          <span
+            class="carousel-controls"
+            data-carousel-controls="featured-track"
+            hidden
+          >
+            <button
+              type="button"
+              class="round-button"
+              data-dir="-1"
+              aria-label={f.previous}
+            >
+              <Icon name="arrow-left" />
+            </button>
+            <button
+              type="button"
+              class="round-button round-button--dark"
+              data-dir="1"
+              aria-label={f.next}
+            >
+              <Icon name="arrow" />
+            </button>
+          </span>
+        )}
+      </div>
+    </SectionHeading>
+    {tailors.length === 0 ? (
+      <p class="featured__empty">{f.empty}</p>
+    ) : (
+      <ul class="featured__track" id="featured-track" role="list">
+        {tailors.map((tailor) => (
+          <li>
+            <TailorCard lang={lang} t={t} tailor={tailor} />
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</section>

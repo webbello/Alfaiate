@@ -1,0 +1,57 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import ProcessStep from './ProcessStep.astro';
+import type { Dictionary } from '../../i18n/public/en';
+import { scene } from './images';
+
+interface Props {
+  t: Dictionary;
+}
+const { t } = Astro.props;
+const h = t.home.how;
+const rack = scene('rack');
+const steps = [
+  { icon: 'search', title: h.step1Title, text: h.step1 },
+  { icon: 'person', title: h.step2Title, text: h.step2 },
+  { icon: 'chat', title: h.step3Title, text: h.step3 },
+  { icon: 'shirt', title: h.step4Title, text: h.step4 },
+] as const;
+---
+
+<section class="section how" aria-labelledby="how">
+  <div class="container how__inner">
+    <div class="how__content">
+      <SectionHeading
+        id="how"
+        eyebrow={h.eyebrow}
+        heading={h.heading}
+        intro={h.intro}
+      />
+      <ol class="steps" role="list">
+        {steps.map((step, i) => (
+          <ProcessStep
+            number={String(i + 1).padStart(2, '0')}
+            icon={step.icon}
+            title={step.title}
+            text={step.text}
+          />
+        ))}
+      </ol>
+    </div>
+    <div class="how__media">
+      <img
+        src={rack.src}
+        srcset={rack.srcset}
+        sizes="(min-width: 64rem) 22rem, 100vw"
+        width={rack.width}
+        height={rack.height}
+        alt={h.imageAlt}
+        loading="lazy"
+        decoding="async"
+      />
+      <p class="script-note" aria-hidden="true">
+        {h.script}
+      </p>
+    </div>
+  </div>
+</section>

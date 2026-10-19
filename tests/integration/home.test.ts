@@ -21,9 +21,13 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
     const { status, html } = await text('/');
     expect(status).toBe(200);
     expect(html).toContain('<html lang="en">');
-    const h1 = index(html, '<h1>Find a tailor in Dili</h1>');
+    // Phase 7d: the owner's reference copy replaced "Find a tailor in Dili" and "Request a tailor at home" (FR-PUB-03 label, decision logged).
+    const h1 = index(
+      html,
+      '<h1 id="hero-heading">Find the Tailor Who Gets <span class="accent">Your Style.</span>',
+    );
     const disclaimer = index(html, 'introduces you to independent tailors');
-    const cta = index(html, 'Request a tailor at home');
+    const cta = index(html, 'class="button button--ghost" href="/request"');
     const how = index(html, '<h2 id="how">');
     // The first content block: heading, disclaimer and request button all come before "How it works" and the rest.
     expect(h1).toBeLessThan(disclaimer);
@@ -37,9 +41,12 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
     const { status, html } = await text('/tet/');
     expect(status).toBe(200);
     expect(html).toContain('<html lang="tet">');
-    const h1 = index(html, '<h1>Buka alfaiate iha Dili</h1>');
+    const h1 = index(
+      html,
+      '<h1 id="hero-heading">Buka Alfaiate ne’ebé Komprende',
+    );
     const disclaimer = index(html, 'aprezenta ita ba alfaiate independente');
-    const cta = index(html, 'Husu alfaiate ba uma');
+    const cta = index(html, 'class="button button--ghost" href="/tet/request"');
     const how = index(html, '<h2 id="how">');
     expect(h1).toBeLessThan(disclaimer);
     expect(disclaimer).toBeLessThan(how);
@@ -84,28 +91,19 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
     );
   });
 
-  it('lists only categories that have a published tailor, linking to their pages', async () => {
-    const withTailor = (
-      await env.DB.prepare(
-        "INSERT INTO garment_category (slug, name) VALUES (?, 'Home Cat Used Fake')",
-      )
-        .bind(`hc-${unique()}`)
-        .run()
-    ).meta.last_row_id;
-    const empty = (
-      await env.DB.prepare(
-        "INSERT INTO garment_category (slug, name) VALUES (?, 'Home Cat Empty Fake')",
-      )
-        .bind(`hc-${unique()}`)
-        .run()
-    ).meta.last_row_id;
-    const draftOnly = (
-      await env.DB.prepare(
-        "INSERT INTO garment_category (slug, name) VALUES (?, 'Home Cat Draft Fake')",
-      )
-        .bind(`hc-${unique()}`)
-        .run()
-    ).meta.last_row_id;
+  it('links a service card to its category page once a published tailor offers it, and to the directory before that', async () => {
+    const custom =
+      (
+        await env.DB.prepare(
+          "INSERT OR IGNORE INTO garment_category (slug, name) VALUES ('custom-clothing', 'Custom Fake') RETURNING id",
+        ).first<{ id: number }>()
+      )?.id ??
+      (await env.DB.prepare(
+        "SELECT id FROM garment_category WHERE slug = 'custom-clothing'",
+      ).first<{ id: number }>())!.id;
+    await env.DB.prepare(
+      "INSERT OR IGNORE INTO garment_category (slug, name) VALUES ('wedding', 'Wedding Fake')",
+    ).run();
     const live = (
       await env.DB.prepare(
         "INSERT INTO tailor (slug, display_name, status, is_published, permission_recorded) VALUES (?, 'Home Live Fake', 'approved', 1, 1)",
@@ -113,32 +111,21 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
         .bind(`hl-${unique()}`)
         .run()
     ).meta.last_row_id;
-    const draft = (
-      await env.DB.prepare(
-        "INSERT INTO tailor (slug, display_name) VALUES (?, 'Home Draft Fake')",
-      )
-        .bind(`hd-${unique()}`)
-        .run()
-    ).meta.last_row_id;
     await env.DB.prepare(
-      'INSERT INTO tailor_category (tailor_id, category_id) VALUES (?, ?), (?, ?)',
+      'INSERT OR IGNORE INTO tailor_category (tailor_id, category_id) VALUES (?, ?)',
     )
-      .bind(live, withTailor, draft, draftOnly)
+      .bind(live, custom)
       .run();
-    void empty;
     const { html } = await text('/');
-    expect(html).toContain('Home Cat Used Fake');
-    expect(html).not.toContain('Home Cat Empty Fake');
-    expect(html).not.toContain('Home Cat Draft Fake');
-    const slug = (await env.DB.prepare(
-      'SELECT slug FROM garment_category WHERE id = ?',
-    )
-      .bind(withTailor)
-      .first<{ slug: string }>())!.slug;
-    expect(html).toContain(`href="/categories/${slug}"`);
-    expect((await text('/tet/')).html).toContain(
-      `href="/tet/categories/${slug}"`,
-    );
+    const card = (label: string) =>
+      new RegExp(
+        `<a class="service-card reveal" href="([^"]+)">(?:(?!</a>)[\\s\\S])*?${label}`,
+      ).exec(html)?.[1];
+    expect(card('Custom Clothing')).toBe('/categories/custom-clothing');
+    expect(card('Wedding and Special Occasions')).toBe('/tailors');
+    expect(html.match(/class="service-card reveal"/g)).toHaveLength(8);
+    const tet = (await text('/tet/')).html;
+    expect(tet).toContain('href="/tet/categories/custom-clothing"');
   });
 
   it('has no inline script or style and keeps the security headers', async () => {

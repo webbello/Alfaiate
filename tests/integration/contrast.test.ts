@@ -43,10 +43,15 @@ const PAIRS: [fg: string, bg: string][] = [
 describe('colour tokens meet WCAG AA', () => {
   it('every text and background pair in the art direction has at least 4.5:1', async () => {
     const html = await (await get('/')).text();
-    const href = /<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/.exec(html)![1];
-    const css = await (
-      await worker.fetch(new Request(`${ORIGIN}${href}`))
-    ).text();
+    const css = (
+      await Promise.all(
+        [
+          ...html.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g),
+        ].map(async (m) =>
+          (await worker.fetch(new Request(`${ORIGIN}${m[1]}`))).text(),
+        ),
+      )
+    ).join('\n');
     const token = (name: string, depth = 0): string => {
       const m = new RegExp(
         `--${name}:\\s*(#[0-9a-fA-F]{3,6}\\b|var\\(--([a-z-]+)\\))`,

@@ -1,0 +1,86 @@
+---
+import Icon from '../ui/Icon.astro';
+import { fill } from '../../i18n/public';
+import type { Dictionary } from '../../i18n/public/en';
+import { pathFor, type Lang } from '../../i18n/lang';
+import {
+  whatsappLink,
+  whatsappMessage,
+} from '../../modules/contact-links/whatsapp';
+import type { CardView } from '../../modules/directory/view';
+import { swatchVariant } from '../story/variant';
+
+interface Props {
+  lang: Lang;
+  t: Dictionary;
+  tailor: CardView;
+}
+const { lang, t, tailor } = Astro.props;
+const f = t.home.featured;
+const profile = pathFor(lang, `/tailors/${tailor.slug}`);
+// A stored number that is not valid never breaks the page: the button is simply left out.
+const whatsapp = (() => {
+  try {
+    return tailor.whatsapp
+      ? whatsappLink(tailor.whatsapp, whatsappMessage(t, tailor.name))
+      : null;
+  } catch {
+    return null;
+  }
+})();
+---
+
+<article class="tailor-card reveal">
+  <a class="tailor-card__media" href={profile} tabindex="-1" aria-hidden="true">
+    {tailor.photo ? (
+      <img
+        src={`/media/${tailor.photo.base}/medium.jpg`}
+        srcset={`/media/${tailor.photo.base}/thumb.jpg 320w, /media/${tailor.photo.base}/medium.jpg 800w`}
+        sizes="(min-width: 64rem) 18rem, (min-width: 40rem) 45vw, 80vw"
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <span
+        class={`card__swatch card__swatch--${swatchVariant(tailor.slug)}`}
+      ></span>
+    )}
+  </a>
+  <div class="tailor-card__body">
+    <h3 class="tailor-card__name">
+      <a href={profile}>{tailor.name}</a>
+    </h3>
+    {tailor.areas.length > 0 && (
+      <p class="tailor-card__place">
+        <Icon name="pin" class="icon icon--small" />
+        {tailor.areas[0]}
+      </p>
+    )}
+    {tailor.specialties.length > 0 && (
+      <ul class="tag-list" role="list">
+        {tailor.specialties.slice(0, 2).map((s) => (
+          <li class="tag-pill">{s}</li>
+        ))}
+      </ul>
+    )}
+    {tailor.description && (
+      <p class="tailor-card__text">{tailor.description}</p>
+    )}
+    <p class="tailor-card__actions">
+      <a class="button button--small button--outline" href={profile}>
+        {f.view}
+        <Icon name="arrow" class="icon icon--arrow" />
+      </a>
+      {whatsapp && (
+        <a
+          class="whatsapp-button"
+          href={whatsapp}
+          aria-label={fill(f.whatsapp, { name: tailor.name })}
+        >
+          <Icon name="whatsapp" />
+        </a>
+      )}
+    </p>
+  </div>
+</article>

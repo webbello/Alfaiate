@@ -1,0 +1,52 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import Icon from '../ui/Icon.astro';
+import ServiceCard from './ServiceCard.astro';
+import { SERVICES } from './services';
+import type { Dictionary } from '../../i18n/public/en';
+import { pathFor, type Lang } from '../../i18n/lang';
+
+interface Props {
+  lang: Lang;
+  t: Dictionary;
+  /** Slugs of active categories that a published tailor offers. */
+  live: Set<string>;
+}
+const { lang, t, live } = Astro.props;
+const s = t.home.services;
+const directory = pathFor(lang, '/tailors');
+---
+
+<section
+  class="section services"
+  id="services"
+  aria-labelledby="services-heading"
+>
+  <div class="container">
+    <SectionHeading
+      id="services-heading"
+      eyebrow={s.eyebrow}
+      heading={s.heading}
+    >
+      <a class="text-link" href={directory}>
+        {s.all}
+        <Icon name="arrow" class="icon icon--arrow" />
+      </a>
+    </SectionHeading>
+    <ul class="services__grid" role="list">
+      {SERVICES.map((item) => (
+        <li>
+          <ServiceCard
+            href={
+              live.has(item.category)
+                ? pathFor(lang, `/categories/${item.category}`)
+                : directory
+            }
+            label={s[item.key]}
+            image={item.image}
+          />
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

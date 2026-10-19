@@ -238,7 +238,8 @@ describe('directory (AC-02, FR-DIR-01..04)', () => {
     expect(html).toContain('<label for="filter-category">');
     expect(html).toMatch(new RegExp(`<option value="${c.slug}" selected`));
     expect(html).toMatch(/name="home_visit" value="1" checked/);
-    expect(html).not.toMatch(/<script/);
+    // the only script is the external header-menu enhancement; the form itself needs none
+    expect(html).not.toMatch(/<script(?![^>]*\bsrc=)/);
   });
 
   it('marks filtered pages noindex with the plain list as canonical, but not the plain list', async () => {

@@ -1,0 +1,70 @@
+---
+import Icon from '../ui/Icon.astro';
+import type { Dictionary } from '../../i18n/public/en';
+import { pathFor, type Lang } from '../../i18n/lang';
+import { scene } from './images';
+
+interface Props {
+  lang: Lang;
+  t: Dictionary;
+}
+const { lang, t } = Astro.props;
+const v = t.home.visit;
+const b = t.home.teams;
+const visit = scene('home-visit');
+const business = scene('business');
+---
+
+<section class="section banners" aria-label={`${v.heading} ${b.heading}`}>
+  <div class="container banners__grid">
+    <article
+      class="banner banner--light reveal"
+      aria-labelledby="visit-heading"
+    >
+      <div class="banner__copy">
+        <h2 id="visit-heading">{v.heading}</h2>
+        <p>{v.body}</p>
+        <p>
+          <a class="button button--accent" href={pathFor(lang, '/request')}>
+            {v.button}
+            <Icon name="arrow" class="icon icon--arrow" />
+          </a>
+        </p>
+      </div>
+      <img
+        class="banner__image"
+        src={visit.src}
+        srcset={visit.srcset}
+        sizes="(min-width: 64rem) 22rem, 100vw"
+        width={visit.width}
+        height={visit.height}
+        alt={v.imageAlt}
+        loading="lazy"
+        decoding="async"
+      />
+    </article>
+    <article class="banner banner--dark reveal" aria-labelledby="teams-heading">
+      <div class="banner__copy">
+        <h2 id="teams-heading">{b.heading}</h2>
+        <p>{b.body}</p>
+        <p>
+          <a class="button button--light" href={pathFor(lang, '/business')}>
+            {b.button}
+            <Icon name="arrow" class="icon icon--arrow" />
+          </a>
+        </p>
+      </div>
+      <img
+        class="banner__image"
+        src={business.src}
+        srcset={business.srcset}
+        sizes="(min-width: 64rem) 18rem, 100vw"
+        width={business.width}
+        height={business.height}
+        alt={b.imageAlt}
+        loading="lazy"
+        decoding="async"
+      />
+    </article>
+  </div>
+</section>

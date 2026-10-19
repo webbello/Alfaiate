@@ -1,0 +1,86 @@
+---
+import Icon from '../ui/Icon.astro';
+import type { Dictionary } from '../../i18n/public/en';
+import { pathFor, type Lang } from '../../i18n/lang';
+import { scene } from './images';
+
+interface Props {
+  lang: Lang;
+  t: Dictionary;
+}
+const { lang, t } = Astro.props;
+const h = t.home.hero;
+const hero = scene('hero');
+const badge = scene('craft');
+const trust = [
+  { icon: 'pin', a: h.trust1, b: h.trust1b },
+  { icon: 'scissors', a: h.trust2, b: h.trust2b },
+  { icon: 'home', a: h.trust3, b: h.trust3b },
+  { icon: 'users', a: h.trust4, b: h.trust4b },
+] as const;
+---
+
+<section class="hero" aria-labelledby="hero-heading">
+  <div class="hero__copy container">
+    <div class="hero__text">
+      <p class="eyebrow">{h.eyebrow}</p>
+      <h1 id="hero-heading">
+        {h.headingStart} <span class="accent">{h.headingAccent}</span>
+      </h1>
+      <p class="hero__intro">{h.intro}</p>
+      <p class="actions">
+        <a class="button button--forest" href={pathFor(lang, '/tailors')}>
+          {h.find}
+          <Icon name="arrow" class="icon icon--arrow" />
+        </a>
+        <a class="button button--ghost" href={pathFor(lang, '/request')}>
+          {h.request}
+          <Icon name="arrow" class="icon icon--arrow" />
+        </a>
+      </p>
+      <p class="hero__note">
+        <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
+      </p>
+      <ul class="trust" aria-label={h.trustLabel}>
+        {trust.map((item) => (
+          <li>
+            <span class="trust__icon">
+              <Icon name={item.icon} />
+            </span>
+            <span>
+              <strong>{item.a}</strong>
+              <span>{item.b}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+  <div class="hero__media">
+    <img
+      class="hero__image"
+      src={hero.src}
+      srcset={hero.srcset}
+      sizes="(min-width: 64rem) 58vw, 100vw"
+      width={hero.width}
+      height={hero.height}
+      alt={h.imageAlt}
+      fetchpriority="high"
+      decoding="async"
+    />
+    <p class="hero__script" aria-hidden="true">
+      {h.script}
+    </p>
+    <p class="hero__badge">
+      <img
+        src={badge.src}
+        width="48"
+        height="48"
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+      <span>{h.badge}</span>
+    </p>
+  </div>
+</section>

@@ -141,7 +141,7 @@ export async function listPublished(
 
   const { results } = await db
     .prepare(
-      `SELECT t.id, t.slug, t.display_name, t.home_visits, t.profile_photo_id FROM tailor t
+      `SELECT t.id, t.slug, t.display_name, t.home_visits, t.profile_photo_id, t.description, t.whatsapp_e164, t.contact_publish_consent FROM tailor t
        WHERE ${where.join(' AND ')} ORDER BY t.display_name COLLATE NOCASE, t.id LIMIT ?`,
     )
     .bind(...binds, MAX_CARDS + 1)
@@ -151,6 +151,9 @@ export async function listPublished(
       display_name: string;
       home_visits: string;
       profile_photo_id: number | null;
+      description: string | null;
+      whatsapp_e164: string | null;
+      contact_publish_consent: number;
     }>();
   const truncated = results.length > MAX_CARDS;
   const rows = results.slice(0, MAX_CARDS);
@@ -190,9 +193,20 @@ export async function listPublished(
             ? r.home_visits
             : null,
         priceHint: priceHint(own),
+        description: shorten(r.description, 110),
+        whatsapp: r.contact_publish_consent === 1 ? r.whatsapp_e164 : null,
       };
     }),
   };
+}
+
+/** A card shows the start of the description, cut at a word. */
+function shorten(text: string | null, max: number): string | null {
+  const clean = (text ?? '').replace(/\s+/g, ' ').trim();
+  if (!clean) return null;
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max);
+  return `${cut.slice(0, cut.lastIndexOf(' ') > 40 ? cut.lastIndexOf(' ') : max).trimEnd()}…`;
 }
 
 export async function getPublishedBySlug(

@@ -1,22 +1,36 @@
 ---
 import { env } from 'cloudflare:workers';
 import PublicLayout from '../layouts/PublicLayout.astro';
+import '../styles/home.css';
+import HeroSection from '../components/home/HeroSection.astro';
+import ServiceCategories from '../components/home/ServiceCategories.astro';
+import FeaturedTailors from '../components/home/FeaturedTailors.astro';
+import CraftsmanshipSection from '../components/home/CraftsmanshipSection.astro';
+import HowItWorks from '../components/home/HowItWorks.astro';
+import PromotionalBanners from '../components/home/PromotionalBanners.astro';
+import TestimonialsSection from '../components/home/TestimonialsSection.astro';
+import FinalCallToAction from '../components/home/FinalCallToAction.astro';
+import { scene } from '../components/home/images';
 import { dictionary } from '../i18n/public';
-import { pathFor, type Lang } from '../i18n/lang';
-import { joinEnabled, requireBindings, siteConfig } from '../modules/config';
+import { type Lang } from '../i18n/lang';
+import { requireBindings, siteConfig } from '../modules/config';
 import { websiteJsonLd } from '../modules/seo/jsonld';
-import Swatch3D from '../components/story/Swatch3D.astro';
-import TapeMeasure from '../components/story/TapeMeasure.astro';
-import { listActiveCategories } from '../modules/directory/queries';
+import {
+  listActiveCategories,
+  listPublished,
+} from '../modules/directory/queries';
 
 interface Props {
   lang: Lang;
 }
 const { lang } = Astro.props;
 const t = dictionary(lang);
-const categories = await listActiveCategories(requireBindings(env).DB, {
-  onlyWithTailors: true,
-});
+const { DB } = requireBindings(env);
+const [categories, { tailors }] = await Promise.all([
+  listActiveCategories(DB, { onlyWithTailors: true }),
+  listPublished(DB, { category: undefined, area: undefined, homeVisit: false }),
+]);
+const hero = scene('hero');
 ---
 
 <PublicLayout
@@ -24,129 +38,44 @@ const categories = await listActiveCategories(requireBindings(env).DB, {
   title={`${t.home.title} · ${t.siteName}`}
   description={t.home.description}
   rest="/"
+  bare
+  preloadImage={{
+    href: hero.src,
+    srcset: hero.srcset,
+    sizes: '(min-width: 64rem) 58vw, 100vw',
+  }}
   jsonLd={websiteJsonLd(siteConfig(env).siteUrl, t.siteName, lang)}
 >
-  <section class="hero">
-    <div class="hero__copy">
-      <h1>{t.home.heading}</h1>
-      <p class="lead">{t.home.intro}</p>
-      <p class="notice" role="note">
-        <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
-      </p>
-      <p class="actions">
-        <a class="button" href={pathFor(lang, '/request')}>
-          {t.cta.requestHome}
-        </a>
-        <a class="button button--secondary" href={pathFor(lang, '/tailors')}>
-          {t.home.browse}
-        </a>
-      </p>
-    </div>
-    <div class="hero__art">
-      <Swatch3D />
-    </div>
-  </section>
-
-  <section class="band-section" aria-labelledby="promise">
-    <p class="kicker">{t.home.promise.kicker}</p>
-    <h2 id="promise">{t.home.promise.heading}</h2>
-    <p class="lead">{t.home.promise.body}</p>
-  </section>
-
-  <section aria-labelledby="how">
-    <h2 id="how">{t.home.how.heading}</h2>
-    <ol class="steps pieces">
-      <li>
-        <strong>{t.home.how.step1Title}.</strong> {t.home.how.step1}
-      </li>
-      <li>
-        <strong>{t.home.how.step2Title}.</strong> {t.home.how.step2}
-      </li>
-      <li>
-        <strong>{t.home.how.step3Title}.</strong> {t.home.how.step3}
-      </li>
-    </ol>
-  </section>
-
-  <section class="band-section" aria-labelledby="craft">
-    <h2 id="craft">{t.home.craft.heading}</h2>
-    <p class="lead">{t.home.craft.intro}</p>
-    <TapeMeasure
-      points={[
-        t.home.craft.shoulder,
-        t.home.craft.chest,
-        t.home.craft.waist,
-        t.home.craft.inseam,
-        t.home.craft.sleeve,
-      ]}
-    />
-    <p class="meta">{t.home.craft.note}</p>
-  </section>
-
-  {categories.length > 0 && (
-    <section aria-labelledby="needs">
-      <h2 id="needs">{t.home.categoriesHeading}</h2>
-      <ul class="swatches">
-        {categories.map((c) => (
-          <li>
-            <a
-              class="swatch-link"
-              href={pathFor(lang, `/categories/${c.slug}`)}
-            >
-              {c.name}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </section>
-  )}
-
-  <section class="local" aria-labelledby="local">
-    <div class="border-motif" aria-hidden="true"></div>
-    <h2 id="local">{t.home.local.heading}</h2>
-    <p class="lead">{t.home.local.body}</p>
-  </section>
-
-  <section class="trust" aria-labelledby="trust">
-    <h2 id="trust">{t.home.trust.heading}</h2>
-    <div class="trust__cols">
-      <div>
-        <h3>{t.home.trust.doHeading}</h3>
-        <ul>
-          <li>{t.home.trust.do1}</li>
-          <li>{t.home.trust.do2}</li>
-          <li>{t.home.trust.do3}</li>
-        </ul>
-      </div>
-      <div>
-        <h3>{t.home.trust.dontHeading}</h3>
-        <ul>
-          <li>{t.home.trust.dont1}</li>
-          <li>{t.home.trust.dont2}</li>
-          <li>{t.home.trust.dont3}</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="final-call" aria-labelledby="ask">
-    <h2 id="ask">{t.home.ask.heading}</h2>
-    <p class="lead">{t.home.ask.body}</p>
-    <p class="actions">
-      <a class="button" href={pathFor(lang, '/request')}>
-        {t.home.ask.button}
-      </a>
-    </p>
-  </section>
-  {joinEnabled(env as { JOIN_ENABLED?: string }) && (
-    <section class="tailor-invite" aria-labelledby="tailors">
-      <h2 id="tailors">{t.join.banner.heading}</h2>
-      <p>{t.join.banner.body}</p>
-      <p>
-        <a class="button button--secondary" href={pathFor(lang, '/join')}>
-          {t.join.banner.link}
-        </a>
-      </p>
-    </section>
-  )}
+  <HeroSection lang={lang} t={t} />
+  <ServiceCategories
+    lang={lang}
+    t={t}
+    live={new Set(categories.map((c) => c.slug))}
+  />
+  <FeaturedTailors lang={lang} t={t} tailors={tailors.slice(0, 8)} />
+  <CraftsmanshipSection lang={lang} t={t} />
+  <HowItWorks t={t} />
+  <PromotionalBanners lang={lang} t={t} />
+  <TestimonialsSection t={t} />
+  <FinalCallToAction lang={lang} t={t} />
 </PublicLayout>
+
+<script>
+  // Carousel arrows (featured tailors): shown only when the row overflows; scrolling itself is native, so touch and keyboard work without this.
+  for (const controls of document.querySelectorAll<HTMLElement>(
+    '[data-carousel-controls]',
+  )) {
+    const track = document.getElementById(
+      controls.dataset.carouselControls ?? '',
+    );
+    if (!track || track.scrollWidth <= track.clientWidth + 4) continue;
+    controls.hidden = false;
+    for (const button of controls.querySelectorAll<HTMLButtonElement>('button'))
+      button.addEventListener('click', () =>
+        track.scrollBy({
+          left: Number(button.dataset.dir) * track.clientWidth * 0.9,
+          behavior: 'smooth',
+        }),
+      );
+  }
+</script>

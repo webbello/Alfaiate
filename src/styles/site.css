@@ -36,7 +36,7 @@
   --text-sm: 0.875rem;
   --text-md: 1rem;
   --text-lg: 1.125rem;
-  --text-h1: clamp(2.6rem, 6vw, 4.5rem);
+  --text-h1: clamp(2.6rem, 5.2vw, 4.1rem);
   --text-h2: clamp(1.9rem, 3.6vw, 2.75rem);
   --text-h3: 1.15rem;
   --space-1: 0.25rem;
@@ -100,6 +100,10 @@ body {
   font-size: 1rem;
 }
 
+main.main--bare {
+  max-width: none;
+  padding: 0;
+}
 main {
   flex: 1;
   width: 100%;
@@ -169,55 +173,6 @@ a:hover {
   top: 0.5rem;
 }
 
-.site-header {
-  background: var(--band);
-  border-bottom: 1px solid var(--line);
-}
-.site-header__inner {
-  max-width: var(--wide);
-  margin: 0 auto;
-  padding: 0.5rem var(--gap);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem 1rem;
-}
-.site-name {
-  font-family: var(--display);
-  font-weight: 400;
-  font-size: 1.6rem;
-  letter-spacing: 0.01em;
-  color: var(--ink);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-}
-.site-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 0.5rem;
-  margin-left: auto;
-}
-.site-nav a,
-.lang-switch {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-  padding: 0 0.5rem;
-  color: var(--ink);
-}
-
-.site-footer {
-  background: var(--indigo);
-  padding: 1.75rem var(--gap);
-  color: var(--paper);
-  font-size: 0.95rem;
-}
-.site-footer a {
-  color: var(--thread-light);
-}
-
 /* Quick actions for phones: fixed to the bottom, hidden on wide screens. The page leaves room for it, and focused items scroll clear of it. */
 html {
   scroll-padding-bottom: 5rem;
@@ -236,24 +191,16 @@ html {
   flex: 1;
 }
 body:has(.sticky-bar) .site-footer {
-  padding-bottom: 5rem;
+  padding-bottom: 5.5rem;
 }
 @media (min-width: 48rem) {
   .sticky-bar {
     display: none;
   }
   body:has(.sticky-bar) .site-footer {
-    padding-bottom: 1.75rem;
+    padding-bottom: var(--space-5);
   }
 }
-.site-footer__inner {
-  max-width: var(--wide);
-  margin: 0 auto;
-}
-.site-footer p {
-  margin-bottom: 0.5rem;
-}
-
 .button {
   display: inline-flex;
   align-items: center;
@@ -538,17 +485,6 @@ dl.facts dd {
   font-size: 0.95rem;
 }
 
-.footer-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 1rem;
-}
-.footer-nav a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-}
-
 /* Request form (Phase 5) */
 .request {
   max-width: var(--measure);
@@ -716,4 +652,298 @@ dl.facts dd {
   border-radius: var(--radius);
   background: var(--color-white);
   color: var(--ink);
+}
+
+/* ---- Layout shell (Phase 7d, from the reference design) ---- */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gap);
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.icon--small {
+  width: 1rem;
+  height: 1rem;
+}
+.icon--arrow {
+  width: 1rem;
+  height: 1rem;
+  transition: transform var(--duration) var(--ease);
+}
+a:hover > .icon--arrow,
+a:focus-visible > .icon--arrow {
+  transform: translateX(3px);
+}
+.eyebrow {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-terracotta);
+}
+
+.site-header {
+  position: relative;
+  z-index: 30;
+  background: var(--color-ivory);
+  border-bottom: 1px solid var(--color-border);
+}
+.site-header__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-5);
+  min-height: 4.5rem;
+  padding-block: var(--space-2);
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-charcoal);
+  text-decoration: none;
+  min-height: var(--button-height);
+}
+.logo-mark {
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--color-charcoal);
+}
+.brand__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.site-name {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 500;
+}
+.brand__tagline {
+  font-size: 0.7rem;
+  color: var(--color-muted);
+}
+.nav-toggle {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--button-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  color: var(--color-charcoal);
+  font: inherit;
+  cursor: pointer;
+}
+.nav-toggle[hidden] {
+  display: none;
+}
+.site-menu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-5);
+  flex: 1 1 100%;
+}
+.site-menu.is-collapsible:not(.is-open) {
+  display: none;
+}
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-4);
+}
+.site-nav a,
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--button-height);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-charcoal);
+  text-decoration: none;
+}
+.site-nav a:hover {
+  color: var(--color-terracotta);
+}
+.lang-switch {
+  text-decoration: underline;
+}
+.site-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+}
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: var(--button-height);
+  height: var(--button-height);
+  border-radius: 50%;
+  color: var(--color-charcoal);
+}
+.icon-button:hover {
+  background: var(--color-cream);
+}
+@media (min-width: 64rem) {
+  .nav-toggle,
+  .nav-toggle:not([hidden]) {
+    display: none;
+  }
+  .site-menu,
+  .site-menu.is-collapsible:not(.is-open) {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+  }
+  .site-nav {
+    margin-inline: auto;
+    gap: 0 var(--space-5);
+  }
+  .site-actions {
+    margin-left: 0;
+  }
+}
+
+/* Buttons: one height, a few variants. The original .button and .button--secondary keep working on every page. */
+.button--accent {
+  background: var(--color-terracotta);
+  border-color: var(--color-terracotta);
+  color: var(--color-white);
+}
+.button--forest {
+  background: var(--color-forest);
+  border-color: var(--color-forest);
+  color: var(--color-white);
+}
+.button--forest:hover {
+  background: #2a3a2f;
+}
+.button--ghost {
+  background: var(--color-cream);
+  border-color: var(--color-cream);
+  color: var(--color-charcoal);
+}
+.button--ghost:hover {
+  background: var(--color-border);
+}
+.button--outline {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-charcoal);
+}
+.button--outline:hover {
+  background: var(--color-cream);
+}
+.button--light {
+  background: var(--color-white);
+  border-color: var(--color-white);
+  color: var(--color-charcoal);
+}
+.button--light:hover {
+  background: var(--color-cream);
+}
+.button--ghost-light {
+  background: transparent;
+  border: 1px solid rgb(255 255 255 / 70%);
+  color: var(--color-white);
+}
+.button--ghost-light:hover {
+  background: rgb(255 255 255 / 12%);
+}
+.button--small {
+  min-height: var(--button-height);
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+}
+.button {
+  gap: var(--space-2);
+  border-radius: var(--radius-sm);
+  transition:
+    background-color var(--duration) var(--ease),
+    color var(--duration) var(--ease);
+}
+
+/* Footer */
+.site-footer {
+  background: var(--color-ivory);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-charcoal);
+  font-size: var(--text-sm);
+}
+.site-footer__inner {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: var(--space-7) var(--space-5);
+}
+.site-footer__note {
+  margin-top: var(--space-3);
+  max-width: 22rem;
+  color: var(--color-muted);
+}
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.footer-col__title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.footer-col a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+.footer-col a:hover {
+  color: var(--color-terracotta);
+  text-decoration: underline;
+}
+.site-footer__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-5);
+  padding-block: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+}
+.site-footer__bottom p {
+  margin: 0;
+}
+.site-footer__bottom p:first-child {
+  font-weight: 600;
+  color: var(--color-charcoal);
+}
+@media (min-width: 48rem) {
+  .site-footer__inner {
+    grid-template-columns: 1.4fr 1fr 1fr 1.4fr;
+  }
 }

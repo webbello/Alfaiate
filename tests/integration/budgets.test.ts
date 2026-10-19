@@ -47,22 +47,24 @@ const seed = async () => {
   return 'bg-suits';
 };
 
-// Uncompressed bytes, measured on 2026-10-19 after Phase 7c (home 6486, directory 3877, category 2399, profile 3783, request 6820, how-it-works 3624, join 3804,
-// site CSS 9191, home CSS 14700, admin CSS 6852, JS 287, display font 18.8 KB tested in font.test.ts), each budget the measurement plus about 20%.
+// Uncompressed bytes, measured on 2026-10-19 after Phase 7d (the owner's reference design): home 21505, directory 6611, category 4997, profile 6381,
+// request 9418, how-it-works 6222, join 6291; site CSS 14854, home CSS 27493 (site plus home sheet), admin CSS 6852; JS 410 (header menu) and 745 on the
+// home page (menu plus carousel); display font 17 KB (font.test.ts). Each budget is the measurement plus about 20%. Scene photos are not counted here:
+// they are lazy except the hero, and `npm run perf` reports them.
 const BUDGET = {
   html: {
-    home: 7800,
-    directory: 4700,
-    category: 3400,
-    profile: 5400,
-    request: 8200,
-    howItWorks: 4400,
-    join: 4600,
+    home: 25800,
+    directory: 7900,
+    category: 6000,
+    profile: 7700,
+    request: 11300,
+    howItWorks: 7500,
+    join: 7600,
   },
-  css: 11000,
-  homeCss: 17600,
+  css: 17900,
+  homeCss: 33000,
   adminCss: 8200,
-  js: 400,
+  js: 900,
 } as const;
 
 describe('page weight budgets (NFR-PERF-01)', () => {
@@ -100,8 +102,9 @@ describe('page weight budgets (NFR-PERF-01)', () => {
   it('loads no third-party resources and no web fonts', async () => {
     for (const path of ['/', '/tailors', '/request']) {
       const html = await (await get(path)).text();
+      // resources only: links to wa.me on tailor cards are navigation, not something the page loads
       expect(html, path).not.toMatch(
-        /(src|href)="https?:\/\/(?!alfaiate-tl\.example)/,
+        /<(img|script|link|source|iframe)\b[^>]*\b(src|href|srcset)="https?:\/\/(?!alfaiate-tl\.example)/,
       );
       expect(html, path).not.toMatch(/@font-face|fonts\.googleapis/);
     }

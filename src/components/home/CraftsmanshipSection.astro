@@ -1,0 +1,61 @@
+---
+import Icon from '../ui/Icon.astro';
+import type { Dictionary } from '../../i18n/public/en';
+import { pathFor, type Lang } from '../../i18n/lang';
+import { scene } from './images';
+
+interface Props {
+  lang: Lang;
+  t: Dictionary;
+}
+const { lang, t } = Astro.props;
+const c = t.home.craft;
+const main = scene('craft');
+const cloth = scene('traditional');
+const detail = scene('suits');
+---
+
+<section class="craft" id="craft" aria-labelledby="craft-heading">
+  <div class="craft__media">
+    <img
+      class="craft__image"
+      src={main.src}
+      srcset={main.srcset}
+      sizes="(min-width: 64rem) 55vw, 100vw"
+      width={main.width}
+      height={main.height}
+      alt={c.imageAlt}
+      loading="lazy"
+      decoding="async"
+    />
+    <div class="craft__tiles" aria-hidden="true">
+      <img
+        src={cloth.src}
+        width={cloth.width}
+        height={cloth.height}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+      <img
+        src={detail.src}
+        width={detail.width}
+        height={detail.height}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  </div>
+  <div class="craft__copy reveal">
+    <p class="eyebrow">{c.eyebrow}</p>
+    <h2 id="craft-heading">{c.heading}</h2>
+    <p>{c.body}</p>
+    <p>
+      <a class="button button--accent" href={pathFor(lang, '/how-it-works')}>
+        {c.button}
+        <Icon name="arrow" class="icon icon--arrow" />
+      </a>
+    </p>
+  </div>
+</section>

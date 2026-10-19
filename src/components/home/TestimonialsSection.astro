@@ -1,0 +1,32 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import TestimonialCard from './TestimonialCard.astro';
+import { TESTIMONIALS } from './testimonials';
+import type { Dictionary } from '../../i18n/public/en';
+
+interface Props {
+  t: Dictionary;
+}
+const { t } = Astro.props;
+const s = t.home.stories;
+---
+
+{TESTIMONIALS.length > 0 && (
+  <section class="section stories" aria-labelledby="stories-heading">
+    <div class="container">
+      <SectionHeading
+        id="stories-heading"
+        eyebrow={s.eyebrow}
+        heading={s.heading}
+        intro={s.intro}
+      />
+      <ul class="stories__track" role="list">
+        {TESTIMONIALS.map((item) => (
+          <li>
+            <TestimonialCard item={item} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}

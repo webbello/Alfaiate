@@ -1,0 +1,20 @@
+---
+// Small uppercase eyebrow, serif heading and an optional line of intro; the slot holds an action shown at the right on wide screens.
+interface Props {
+  id: string;
+  eyebrow?: string;
+  heading: string;
+  intro?: string;
+  align?: 'start' | 'center';
+}
+const { id, eyebrow, heading, intro, align = 'start' } = Astro.props;
+---
+
+<div class={`section-heading section-heading--${align}`}>
+  <div>
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h2 id={id}>{heading}</h2>
+    {intro && <p class="section-heading__intro">{intro}</p>}
+  </div>
+  <slot />
+</div>

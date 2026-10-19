@@ -12,6 +12,10 @@ export type CardView = {
   areas: string[];
   homeVisits: 'yes' | 'no' | null;
   priceHint: Price | null;
+  /** The tailor's own description, shortened for a card (supplied by the tailor, BR-11). */
+  description: string | null;
+  /** Only when the tailor agreed to show it (contact_publish_consent). */
+  whatsapp: string | null;
 };
 
 export type ProfileView = {

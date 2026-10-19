@@ -1,0 +1,20 @@
+---
+import Icon from '../ui/Icon.astro';
+import type { Testimonial } from './testimonials';
+
+interface Props {
+  item: Testimonial;
+}
+const { item } = Astro.props;
+---
+
+<figure class="testimonial reveal">
+  <blockquote>
+    <p>{item.quote}</p>
+  </blockquote>
+  <figcaption>
+    <strong>{item.name}</strong>
+    <span>{item.place}</span>
+  </figcaption>
+  <Icon name="quote" class="icon testimonial__mark" />
+</figure>

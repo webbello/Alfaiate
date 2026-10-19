@@ -1,6 +1,8 @@
 ---
 import { env } from 'cloudflare:workers';
 import '../styles/site.css';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
 import { dictionary } from '../i18n/public';
 import { isEnabled, pathFor, twinPath, type Lang } from '../i18n/lang';
 import { siteConfig, siteWhatsapp } from '../modules/config';
@@ -23,6 +25,10 @@ interface Props {
   jsonLd?: object[];
   /** Absolute URL of a permitted photo for Open Graph. */
   ogImage?: string;
+  /** Full-width sections that bring their own container (the home page). */
+  bare?: boolean;
+  /** An image to fetch early because it is the largest thing on the first screen. */
+  preloadImage?: { href: string; srcset: string; sizes: string };
 }
 const {
   lang,
@@ -34,6 +40,8 @@ const {
   realPage = true,
   jsonLd = [],
   ogImage,
+  bare = false,
+  preloadImage,
 } = Astro.props;
 const t = dictionary(lang);
 const { siteUrl, languages, indexable } = siteConfig(env);
@@ -50,8 +58,8 @@ const head = buildHead({
 const showSwitch = realPage && isEnabled('tet', languages);
 const twin = showSwitch ? twinPath(pathFor(lang, rest)) : null;
 // The quick-action bar must never cover the forms, and the legal pages stay free of calls to action.
-const showBar = !['/request', '/privacy', '/terms'].some((p) =>
-  rest.startsWith(p),
+const showBar = !['/request', '/business', '/join', '/privacy', '/terms'].some(
+  (p) => rest.startsWith(p),
 );
 const ownerWhatsapp = siteWhatsapp(env as { SITE_WHATSAPP?: string });
 ---
@@ -85,6 +93,23 @@ const ownerWhatsapp = siteWhatsapp(env as { SITE_WHATSAPP?: string });
         </>
       )
     }
+    <link
+      rel="preload"
+      href="/fonts/alfaiate-display.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    {preloadImage && (
+      <link
+        rel="preload"
+        as="image"
+        href={preloadImage.href}
+        imagesrcset={preloadImage.srcset}
+        imagesizes={preloadImage.sizes}
+        fetchpriority="high"
+      />
+    )}
     {head.alternates.map((a) => (
       <link rel="alternate" hreflang={a.hreflang} href={a.href} />
     ))}
@@ -93,41 +118,11 @@ const ownerWhatsapp = siteWhatsapp(env as { SITE_WHATSAPP?: string });
     <a class="skip-link" href="#main">
       {t.skipToContent}
     </a>
-    <header class="site-header">
-      <div class="site-header__inner">
-        <a class="site-name" href={pathFor(lang, '/')}>
-          {t.siteName}
-        </a>
-        <nav class="site-nav" aria-label={t.nav.label}>
-          <a href={pathFor(lang, '/')}>{t.nav.home}</a>
-          <a href={pathFor(lang, '/tailors')}>{t.nav.tailors}</a>
-          <a href={pathFor(lang, '/how-it-works')}>{t.nav.how}</a>
-          {twin && (
-            <a
-              class="lang-switch"
-              href={twin.path}
-              lang={twin.lang}
-              hreflang={twin.lang}
-            >
-              {t.language[twin.lang]}
-            </a>
-          )}
-        </nav>
-      </div>
-    </header>
-    <main id="main">
+    <SiteHeader lang={lang} t={t} twin={twin} />
+    <main id="main" class={bare ? 'main--bare' : undefined}>
       <slot />
     </main>
-    <footer class="site-footer">
-      <div class="site-footer__inner">
-        <p>{t.disclaimer.short}</p>
-        <nav aria-label={t.footer.label} class="footer-nav">
-          <a href={pathFor(lang, '/about')}>{t.footer.about}</a>
-          <a href={pathFor(lang, '/privacy')}>{t.footer.privacy}</a>
-          <a href={pathFor(lang, '/terms')}>{t.footer.terms}</a>
-        </nav>
-      </div>
-    </footer>
+    <SiteFooter lang={lang} t={t} />
     {showBar && (
       <nav class="sticky-bar" aria-label={t.bar.label}>
         <a class="button" href={pathFor(lang, '/request')}>

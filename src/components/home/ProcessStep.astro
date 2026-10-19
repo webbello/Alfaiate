@@ -1,0 +1,22 @@
+---
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  number: string;
+  icon: 'search' | 'person' | 'chat' | 'shirt';
+  title: string;
+  text: string;
+}
+const { number, icon, title, text } = Astro.props;
+---
+
+<li class="step reveal">
+  <span class="step__icon">
+    <Icon name={icon} />
+  </span>
+  <span class="step__number" aria-hidden="true">
+    {number}
+  </span>
+  <h3 class="step__title">{title}</h3>
+  <p>{text}</p>
+</li>

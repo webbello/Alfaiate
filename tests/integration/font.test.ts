@@ -6,8 +6,14 @@ import { worker } from './worker';
 const FONT = '/fonts/alfaiate-display.woff2';
 const css = async () => {
   const html = await (await get('/')).text();
-  const href = /<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/.exec(html)![1];
-  return (await worker.fetch(new Request(`${ORIGIN}${href}`))).text();
+  return (
+    await Promise.all(
+      [...html.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(
+        async (m) =>
+          (await worker.fetch(new Request(`${ORIGIN}${m[1]}`))).text(),
+      ),
+    )
+  ).join('\n');
 };
 
 describe('the display font', () => {
