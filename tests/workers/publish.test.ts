@@ -308,6 +308,39 @@ describe('approveTailor and recordPermission', () => {
   });
 });
 
+describe('withdrawing permission also withdraws the photo permissions (BR-06)', () => {
+  it('clears every photo grant, so a later republish does not bring old photos back on its own', async () => {
+    const { by, id } = await ready();
+    const stored = await storeImage(b, by, id, {
+      alt_text: 'x',
+      variants: good(),
+    });
+    if (!stored.ok) throw new Error('store failed');
+    await env.DB.prepare(
+      "UPDATE portfolio_image SET permission_granted = 1, permission_date = '2026-10-01' WHERE id = ?",
+    )
+      .bind(stored.id)
+      .run();
+    await publishTailor(b, by, 'manager', id);
+    expect(await keysIn(env.MEDIA_PUBLIC, id)).toBe(3);
+    await withdrawPermission(b, by, 'manager', id);
+    expect(
+      await env.DB.prepare(
+        'SELECT permission_granted, permission_date FROM portfolio_image WHERE id = ?',
+      )
+        .bind(stored.id)
+        .first(),
+    ).toEqual({ permission_granted: 0, permission_date: null });
+    await recordPermission(b, by, 'manager', id, {
+      note: 'Agreed again',
+      date: '2026-10-05',
+      contact_publish_consent: true,
+    });
+    await publishTailor(b, by, 'manager', id);
+    expect(await keysIn(env.MEDIA_PUBLIC, id)).toBe(0); // photos must be granted again, one by one
+  });
+});
+
 describe('setVerifiedFields (BR-11)', () => {
   it('stores only known fields, once each, and only for a manager or owner', async () => {
     const by = await user();

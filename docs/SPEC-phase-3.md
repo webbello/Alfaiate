@@ -41,7 +41,7 @@ src/modules/tailors/
   publish.ts            canPublish(tailor) -> reasons; publish/unpublish/record permission; calls reconcileImages
 src/modules/catalog/    categories and areas: create, rename, reorder, activate/deactivate
 src/modules/media/
-  validate.ts           magic bytes, EXIF/XMP/IPTC rejection, dimensions, size (JPEG, WebP)
+  validate.ts           magic bytes, EXIF/XMP/IPTC rejection, dimensions, size (JPEG only, Q4)
   keys.ts               key scheme: tailor/<id>/<random>/<variant>.jpg
   store.ts              upload (private), delete, reconcileImages (private -> public copy / delete)
 src/pages/admin/
@@ -52,7 +52,7 @@ src/pages/admin/
   tailors/[id]/publish.ts                POST: approve, record permission/verification, publish, unpublish   tailor.publish
   tailors/[id]/fees.ts                   POST: fee terms                                       fee.view
   tailors/[id]/images.ts                 POST: upload one photo (three variants)               tailor.edit
-  tailors/[id]/images/actions.ts         POST: alt/caption, order, permission, visibility, profile photo, delete   tailor.edit (permission flag needs tailor.publish)
+  tailors/[id]/images/actions.ts         POST: alt/caption, order, visibility, profile photo, delete   tailor.edit (the photo permission flag is an action on /publish, tailor.publish)
   media/[...key].ts                      GET: private-bucket preview for admins                tailor.edit
   categories.astro, areas.astro          list + POST forms                                     tailor.edit
 src/pages/media/[...key].ts             GET: public images from the public bucket only (no auth, no listing)
@@ -84,7 +84,7 @@ export function publishBlockers(t: TailorRow): PublishBlocker[] { /* [] means pu
 
 ## Testing strategy
 
-- **Unit / D1 (workers project, real local D1 and R2):** slug generation and uniqueness; schema validation (bad phone, over-length, negative or inverted prices); `publishBlockers` for every combination; publish/unpublish refuse with reasons and succeed when allowed (AC-10); verification list only accepts known fields; category/area rules (rename, reorder, deactivate keeps links, inactive hidden from forms); image validation with generated fixtures: valid JPEG/WebP accepted, JPEG with EXIF/XMP/IPTC rejected, PNG/GIF/SVG/HTML renamed to `.jpg` rejected, truncated files rejected, oversize rejected, wrong variant width rejected, 11th image rejected; `reconcileImages` over every state transition (permission on/off, hide/show, publish/unpublish, delete, profile photo) asserting exactly which keys are in the public and private buckets; the profile photo is cleared when its image stops being public; no image bytes in D1 (column check); R2 delete failure leaves the database row so it can be retried.
+- **Unit / D1 (workers project, real local D1 and R2):** slug generation and uniqueness; schema validation (bad phone, over-length, negative or inverted prices); `publishBlockers` for every combination; publish/unpublish refuse with reasons and succeed when allowed (AC-10); verification list only accepts known fields; category/area rules (rename, reorder, deactivate keeps links, inactive hidden from forms); image validation with generated fixtures: valid JPEG accepted, JPEG with EXIF/XMP/IPTC rejected, PNG/GIF/SVG/HTML renamed to `.jpg` rejected, truncated files rejected, oversize rejected, wrong variant width rejected, 11th image rejected; `reconcileImages` over every state transition (permission on/off, hide/show, publish/unpublish, delete, profile photo) asserting exactly which keys are in the public and private buckets; the profile photo is cleared when its image stops being public; no image bytes in D1 (column check); R2 delete failure leaves the database row so it can be retried.
 - **Integration (built Worker, real HTTP):** the AC-09 role matrix for every new admin route, including: editor cannot reach publish/fees (403), manager cannot reach fees (403), editor cannot edit a published tailor (403), anonymous gets 302; CSRF required on every POST; `/media/*` serves a permitted image of a published tailor and returns 404 for private, unpermitted, hidden, unpublished or unknown keys, with no directory listing; admin preview needs a session; headers (`nosniff`, `Cache-Control`) on `/media`; no inline script on the new pages.
 - **Mutation checks** (break the rule, see the test fail) for: publish permission rule, image publicity rule, EXIF rejection, per-tailor limit, editor lock on published tailors, `/media` bucket choice.
 - **Manual (once, recorded in DECISIONS.md):** the browser resize script run in a real browser against `npm run dev` with a real photo kept outside the repo, checking the variants upload and carry no EXIF. Not part of `npm run check`; Playwright arrives in Phase 4/7.

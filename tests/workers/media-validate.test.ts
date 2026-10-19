@@ -7,12 +7,18 @@ import {
   HTML,
   ICC,
   IPTC,
+  JFIF,
   PNG,
   SVG,
   WEBP,
   XMP,
+  dht,
+  dqt,
+  dri,
   jpeg,
+  junk,
   pad,
+  segment,
 } from './fixtures/images';
 
 describe('validateVariant: accepted', () => {
@@ -167,5 +173,182 @@ describe('validateVariant: dimensions and size', () => {
     expect(
       validateVariant(jpeg({ width: 100, height: 100 }), 'huge' as never),
     ).toEqual({ ok: false, error: 'unsupported' });
+  });
+});
+
+describe('validateVariant: segment contents, not just markers (SEC-04)', () => {
+  const rejects = (bytes: Uint8Array, error = 'metadata') =>
+    expect(validateVariant(bytes, 'thumb')).toEqual({ ok: false, error });
+  const text = (value: string) => Array.from(value, (c) => c.charCodeAt(0));
+  const icc = (size: number) =>
+    segment(0xe2, [...text('ICC_PROFILE\0'), 1, 1, ...new Array(size).fill(7)]);
+
+  it('accepts the segments a browser really writes: JFIF, quantisation and Huffman tables, a restart interval, a colour profile', () => {
+    expect(
+      validateVariant(
+        jpeg({ width: 300, height: 200, before: [dqt(2), dht(), dri(2), ICC] }),
+        'thumb',
+      ).ok,
+    ).toBe(true);
+  });
+
+  it('rejects a large payload hidden in an application segment', () => {
+    rejects(jpeg({ width: 300, height: 200, before: [junk(0xe0, 60000)] }));
+    rejects(jpeg({ width: 300, height: 200, before: [junk(0xe2, 60000)] }));
+    rejects(jpeg({ width: 300, height: 200, before: [junk(0xe3, 100)] }));
+  });
+
+  it('allows only one JFIF header, of the exact standard form', () => {
+    rejects(jpeg({ width: 300, height: 200, before: [JFIF] })); // a second one
+    rejects(
+      jpeg({
+        width: 300,
+        height: 200,
+        jfif: segment(0xe0, [
+          ...text('JFIF\0'),
+          ...new Array(60000).fill(0x41),
+        ]),
+      }),
+    ); // right signature, hidden payload, as the first segment
+    rejects(
+      jpeg({
+        width: 300,
+        height: 200,
+        before: [segment(0xe0, text('NOTJFIF\0xxxxxxxx'))],
+      }),
+    );
+  });
+
+  it('allows a colour profile only with the ICC signature, of bounded size, before the picture', () => {
+    expect(
+      validateVariant(
+        jpeg({ width: 300, height: 200, before: [icc(2000)] }),
+        'thumb',
+      ).ok,
+    ).toBe(true);
+    rejects(jpeg({ width: 300, height: 200, before: [icc(9000)] }));
+    rejects(
+      jpeg({
+        width: 300,
+        height: 200,
+        before: [segment(0xe2, text('FPXR\0 hidden bytes here'))],
+      }),
+    );
+  });
+
+  it('rejects application segments placed after the start of the picture data', () => {
+    rejects(jpeg({ width: 300, height: 200, after: [ICC] }));
+    rejects(jpeg({ width: 300, height: 200, after: [JFIF] }));
+  });
+
+  it('checks that table segments are exactly as long as their contents say', () => {
+    rejects(
+      jpeg({
+        width: 300,
+        height: 200,
+        before: [
+          segment(0xdb, [
+            0,
+            ...new Array(64).fill(16),
+            ...new Array(500).fill(0x41),
+          ]),
+        ],
+      }),
+      'unsupported',
+    );
+    rejects(
+      jpeg({
+        width: 300,
+        height: 200,
+        before: [
+          segment(0xc4, [
+            0x00,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0x05,
+            ...new Array(300).fill(0x41),
+          ]),
+        ],
+      }),
+      'unsupported',
+    );
+    rejects(
+      jpeg({ width: 300, height: 200, before: [dri(60)] }),
+      'unsupported',
+    );
+  });
+
+  it('checks frame and scan headers for exact size and sane values', () => {
+    rejects(
+      jpeg({
+        width: 300,
+        height: 200,
+        sofPayload: [
+          8,
+          0,
+          200,
+          1,
+          44,
+          1,
+          1,
+          0x11,
+          0,
+          ...new Array(500).fill(0x41),
+        ],
+      }),
+      'unsupported',
+    );
+    rejects(
+      jpeg({
+        width: 300,
+        height: 200,
+        sofPayload: [12, 0, 200, 1, 44, 1, 1, 0x11, 0],
+      }),
+      'unsupported',
+    );
+    rejects(
+      jpeg({
+        width: 300,
+        height: 200,
+        sofPayload: [8, 0, 200, 1, 44, 5, 1, 0x11, 0],
+      }),
+      'unsupported',
+    );
+    rejects(
+      jpeg({
+        width: 300,
+        height: 200,
+        sosPayload: [1, 1, 0, 0, 63, 0, ...new Array(500).fill(0x41)],
+      }),
+      'unsupported',
+    );
+  });
+
+  it('needs a picture scan and refuses an absurd number of scans', () => {
+    rejects(jpeg({ width: 300, height: 200, noScan: true }), 'unsupported');
+    expect(
+      validateVariant(
+        jpeg({ width: 300, height: 200, sof: 0xc2, scans: 10 }),
+        'thumb',
+      ).ok,
+    ).toBe(true);
+    rejects(
+      jpeg({ width: 300, height: 200, sof: 0xc2, scans: 13 }),
+      'unsupported',
+    );
   });
 });

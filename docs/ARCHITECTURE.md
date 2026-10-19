@@ -15,7 +15,7 @@ Inspected 2026-10-16 at `/Users/apple/Sites/AlfaiateTL`: empty directory, no con
 | Web framework | **Astro 7.4.0**, TypeScript 6.0.3 | Confirmed by owner; AD-01 resolved 2026-10-18 | Astro 7.4.0 + `@astrojs/cloudflare` 14.4.0 + Wrangler 4.151.1, exact pins. TypeScript 7 is unsupported by `@astrojs/check` and `typescript-eslint` peers (DECISIONS.md). |
 | Runtime | **Cloudflare Workers** via the Astro Cloudflare adapter | Confirmed | One Worker serves public pages, form handlers, media delivery and the admin. Mostly server-rendered; static prerendering is used where content is stable and no per-request data is needed. |
 | Database | **Cloudflare D1** | Confirmed | All structured data (see DATA_MODEL). SQL migrations via the Wrangler migration tooling. |
-| Image storage | **Cloudflare R2** | Confirmed, "or another image store" kept open (AD-04) | Separate from the database; D1 stores only keys and metadata. |
+| Image storage | **Cloudflare R2** | Confirmed; AD-04 resolved 2026-10-19 (R2, `/media` route, browser resize) | Separate from the database; D1 stores only keys and metadata. |
 | Admin | Custom, server-rendered Astro pages under `/admin` with RBAC | Confirmed | No third-party admin framework or CMS. |
 | Bot protection | Cloudflare Turnstile | Proposed | Privacy-friendly, no puzzle for most users; see §10. |
 | Validation | Zod (or equivalent) | Proposed | One schema per form/endpoint. |
@@ -125,6 +125,7 @@ Implemented in Phase 3 (decisions AD-04 and AD-07 resolved 2026-10-19).
 - **Limits:** 10 photos per tailor; thumb 150 KB, medium 600 KB, large 2 MB.
 - **Permission rules:** uploads and edits follow the profile edit lock (editors only on unpublished tailors); recording or withdrawing a photo's permission is a manager/owner action. The profile-photo pointer needs permission and visibility, and is cleared when either is lost or the photo is deleted.
 - **Failure behaviour:** files are deleted before the database row, and a failed storage write cleans up after itself, so a failure leaves something retryable and never an orphaned public file. If syncing fails after an unpublish, the request errors and can be retried; consider a scheduled sync (Cron Trigger) in Phase 8.
+- **Deployment requirement (Phase 8):** the public bucket must not be exposed through `r2.dev` or an R2 custom domain; it is read only by the Worker, which checks D1 first.
 - **Switching store:** all access goes through the `media` module, so moving off R2 touches one module.
 
 ## 9. Validation and error handling

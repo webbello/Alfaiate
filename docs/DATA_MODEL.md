@@ -64,7 +64,7 @@ enquiry 1─* internal_note ; tailor 1─* internal_note ; referral 1─* intern
 | fee_terms_agreed_on | date, null | private | |
 | private_contact_name / private_phone | text, null | private | For forwarding enquiries when different from public contact |
 
-**Constraints:** slug unique; `is_published` true requires `status = approved` and `permission_recorded = true`; published tailors need at least a display name and one published contact method **[Proposed]**; whatsapp/phone stored in E.164.
+**Constraints:** slug unique; `is_published` true requires `status = approved` and `permission_recorded = true`; published tailors need at least a display name and one published contact method (application rule, confirmed 2026-10-19; see `publishBlockers` and `needs_contact`); whatsapp/phone stored in E.164.
 **Relations:** many categories, many areas, many images, many referrals.
 
 ### 3.2 `garment_category` — Public
@@ -75,7 +75,7 @@ Fields: `slug` (unique), `name`, `description` (null), `sort_order`, `is_active`
 
 ### 3.3 `tailor_category` (join) — Public via tailor
 
-`tailor_id`, `category_id`, optional `price_from`, `price_to`, `price_unit_note` (null), `price_source` (`tailor_supplied`|`verified`), `price_confirmed_on`. One row per tailor-category pair (unique). This holds category-specific prices, avoiding duplicate price fields on `tailor`. Prices are in a single currency configured site-wide **[Confirm, OQ-14]**. Display must include the "approximate" label (FR-PRO-03).
+`tailor_id`, `category_id`, optional `price_from`, `price_to`, `price_unit_note` (null), `price_source` (`tailor_supplied`|`verified`), `price_confirmed_on`. One row per tailor-category pair (unique). This holds category-specific prices, avoiding duplicate price fields on `tailor`. Prices are US dollars, stored as whole cents (OQ-14, answered 2026-10-19). Display must include the "approximate" label (FR-PRO-03).
 
 ### 3.4 `service_area` — Public
 
@@ -203,7 +203,7 @@ FR-PRO-* → tailor, tailor_category, tailor_area, portfolio_image · FR-ENQ-* �
 
 Where the migrations refine the conceptual model above, the migrations win; this list records the differences.
 
-- Timestamps are UTC ISO-8601 text, booleans 0/1, enums CHECK-constrained text, foreign keys enforced. Prices (`price_from`/`price_to`, `fee_amount`) are whole minor units of one site-wide currency (OQ-14 pending).
+- Timestamps are UTC ISO-8601 text, booleans 0/1, enums CHECK-constrained text, foreign keys enforced. Prices (`price_from`/`price_to`, `fee_amount`) are whole minor units of one site-wide currency (US cents, OQ-14 answered).
 - `session` also has `last_seen_at` (idle expiry) and `expires_at` (absolute expiry). CSRF tokens are derived, not stored.
 - `tailor`: publishing is refused by CHECK unless `status = 'approved'` and `permission_recorded = 1`. "At least one published contact method" stays an application rule (it was Proposed).
 - `enquiry`: `customer_name`, `contact_number_e164` and `contact_channel` are nullable only when `anonymised_at` is set; a CHECK requires them present before, and requires name, number, notes and `service_description` to be cleared after. Consent must be 1.

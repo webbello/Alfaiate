@@ -132,6 +132,10 @@ export async function withdrawPermission(
     b.DB.prepare(
       `UPDATE tailor SET permission_recorded = 0, contact_publish_consent = 0, updated_at = ${NOW} WHERE id = ?`,
     ).bind(id),
+    // The tailor's permission covered their photos too (BR-06): each one must be granted again after a fresh permission.
+    b.DB.prepare(
+      `UPDATE portfolio_image SET permission_granted = 0, permission_date = NULL, updated_at = ${NOW} WHERE tailor_id = ?`,
+    ).bind(id),
   ]);
   await audit(b.DB, {
     userId: actorId,

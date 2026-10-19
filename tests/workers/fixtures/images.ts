@@ -1,7 +1,7 @@
 // Tiny synthetic JPEGs built byte by byte for validator tests. They are not decodable pictures, only well-formed
 // marker structures, which is all the server-side checks read. No real photos or people are involved.
 const u16 = (n: number) => [(n >> 8) & 0xff, n & 0xff];
-const segment = (marker: number, payload: number[]) => [
+export const segment = (marker: number, payload: number[]) => [
   0xff,
   marker,
   ...u16(payload.length + 2),
@@ -49,35 +49,60 @@ export const COMMENT = segment(
   Array.from('taken at the beach', (c) => c.charCodeAt(0)),
 );
 
+export const dqt = (tables = 1) =>
+  segment(
+    0xdb,
+    Array.from({ length: tables }, () => [0, ...new Array(64).fill(16)]).flat(),
+  );
+export const dht = () =>
+  segment(0xc4, [0x00, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x05]); // one code of length 1 -> one symbol
+export const dri = (payloadLength = 2) =>
+  segment(0xdd, new Array(payloadLength).fill(0));
+export const junk = (marker: number, size: number) =>
+  segment(marker, new Array(size).fill(0x41));
+
 export function jpeg(opts: {
   width: number;
   height: number;
+  jfif?: number[];
   before?: number[][];
   after?: number[][];
   sof?: number;
+  sofPayload?: number[];
+  sosPayload?: number[];
+  scans?: number;
+  noScan?: boolean;
   entropy?: number[];
   noEoi?: boolean;
   trailing?: number[];
 }): Uint8Array {
-  const sof = segment(opts.sof ?? 0xc0, [
-    8,
-    ...u16(opts.height),
-    ...u16(opts.width),
-    1,
-    1,
-    0x11,
-    0,
-  ]);
-  const sos = segment(0xda, [1, 1, 0, 0, 63, 0]);
+  const sof = segment(
+    opts.sof ?? 0xc0,
+    opts.sofPayload ?? [
+      8,
+      ...u16(opts.height),
+      ...u16(opts.width),
+      1,
+      1,
+      0x11,
+      0,
+    ],
+  );
+  const sos = segment(0xda, opts.sosPayload ?? [1, 1, 0, 0, 63, 0]);
   const entropy = opts.entropy ?? [0x12, 0xff, 0x00, 0x34, 0xff, 0xd0, 0x56]; // includes a stuffed FF00 and a restart marker
+  const scans = opts.noScan
+    ? []
+    : Array.from({ length: opts.scans ?? 1 }, () => [
+        ...sos,
+        ...entropy,
+      ]).flat();
   return new Uint8Array([
     0xff,
     0xd8,
-    ...JFIF,
+    ...(opts.jfif ?? JFIF),
     ...(opts.before ?? []).flat(),
     ...sof,
-    ...sos,
-    ...entropy,
+    ...scans,
     ...(opts.after ?? []).flat(),
     ...(opts.noEoi ? [] : [0xff, 0xd9]),
     ...(opts.trailing ?? []),

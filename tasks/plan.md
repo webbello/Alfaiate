@@ -24,7 +24,7 @@ T7-T8 are independent of T2-T6 and could be built first; I keep them in this ord
 |---|---|
 | Local R2 not usable from the Vitest Workers project | T7 starts with a put/get/list/delete R2 test; if it fails, stop and ask |
 | D1 and R2 are not transactional (a failure between them leaves them out of step) | `reconcileImages` is idempotent and recomputes from D1; delete R2 before the D1 row; tests simulate a failure and a retry |
-| Server validation of JPEG/WebP bytes is hand-written | Byte-level fixtures for every accept/reject case; mutation checks; no real photos |
+| Server validation of JPEG bytes is hand-written | Byte-level fixtures for every accept/reject case; mutation checks; no real photos |
 | Canvas re-encode may not strip metadata or may add an ICC/APP segment in some browsers | Server rejects APP1/APP13; allows APP0/APP2 only; manual check in a real browser in T13 (Safari/Chrome noted); results recorded |
 | Multipart uploads through Astro endpoints and the origin check | T11 proves a real multipart POST against the built Worker; CSRF token sent as a form field |
 | Strict CSP blocks the upload script | Script is an external bundled file; integration test asserts no inline script and a `script src` on the page |
