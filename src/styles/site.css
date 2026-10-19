@@ -139,8 +139,10 @@ a:hover {
   gap: 0.25rem 1rem;
 }
 .site-name {
-  font-weight: 700;
-  font-size: 1.2rem;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 1.6rem;
+  letter-spacing: 0.01em;
   color: var(--ink);
   text-decoration: none;
   display: inline-flex;
@@ -163,11 +165,42 @@ a:hover {
 }
 
 .site-footer {
-  background: var(--band);
-  border-top: 1px solid var(--line);
-  padding: 1.25rem var(--gap);
-  color: var(--muted);
+  background: var(--indigo);
+  padding: 1.75rem var(--gap);
+  color: var(--paper);
   font-size: 0.95rem;
+}
+.site-footer a {
+  color: var(--thread-light);
+}
+
+/* Quick actions for phones: fixed to the bottom, hidden on wide screens. The page leaves room for it, and focused items scroll clear of it. */
+html {
+  scroll-padding-bottom: 5rem;
+}
+.sticky-bar {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 40;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem var(--gap);
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+}
+.sticky-bar .button {
+  flex: 1;
+}
+body:has(.sticky-bar) .site-footer {
+  padding-bottom: 5rem;
+}
+@media (min-width: 48rem) {
+  .sticky-bar {
+    display: none;
+  }
+  body:has(.sticky-bar) .site-footer {
+    padding-bottom: 1.75rem;
+  }
 }
 .site-footer__inner {
   max-width: var(--wide);

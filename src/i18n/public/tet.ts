@@ -18,6 +18,12 @@ export const tet: Dictionary = {
     terms: 'Kondisaun',
     label: "Kona-ba sítiu ne'e",
   },
+  bar: {
+    label: 'Asaun lais',
+    ask: 'Husu alfaiate',
+    whatsapp: 'WhatsApp ba ami',
+    whatsappMessage: "Bondia, ha'u hakarak ajuda atu buka alfaiate.",
+  },
   language: { switchLabel: 'Lian', en: 'English', tet: 'Tetun' },
   cta: { requestHome: 'Husu alfaiate ba uma' },
   contact: {

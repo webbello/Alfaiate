@@ -13,6 +13,12 @@ export const en = {
     terms: 'Terms',
     label: 'About this site',
   },
+  bar: {
+    label: 'Quick actions',
+    ask: 'Ask for a tailor',
+    whatsapp: 'WhatsApp us',
+    whatsappMessage: 'Hello, I would like help finding a tailor.',
+  },
   language: { switchLabel: 'Language', en: 'English', tet: 'Tetun' },
   cta: { requestHome: 'Request a tailor at home' },
   contact: {

@@ -1,3 +1,4 @@
+import { normalisePhone } from '../contact-links/phone';
 import { enabledLanguages, type Lang } from '../../i18n/lang';
 import { isIndexable } from '../seo/indexable';
 
@@ -54,4 +55,9 @@ export function formSecret(env: { FORM_TOKEN_SECRET?: string }): string {
   if (secret.length < 16 || secret.startsWith('replace-me'))
     throw new ConfigError('FORM_TOKEN_SECRET is missing or too short');
   return secret;
+}
+
+/** The owner's WhatsApp number for the site-wide quick action (OQ-06). Anything that is not a Timor-Leste number means "not set": the link is then simply not shown. */
+export function siteWhatsapp(env: { SITE_WHATSAPP?: string }): string | null {
+  return env.SITE_WHATSAPP ? normalisePhone(env.SITE_WHATSAPP) : null;
 }

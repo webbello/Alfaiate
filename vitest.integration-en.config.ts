@@ -14,6 +14,7 @@ export default defineConfig({
           FORM_TOKEN_SECRET: 'integration-form-secret-0123456789',
           SITE_INDEXABLE: 'true',
           SITE_URL: 'https://alfaiate-tl.example',
+          SITE_WHATSAPP: '+67077000000',
         },
       },
     })),

@@ -3,7 +3,8 @@ import { env } from 'cloudflare:workers';
 import '../styles/site.css';
 import { dictionary } from '../i18n/public';
 import { isEnabled, pathFor, twinPath, type Lang } from '../i18n/lang';
-import { siteConfig } from '../modules/config';
+import { siteConfig, siteWhatsapp } from '../modules/config';
+import { whatsappLink } from '../modules/contact-links/whatsapp';
 import { buildHead } from '../modules/seo/head';
 import { serialiseJsonLd } from '../modules/seo/jsonld';
 import { metaText } from '../modules/seo/meta';
@@ -48,6 +49,11 @@ const head = buildHead({
 });
 const showSwitch = realPage && isEnabled('tet', languages);
 const twin = showSwitch ? twinPath(pathFor(lang, rest)) : null;
+// The quick-action bar must never cover the forms, and the legal pages stay free of calls to action.
+const showBar = !['/request', '/privacy', '/terms'].some((p) =>
+  rest.startsWith(p),
+);
+const ownerWhatsapp = siteWhatsapp(env as { SITE_WHATSAPP?: string });
 ---
 
 <!doctype html>
@@ -122,5 +128,20 @@ const twin = showSwitch ? twinPath(pathFor(lang, rest)) : null;
         </nav>
       </div>
     </footer>
+    {showBar && (
+      <nav class="sticky-bar" aria-label={t.bar.label}>
+        <a class="button" href={pathFor(lang, '/request')}>
+          {t.bar.ask}
+        </a>
+        {ownerWhatsapp && (
+          <a
+            class="button button--secondary"
+            href={whatsappLink(ownerWhatsapp, t.bar.whatsappMessage)}
+          >
+            {t.bar.whatsapp}
+          </a>
+        )}
+      </nav>
+    )}
   </body>
 </html>

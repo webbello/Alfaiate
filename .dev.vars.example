@@ -8,3 +8,5 @@ PUBLIC_LANGUAGES=en,tet
 SITE_URL=http://localhost:4321
 # Search engines may index the site only when this is exactly "true" (production). Leave it off locally and in staging.
 SITE_INDEXABLE=false
+# Optional: the owner WhatsApp number for the quick-action bar on phones (OQ-06). Without it the WhatsApp button is simply not shown.
+# SITE_WHATSAPP=+670XXXXXXXX

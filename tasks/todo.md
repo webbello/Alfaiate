@@ -7,7 +7,7 @@
   - Verify: a test computes every text/background token pair (WCAG AA); integration test that the font is served from our own origin, has a licence file next to it and is under the size cap; CSP and no-third-party tests unchanged; specimen screenshots shown.
   - Files: `docs/ART_DIRECTION.md`, `src/styles/site.css`, `public/fonts/*`, tests
 
-- [ ] **T2 Layout shell**
+- [x] **T2 Layout shell**
   - Acceptance: redesigned header and footer; sticky mobile bar with "Ask for a tailor" (and a WhatsApp link only when the owner has set the number); skip link and focus order kept; bar never covers form fields or focus.
   - Verify: integration tests for landmarks, one `<nav>` per purpose, bar absent on the request page, WhatsApp link absent without config; axe and 320 px reflow; screenshots.
   - Files: `src/layouts/PublicLayout.astro`, `src/styles/site.css`, `src/i18n/public/*`, tests
