@@ -40,4 +40,6 @@ Append one line when the user corrects you, a check catches a mistake, or someth
 - 2026-10-19 — prettier reformatted files between my edits, so scripted text replacements and mutation patterns silently missed → read the current text first and use a replace that fails loudly when it does not apply.
 - 2026-10-19 — a script kept running after its first failure and duplicated markup → stop scripts on the first error (`set -e`) and add a test that counts landmarks.
 - 2026-10-19 — the public-pages scope-guard list must be updated on purpose with every new page, including twins and API routes → edit `tests/workers/public-pages.test.ts` in the same task.
+- 2026-10-19 — D1 rejected a long search term with "LIKE or GLOB pattern too complex" (limit 50 bytes, escapes and emoji count) → cut user search text until its escaped pattern fits, and test with `%`, emoji and backslashes.
+- 2026-10-19 — a mutation survived because no role could tell two permissions apart in the integration test → check which suite is supposed to catch a mutation (here the route-inventory unit test) before adding tests, and test each guard where it can actually be observed.
 

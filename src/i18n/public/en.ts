@@ -104,6 +104,12 @@ export const en = {
       title: 'Privacy notice',
       intro:
         'This page is a placeholder. The full privacy notice is being prepared and has not been approved yet.',
+      s1Heading: 'What the request form collects',
+      s1: 'Your name, a phone or WhatsApp number and which it is, what you need, your area, a preferred time and notes if you add them. Nothing else. (Placeholder wording: to be confirmed by the owner.)',
+      s2Heading: 'Who receives it',
+      s2: 'The people who run Alfaiate TL, and the partner tailor your request is passed to, only after you tick the consent box. (Placeholder wording.)',
+      s3Heading: 'How long it is kept',
+      s3: 'The retention period has not been decided yet and will be stated here before launch.',
     },
     terms: {
       title: 'Terms of use',

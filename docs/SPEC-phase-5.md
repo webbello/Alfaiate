@@ -100,3 +100,13 @@ export type SubmitResult =
 3. **Privacy page and consent link:** the real privacy text (OQ-08) and retention period (OQ-09) are still yours to supply; they block **launch**, not this phase.
 4. **Tetum strings** for the form and consent are drafted by me, gated until a native speaker reviews them, as in Phase 4. Default: same gate.
 5. **Rate limit** of 5 submissions per hour per address and a 3-second minimum fill time are my proposals. Default: as stated.
+
+## Deviations recorded during the build (see DECISIONS.md)
+
+- Validation is hand-written in `src/modules/enquiry/schema.ts`, not Zod.
+- The error summary gets focus through `autofocus`, with no script.
+- The form checks `Origin` explicitly; the 413 case shows the generic "not saved" page.
+- The privacy page gained three marked placeholder sections (assumption 11), and the long-page buttons are hidden on Privacy and Terms.
+- The notification link is `/admin/enquiries?q=<reference>`.
+- The `/admin/enquiries` search is capped by the escaped LIKE pattern size (D1's 50-byte limit).
+

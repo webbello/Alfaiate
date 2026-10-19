@@ -38,7 +38,7 @@ const sections = (['s1', 's2', 's3', 's4', 's5', 's6'] as const).flatMap(
       <p>{s.text}</p>
     </section>
   ))}
-  {sections.length > 0 && (
+  {sections.length > 0 && slug !== 'privacy' && slug !== 'terms' && (
     <p class="actions">
       <a class="button" href={pathFor(lang, '/tailors')}>
         {t.home.browse}

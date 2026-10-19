@@ -10,7 +10,7 @@ Node >= 22.22.0 and npm.
 
 ```bash
 npm ci
-cp .dev.vars.example .dev.vars   # placeholders only; never commit .dev.vars
+cp .dev.vars.example .dev.vars   # placeholders only; never commit .dev.vars (set FORM_TOKEN_SECRET to any 16+ characters locally)
 npm run db:migrate               # apply migrations to the local D1
 npm run db:seed                  # optional: placeholder categories/areas (local only)
 npm run owner:create             # first admin account (prompts; password is never echoed or stored)
@@ -29,5 +29,5 @@ Other scripts: `npm test` (unit and D1 tests in workerd), `npm run test:integrat
 
 ## Admin workflow (Phases 2-3) and public site (Phase 4)
 
-Sign in at `/admin`. Editors create and edit draft tailors, categories, areas and photos; managers also record the tailor's permission, mark verified facts and publish; the owner alone sees referral fee terms and manages users. Photos are private until a manager records permission and the tailor is published. The public site (Phase 4) is live locally: home, directory, category and profile pages, static pages, sitemap and robots, in English and, when `PUBLIC_LANGUAGES` includes `tet`, Tetum under `/tet/`. `/request` is a placeholder until Phase 5. Tetum is on in `.dev.vars.example` and staging but off in production until a native speaker has reviewed it.
+Sign in at `/admin`. Editors create and edit draft tailors, categories, areas and photos; managers also record the tailor's permission, mark verified facts and publish; the owner alone sees referral fee terms and manages users. Photos are private until a manager records permission and the tailor is published. The public site (Phase 4) is live locally: home, directory, category and profile pages, static pages, sitemap and robots, in English and, when `PUBLIC_LANGUAGES` includes `tet`, Tetum under `/tet/`. `/request` is the request form (Phase 5); requests appear in `/admin/enquiries` for managers and owners, who set statuses, add internal notes, flag spam and copy the consented details to forward by hand. Tetum is on in `.dev.vars.example` and staging but off in production until a native speaker has reviewed it.
 

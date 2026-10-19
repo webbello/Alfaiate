@@ -57,7 +57,7 @@ Pages call modules; modules call `db`/`media`. Modules do not query each other's
 
 **Public browse.** Request → Worker → D1 query restricted to published tailors and permitted images → HTML. Public pages may use edge caching (cache API/CDN) with short TTLs and purge/expiry on publish changes; cache only responses containing no customer data. No enquiry table is read on public paths.
 
-**Doorstep request.** Form POST → CSRF + honeypot + Turnstile verification + rate limit → Zod validation → D1 insert (status New, consent version/time, reference code) → owner notification (best-effort via `waitUntil`; failure logged, enquiry kept) → redirect to acknowledgement. Customer data never appears in URLs.
+**Doorstep request.** Built in Phase 5. Form POST → same-origin check → body size limit → per-address rate limit (every attempt counts) → honeypot (silent: looks like success, stores nothing) → signed fill-time token (minimum 3 s, maximum 24 h; `FORM_TOKEN_SECRET`) → hand-written validation → active category/area and published-tailor checks → one D1 batch (enquiry with status New, consent text version per language and time, plus its first status-log row) → owner notification (best effort through `waitUntil`; failure logged without details, enquiry kept) → 303 to `/request/thanks?ref=<code>`. The code is random (`AT-` plus 8 characters) and the only thing in the URL; a database failure shows an error page, never the acknowledgement. Turnstile is not used (owner decision, Phase 5).
 
 **Referral.** Admin picks enquiry → picks tailor → consent and approval checks → insert referral; owner forwards details outside the system and records time/method, response, completion, fee. Status changes are manual and write a log row. Multi-row changes use D1 batch statements so they commit together.
 
@@ -69,9 +69,9 @@ Pages call modules; modules call `db`/`media`. Modules do not query each other's
 
 Unchanged in intent from v0.1. Phase 4 added the Tetum language prefix: every page below exists in English at the path shown and in Tetum under `/tet/` (e.g. `/tet/tailors`); Tetum returns 404 unless `PUBLIC_LANGUAGES` includes `tet`. `/areas/[slug]` was decided against (directory filters only, 2026-10-19). `/request` is a placeholder until Phase 5, and `/request/thanks` does not exist yet. Privacy and Terms are placeholders (noindex, outside the sitemap) until the owner supplies text. `POST /api/contact-click` is language-neutral.
 
-**Public:** `/`, `/tailors` (filters `category`, `area`, `home_visit`), `/tailors/[slug]`, `/categories/[slug]`, `/request` (`?tailor=slug`), `/request/thanks`, `/how-it-works`, `/about`, `/privacy`, `/terms`, `/sitemap.xml`, `/robots.txt`, `/media/*`, `POST /api/contact-click`.
+**Public:** `/`, `/tailors` (filters `category`, `area`, `home_visit`), `/tailors/[slug]`, `/categories/[slug]`, `/request` (`?tailor=slug`), `/request/thanks`, `/how-it-works`, `/about`, `/privacy`, `/terms`, `/sitemap.xml`, `/robots.txt`, `/media/*`, `POST /api/contact-click`. `/request` handles both GET and POST (`/tet/request` in Tetum); `/request/thanks` shows only a well-formed reference code.
 
-**Admin (`/admin`, authenticated, `noindex`, no-store):** `/admin/login`, `/admin/logout`, `/admin` (dashboard), `/admin/account` (own password), `/admin/users/actions` (POST handler), `/admin/tailors`, `/admin/tailors/new`, `/admin/tailors/[id]` (with POST handlers `/actions`, `/publish`, `/fees`, `/images`, `/images/actions`), `/admin/media/[...key]` (private photo preview), `/admin/categories`, `/admin/areas`, `/admin/enquiries`, `/admin/enquiries/[id]`, `/admin/users` (owner only).
+**Admin (`/admin`, authenticated, `noindex`, no-store):** `/admin/login`, `/admin/logout`, `/admin` (dashboard), `/admin/account` (own password), `/admin/users/actions` (POST handler), `/admin/tailors`, `/admin/tailors/new`, `/admin/tailors/[id]` (with POST handlers `/actions`, `/publish`, `/fees`, `/images`, `/images/actions`), `/admin/media/[...key]` (private photo preview), `/admin/categories`, `/admin/areas`, `/admin/enquiries` (`enquiry.view`; filters `status`, `q`, `spam`), `/admin/enquiries/[id]` (`enquiry.view`; POST handler `/actions` needs `enquiry.update`), `/admin/users` (owner only).
 
 Each admin route and each mutating handler declares the permission it needs (§6).
 
@@ -108,7 +108,7 @@ Rules: least privilege by default; denied by default when a permission is unmapp
 | Telephone | `tel:+670…`; numbers stored E.164 (Timor-Leste +670). |
 | Forwarding to tailors | Manual by the owner from a "copy details" admin view. |
 | Owner notification | Adapter in `notify`. Options: an email-sending service reachable from Workers via HTTPS, or a Cloudflare email feature — to be chosen (OQ-06, AD-05). Optional; the app works without it. The message contains only the reference code and a link to the admin enquiry page — never the customer's name, phone or notes (SEC-05). |
-| Turnstile | Server-side token verification call from the Worker. |
+| Turnstile | Not used in Phase 5 (owner decision); revisit before launch if spam appears. |
 | Maps | None in MVP. |
 | Analytics | Decided 2026-10-19: own counters only. `POST /api/contact-click` (same-origin, 1 KB body, rate limited per address bucket) adds one to a per-tailor, per-channel, per-UTC-day count in `contact_click_daily`; no visitor data is stored. Page visits only via Cloudflare's cookieless analytics if the owner switches it on (PRV-05). |
 
@@ -147,11 +147,11 @@ Implemented in Phase 3 (decisions AD-04 and AD-07 resolved 2026-10-19).
 | Upload hardening | §8 | SEC-04 |
 | Customer data isolation | Only `can(role, 'enquiry.view')` routes read enquiry tables; edge cache never stores them | SEC-05 |
 | Admin headers | `noindex`, `Cache-Control: no-store` | SEC-06 |
-| Spam control | Honeypot, minimum-time check, Turnstile, rate limit (Cloudflare rate limiting rule or counter in D1) | SEC-07 |
+| Spam control | Honeypot, signed minimum-fill-time token (`FORM_TOKEN_SECRET`, Worker secret, fails closed), per-address limit of 5 per hour in the D1 counter, same-origin check; no Turnstile in Phase 5 | SEC-07 |
 | Security headers | CSP, nosniff, frame-ancestors, Referrer-Policy, HSTS, X-Frame-Options, Permissions-Policy (camera, microphone, geolocation, payment off), no `data:` images; applied by middleware to server-rendered responses (static `/_astro/*` assets get cache headers only, DECISIONS T11) | SEC-08 |
 | Consent record | Version and timestamp on enquiry | PRV-03 |
 | Retention/anonymisation | Owner-only action, scheduled purge optional (Cron Trigger) | PRV-04 |
-| Audit | Phase 2 writes login, login_failed, logout, user_created, role_changed, user_deactivated, user_reactivated, password_changed; publishing and status changes arrive in Phases 3 and 5 | SEC-09 |
+| Audit | Phase 2 writes login, login_failed, logout, user_created, role_changed, user_deactivated, user_reactivated, password_changed; tailor, image, catalog and fee actions (Phase 3), enquiry status and spam changes (Phase 5, ids only) | SEC-09 |
 
 Cloudflare processes customer data in transit and at rest in D1/R2; the privacy notice must reflect this and data-location questions go to OQ-08.
 

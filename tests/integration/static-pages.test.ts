@@ -56,15 +56,19 @@ describe('static pages (FR-PUB-06)', () => {
     );
   });
 
-  it('keeps Privacy and Terms as plain placeholders with no invented legal wording (OQ-08)', async () => {
+  it('keeps Terms a plain placeholder and Privacy a marked placeholder that only describes the form, with no invented legal wording (OQ-08)', async () => {
     for (const slug of ['privacy', 'terms']) {
       const { html } = await page(`/${slug}`);
       expect(html).toContain('This page is a placeholder');
-      expect(h2s(html)).toBe(0);
+      expect(h2s(html)).toBe(slug === 'privacy' ? 3 : 0);
       expect(html).not.toMatch(
-        /GDPR|complian|retention|we (never|do not|will not) (collect|share|sell)|liab|jurisdiction|governed by/i,
+        /GDPR|complian|we (never|do not|will not) (collect|share|sell)|liab|jurisdiction|governed by/i,
       );
     }
+    const privacy = (await page('/privacy')).html;
+    expect(privacy).toContain('Placeholder wording');
+    expect(privacy).toContain('has not been decided yet'); // retention is the owner's decision (OQ-09)
+    expect((await page('/terms')).html).not.toMatch(/retention/i);
     expect((await page('/tet/privacy')).html).toContain('fatin-reservadu');
   });
 
