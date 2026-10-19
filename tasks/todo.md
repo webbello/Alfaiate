@@ -32,7 +32,7 @@
   - Verify: all Phase 5 request tests unchanged and green; e2e no-JavaScript submit; keyboard path; error summary still focused and labelled; measured taps/fields noted; screenshots.
   - Files: `src/pages/request.astro`, `src/pages/request/thanks.astro`, `src/components/**`, `src/styles/site.css`, tests
 
-- [ ] **T7 Tailor interest form `/join`**
+- [x] **T7 Tailor interest form `/join`**
   - Acceptance: PRD note (new FR-JOIN-*) and `DATA_MODEL.md` updated; migration `0003_tailor_interest.sql`; module `src/modules/interest/` with validation, honeypot, fill-time token, rate limit, Origin check, consent, anonymise; `/join` and `/tet/join` plus thanks; admin list `/admin/interest` (permission `tailor.edit`) added to `ADMIN_ROUTES`; creates no tailor, no profile, nothing public; no URL, sitemap or analytics exposure.
   - Verify: unit tests per rule (consent required, honeypot, rate limit, anonymise); test that submitting creates no `tailor` row; AC-09 matrix and route inventory updated; contract test baseline updated on purpose; public-pages scope guard updated; mutation checks on consent and the permission; axe; screenshots.
   - Files: `docs/PRD.md`, `docs/DATA_MODEL.md`, `migrations/0003_tailor_interest.sql`, `src/modules/interest/*`, `src/pages/join.astro`, `src/pages/tet/join.astro`, `src/pages/admin/interest.astro`, tests

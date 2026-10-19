@@ -138,4 +138,13 @@ const categories = await listActiveCategories(requireBindings(env).DB, {
       </a>
     </p>
   </section>
+  <section class="tailor-invite" aria-labelledby="tailors">
+    <h2 id="tailors">{t.join.banner.heading}</h2>
+    <p>{t.join.banner.body}</p>
+    <p>
+      <a class="button button--secondary" href={pathFor(lang, '/join')}>
+        {t.join.banner.link}
+      </a>
+    </p>
+  </section>
 </PublicLayout>

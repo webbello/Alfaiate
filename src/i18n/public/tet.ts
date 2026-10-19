@@ -211,6 +211,39 @@ export const tet: Dictionary = {
     intro: "Alfaiate sira ne'ebé halo ne'e.",
     emptyBody: "Seidauk iha alfaiate lista ba ne'e.",
   },
+  join: {
+    title: 'Hakbesik hanesan alfaiate',
+    heading: 'Ita alfaiate?',
+    intro:
+      'Husik ita-nia detalle no ami sei telefone ita atu koalia. Ne’e la’ós rejistu: la kria konta no la hatama ita iha sítiu ne’e.',
+    contactName: 'Ita-nia naran',
+    business: 'Loja ka negósiu-nia naran (opsionál)',
+    phone: 'Númeru telefone ka WhatsApp',
+    area: 'Ita-nia loja iha ne’ebé? (opsionál)',
+    craft: 'Ita halo saida? (opsionál)',
+    message: 'Iha tan saida deit? (opsionál)',
+    consentLegend: 'Kontaktu ita',
+    consent:
+      'Ha’u konkorda katak Alfaiate TL bele kontaktu ha’u iha númeru ne’e atu koalia kona-ba lista.',
+    privacyLink: 'Lee avizu privasidade',
+    submit: 'Haruka ha’u-nia detalle',
+    notListing:
+      'Lista la automátiku. Alfaiate lista de’it depois ami koalia no alfaiate fó lisensa.',
+    forbiddenHeading: 'Ami la bele haruka ita-nia detalle',
+    forbiddenBody:
+      'Ita-nia browser la haruka saida mak ami presiza atu verifika formuláriu ne’e mai husi ne’ebé, entaun la rai buat ruma. Favór loke pájina ne’e fali no haruka fali.',
+    failedHeading: 'Iha problema ruma',
+    failedBody: 'Ita-nia detalle la rai. Favór koko fali iha tempu oin.',
+    thanksTitle: 'Detalle simu ona',
+    thanksHeading: 'Obrigadu, ami simu ona ita-nia detalle',
+    thanksBody:
+      'Ami sei kontaktu ita iha númeru neʼebé ita fó. Ami la bele promete bainhira.',
+    banner: {
+      heading: 'Ita alfaiate?',
+      body: 'Hatete mai ami katak ita interese no ami sei telefone atu koalia.',
+      link: 'Hakbesik hanesan alfaiate',
+    },
+  },
   request: {
     title: 'Husu alfaiate ba uma',
     heading: 'Husu alfaiate ba uma',

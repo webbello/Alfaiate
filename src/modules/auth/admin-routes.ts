@@ -36,6 +36,18 @@ export const ADMIN_ROUTES: readonly {
     methods: ['GET', 'POST'],
   },
   {
+    file: 'interest.astro',
+    path: '/admin/interest',
+    permission: 'tailor.edit',
+    methods: ['GET'],
+  },
+  {
+    file: 'interest/[id]/anonymise.ts',
+    path: '/admin/interest/[id]/anonymise',
+    permission: 'enquiry.delete',
+    methods: ['POST'],
+  },
+  {
     file: 'users.astro',
     path: '/admin/users',
     permission: 'user.manage',

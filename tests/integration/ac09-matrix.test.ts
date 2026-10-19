@@ -101,6 +101,10 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     image_id: '999999',
     visible: '1',
   }),
+  '/admin/interest/[id]/anonymise': (csrf) => ({
+    csrf,
+    confirm_reference: 'JN-MATRIX00',
+  }),
   '/admin/users/actions': (csrf) => ({
     csrf,
     action: 'create',

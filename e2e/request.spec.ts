@@ -99,3 +99,16 @@ test('a customer taps a category and an area, fills step 2 and sends (Phase 7c)'
   await page.locator('button[type="submit"]').click();
   await expect(page).toHaveURL(/\/request\/thanks\?ref=AT-/);
 });
+
+test('a tailor sends their details on the join page and sees a reference (Phase 7c)', async ({
+  page,
+}) => {
+  await page.goto('/join');
+  await page.locator('#name').fill('E2E Fake Tailor Applicant');
+  await page.locator('#phone').fill('7712 3456');
+  await page.locator('#consent').check();
+  await page.waitForTimeout(FILL_DELAY);
+  await page.locator('button[type="submit"]').click();
+  await expect(page).toHaveURL(/\/join\/thanks\?ref=JN-/);
+  await expect(page.locator('.reference')).toHaveText(/^JN-/);
+});

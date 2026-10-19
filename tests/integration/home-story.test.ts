@@ -86,4 +86,10 @@ describe('home story sections', () => {
     for (const id of ['promise', 'how', 'craft', 'local', 'trust', 'ask'])
       expect(html, id).toContain(`<h2 id="${id}">`);
   });
+  it('ends with a quiet invitation for tailors that leads to the join page, in both languages', async () => {
+    expect(section(await home(), 'tailors')).toContain('href="/join"');
+    expect(section(await home('/tet/'), 'tailors')).toContain(
+      'href="/tet/join"',
+    );
+  });
 });

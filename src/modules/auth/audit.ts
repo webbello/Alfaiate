@@ -17,6 +17,7 @@ export type AuditAction =
   | 'catalog_changed'
   | 'fee_terms_changed'
   | 'enquiry_status_changed'
+  | 'interest_anonymised'
   | 'enquiry_spam_changed'
   | 'referral_created'
   | 'referral_updated'

@@ -130,6 +130,10 @@ Fields: `slug` (unique), `name`, `description` (null), `sort_order`, `is_active`
 **Lifecycle:** created → worked by admin → closed (completed_reported / not_converted / cancelled) → retained until the policy deadline (OQ-09, not decided) → anonymised by the owner (built, Phase 7; no hard delete exists) (PRV-04).
 Customer reference images (if FR-ENQ-07 ships): `enquiry_attachment` (`enquiry_id`, `file_key`, private only).
 
+### 3.7b `tailor_interest` — **Private** (Phase 7c, migration `0003`)
+
+A tailor's "Join as a tailor" interest (FR-JOIN-01..03): `reference_code` (JN-…, unique), `contact_name`, `business_name`, `phone_e164`, `area_text`, `craft_text`, `message`, `consent_contact` (must be 1), `consent_text_version`, `consent_at`, `anonymised_at`, `created_at`. Live rows need a name and number; anonymised rows keep only the reference, consent and dates. It has **no link** to `tailor` or `admin_user`: nothing is created from it automatically. Admin-only; removed on request like an enquiry (audit row `interest_anonymised`, ids only).
+
 ### 3.8 `referral` — **Private**
 
 **Purpose:** one enquiry passed to one tailor; the single place for forwarding, response, reported completion and fee. An enquiry may have several referrals over time (re-referral after decline); **one active** (`pending` or `accepted`) at a time, enforced in the INSERT and in every edit, not by the database.

@@ -1,0 +1,12 @@
+---
+export const prerender = false;
+import JoinThanks from '../../../views/JoinThanks.astro';
+import { joinReferenceParam } from '../../../modules/interest/page';
+import { pathFor } from '../../../i18n/lang';
+
+const reference = joinReferenceParam(Astro.url);
+if (!reference) return Astro.redirect(pathFor('tet', '/join'), 303);
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<JoinThanks lang="tet" reference={reference} />

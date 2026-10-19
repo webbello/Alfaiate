@@ -130,6 +130,9 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 | FR-ENQ-06 | Spam prevention without forced accounts or CAPTCHAs that harm accessibility (honeypot, rate limit, optional privacy-friendly challenge) (SEC-07). | Must |
 | FR-ENQ-07 | Optional reference images (limited number/size/type). | Should |
 | FR-ENQ-08 | Notify the owner of new enquiries (channel per OQ-06, e.g. email). The notification carries only the reference code and an admin link, no customer data. | Should |
+| FR-JOIN-01 | (Phase 7c, owner request 2026-10-19) A public "Join as a tailor" interest form (name, number, optional business, area, craft, message, consent to be contacted) with the same spam controls as FR-ENQ-06. It is an interest form, **not** self-registration: it creates no account, no profile and nothing public; the owner onboards offline (J4). | Should |
+| FR-JOIN-02 | The interest record stores the consent wording version and time, and its personal fields can be removed by the owner (as PRV-04); a JN reference code is shown, nothing else is echoed. | Should |
+| FR-JOIN-03 | Admins with `tailor.edit` see the list (newest first) at /admin/interest; only the owner may remove details. Never shown on any public page, URL, sitemap or analytics. | Should |
 
 #### Administration
 

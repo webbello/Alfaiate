@@ -13,6 +13,7 @@ export const en = {
   adminSignedInAs: 'Signed in as',
   adminNavDashboard: 'Dashboard',
   adminNavAccount: 'My account',
+  adminNavInterest: 'Tailor interest',
   adminNavTailors: 'Tailors',
   tailorListHeading: 'Tailors',
   tailorNew: 'New tailor',
@@ -152,6 +153,10 @@ export const en = {
   adminChangePassword: 'Change password',
   adminMessages: {
     created: 'User created.',
+    interest_anonymised: 'Details removed.',
+    interest_already_anonymised: 'Those details were already removed.',
+    interest_wrong_reference:
+      'The reference code you typed does not match. Nothing was removed.',
     conflict:
       'Someone else changed this tailor at the same moment. Reload the page and try again.',
     uploaded:

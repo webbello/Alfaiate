@@ -1,0 +1,13 @@
+---
+export const prerender = false;
+import Join from '../../views/Join.astro';
+import { runJoinPage } from '../../modules/interest/page';
+
+const outcome = await runJoinPage(Astro.request, 'tet');
+if (outcome instanceof Response) return outcome;
+if (outcome.kind === 'redirect') return Astro.redirect(outcome.to, 303);
+Astro.response.status = outcome.status;
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<Join lang="tet" outcome={outcome} />

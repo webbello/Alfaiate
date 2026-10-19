@@ -7,6 +7,8 @@ const PATHS = [
   '/categories/placeholder-category-1',
   '/tailors/e2e-fake-tailor',
   '/request',
+  '/join',
+  '/tet/join',
   '/request/thanks?ref=AT-ABCD2345',
   '/how-it-works',
   '/about',

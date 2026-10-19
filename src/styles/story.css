@@ -335,3 +335,12 @@ section[aria-labelledby] > h2,
   font-size: clamp(1.9rem, 5.5vw, 2.8rem);
   line-height: 1.08;
 }
+
+.tailor-invite {
+  border-top: 1px solid var(--line);
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+.tailor-invite h2 {
+  font-size: 1.5rem;
+}

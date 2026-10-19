@@ -1,0 +1,226 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import { dictionary } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+import type { Outcome } from '../modules/interest/submit';
+import type { Field } from '../modules/interest/schema';
+
+interface Props {
+  lang: Lang;
+  outcome: Extract<Outcome, { kind: 'form' | 'message' }>;
+}
+const { lang, outcome } = Astro.props;
+const t = dictionary(lang);
+const j = t.join;
+const r = t.request;
+const view = outcome.kind === 'form' ? outcome.view : null;
+const messageHeading =
+  outcome.kind === 'message'
+    ? outcome.which === 'limited'
+      ? r.limitedHeading
+      : outcome.which === 'forbidden'
+        ? j.forbiddenHeading
+        : j.failedHeading
+    : '';
+const messageBody =
+  outcome.kind === 'message'
+    ? outcome.which === 'limited'
+      ? r.limitedBody
+      : outcome.which === 'forbidden'
+        ? j.forbiddenBody
+        : j.failedBody
+    : '';
+const errors = view?.errors ?? {};
+const labels: Record<Field, string> = {
+  name: j.contactName,
+  business: j.business,
+  phone: j.phone,
+  area: j.area,
+  craft: j.craft,
+  message: j.message,
+  consent: j.consentLegend,
+};
+const message = (field: Field) => {
+  const key = errors[field];
+  if (field === 'consent') return r.errorConsent;
+  if (field === 'phone' && key === 'invalid') return r.errorPhone;
+  return key === 'required'
+    ? r.errorRequired
+    : key === 'invalid'
+      ? r.errorInvalid
+      : r.errorTooLong;
+};
+const failing = (Object.keys(errors) as Field[]).filter((f) => errors[f]);
+const describedBy = (field: Field, hint?: string) =>
+  [hint, errors[field] ? `${field}-error` : undefined]
+    .filter(Boolean)
+    .join(' ') || undefined;
+const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
+const text = [
+  ['name', j.contactName, 100, 'name'],
+  ['business', j.business, 100, 'organization'],
+  ['area', j.area, 100, 'off'],
+  ['craft', j.craft, 200, 'off'],
+] as const;
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${outcome.kind === 'message' ? messageHeading : j.title} · ${t.siteName}`}
+  description={j.intro}
+  rest="/join"
+  noindex
+>
+  {outcome.kind === 'message' ? (
+    <>
+      <h1>{messageHeading}</h1>
+      <p>{messageBody}</p>
+    </>
+  ) : (
+    view && (
+      <>
+        <h1>{j.heading}</h1>
+        <p class="lead">{j.intro}</p>
+        {(failing.length > 0 || view.formError) && (
+          <div class="error-summary" role="alert" tabindex="-1" autofocus>
+            <h2>{r.summaryHeading}</h2>
+            <ul>
+              {view.formError === 'too_fast' && <li>{r.tooFast}</li>}
+              {view.formError === 'expired' && <li>{r.expired}</li>}
+              {failing.map((f) => (
+                <li>
+                  <a href={`#${f}`}>
+                    {labels[f]}: {message(f)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <form class="request" method="post" action={pathFor(lang, '/join')}>
+          <input type="hidden" name="form_token" value={view.token} />
+          <div class="hp" aria-hidden="true">
+            <label for="extra_info">Leave this empty</label>
+            <input
+              type="text"
+              id="extra_info"
+              name="extra_info"
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
+          <div class="field">
+            <label for="name">{j.contactName}</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={view.values.name}
+              autocomplete="name"
+              maxlength="100"
+              required
+              aria-invalid={invalid('name')}
+              aria-describedby={describedBy('name')}
+            />
+            {errors.name && (
+              <p class="error" id="name-error">
+                {message('name')}
+              </p>
+            )}
+          </div>
+          <div class="field">
+            <label for="phone">{j.phone}</label>
+            <p class="hint" id="phone-hint">
+              {r.phoneHint}
+            </p>
+            <input
+              type="tel"
+              inputmode="tel"
+              id="phone"
+              name="phone"
+              value={view.values.phone}
+              autocomplete="tel"
+              maxlength="40"
+              required
+              aria-invalid={invalid('phone')}
+              aria-describedby={describedBy('phone', 'phone-hint')}
+            />
+            {errors.phone && (
+              <p class="error" id="phone-error">
+                {message('phone')}
+              </p>
+            )}
+          </div>
+          {text
+            .filter(([f]) => f !== 'name')
+            .map(([f, label, max]) => (
+              <div class="field">
+                <label for={f}>{label}</label>
+                <input
+                  type="text"
+                  id={f}
+                  name={f}
+                  value={view.values[f]}
+                  maxlength={max}
+                  aria-invalid={invalid(f)}
+                  aria-describedby={describedBy(f)}
+                />
+                {errors[f] && (
+                  <p class="error" id={`${f}-error`}>
+                    {message(f)}
+                  </p>
+                )}
+              </div>
+            ))}
+          <div class="field">
+            <label for="message">{j.message}</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="3"
+              maxlength="500"
+              aria-invalid={invalid('message')}
+              aria-describedby={describedBy('message')}
+            >{view.values.message}</textarea>
+            {errors.message && (
+              <p class="error" id="message-error">
+                {message('message')}
+              </p>
+            )}
+          </div>
+          <fieldset class="field">
+            <legend>{j.consentLegend}</legend>
+            <label class="choice" for="consent">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                value="yes"
+                required
+                aria-invalid={invalid('consent')}
+                aria-describedby={describedBy('consent')}
+              />
+              {j.consent}
+            </label>
+            {errors.consent && (
+              <p class="error" id="consent-error">
+                {message('consent')}
+              </p>
+            )}
+            <p>
+              <a href={pathFor(lang, '/privacy')}>{j.privacyLink}</a>
+            </p>
+          </fieldset>
+          <p class="notice" role="note">
+            {j.notListing}
+          </p>
+          <p>
+            <button class="button" type="submit">
+              {j.submit}
+            </button>
+          </p>
+        </form>
+      </>
+    )
+  )}
+</PublicLayout>

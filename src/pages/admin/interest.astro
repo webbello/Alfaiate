@@ -1,0 +1,99 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Flash from '../../components/admin/Flash.astro';
+import EmptyState from '../../components/admin/EmptyState.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { messageKind } from '../../modules/admin-ui/messages';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { requirePermission } from '../../modules/auth/require';
+import { can } from '../../modules/auth/permissions';
+import { listInterest } from '../../modules/interest/queries';
+
+const auth = await requirePermission(Astro, 'tailor.edit');
+if (auth instanceof Response) return auth;
+
+const rows = await listInterest(requireBindings(env).DB);
+const mayRemove = can(auth.role, 'enquiry.delete');
+const code = Astro.url.searchParams.get('msg') ?? '';
+const message = Object.hasOwn(en.adminMessages, code)
+  ? en.adminMessages[code as keyof typeof en.adminMessages]
+  : '';
+---
+
+<AdminLayout
+  title={en.adminNavInterest}
+  description={en.adminNavInterest}
+  auth={auth}
+>
+  <h1>{en.adminNavInterest}</h1>
+  <p>
+    Tailors who left their details on the Join page. This is a call list only:
+    it creates no account and no listing. To onboard one, call them, agree terms
+    and permission, then create the tailor yourself.
+  </p>
+  {message && <Flash message={message} kind={messageKind(code)} />}
+  {rows.length === 0 ? (
+    <EmptyState title="No one yet">
+      <p>
+        When a tailor sends their details on the public Join page, they appear
+        here with the newest first.
+      </p>
+    </EmptyState>
+  ) : (
+    <table>
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Received</th>
+          <th>Name</th>
+          <th>Number</th>
+          <th>Business and area</th>
+          <th>Makes</th>
+          <th>Message</th>
+          {mayRemove && <th>Remove details</th>}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr>
+            <td>{r.reference_code}</td>
+            <td>{r.created_at.slice(0, 10)}</td>
+            <td>{r.contact_name ?? 'Details removed'}</td>
+            <td>{r.phone_e164 ?? 'Details removed'}</td>
+            <td>
+              {[r.business_name, r.area_text].filter(Boolean).join(' · ')}
+            </td>
+            <td>{r.craft_text}</td>
+            <td>{r.message}</td>
+            {mayRemove && (
+              <td>
+                {r.anonymised_at ? null : (
+                  <form
+                    method="post"
+                    action={`/admin/interest/${r.id}/anonymise`}
+                  >
+                    <input type="hidden" name="csrf" value={auth.csrfToken} />
+                    <label for={`confirm-${r.id}`}>
+                      Type {r.reference_code} to confirm
+                    </label>
+                    <input
+                      id={`confirm-${r.id}`}
+                      name="confirm_reference"
+                      autocomplete="off"
+                      required
+                    />
+                    <button type="submit" class="danger">
+                      Remove details
+                    </button>
+                  </form>
+                )}
+              </td>
+            )}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</AdminLayout>

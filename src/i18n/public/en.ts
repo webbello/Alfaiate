@@ -208,6 +208,39 @@ export const en = {
     intro: 'Tailors who offer this.',
     emptyBody: 'No tailors are listed for this yet.',
   },
+  join: {
+    title: 'Join as a tailor',
+    heading: 'Are you a tailor?',
+    intro:
+      'Leave your details and we will call you to talk. This is not a sign-up: it does not create an account and does not put you on this site.',
+    contactName: 'Your name',
+    business: 'Shop or business name (optional)',
+    phone: 'Phone or WhatsApp number',
+    area: 'Where is your shop? (optional)',
+    craft: 'What do you make? (optional)',
+    message: 'Anything else? (optional)',
+    consentLegend: 'Contacting you',
+    consent:
+      'I agree that Alfaiate TL may contact me on this number to talk about being listed.',
+    privacyLink: 'Read the privacy notice',
+    submit: 'Send my details',
+    notListing:
+      'Being listed is never automatic. A tailor is listed only after we talk and the tailor gives permission.',
+    forbiddenHeading: 'We could not send your details',
+    forbiddenBody:
+      'Your browser did not send what we need to check where this form came from, so nothing was saved. Please open the page again and send it once more.',
+    failedHeading: 'Something went wrong',
+    failedBody: 'Your details were not saved. Please try again later.',
+    thanksTitle: 'Details received',
+    thanksHeading: 'Thank you, we have your details',
+    thanksBody:
+      'We will contact you on the number you gave. We cannot promise when.',
+    banner: {
+      heading: 'Are you a tailor?',
+      body: 'Tell us you are interested and we will call you to talk.',
+      link: 'Join as a tailor',
+    },
+  },
   request: {
     title: 'Request a tailor at home',
     heading: 'Request a tailor at home',

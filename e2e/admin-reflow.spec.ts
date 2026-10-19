@@ -10,6 +10,7 @@ const PATHS = [
   '/admin/categories',
   '/admin/areas',
   '/admin/users',
+  '/admin/interest',
   '/admin/account',
 ];
 

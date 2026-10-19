@@ -38,6 +38,7 @@ test('every admin page passes axe (WCAG 2.2 AA)', async ({ page }) => {
     '/admin/enquiries?spam=1&status=new',
     enquiryHref!,
     '/admin/users',
+    '/admin/interest',
   ];
   const problems: string[] = [];
   for (const path of pages) {

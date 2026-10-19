@@ -7,6 +7,7 @@ export type NavKey =
   | 'tailors'
   | 'categories'
   | 'areas'
+  | 'interest'
   | 'users'
   | 'account';
 export type NavLink = {
@@ -46,6 +47,12 @@ const ALL: NavLink[] = [
     key: 'areas',
     href: '/admin/areas',
     label: en.adminNavAreas,
+    permission: 'tailor.edit',
+  },
+  {
+    key: 'interest',
+    href: '/admin/interest',
+    label: en.adminNavInterest,
     permission: 'tailor.edit',
   },
   {
