@@ -7,6 +7,7 @@ import {
   issueToken,
   SUBMIT_LIMIT,
 } from '../enquiry/spam';
+import { notifyNewEnquiry, type Notifier } from '../notify';
 import { joinConsentVersion } from './consent';
 import { createInterest, newJoinReference } from './create';
 import { parseJoinForm, type FieldErrors, type FormValues } from './schema';
@@ -25,7 +26,15 @@ export type Outcome =
       status: 403 | 413 | 429 | 500;
       which: 'limited' | 'failed' | 'forbidden';
     };
-type Deps = { db: D1Database; secret: string; lang: Lang; now?: Date };
+type Deps = {
+  db: D1Database;
+  secret: string;
+  lang: Lang;
+  now?: Date;
+  notify?: Notifier;
+  siteUrl?: string;
+  waitUntil?: (work: Promise<unknown>) => void;
+};
 
 const EMPTY: FormValues = {
   name: '',
@@ -109,6 +118,18 @@ export async function submitJoinForm(
     now: deps.now,
   });
   if (!created.ok) return { kind: 'message', status: 500, which: 'failed' };
+  if (deps.siteUrl) {
+    const notice = notifyNewEnquiry(
+      {
+        reference: created.reference,
+        adminUrl: `${deps.siteUrl}/admin/interest`,
+        kind: 'interest',
+      },
+      deps.notify,
+    );
+    if (deps.waitUntil) deps.waitUntil(notice);
+    else await notice;
+  }
   return thanks(created.reference);
 }
 

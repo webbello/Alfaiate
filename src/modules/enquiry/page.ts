@@ -1,6 +1,7 @@
 import { env, waitUntil } from 'cloudflare:workers';
 import type { Lang } from '../../i18n/lang';
 import { formSecret, requireBindings, siteConfig } from '../config';
+import { webhookNotifier } from '../notify/webhook';
 import { showForm, submitForm, type Outcome } from './submit';
 
 /** What the request pages share between English and Tetum: reads the bindings and runs the right step for the method. */
@@ -26,6 +27,9 @@ export async function runRequestPage(
     secret: formSecret(env as { FORM_TOKEN_SECRET?: string }),
     lang,
     kind,
+    notify: webhookNotifier(
+      (env as { NOTIFY_WEBHOOK_URL?: string }).NOTIFY_WEBHOOK_URL,
+    ),
     siteUrl: siteConfig(env).siteUrl,
     waitUntil,
   };

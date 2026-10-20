@@ -1,10 +1,19 @@
 // Owner notification (FR-ENQ-08, SEC-05). The notice holds the reference code and an admin link only, never customer data.
-// No real sender is connected yet (OQ-06/AD-05): the default does nothing, and a sender is passed in when one is chosen.
-export type NewEnquiryNotice = { reference: string; adminUrl: string };
+// The sender is chosen with NOTIFY_WEBHOOK_URL (see webhook.ts); without it nothing is sent and the owner reads the inbox (OQ-06/AD-05).
+export type NewEnquiryNotice = {
+  reference: string;
+  adminUrl: string;
+  /** What arrived; an enquiry unless said otherwise. */
+  kind?: 'enquiry' | 'interest';
+};
 export type Notifier = (notice: NewEnquiryNotice) => Promise<void>;
 
-export const notificationText = ({ reference, adminUrl }: NewEnquiryNotice) =>
-  `New enquiry ${reference}. Open it: ${adminUrl}`;
+export const notificationText = ({
+  reference,
+  adminUrl,
+  kind = 'enquiry',
+}: NewEnquiryNotice) =>
+  `${kind === 'interest' ? 'New tailor interest' : 'New enquiry'} ${reference}. Open it: ${adminUrl}`;
 
 /** Best effort: a failing sender is logged without details and never affects the stored enquiry. */
 export async function notifyNewEnquiry(

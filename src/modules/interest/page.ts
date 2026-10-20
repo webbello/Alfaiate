@@ -1,6 +1,12 @@
-import { env } from 'cloudflare:workers';
+import { env, waitUntil } from 'cloudflare:workers';
 import type { Lang } from '../../i18n/lang';
-import { formSecret, joinEnabled, requireBindings } from '../config';
+import {
+  formSecret,
+  joinEnabled,
+  requireBindings,
+  siteConfig,
+} from '../config';
+import { webhookNotifier } from '../notify/webhook';
 import { showJoinForm, submitJoinForm, type Outcome } from './submit';
 
 /** What the join pages share between English and Tetum; mirrors runRequestPage (method check, Origin check, bindings). */
@@ -25,6 +31,11 @@ export async function runJoinPage(
     db: requireBindings(env).DB,
     secret: formSecret(env as { FORM_TOKEN_SECRET?: string }),
     lang,
+    siteUrl: siteConfig(env).siteUrl,
+    notify: webhookNotifier(
+      (env as { NOTIFY_WEBHOOK_URL?: string }).NOTIFY_WEBHOOK_URL,
+    ),
+    waitUntil,
   };
   if (request.method === 'POST')
     return submitJoinForm(

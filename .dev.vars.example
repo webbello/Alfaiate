@@ -20,3 +20,5 @@ SHOW_TESTIMONIAL_PLACEHOLDERS=false
 # SOCIAL_FACEBOOK=https://www.facebook.com/your-page
 # SOCIAL_INSTAGRAM=https://www.instagram.com/your-account
 # SOCIAL_YOUTUBE=https://www.youtube.com/@your-channel
+# Owner notification (OQ-06): the reference code and an admin link are POSTed as plain text to this https address, for example a free ntfy.sh topic you subscribe to on your phone, or a Slack or Discord incoming webhook. Nothing personal is ever sent. Unset means no notification.
+# NOTIFY_WEBHOOK_URL=https://ntfy.sh/choose-a-long-random-topic-name
