@@ -1,13 +1,16 @@
 ---
 import Logo from '../ui/Logo.astro';
+import Icon from '../ui/Icon.astro';
+import type { SocialName } from '../../modules/config';
 import type { Dictionary } from '../../i18n/public/en';
 import { pathFor, type Lang } from '../../i18n/lang';
 
 interface Props {
   lang: Lang;
   t: Dictionary;
+  social?: { name: SocialName; href: string }[];
 }
-const { lang, t } = Astro.props;
+const { lang, t, social = [] } = Astro.props;
 const home = pathFor(lang, '/');
 const year = new Date().getUTCFullYear();
 ---
@@ -22,6 +25,21 @@ const year = new Date().getUTCFullYear();
           <span class="brand__tagline">{t.nav.tagline}</span>
         </span>
       </a>
+      {social.length > 0 && (
+        <ul class="social" role="list">
+          {social.map((s) => (
+            <li>
+              <a
+                href={s.href}
+                rel="noopener noreferrer"
+                aria-label={t.footer.social[s.name]}
+              >
+                <Icon name={s.name} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
       <p class="site-footer__note">{t.disclaimer.short}</p>
     </div>
     <nav class="footer-col" aria-label={t.footer.exploreLabel}>

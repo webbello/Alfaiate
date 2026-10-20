@@ -15,6 +15,9 @@ interface Props {
     | 'chat'
     | 'shirt'
     | 'whatsapp'
+    | 'facebook'
+    | 'instagram'
+    | 'youtube'
     | 'quote';
   class?: string;
 }
@@ -22,6 +25,12 @@ const { name, class: className = 'icon' } = Astro.props;
 // One cached sprite (public/icons.svg) instead of repeating every path in the HTML. Its symbol ids are the names above.
 ---
 
-<svg class={className} width="24" height="24" aria-hidden="true" focusable="false"
-  ><use href={`/icons.svg#${name}`}></use></svg
+<svg
+  class={className}
+  width="24"
+  height="24"
+  aria-hidden="true"
+  focusable="false"
 >
+  <use href={`/icons.svg#${name}`}></use>
+</svg>

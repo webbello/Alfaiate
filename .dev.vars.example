@@ -14,3 +14,9 @@ SITE_INDEXABLE=false
 JOIN_ENABLED=false
 # The footer "Stay updated" sign-up is off until a sender exists (OQ-06) and the Privacy text covers it (OQ-08).
 NEWSLETTER_ENABLED=false
+# Development only: labelled sample testimonials so the section layout can be reviewed. Production never sets this (BR-11).
+SHOW_TESTIMONIAL_PLACEHOLDERS=false
+# Footer social icons: https addresses on the platform own domain only; WhatsApp uses SITE_WHATSAPP.
+# SOCIAL_FACEBOOK=https://www.facebook.com/your-page
+# SOCIAL_INSTAGRAM=https://www.instagram.com/your-account
+# SOCIAL_YOUTUBE=https://www.youtube.com/@your-channel

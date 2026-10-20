@@ -26,6 +26,12 @@ export const en = {
     support: 'Support',
     contact: 'Contact',
     closing: 'Made for Your Style. Connected to Our Community.',
+    social: {
+      facebook: 'Facebook',
+      instagram: 'Instagram',
+      youtube: 'YouTube',
+      whatsapp: 'WhatsApp',
+    },
     rights: 'All rights reserved.',
   },
   bar: {
@@ -143,6 +149,10 @@ export const en = {
       heading: 'Stories of Craftsmanship and Style.',
       intro:
         'Real experiences from customers who have found their perfect tailor.',
+      previous: 'Previous stories',
+      next: 'More stories',
+      sample:
+        'Layout sample for development: these are not real customers and must be replaced before launch.',
     },
     final: {
       heading: 'Your Next Favourite Outfit Starts Here.',

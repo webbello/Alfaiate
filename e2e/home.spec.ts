@@ -44,7 +44,10 @@ test.describe('desktop', () => {
     await expect(page.locator('#site-menu')).toBeVisible();
     const copy = await page.locator('.hero__text').boundingBox();
     const photo = await page.locator('.hero__image').boundingBox();
-    expect(photo!.x).toBeGreaterThan(copy!.x + copy!.width - 40);
+    // the photo bleeds to the right edge and its soft left edge overlaps the copy column (the feather), as in the reference
+    expect(photo!.x + photo!.width).toBeGreaterThanOrEqual(1439);
+    expect(photo!.x).toBeGreaterThan(1440 * 0.3);
+    expect(copy!.x).toBeLessThan(photo!.x);
     const tops = await page
       .locator('.service-card')
       .evaluateAll((cards) =>

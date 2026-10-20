@@ -983,3 +983,28 @@ a:focus-visible > .icon--arrow {
   height: 1.5rem;
   flex: none;
 }
+
+.social {
+  display: flex;
+  gap: var(--space-3);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+  max-width: none;
+}
+.social a {
+  display: inline-grid;
+  place-items: center;
+  width: var(--button-height);
+  height: var(--button-height);
+  border-radius: 50%;
+  color: var(--color-charcoal);
+}
+.social a:hover {
+  background: var(--color-cream);
+  color: var(--color-terracotta);
+}
+.newsletter__go {
+  min-width: var(--button-height);
+  padding-inline: var(--space-3);
+}

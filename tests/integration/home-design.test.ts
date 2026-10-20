@@ -146,3 +146,14 @@ describe('testimonials', () => {
     expect(html).not.toMatch(/★|\b\d(\.\d)?\s*(\/\s*5|stars?)\b/i);
   });
 });
+
+describe('footer social icons', () => {
+  it('shows only the configured, platform-owned links, labelled for screen readers', async () => {
+    const footer = /<footer[\s\S]*<\/footer>/.exec(await home())![0];
+    expect(footer).toContain('href="https://www.facebook.com/alfaiate.test"');
+    expect(footer).toContain('href="https://www.instagram.com/alfaiate.test"');
+    expect(footer).not.toContain('evil.example'); // SOCIAL_YOUTUBE points at a foreign host in this test project
+    expect(footer).toMatch(/aria-label="Facebook"/);
+    expect(footer).not.toContain('wa.me'); // no owner number in this project
+  });
+});

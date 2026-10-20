@@ -7,7 +7,7 @@ import NewsletterForm from '../components/newsletter/NewsletterForm.astro';
 import { newsletterEnabled } from '../modules/newsletter';
 import { dictionary } from '../i18n/public';
 import { isEnabled, pathFor, twinPath, type Lang } from '../i18n/lang';
-import { siteConfig, siteWhatsapp } from '../modules/config';
+import { siteConfig, siteWhatsapp, socialLinks } from '../modules/config';
 import { whatsappLink } from '../modules/contact-links/whatsapp';
 import { buildHead } from '../modules/seo/head';
 import { serialiseJsonLd } from '../modules/seo/jsonld';
@@ -62,6 +62,14 @@ const twin = showSwitch ? twinPath(pathFor(lang, rest)) : null;
 // The quick-action bar must never cover the forms, and the legal pages stay free of calls to action.
 const showBar = !['/request', '/business', '/join', '/privacy', '/terms'].some(
   (p) => rest.startsWith(p),
+);
+const social = socialLinks(
+  env as {
+    SOCIAL_FACEBOOK?: string;
+    SOCIAL_INSTAGRAM?: string;
+    SOCIAL_YOUTUBE?: string;
+    SITE_WHATSAPP?: string;
+  },
 );
 const ownerWhatsapp = siteWhatsapp(env as { SITE_WHATSAPP?: string });
 ---
@@ -124,7 +132,7 @@ const ownerWhatsapp = siteWhatsapp(env as { SITE_WHATSAPP?: string });
     <main id="main" class={bare ? 'main--bare' : undefined}>
       <slot />
     </main>
-    <SiteFooter lang={lang} t={t}>
+    <SiteFooter lang={lang} t={t} social={social}>
       {newsletterEnabled(env as { NEWSLETTER_ENABLED?: string }) &&
         !['/newsletter', '/request', '/business', '/join'].some((p) =>
           rest.startsWith(p),

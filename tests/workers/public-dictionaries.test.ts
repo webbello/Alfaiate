@@ -46,6 +46,10 @@ describe('public dictionaries', () => {
       'contactPage.whatsappHeading', // a product name
       'home.featured.whatsapp', // "WhatsApp {name}"
       'nav.menu', // the same word in Tetum
+      'footer.social.facebook', // platform names
+      'footer.social.instagram',
+      'footer.social.youtube',
+      'footer.social.whatsapp',
       'category.heading', // just the category name in both languages
     ]);
     for (const key of Object.keys(english)) {

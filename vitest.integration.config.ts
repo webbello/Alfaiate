@@ -15,6 +15,10 @@ export default defineConfig({
           SITE_INDEXABLE: 'true',
           JOIN_ENABLED: 'true',
           NEWSLETTER_ENABLED: 'true',
+          SHOW_TESTIMONIAL_PLACEHOLDERS: 'false',
+          SOCIAL_FACEBOOK: 'https://www.facebook.com/alfaiate.test',
+          SOCIAL_INSTAGRAM: 'https://www.instagram.com/alfaiate.test',
+          SOCIAL_YOUTUBE: 'https://evil.example/not-youtube',
           SITE_WHATSAPP: '', // pinned: a developer's .dev.vars must not change what the tests see
           SITE_URL: 'https://alfaiate-tl.example',
         },

@@ -1,5 +1,6 @@
 ---
 import { env } from 'cloudflare:workers';
+import Icon from '../ui/Icon.astro';
 import type { Dictionary } from '../../i18n/public/en';
 import { pathFor, type Lang } from '../../i18n/lang';
 import { formSecret } from '../../modules/config';
@@ -47,8 +48,9 @@ const id = (name: string) => `${idPrefix}-${name}`;
       maxlength="254"
       required
     />
-    <button class="button button--forest" type="submit">
-      {n.submit}
+    <button class="button button--forest newsletter__go" type="submit">
+      <Icon name="arrow" />
+      <span class="visually-hidden">{n.submit}</span>
     </button>
   </div>
   <label class="newsletter__consent" for={id('consent')}>

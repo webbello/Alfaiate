@@ -31,6 +31,12 @@ export const tet: Dictionary = {
     support: 'Apoiu',
     contact: 'Kontaktu',
     closing: 'Halo ba Ita-nia Estilu. Liga ho Ami-nia Komunidade.',
+    social: {
+      facebook: 'Facebook',
+      instagram: 'Instagram',
+      youtube: 'YouTube',
+      whatsapp: 'WhatsApp',
+    },
     rights: 'Direitu hotu reservadu.',
   },
   bar: {
@@ -149,6 +155,10 @@ export const tet: Dictionary = {
       heading: 'Istória Kbiit no Estilu.',
       intro:
         'Esperiénsia loloos husi kliente ne’ebé hetan ona sira-nia alfaiate.',
+      previous: 'Istória sira molok',
+      next: 'Istória tan',
+      sample:
+        'Amostra layout ba dezenvolvimentu: sira ne’e la’ós kliente loloos no tenke troka molok lansa.',
     },
     final: {
       heading: 'Ita-nia Roupa Favoritu Tuir Mai Hahú Iha Ne’e.',
@@ -264,10 +274,12 @@ export const tet: Dictionary = {
       'Ha’u konkorda katak Alfaiate TL bele haruka email ho notísia mai ha’u. Ha’u bele husu atu hasai ha’u-nia enderesu iha tempu hotu.',
     submit: 'Rejista',
     title: 'Hetan notísia',
-    intro: 'Husik ita-nia enderesu email atu rona kona-ba alfaiate foun no istória husi Dili.',
+    intro:
+      'Husik ita-nia enderesu email atu rona kona-ba alfaiate foun no istória husi Dili.',
     errorInvalid: 'Favór hakerek enderesu email hanesan naran@example.com.',
     errorConsent: 'Favór marka kaixa atu ami bele haruka email ba ita.',
-    errorTiming: 'Favór koko fali: formuláriu ne’e presiza tempu uitoan atu prenxe.',
+    errorTiming:
+      'Favór koko fali: formuláriu ne’e presiza tempu uitoan atu prenxe.',
     thanksTitle: 'Obrigadu',
     thanksHeading: 'Obrigadu, ita rejista ona',
     thanksBody:

@@ -65,3 +65,50 @@ export function siteWhatsapp(env: { SITE_WHATSAPP?: string }): string | null {
 /** The tailor interest form stays off until the owner has approved its consent wording and the Privacy text (OQ-08). Exactly "true" turns it on; anything else is off. */
 export const joinEnabled = (env: { JOIN_ENABLED?: string }): boolean =>
   env.JOIN_ENABLED === 'true';
+
+/** Development only: shows clearly labelled sample testimonials so the section's layout can be reviewed. Exactly "true" turns it on; production never sets it (BR-11). */
+export const testimonialPlaceholders = (env: {
+  SHOW_TESTIMONIAL_PLACEHOLDERS?: string;
+}) => env.SHOW_TESTIMONIAL_PLACEHOLDERS === 'true';
+
+const SOCIAL_HOSTS = {
+  facebook: /^(www\.)?(facebook\.com|fb\.com)$/,
+  instagram: /^(www\.)?instagram\.com$/,
+  youtube: /^(www\.)?(youtube\.com|youtu\.be)$/,
+} as const;
+export type SocialName = keyof typeof SOCIAL_HOSTS | 'whatsapp';
+/** Footer social links: only https addresses on the platform's own domain, so a typo or a bad value can never put a foreign link in the footer. WhatsApp reuses SITE_WHATSAPP. */
+export function socialLinks(env: {
+  SOCIAL_FACEBOOK?: string;
+  SOCIAL_INSTAGRAM?: string;
+  SOCIAL_YOUTUBE?: string;
+  SITE_WHATSAPP?: string;
+}): { name: SocialName; href: string }[] {
+  const links: { name: SocialName; href: string }[] = [];
+  for (const [name, host] of Object.entries(SOCIAL_HOSTS) as [
+    keyof typeof SOCIAL_HOSTS,
+    RegExp,
+  ][]) {
+    const raw = env[`SOCIAL_${name.toUpperCase()}` as 'SOCIAL_FACEBOOK'];
+    if (!raw) continue;
+    try {
+      const url = new URL(raw);
+      if (
+        url.protocol === 'https:' &&
+        host.test(url.hostname) &&
+        !url.username &&
+        !url.password
+      )
+        links.push({ name, href: url.href });
+    } catch {
+      /* not a URL: left out */
+    }
+  }
+  const whatsapp = siteWhatsapp(env);
+  if (whatsapp)
+    links.push({
+      name: 'whatsapp',
+      href: `https://wa.me/${whatsapp.slice(1)}`,
+    });
+  return links;
+}

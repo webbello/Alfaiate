@@ -87,6 +87,10 @@ export async function startWorker() {
         '--var',
         'NEWSLETTER_ENABLED:true', // likewise the footer sign-up (OQ-06, OQ-08)
         '--var',
+        'SHOW_TESTIMONIAL_PLACEHOLDERS:true', // labelled sample quotes, so axe and reflow cover the section
+        '--var',
+        'SOCIAL_FACEBOOK:https://www.facebook.com/alfaiate.test',
+        '--var',
         `FORM_TOKEN_SECRET:${randomUUID()}${randomUUID()}`,
         '--var',
         `SITE_URL:${url}`,
