@@ -125,3 +125,11 @@ export function responseWindow(
     )?.trim() ?? '';
   return text && text.length <= 80 ? text : null;
 }
+
+/** The token for Google Search Console's HTML-tag check (letters, digits, - and _ only, so it can never break out of the attribute). */
+export const googleSiteVerification = (env: {
+  GOOGLE_SITE_VERIFICATION?: string;
+}): string | null => {
+  const token = env.GOOGLE_SITE_VERIFICATION?.trim() ?? '';
+  return /^[A-Za-z0-9_-]{10,100}$/.test(token) ? token : null;
+};

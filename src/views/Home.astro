@@ -16,8 +16,11 @@ import { type Lang } from '../i18n/lang';
 import {
   requireBindings,
   siteConfig,
+  socialLinks,
   testimonialPlaceholders,
 } from '../modules/config';
+
+type SocialEnv = Parameters<typeof socialLinks>[0];
 import { websiteJsonLd } from '../modules/seo/jsonld';
 import {
   listActiveCategories,
@@ -48,7 +51,14 @@ const hero = scene('hero');
     srcset: hero.srcset,
     sizes: '(min-width: 64rem) 58vw, 100vw',
   }}
-  jsonLd={websiteJsonLd(siteConfig(env).siteUrl, t.siteName, lang)}
+  jsonLd={websiteJsonLd(
+    siteConfig(env).siteUrl,
+    t.siteName,
+    lang,
+    socialLinks(env as SocialEnv)
+      .filter((s) => s.name !== 'whatsapp')
+      .map((s) => s.href),
+  )}
 >
   <HeroSection lang={lang} t={t} />
   <ServiceCategories

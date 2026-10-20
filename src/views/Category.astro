@@ -2,6 +2,7 @@
 import { env } from 'cloudflare:workers';
 import PublicLayout from '../layouts/PublicLayout.astro';
 import TailorCard from '../components/TailorCard.astro';
+import FaqBlock from '../components/FaqBlock.astro';
 import { dictionary, fill } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 import { requireBindings } from '../modules/config';
@@ -26,11 +27,12 @@ const name = category.name;
 <PublicLayout
   lang={lang}
   title={`${fill(t.category.title, { name })} · ${t.siteName}`}
-  description={t.category.intro}
+  description={fill(t.category.intro, { name })}
   rest={`/categories/${category.slug}`}
+  noindex={tailors.length === 0}
 >
   <h1>{fill(t.category.heading, { name })}</h1>
-  <p class="lead">{t.category.intro}</p>
+  <p class="lead">{fill(t.category.intro, { name })}</p>
   <p class="notice" role="note">
     <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
   </p>
@@ -59,4 +61,5 @@ const name = category.name;
       ))}
     </ul>
   )}
+  <FaqBlock t={t} />
 </PublicLayout>

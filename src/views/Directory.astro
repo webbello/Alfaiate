@@ -2,6 +2,7 @@
 import { env } from 'cloudflare:workers';
 import PublicLayout from '../layouts/PublicLayout.astro';
 import TailorCard from '../components/TailorCard.astro';
+import FaqBlock from '../components/FaqBlock.astro';
 import { dictionary, fill } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 import { requireBindings } from '../modules/config';
@@ -138,4 +139,29 @@ const variant = Astro.url.search !== '';
     </ul>
   )}
   {truncated && <p class="notice">{t.directory.truncated}</p>}
+  {!variant && areas.length > 0 && (
+    <nav aria-labelledby="browse-areas">
+      <h2 id="browse-areas">{t.area.browseAreas}</h2>
+      <ul class="browse-links" role="list">
+        {areas.map((a) => (
+          <li>
+            <a href={pathFor(lang, `/areas/${a.slug}`)}>{a.name}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )}
+  {!variant && categories.length > 0 && (
+    <nav aria-labelledby="browse-categories">
+      <h2 id="browse-categories">{t.area.browseCategories}</h2>
+      <ul class="browse-links" role="list">
+        {categories.map((c) => (
+          <li>
+            <a href={pathFor(lang, `/categories/${c.slug}`)}>{c.name}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )}
+  {!variant && <FaqBlock t={t} />}
 </PublicLayout>

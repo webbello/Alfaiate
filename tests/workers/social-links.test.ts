@@ -48,3 +48,24 @@ describe('testimonialPlaceholders', () => {
       ).toBe(false);
   });
 });
+
+import { googleSiteVerification } from '../../src/modules/config';
+describe('googleSiteVerification', () => {
+  it('accepts a plain token and refuses anything that could leave the attribute', () => {
+    expect(
+      googleSiteVerification({ GOOGLE_SITE_VERIFICATION: ' abcDEF_123-xyz ' }),
+    ).toBe('abcDEF_123-xyz');
+    for (const bad of [
+      undefined,
+      '',
+      'short',
+      'a"b><script>alert(1)</script>',
+      'has space in it',
+      'x'.repeat(101),
+    ])
+      expect(
+        googleSiteVerification({ GOOGLE_SITE_VERIFICATION: bad }),
+        String(bad),
+      ).toBeNull();
+  });
+});

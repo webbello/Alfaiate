@@ -1,0 +1,65 @@
+---
+import { env } from 'cloudflare:workers';
+import PublicLayout from '../layouts/PublicLayout.astro';
+import TailorCard from '../components/TailorCard.astro';
+import FaqBlock from '../components/FaqBlock.astro';
+import { dictionary, fill } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+import { requireBindings } from '../modules/config';
+import { listPublished } from '../modules/directory/queries';
+import type { Choice } from '../modules/directory/view';
+
+interface Props {
+  lang: Lang;
+  area: Choice;
+}
+const { lang, area } = Astro.props;
+const t = dictionary(lang);
+const { DB } = requireBindings(env);
+const { tailors } = await listPublished(DB, {
+  category: undefined,
+  area: area.slug,
+  homeVisit: false,
+});
+const name = area.name;
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${fill(t.area.title, { name })} · ${t.siteName}`}
+  description={fill(t.area.intro, { name })}
+  rest={`/areas/${area.slug}`}
+  noindex={tailors.length === 0}
+>
+  <h1>{fill(t.area.heading, { name })}</h1>
+  <p class="lead">{fill(t.area.intro, { name })}</p>
+  <p class="notice" role="note">
+    <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
+  </p>
+  <p class="actions">
+    <a class="button" href={pathFor(lang, '/request')}>
+      {t.cta.requestHome}
+    </a>
+    <a
+      class="button button--secondary"
+      href={`${pathFor(lang, '/tailors')}?area=${area.slug}`}
+    >
+      {t.directory.moreFilters}
+    </a>
+  </p>
+  <p role="status" class="count">
+    {fill(t.directory.found, { count: tailors.length })}
+  </p>
+  {tailors.length === 0 ? (
+    <p>{t.area.emptyBody}</p>
+  ) : (
+    <ul class="grid">
+      {tailors.map((tailor) => (
+        <li>
+          <TailorCard lang={lang} tailor={tailor} />
+        </li>
+      ))}
+    </ul>
+  )}
+  <FaqBlock t={t} />
+</PublicLayout>

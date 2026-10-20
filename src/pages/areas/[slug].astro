@@ -1,0 +1,14 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Area from '../../views/Area.astro';
+import { requireBindings } from '../../modules/config';
+import { getActiveArea } from '../../modules/directory/queries';
+
+// The 404 decision is made here, before any HTML is sent.
+const slug = Astro.params.slug;
+const area = slug ? await getActiveArea(requireBindings(env).DB, slug) : null;
+if (!area) return Astro.rewrite('/404');
+---
+
+<Area lang="en" area={area} />

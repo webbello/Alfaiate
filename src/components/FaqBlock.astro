@@ -1,0 +1,26 @@
+---
+import type { Dictionary } from '../i18n/public/en';
+
+// Plain questions and answers in native <details> elements (no script). The answers restate the site's own rules (BR-01, BR-02, BR-08), no claims.
+interface Props {
+  t: Dictionary;
+}
+const { t } = Astro.props;
+const f = t.faq;
+const items = [
+  [f.q1, f.a1],
+  [f.q2, f.a2],
+  [f.q3, f.a3],
+  [f.q4, f.a4],
+] as const;
+---
+
+<section class="faq" aria-labelledby="faq-heading">
+  <h2 id="faq-heading">{f.heading}</h2>
+  {items.map(([q, a]) => (
+    <details>
+      <summary>{q}</summary>
+      <p>{a}</p>
+    </details>
+  ))}
+</section>

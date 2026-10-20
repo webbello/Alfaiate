@@ -7,7 +7,12 @@ import NewsletterForm from '../components/newsletter/NewsletterForm.astro';
 import { newsletterEnabled } from '../modules/newsletter';
 import { dictionary } from '../i18n/public';
 import { isEnabled, pathFor, twinPath, type Lang } from '../i18n/lang';
-import { siteConfig, siteWhatsapp, socialLinks } from '../modules/config';
+import {
+  googleSiteVerification,
+  siteConfig,
+  siteWhatsapp,
+  socialLinks,
+} from '../modules/config';
 import { whatsappLink } from '../modules/contact-links/whatsapp';
 import { buildHead } from '../modules/seo/head';
 import { serialiseJsonLd } from '../modules/seo/jsonld';
@@ -63,6 +68,9 @@ const twin = showSwitch ? twinPath(pathFor(lang, rest)) : null;
 const showBar = !['/request', '/business', '/join', '/privacy', '/terms'].some(
   (p) => rest.startsWith(p),
 );
+const verification = googleSiteVerification(
+  env as { GOOGLE_SITE_VERIFICATION?: string },
+);
 const social = socialLinks(
   env as {
     SOCIAL_FACEBOOK?: string;
@@ -81,6 +89,9 @@ const ownerWhatsapp = siteWhatsapp(env as { SITE_WHATSAPP?: string });
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {verification && (
+      <meta name="google-site-verification" content={verification} />
+    )}
     {head.robots && <meta name="robots" content={head.robots} />}
     {head.canonical && <link rel="canonical" href={head.canonical} />}
     {

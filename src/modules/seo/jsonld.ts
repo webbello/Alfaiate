@@ -14,11 +14,12 @@ export const serialiseJsonLd = (data: unknown): string =>
     .replace(/\u2028/g, '\\u2028')
     .replace(/\u2029/g, '\\u2029');
 
-/** The site and its organisation: name and address only. */
+/** The site and its organisation: name, address, the country it serves and its own social profiles (only those the owner configured). */
 export function websiteJsonLd(
   siteUrl: string,
   name: string,
   lang: Lang,
+  sameAs: string[] = [],
 ): object[] {
   const url = `${siteUrl}${pathFor(lang, '/')}`;
   return [
@@ -29,7 +30,14 @@ export function websiteJsonLd(
       url,
       inLanguage: lang,
     },
-    { '@context': 'https://schema.org', '@type': 'Organization', name, url },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name,
+      url,
+      areaServed: { '@type': 'Country', name: 'Timor-Leste' },
+      ...(sameAs.length > 0 && { sameAs }),
+    },
   ];
 }
 

@@ -64,9 +64,9 @@ export const tet: Dictionary = {
       "Alfaiate TL aprezenta ita ba alfaiate independente sira. Alfaiate rasik, la'ós Alfaiate TL, konkorda ba folin, halo ita-nia roupa no hili data. Ami la bele garante alfaiate disponivel, kualidade ka tempu.",
   },
   home: {
-    title: 'Buka alfaiate ne’ebé komprende ita-nia estilu',
+    title: 'Alfaiate iha Dili, Timor-Leste: roupa tuir medida no hadi’a',
     description:
-      'Hetan alfaiate lokál ho talentu iha Timor-Leste tomak. Haree sira-nia serbisu, hili serbisu ne’ebé loos, no halo ita-nia ideia roupa foun sai realidade.',
+      'Hetan alfaiate independente iha Dili no Timor-Leste tomak ba roupa tuir medida, fatu, vestidu, uniforme no hadi’a. Haree sira-nia serbisu no kontaktu sira diretamente.',
     noteLabel: 'Favór nota',
     browse: 'Haree alfaiate sira',
     hero: {
@@ -169,7 +169,7 @@ export const tet: Dictionary = {
     },
   },
   directory: {
-    title: 'Buka alfaiate',
+    title: 'Buka alfaiate iha Dili no Timor-Leste',
     heading: 'Buka alfaiate',
     intro:
       "Alfaiate sira ne'e konkorda atu lista iha Alfaiate TL. Loke perfíl atu haree sira-nia serbisu no kontaktu sira diretamente.",
@@ -261,10 +261,31 @@ export const tet: Dictionary = {
     requestThis: "Husu alfaiate ida-ne'e ba uma",
   },
   category: {
-    title: 'Alfaiate {name}',
+    title: 'Alfaiate {name} iha Timor-Leste',
     heading: '{name}',
-    intro: "Alfaiate sira ne'ebé halo ne'e.",
+    intro:
+      "Alfaiate independente iha Timor-Leste ne'ebé oferese {name}. Haree sira-nia serbisu no folin aproximadu, depois kontaktu sira diretamente liuhusi WhatsApp ka telefone.",
     emptyBody: "Seidauk iha alfaiate lista ba ne'e.",
+  },
+  area: {
+    title: 'Alfaiate iha {name}, Timor-Leste',
+    heading: 'Alfaiate iha {name}',
+    intro:
+      "Alfaiate independente ne'ebé serbisu iha ka atende {name}. Haree saida mak sira halo, depois kontaktu sira diretamente liuhusi WhatsApp ka telefone.",
+    emptyBody: "Seidauk iha alfaiate lista ba área ne'e.",
+    browseAreas: 'Buka tuir área',
+    browseCategories: 'Buka tuir tipu roupa',
+  },
+  faq: {
+    heading: 'Pergunta sira ne’ebé ema husu',
+    q1: 'Oinsá hodi halo roupa tuir medida?',
+    a1: 'Hili alfaiate ida, depois kontaktu nia liuhusi WhatsApp ka telefone, ka haruka pedidu mai ami. Ita konkorda dezeñu, medida, folin no data ho alfaiate.',
+    q2: 'Se mak determina folin?',
+    a2: 'Alfaiate rasik. Alfaiate TL la determina folin no la simu pagamentu. Folin iha perfíl sira aproximadu no marka katak alfaiate mak fornese, se ami seidauk verifika.',
+    q3: 'Alfaiate bele mai ha’u-nia uma?',
+    a3: 'Alfaiate balu oferese vizita ba uma. Uza filtru vizita ba uma, ka husu iha ita-nia pedidu.',
+    q4: 'Saida mak akontese depois ha’u haruka pedidu?',
+    a4: 'Ho ita-nia konsentimentu ami haruka ba alfaiate ida ne’ebé apropriadu, no nia sei kontaktu ita atu konkorda detalle. Pedidu la’ós enkontru konfirmadu.',
   },
   newsletter: {
     heading: 'Hetan Notísia',

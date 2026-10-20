@@ -25,3 +25,5 @@ SHOW_TESTIMONIAL_PLACEHOLDERS=false
 # What you can honour, shown on the thank-you pages as "We aim to contact you <this>" (OQ-05). Leave unset to promise nothing.
 # RESPONSE_WINDOW_EN=within one working day
 # RESPONSE_WINDOW_TET=iha loron serbisu ida laran
+# Google Search Console: the content value of the HTML-tag verification (letters, digits, - and _).
+# GOOGLE_SITE_VERIFICATION=

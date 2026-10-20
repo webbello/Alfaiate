@@ -134,11 +134,10 @@ describe('localBusinessJsonLd', () => {
 });
 
 describe('websiteJsonLd', () => {
-  it('describes the site by name and address only', () => {
-    const [site, org] = websiteJsonLd(SITE, 'Alfaiate TL', 'en') as Record<
-      string,
-      unknown
-    >[];
+  it('describes the site by name, address, the country it serves and its own configured profiles only', () => {
+    const [site, org] = websiteJsonLd(SITE, 'Alfaiate TL', 'en', [
+      'https://www.facebook.com/alfaiate',
+    ]) as Record<string, unknown>[];
     expect(site).toMatchObject({
       '@type': 'WebSite',
       name: 'Alfaiate TL',
@@ -148,8 +147,21 @@ describe('websiteJsonLd', () => {
       '@type': 'Organization',
       name: 'Alfaiate TL',
       url: `${SITE}/`,
+      areaServed: { '@type': 'Country', name: 'Timor-Leste' },
+      sameAs: ['https://www.facebook.com/alfaiate'],
     });
-    expect([...keysOf([site, org])].filter((k) => !ALLOWED.has(k))).toEqual([]);
+    const found = [...keysOf([site, org])].filter(
+      (k) => !ALLOWED.has(k) && !['areaServed', 'sameAs'].includes(k),
+    );
+    expect(found).toEqual([]);
+  });
+  it('has no sameAs without configured profiles, and never ratings, reviews or prices', () => {
+    const [, org] = websiteJsonLd(SITE, 'Alfaiate TL', 'en') as Record<
+      string,
+      unknown
+    >[];
+    expect(org).not.toHaveProperty('sameAs');
+    expect(JSON.stringify(org)).not.toMatch(/rating|review|price/i);
   });
 });
 

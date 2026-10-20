@@ -330,20 +330,34 @@ export async function getActiveCategory(
     .first<Choice>();
 }
 
-/** Pages that belong in the sitemap: the home page, the directory, categories that have a published tailor and every published tailor. */
+export async function getActiveArea(
+  db: Db,
+  slug: string,
+): Promise<Choice | null> {
+  return db
+    .prepare(
+      'SELECT slug, name FROM service_area WHERE slug = ? AND is_active = 1',
+    )
+    .bind(slug)
+    .first<Choice>();
+}
+
+/** Pages that belong in the sitemap: the home page, the directory, categories and areas that have a published tailor, and every published tailor. */
 export async function listSitemapPaths(db: Db): Promise<string[]> {
-  const [tailors, categories] = await Promise.all([
+  const [tailors, categories, areas] = await Promise.all([
     db
       .prepare(
         'SELECT slug FROM tailor WHERE is_published = 1 AND permission_recorded = 1 ORDER BY slug LIMIT 50000',
       )
       .all<{ slug: string }>(),
     listActiveCategories(db, { onlyWithTailors: true }),
+    listActiveAreas(db, { onlyWithTailors: true }),
   ]);
   return [
     '/',
     '/tailors',
     ...categories.map((c) => `/categories/${c.slug}`),
+    ...areas.map((a) => `/areas/${a.slug}`),
     ...tailors.results.map((t) => `/tailors/${t.slug}`),
   ];
 }

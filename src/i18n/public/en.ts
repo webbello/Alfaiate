@@ -59,9 +59,9 @@ export const en = {
       "Alfaiate TL introduces you to independent tailors. The tailor, not Alfaiate TL, agrees the price, makes your clothes and sets the dates. We cannot guarantee a tailor's availability, quality or timing.",
   },
   home: {
-    title: 'Find the tailor who gets your style',
+    title: 'Tailors in Dili, Timor-Leste: custom clothing and alterations',
     description:
-      'Discover talented local tailors across Timor-Leste. Explore their work, find the right service, and bring your next clothing idea to life.',
+      'Find independent tailors in Dili and across Timor-Leste for custom clothing, suits, dresses, uniforms and alterations. See their work and contact them directly.',
     noteLabel: 'Please note',
     browse: 'Browse tailors',
     hero: {
@@ -163,7 +163,7 @@ export const en = {
     },
   },
   directory: {
-    title: 'Find a tailor',
+    title: 'Find a tailor in Dili and Timor-Leste',
     heading: 'Find a tailor',
     intro:
       'These tailors have agreed to be listed on Alfaiate TL. Open a profile to see their work and contact them directly.',
@@ -256,10 +256,31 @@ export const en = {
     requestThis: 'Request this tailor at home',
   },
   category: {
-    title: '{name} tailors',
+    title: '{name} tailors in Timor-Leste',
     heading: '{name}',
-    intro: 'Tailors who offer this.',
+    intro:
+      'Independent tailors in Timor-Leste who offer {name}. Look at their work and approximate prices, then contact them directly by WhatsApp or phone.',
     emptyBody: 'No tailors are listed for this yet.',
+  },
+  area: {
+    title: 'Tailors in {name}, Timor-Leste',
+    heading: 'Tailors in {name}',
+    intro:
+      'Independent tailors who work in or serve {name}. See what they make, then contact them directly by WhatsApp or phone.',
+    emptyBody: 'No tailors are listed for this area yet.',
+    browseAreas: 'Browse by area',
+    browseCategories: 'Browse by type of clothing',
+  },
+  faq: {
+    heading: 'Questions people ask',
+    q1: 'How do I get a garment made to measure?',
+    a1: 'Choose a tailor, then contact them by WhatsApp or phone, or send us a request. You agree the design, measurements, price and dates with the tailor.',
+    q2: 'Who sets the price?',
+    a2: 'The tailor does. Alfaiate TL does not set prices or take payment. Prices on profiles are approximate and labelled as supplied by the tailor unless we have checked them.',
+    q3: 'Can a tailor come to my home?',
+    a3: 'Some tailors offer home visits. Use the home visit filter, or ask for one when you send a request.',
+    q4: 'What happens after I send a request?',
+    a4: 'With your consent we pass it to a suitable tailor, who then contacts you to agree the details. A request is not a confirmed appointment.',
   },
   newsletter: {
     heading: 'Stay Updated',
