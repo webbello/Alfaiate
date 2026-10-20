@@ -15,7 +15,9 @@ export default defineConfig({
           SITE_INDEXABLE: 'false',
           JOIN_ENABLED: 'false',
           NEWSLETTER_ENABLED: 'false',
-          SHOW_TESTIMONIAL_PLACEHOLDERS: 'true', // pinned: a developer's .dev.vars must not change what the tests see
+          SHOW_TESTIMONIAL_PLACEHOLDERS: 'true',
+          RESPONSE_WINDOW_EN: 'within one working day',
+          RESPONSE_WINDOW_TET: 'iha loron serbisu ida laran', // pinned: a developer's .dev.vars must not change what the tests see
           SITE_WHATSAPP: '',
           SITE_URL: 'https://alfaiate-tl.example',
         },

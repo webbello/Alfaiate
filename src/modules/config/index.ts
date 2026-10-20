@@ -112,3 +112,16 @@ export function socialLinks(env: {
     });
   return links;
 }
+
+/** Optional "we aim to reply" wording the owner can honour (OQ-05), per language, for example "within one working day". Empty or unset means no promise is shown. */
+export function responseWindow(
+  env: { RESPONSE_WINDOW_EN?: string; RESPONSE_WINDOW_TET?: string },
+  lang: 'en' | 'tet',
+): string | null {
+  const text =
+    (lang === 'tet'
+      ? env.RESPONSE_WINDOW_TET
+      : env.RESPONSE_WINDOW_EN
+    )?.trim() ?? '';
+  return text && text.length <= 80 ? text : null;
+}

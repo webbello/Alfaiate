@@ -21,3 +21,18 @@ describe('siteWhatsapp', () => {
       expect(siteWhatsapp({ SITE_WHATSAPP: value }), String(value)).toBeNull();
   });
 });
+
+import { responseWindow } from '../../src/modules/config';
+describe('responseWindow (OQ-05)', () => {
+  it('returns the owner wording per language, and nothing when unset, blank or too long', () => {
+    expect(
+      responseWindow({ RESPONSE_WINDOW_EN: ' within one working day ' }, 'en'),
+    ).toBe('within one working day');
+    expect(
+      responseWindow({ RESPONSE_WINDOW_TET: 'iha loron ida' }, 'tet'),
+    ).toBe('iha loron ida');
+    expect(responseWindow({ RESPONSE_WINDOW_EN: 'x' }, 'tet')).toBeNull();
+    for (const v of [undefined, '', '   ', 'y'.repeat(81)])
+      expect(responseWindow({ RESPONSE_WINDOW_EN: v }, 'en')).toBeNull();
+  });
+});

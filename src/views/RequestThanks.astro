@@ -1,4 +1,7 @@
 ---
+import { env } from 'cloudflare:workers';
+import { responseWindow } from '../modules/config';
+import { fill } from '../i18n/public';
 import PublicLayout from '../layouts/PublicLayout.astro';
 import { dictionary } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
@@ -9,6 +12,10 @@ interface Props {
 }
 const { lang, reference } = Astro.props;
 const t = dictionary(lang);
+const when = responseWindow(
+  env as { RESPONSE_WINDOW_EN?: string; RESPONSE_WINDOW_TET?: string },
+  lang,
+);
 const r = t.request;
 ---
 
@@ -29,6 +36,7 @@ const r = t.request;
     <strong>{t.home.noteLabel}:</strong> {r.notBooking}
   </p>
   <p>{r.thanksBody}</p>
+  {when && <p>{fill(t.request.responseLine, { when })}</p>}
   <p>
     <a class="button" href={pathFor(lang, '/tailors')}>
       {r.browse}

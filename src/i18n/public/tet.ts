@@ -396,6 +396,8 @@ export const tet: Dictionary = {
     keepCode: "Favór rai kódigu ne'e.",
     thanksBody:
       "Ami sei kontaktu ita liuhusi númeru ne'ebé ita fó. Ami la bele promete oras.",
+    responseLine:
+      'Ami hakarak kontaktu ita {when}. Ne’e objetivu, la’ós garantia.',
     browse: 'Haree alfaiate sira',
   },
   notFound: {

@@ -390,6 +390,8 @@ export const en = {
     keepCode: 'Please keep this code.',
     thanksBody:
       'We will contact you using the number you gave. We cannot promise when.',
+    responseLine:
+      'We aim to contact you {when}. This is a goal, not a guarantee.',
     browse: 'Browse tailors',
   },
   notFound: {
