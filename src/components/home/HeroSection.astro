@@ -38,9 +38,6 @@ const trust = [
           <Icon name="arrow" class="icon icon--arrow" />
         </a>
       </p>
-      <p class="hero__note">
-        <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
-      </p>
       <ul class="trust" aria-label={h.trustLabel}>
         {trust.map((item) => (
           <li>
@@ -54,6 +51,9 @@ const trust = [
           </li>
         ))}
       </ul>
+      <p class="hero__note">
+        <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
+      </p>
     </div>
   </div>
   <div class="hero__media">

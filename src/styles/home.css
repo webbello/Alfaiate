@@ -83,7 +83,11 @@
 .hero {
   position: relative;
   display: grid;
-  background: linear-gradient(90deg, var(--color-ivory) 0%, var(--color-cream) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-ivory) 0%,
+    var(--color-cream) 100%
+  );
   overflow: hidden;
 }
 .hero__media {
@@ -145,15 +149,19 @@
   letter-spacing: -0.015em;
   color: var(--color-charcoal);
 }
+.hero h1 {
+  max-width: 8.6em; /* the reference breaks the heading into three lines */
+}
 .hero h1 .accent {
   color: var(--color-terracotta);
+  white-space: nowrap;
 }
 .hero__intro {
   max-width: 27rem;
   color: var(--color-charcoal);
 }
 .hero .actions {
-  margin: var(--space-5) 0 var(--space-4);
+  margin: var(--space-5) 0 var(--space-5);
 }
 .trust {
   display: grid;
@@ -189,7 +197,7 @@
   color: var(--color-terracotta);
 }
 .hero__note {
-  margin: 0 0 var(--space-5);
+  margin: var(--space-4) 0 0;
   max-width: 34rem;
   font-size: var(--text-xs);
   color: var(--color-muted);
@@ -201,7 +209,7 @@
   }
   .hero__media {
     position: absolute;
-    inset: 0 0 0 46%;
+    inset: 0 0 0 50%;
     aspect-ratio: auto;
   }
   .hero__media::before {
@@ -209,7 +217,11 @@
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: linear-gradient(90deg, var(--color-cream) 0%, rgb(241 236 226 / 0%) 22%);
+    background: linear-gradient(
+      90deg,
+      var(--color-cream) 0%,
+      rgb(241 236 226 / 0%) 22%
+    );
   }
   .hero__script,
   .hero__badge {
@@ -223,12 +235,16 @@
     padding-block: var(--space-7);
   }
   .hero__text {
-    max-width: 31rem;
+    max-width: 38rem;
   }
   .trust {
     display: flex;
     width: max-content;
     gap: var(--space-4);
+    margin-bottom: 0;
+  }
+  .trust li {
+    white-space: nowrap;
   }
 }
 
@@ -461,7 +477,7 @@
   transform: translate(-28%, 0) translateZ(40px);
 }
 .craft__copy {
-  padding: var(--space-7) var(--gap);
+  padding: var(--space-6) var(--gap);
   max-width: 34rem;
 }
 .craft__copy p {
@@ -476,15 +492,18 @@
     align-items: center;
   }
   .craft__media {
-    min-height: 30rem;
+    min-height: 22rem;
     height: 100%;
   }
   .craft__copy {
-    padding: var(--space-8) var(--space-7);
+    padding: var(--space-6) var(--space-7);
   }
 }
 
 /* ---- How it works ---- */
+.how {
+  padding-block: var(--space-7);
+}
 .how__inner {
   display: grid;
   gap: var(--space-6);
@@ -584,7 +603,7 @@
   display: grid;
   overflow: hidden;
   border-radius: var(--radius-sm);
-  min-height: 15rem;
+  min-height: 13rem;
 }
 .banner--light {
   background: var(--color-cream);
@@ -693,7 +712,7 @@
   background: linear-gradient(90deg, rgb(20 22 19 / 88%), rgb(20 22 19 / 72%));
 }
 .final__copy {
-  padding-block: var(--space-8);
+  padding-block: var(--space-7);
 }
 .final h2 {
   max-width: 34rem;
@@ -786,4 +805,18 @@
   .craft__tiles img:last-child {
     transform: none;
   }
+}
+
+/* Stand-in for a tailor without a permitted photo: a light woven swatch, so a row of cards still looks finished. */
+.tailor-card__media .card__swatch {
+  background-color: var(--color-cream);
+}
+.tailor-card__media .card__swatch--1 {
+  background-color: #e4e7dc;
+}
+.tailor-card__media .card__swatch--2 {
+  background-color: #efe0d6;
+}
+.tailor-card__media .card__swatch::after {
+  border-color: var(--color-olive);
 }
