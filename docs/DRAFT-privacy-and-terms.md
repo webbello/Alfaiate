@@ -17,7 +17,9 @@
 | You tap WhatsApp or Call on a tailor | A count per tailor and day | To see which contact methods are used | Us. It is not linked to you |
 | You visit a page | A count per day, page and the kind of site you came from (search, social, direct or a website name). No cookie, no IP address, no device details | To see what helps people find us. Visitors who send Do Not Track or Global Privacy Control are not counted | Us |
 
-**Cookies.** Visitors get none. Only signed-in staff get a session cookie.
+**Cookies.** Visitors get none. Only signed-in staff and signed-in tailors get a session cookie.
+
+**Tailor accounts.** A tailor the team has approved gets a sign-in: we store their email address and a scrambled form of their password, the time they accepted that their business details and photos may be shown, and the details and photos they add. They see and change only their own page; we publish it only after checking it. They can ask us to close the account and remove their page and photos at any time. [Owner: confirm retention and who handles requests.]
 
 **We do not** sell your details, run adverts, or put customer details on public pages, in addresses or in the sitemap. Photos, names and prices of tailors appear only with their permission.
 

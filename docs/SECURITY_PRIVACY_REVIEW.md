@@ -49,3 +49,13 @@ Accepted: the admin search term appears in the admin URL (`?q=`; admin only, no-
 | Open for the owner | Privacy and terms text (OQ-08), retention period (OQ-09), statement about Cloudflare processing and data location, Tetum privacy text review |
 
 Not checked: legal applicability of any Timor-Leste data-protection rule (PRD notes this is unassessed); real Cloudflare log settings in the owner's account.
+
+## Tailor portal (2026-10-21)
+
+- **New principal:** tailors sign in at `/portal` with their own tables, cookie and guard. A tailor session cannot be accepted by any admin route and a staff session cannot open the portal (tested for every admin and portal route in `tests/integration/portal-isolation.test.ts`). The staff permission table has no tailor role.
+- **Scope of a tailor:** one tailor id, taken from the session only. Allow-listed profile fields; tick-only work types and areas that cannot mark anything verified; own photos only. No customers, enquiries, referrals, fees, notes or private contact fields are reachable or rendered (tested with planted secrets).
+- **Invite links:** 32 random bytes, stored hashed, single use, 7 days, shown once to staff; never logged or kept in the audit log (tested). Re-issuing replaces the old link.
+- **Uploads:** same validation and limits as staff, plus 20 per hour per tailor; stored in the private bucket, hidden until staff show them, with the tailor's confirmation recorded.
+- **Notification:** "ready for review" sends a reference (`TP-<id>`) and an admin link only.
+- **Open for the owner:** privacy text for tailor accounts (OQ-08); consider an extra rate limit or Cloudflare rule for `/portal/login` and `/portal/accept` in Phase 8.
+

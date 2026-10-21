@@ -169,7 +169,7 @@ describe('schema', () => {
     await audit(db, {
       userId: null,
       tailorAccountId: a.id,
-      action: 'portal_profile_updated',
+      action: 'tailor_updated',
       entityType: 'tailor',
       entityId: a.tailorId,
     });

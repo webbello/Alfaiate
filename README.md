@@ -15,6 +15,8 @@ npm run owner:create             # first admin account (prompts; password is nev
 npm run dev                      # http://localhost:4321, admin at /admin
 ```
 
+**Tailor portal (local, 2026-10-21):** a tailor who used the Join form is approved in `/admin/interest` ("Approve and make sign-in link"), which shows a one-time link to send them. They choose a password at `/portal/accept`, then sign in at `/portal/login` to fill in their page, tick what they make and where, add photos, and tell you it is ready. You check, show their photos and publish as before. Run `npm run db:migrate` first. Design: [docs/SPEC-tailor-portal.md](docs/SPEC-tailor-portal.md).
+
 Note: `npm run dev` inlines CSS, which the strict CSP blocks, so pages look unstyled in dev (they still work). To see the real, styled site locally, run `npm run preview` (builds, then serves the built Worker at http://localhost:4322 with the same local database). It serves the build it just made: after any command that rebuilds (`npm run check`, `npm run test:e2e`, `npm run build`) stop it (Ctrl+C) and run `npm run preview` again, otherwise the page loses its styles. If `npm run dev` says another server is already running, stop it with `npx astro dev stop`.
 
 To see the site and admin filled in, load clearly fake demo data into the **local** database only (tailors named "[Demo] ...", enquiries `AT-DEMO0001`..., made-up numbers, no photos):

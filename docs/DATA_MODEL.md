@@ -171,7 +171,15 @@ Append-only: `enquiry_id`, `from_status`, `to_status`, `changed_by` (admin_user)
 `admin_user`: `email` (unique), `password_hash` (plus KDF parameters/salt), `role` (`owner` | `manager` | `editor` | `viewer`; one role per user; the role-to-permission map is defined in code, see ARCHITECTURE §6), `is_active`, `last_login_at`. Constraint: at least one active `owner` must always exist.
 `session`: `token_hash` (the raw token lives only in the cookie), `admin_user_id`, `expires_at`, `created_at`.
 `audit_log`: append-only `admin_user_id`, `action` (e.g. `login`, `role_changed`, `tailor_published`, `enquiry_status_changed`), `entity_type`, `entity_id`, `at`; no customer data in the log text. `enquiry_status_log` (3.9) remains the detailed status history.
-No customer or tailor identities exist. First owner is created by a seed script; further users by an owner.
+No customer identities exist. Tailors have their own sign-in tables (3.13). First owner is created by a seed script; further users by an owner.
+
+### 3.13 Tailor portal (migrations 0007, 0008; FR-TPO-*)
+
+- `tailor_account` (`tailor_id` unique, `email` unique and `password_hash` empty until the invite is accepted, `is_active`, `consent_version`, `consent_at`, `last_login_at`, `review_requested_at`) — one per tailor, cascades with the tailor.
+- `tailor_session` (`token_hash`, `tailor_account_id`, `last_seen_at`, `expires_at`) — separate from `session`.
+- `tailor_invite` (`tailor_account_id`, `token_hash`, `expires_at`, `used_at`) — single use; only the hash is stored.
+- `tailor_interest` gains `decision` (pending, approved, declined), `tailor_id`, `decided_at`.
+- `audit_log` gains `tailor_account_id` (an id only).
 
 ### 3.12 Aggregates and operational tables
 
@@ -204,7 +212,7 @@ Index: `tailor(slug)`, `tailor(is_published, status)`, joins by FK, `enquiry(sta
 
 FR-PRO-* → tailor, tailor_category, tailor_area, portfolio_image · FR-ENQ-* → enquiry · FR-ADM-* → all admin tables · FR-REF-* → referral, tailor fee terms · FR-RPT-* → computed from enquiry, status_log, referral · SEC-05/BR-07 → public/private split · ANA-01 → page_view_daily · ANA-02 → contact_click_daily.
 
-## 9. As implemented in migrations (`migrations/0001` to `0006`)
+## 9. As implemented in migrations (`migrations/0001` to `0008`)
 
 Where the migrations refine the conceptual model above, the migrations win; this list records the differences.
 
@@ -216,7 +224,7 @@ Where the migrations refine the conceptual model above, the migrations win; this
 - `internal_note`: exactly one of `enquiry_id`, `tailor_id`, `referral_id` (CHECK); `author_id` is required and users are deactivated, never deleted.
 - `audit_log` and `enquiry_status_log` are append-only by convention (the code has no update path); no database triggers enforce it.
 - `rate_limit` uses an integer `window_start` (epoch seconds).
-- **Files:** `0006_page_views.sql` (launch preparation) holds `page_view_daily`. `0001_schema.sql` holds `admin_user`, `session`, `audit_log`, `tailor`, `garment_category`, `tailor_category`, `service_area`, `tailor_area`, `portfolio_image`. `0005_newsletter.sql` (Phase 7d) holds `newsletter_signup` (email unique, case-insensitive, 6 to 254 characters; consent version and time; no name, no IP), FR-PUB-08; removal deletes the row and writes a `newsletter_removed` audit row. `0004_enquiry_business.sql` (Phase 7d) adds `enquiry.organisation_name` (at most 100) and `enquiry.group_size_text` (at most 40), set only by the business form (FR-ENQ-09, `source = 'business'`) and cleared by the anonymise routine. `0003_tailor_interest.sql` (Phase 7c) holds `tailor_interest`: live rows need a name and a number, anonymised rows keep only the reference, consent and dates (both CHECKed); references are `JN-` plus 8 characters from the enquiry alphabet; consent version `consent-join-2026-10-v1-<lang>`; audit action `interest_anonymised`. `0002_enquiry_referral.sql` holds `enquiry`, `enquiry_status_log`, `enquiry_attachment`, `referral`, `internal_note` (moved here because it references enquiry and referral), `contact_click_daily`, `rate_limit`.
+- **Files:** `0007_tailor_accounts.sql` and `0008_tailor_review.sql` (tailor portal, see 3.13). `0006_page_views.sql` (launch preparation) holds `page_view_daily`. `0001_schema.sql` holds `admin_user`, `session`, `audit_log`, `tailor`, `garment_category`, `tailor_category`, `service_area`, `tailor_area`, `portfolio_image`. `0005_newsletter.sql` (Phase 7d) holds `newsletter_signup` (email unique, case-insensitive, 6 to 254 characters; consent version and time; no name, no IP), FR-PUB-08; removal deletes the row and writes a `newsletter_removed` audit row. `0004_enquiry_business.sql` (Phase 7d) adds `enquiry.organisation_name` (at most 100) and `enquiry.group_size_text` (at most 40), set only by the business form (FR-ENQ-09, `source = 'business'`) and cleared by the anonymise routine. `0003_tailor_interest.sql` (Phase 7c) holds `tailor_interest`: live rows need a name and a number, anonymised rows keep only the reference, consent and dates (both CHECKed); references are `JN-` plus 8 characters from the enquiry alphabet; consent version `consent-join-2026-10-v1-<lang>`; audit action `interest_anonymised`. `0002_enquiry_referral.sql` holds `enquiry`, `enquiry_status_log`, `enquiry_attachment`, `referral`, `internal_note` (moved here because it references enquiry and referral), `contact_click_daily`, `rate_limit`.
 - **Last owner:** "at least one active owner" (§3.11) is not a database constraint. It is enforced by one guarded UPDATE in `src/modules/auth/users.ts`, so a direct SQL edit can bypass it.
 - **Password hash:** `admin_user.password_hash` holds the whole `pbkdf2-sha256$iterations$salt$hash` string; there are no separate KDF columns. `admin_user.email` is unique, case-insensitive (`COLLATE NOCASE`), length > 3.
 - **Phone shape:** `whatsapp_e164`, `phone_e164` and `contact_number_e164` have a CHECK for E.164 shape (leading `+`, non-zero first digit, digits only, 8-16 characters). The Timor-Leste rule (AD-10: `+670` + 8 digits starting 7 or 3) is applied in application code by `normalisePhone`, not in the database.

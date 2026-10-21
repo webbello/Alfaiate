@@ -135,6 +135,14 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 | FR-JOIN-01 | (Phase 7c, owner request 2026-10-19) A public "Join as a tailor" interest form (name, number, optional business, area, craft, message, consent to be contacted) with the same spam controls as FR-ENQ-06. It is an interest form, **not** self-registration: it creates no account, no profile and nothing public; the owner onboards offline (J4). | Should |
 | FR-JOIN-02 | The interest record stores the consent wording version and time, and its personal fields can be removed by the owner (as PRV-04); a JN reference code is shown, nothing else is echoed. | Should |
 | FR-JOIN-03 | Admins with `tailor.edit` see the list (newest first) at /admin/interest; only the owner may remove details. Never shown on any public page, URL, sitemap or analytics. | Should |
+| FR-TPO-01 | (Tailor portal, owner request 2026-10-21, [SPEC-tailor-portal.md](SPEC-tailor-portal.md)) An admin with `tailor.publish` approves or declines a join request at /admin/interest; approval creates one draft tailor and one tailor sign-in and shows a one-time sign-in link; both actions are audited. | Should |
+| FR-TPO-02 | The sign-in link works once, expires after 7 days, is stored only as a hash, and can be re-issued from the tailor's admin page (also the password-reset path). | Should |
+| FR-TPO-03 | A signed-in tailor reaches only /portal and only their own record; no admin page, other tailor, enquiry, referral, fee, note or customer data. Tailor and staff sign-ins are separate (own tables, cookies and guards). | Should |
+| FR-TPO-04 | A tailor edits their business name, description, address, home visits, languages, price note, work types and areas, and (until published) public numbers; slug, status, publishing, permission, verified facts, fees and private contact fields are not accepted from a tailor. | Should |
+| FR-TPO-05 | A tailor uploads, describes and removes their own photos (existing validation and limit, 20 uploads per hour); new photos are hidden until an admin shows them, and carry the tailor's confirmation that they may be shown. | Should |
+| FR-TPO-06 | The portal shows what is still to do and lets the tailor say the page is ready; the owner is told by the notification channel (reference and link only). | Should |
+| FR-TPO-07 | The tailor's permission to show their page is recorded (wording version and time) when they accept the invite; publishing and approval stay with staff (`tailor.publish`). | Should |
+| FR-TPO-08 | Tailor actions are audited with the tailor account as actor; no customer data is logged. | Should |
 
 #### Administration
 
@@ -177,7 +185,7 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 
 ### 7.3 Explicitly excluded from the MVP
 
-Customer accounts; tailor self-service registration or dashboards (the Phase 7c interest form, FR-JOIN-01..03, is not registration: it creates no account, profile or listing); booking calendars/real-time availability; online payments, escrow, holding funds; in-app chat; automatic dispatch/matching; delivery fleet; production management; fabric inventory; automated commission collection; native apps; AI recommendations; ratings and reviews. Unrequested extras (loyalty, coupons, blogs, marketplaces) are also out of scope.
+Customer accounts; open tailor self-registration or public self-publishing (the Phase 7c interest form, FR-JOIN-01..03, is not registration: it creates no account, profile or listing; since 2026-10-21 an **owner-approved** tailor portal exists, FR-TPO-01..08: a tailor sees and edits only their own page and photos, never customers, enquiries, referrals or fees, and cannot publish); booking calendars/real-time availability; online payments, escrow, holding funds; in-app chat; automatic dispatch/matching; delivery fleet; production management; fabric inventory; automated commission collection; native apps; AI recommendations; ratings and reviews. Unrequested extras (loyalty, coupons, blogs, marketplaces) are also out of scope.
 
 ### 7.4 Future enhancements (not designed here)
 

@@ -30,11 +30,6 @@ export type AuditAction =
   | 'portal_login'
   | 'portal_login_failed'
   | 'portal_account_activated'
-  | 'portal_profile_updated'
-  | 'portal_work_updated'
-  | 'portal_image_uploaded'
-  | 'portal_image_changed'
-  | 'portal_image_deleted'
   | 'portal_submitted';
 
 type Entry = {
