@@ -37,7 +37,7 @@ Order and reasons are in [plan-tailor-portal.md](plan-tailor-portal.md). Require
   - Verify: unit test for the tailor-facing checklist copy; integration test that submitting without consent or required fields is refused and that no tailor action changes `status` or `is_published`; webhook test (no personal data in the body); e2e of the full local journey.
   - Files: `src/modules/portal/checklist.ts`, `src/pages/portal/index.astro`, `src/pages/portal/submit.ts`, `src/modules/notify/index.ts` (kind `'tailor-ready'`), tests
 
-- [ ] **S8 Isolation matrix**
+- [x] **S8 Isolation matrix**
   - Acceptance: `ADMIN_ROUTES` and a new `PORTAL_ROUTES` inventory list every route with its permission; the AC-09 matrix runs every admin route as `tailor` (refused) and every portal route as staff and anonymous (refused); a two-tailor suite proves A cannot read or change B through URL, form or hidden fields.
   - Verify: the suites pass and each guard's mutation is seen failing; privacy-scope-reviewer clean.
   - Files: `src/modules/auth/portal-routes.ts`, `tests/integration/ac09-matrix.test.ts`, `tests/integration/portal-isolation.test.ts`, `tests/workers/portal-route-inventory.test.ts`
