@@ -11,7 +11,12 @@ interface Props {
 const { title, description = title, auth } = Astro.props;
 const p = en.portal;
 const path = Astro.url.pathname.replace(/\/+$/, '') || '/portal';
-const links = [{ href: '/portal', label: p.overview }];
+const links = [
+  { href: '/portal', label: p.overview },
+  { href: '/portal/profile', label: p.profileNav },
+  { href: '/portal/work', label: p.workNav },
+  { href: '/portal/photos', label: p.photosNav },
+];
 ---
 
 <!doctype html>

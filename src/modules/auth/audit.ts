@@ -61,3 +61,12 @@ export async function audit(db: D1Database, entry: Entry): Promise<void> {
     )
     .run();
 }
+
+/** Who did it: a staff user id (as before) or a tailor's account, so shared services can serve both without a second audit path. */
+export type Actor = number | { tailorAccountId: number };
+export const who = (
+  actor: Actor,
+): { userId: number | null; tailorAccountId?: number } =>
+  typeof actor === 'number'
+    ? { userId: actor }
+    : { userId: null, tailorAccountId: actor.tailorAccountId };

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { audit } from '../auth/audit';
+import { audit, who, type Actor } from '../auth/audit';
 import {
   imagePrefix,
   newImageKey,
@@ -40,7 +40,7 @@ export type StoreResult =
  */
 export async function storeImage(
   b: MediaBindings,
-  actorId: number,
+  actorId: Actor,
   tailorId: number,
   input: {
     alt_text: string;
@@ -106,7 +106,7 @@ export async function storeImage(
   }
   // Outside the try: the row and its files are consistent now, so a failing audit must not delete the files.
   await audit(b.DB, {
-    userId: actorId,
+    ...who(actorId),
     action: 'image_uploaded',
     entityType: 'portfolio_image',
     entityId: imageId,
@@ -117,7 +117,7 @@ export async function storeImage(
 /** Files first, then the row: a failure leaves the row in place so the delete can be retried. */
 export async function deleteImage(
   b: MediaBindings,
-  actorId: number,
+  actorId: Actor,
   tailorId: number,
   imageId: number,
 ): Promise<{ ok: true } | { ok: false; error: 'not_found' }> {
@@ -136,7 +136,7 @@ export async function deleteImage(
     .bind(imageId)
     .run(); // profile_photo_id is cleared by ON DELETE SET NULL
   await audit(b.DB, {
-    userId: actorId,
+    ...who(actorId),
     action: 'image_deleted',
     entityType: 'portfolio_image',
     entityId: imageId,

@@ -1,0 +1,175 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Flash from '../../components/admin/Flash.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { readForm } from '../../modules/http/body';
+import { requireTailor } from '../../modules/portal/require';
+import { savePortalProfile, tailorMayEdit } from '../../modules/portal/profile';
+import { getTailor } from '../../modules/tailors/repo';
+
+const auth = await requireTailor(Astro);
+if (auth instanceof Response) return auth;
+const p = en.portal;
+const { DB } = requireBindings(env);
+// The tailor id comes from the session only.
+const tailor = await getTailor(DB, auth.tailorId);
+if (!tailor) return new Response('Not found', { status: 404 });
+
+let message = '';
+let kind: 'success' | 'problem' = 'success';
+let sent: FormData | null = null;
+if (Astro.request.method === 'POST') {
+  const { form, tooLarge } = await readForm(Astro.request);
+  if (tooLarge) return new Response('Payload too large', { status: 413 });
+  const result = await savePortalProfile(DB, auth, form);
+  if (result.ok) return Astro.redirect('/portal/profile?saved=1', 303);
+  sent = form;
+  kind = 'problem';
+  message = result.error === 'locked' ? p.locked : p.invalid;
+  Astro.response.status = result.error === 'locked' ? 403 : 422;
+} else if (Astro.url.searchParams.get('saved') === '1') message = p.saved;
+
+const value = (name: string, stored: string | null) =>
+  sent?.get(name)?.toString() ?? stored ?? '';
+const home = sent
+  ? (sent.get('home_visits')?.toString() ?? tailor.home_visits)
+  : tailor.home_visits;
+const published = tailor.is_published === 1;
+const editable = tailorMayEdit(tailor.status);
+---
+
+<PortalLayout title={p.profileHeading} auth={auth}>
+  <h1>{p.profileHeading}</h1>
+  <p>{p.profileIntro}</p>
+  {message && <Flash message={message} kind={kind} />}
+  <form method="post">
+    <p>
+      <label for="display_name">{p.displayName}</label>
+      <br />
+      <input
+        id="display_name"
+        name="display_name"
+        maxlength="120"
+        required
+        value={value('display_name', tailor.display_name)}
+        disabled={!editable}
+      />
+    </p>
+    <p>
+      <label for="description">{p.description}</label>
+      <br />
+      <span class="hint" id="description-hint">
+        {p.descriptionHint}
+      </span>
+      <br />
+      <textarea
+        id="description"
+        name="description"
+        rows="5"
+        maxlength="2000"
+        aria-describedby="description-hint"
+        disabled={!editable}
+      >{value('description', tailor.description)}</textarea>
+    </p>
+    <p>
+      <label for="shop_address_text">{p.shopAddress}</label>
+      <br />
+      <input
+        id="shop_address_text"
+        name="shop_address_text"
+        maxlength="300"
+        value={value('shop_address_text', tailor.shop_address_text)}
+        disabled={!editable}
+      />
+    </p>
+    <fieldset>
+      <legend>{p.homeVisits}</legend>
+      {(
+        [
+          ['yes', p.homeYes],
+          ['no', p.homeNo],
+          ['unknown', p.homeUnknown],
+        ] as const
+      ).map(([v, label]) => (
+        <label>
+          <input
+            type="radio"
+            name="home_visits"
+            value={v}
+            checked={home === v}
+            disabled={!editable}
+          />{' '}
+          {label}
+        </label>
+      ))}
+    </fieldset>
+    <p>
+      <label for="languages">{p.languages}</label>
+      <br />
+      <input
+        id="languages"
+        name="languages"
+        maxlength="200"
+        value={value('languages', tailor.languages)}
+        disabled={!editable}
+      />
+    </p>
+    <p>
+      <label for="price_note">{p.priceNote}</label>
+      <br />
+      <span class="hint" id="price-hint">
+        {p.priceNoteHint}
+      </span>
+      <br />
+      <input
+        id="price_note"
+        name="price_note"
+        maxlength="200"
+        aria-describedby="price-hint"
+        value={value('price_note', tailor.price_note)}
+        disabled={!editable}
+      />
+    </p>
+    {published ? (
+      <p>{p.numbersLocked}</p>
+    ) : (
+      <>
+        <p class="hint">{p.numbersHint}</p>
+        <p>
+          <label for="whatsapp">{p.whatsapp}</label>
+          <br />
+          <input
+            id="whatsapp"
+            name="whatsapp"
+            type="tel"
+            inputmode="tel"
+            maxlength="40"
+            value={value('whatsapp', tailor.whatsapp_e164)}
+            disabled={!editable}
+          />
+        </p>
+        <p>
+          <label for="phone">{p.phone}</label>
+          <br />
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            inputmode="tel"
+            maxlength="40"
+            value={value('phone', tailor.phone_e164)}
+            disabled={!editable}
+          />
+        </p>
+      </>
+    )}
+    {editable && (
+      <p>
+        <button type="submit">{p.save}</button>
+      </p>
+    )}
+  </form>
+</PortalLayout>

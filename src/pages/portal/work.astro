@@ -1,0 +1,80 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Flash from '../../components/admin/Flash.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { readForm } from '../../modules/http/body';
+import { requireTailor } from '../../modules/portal/require';
+import { saveWork, workView } from '../../modules/portal/work';
+
+const auth = await requireTailor(Astro);
+if (auth instanceof Response) return auth;
+const p = en.portal;
+const { DB } = requireBindings(env);
+let message = '';
+let kind: 'success' | 'problem' = 'success';
+if (Astro.request.method === 'POST') {
+  const { form, tooLarge } = await readForm(Astro.request);
+  if (tooLarge) return new Response('Payload too large', { status: 413 });
+  const result = await saveWork(DB, auth, form);
+  if (result.ok) return Astro.redirect('/portal/work?saved=1', 303);
+  kind = 'problem';
+  message = result.error === 'locked' ? p.locked : p.invalid;
+  Astro.response.status = result.error === 'locked' ? 403 : 422;
+} else if (Astro.url.searchParams.get('saved') === '1') message = p.saved;
+const view = await workView(DB, auth.tailorId);
+---
+
+<PortalLayout title={p.workHeading} auth={auth}>
+  <h1>{p.workHeading}</h1>
+  <p>{p.workIntro}</p>
+  {message && <Flash message={message} kind={kind} />}
+  <form method="post">
+    <fieldset>
+      <legend>{p.workTypes}</legend>
+      {view.categories.length === 0 && <p>{p.workNone}</p>}
+      {view.categories.map((c) => (
+        <p>
+          <label>
+            <input
+              type="checkbox"
+              name={`cat_${c.id}`}
+              checked={view.chosen.has(c.id)}
+            />{' '}
+            {c.name}
+          </label>
+        </p>
+      ))}
+    </fieldset>
+    <fieldset>
+      <legend>{p.workAreas}</legend>
+      {view.areas.length === 0 && <p>{p.workNone}</p>}
+      {view.areas.map((a) => (
+        <p>
+          <strong>{a.name}</strong>:
+          <label>
+            <input
+              type="checkbox"
+              name={`shop_${a.id}`}
+              checked={view.shop.has(a.id)}
+            />{' '}
+            {p.workShop}
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name={`serves_${a.id}`}
+              checked={view.serves.has(a.id)}
+            />{' '}
+            {p.workServes}
+          </label>
+        </p>
+      ))}
+    </fieldset>
+    <p>
+      <button type="submit">{p.save}</button>
+    </p>
+  </form>
+</PortalLayout>

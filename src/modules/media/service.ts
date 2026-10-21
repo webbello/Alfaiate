@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { audit } from '../auth/audit';
+import { audit, who, type Actor } from '../auth/audit';
 import { can } from '../auth/permissions';
 import { canEdit, getTailor } from '../tailors/repo';
 import { isRealDate } from '../tailors/schemas';
@@ -43,7 +43,7 @@ async function ownsImage(b: MediaBindings, tailorId: number, imageId: number) {
 
 export async function uploadPhoto(
   b: MediaBindings,
-  actorId: number,
+  actorId: Actor,
   role: string,
   tailorId: number,
   input: {
@@ -60,7 +60,7 @@ export async function uploadPhoto(
 /** Runs a guarded change to one image and audits it. */
 async function change(
   b: MediaBindings,
-  actorId: number,
+  actorId: Actor,
   role: string,
   tailorId: number,
   imageId: number,
@@ -74,7 +74,7 @@ async function change(
   const result = await run();
   if (!result.ok) return result;
   await audit(b.DB, {
-    userId: actorId,
+    ...who(actorId),
     action: 'image_changed',
     entityType: 'portfolio_image',
     entityId: imageId,
@@ -85,7 +85,7 @@ async function change(
 
 export function updateDetails(
   b: MediaBindings,
-  actorId: number,
+  actorId: Actor,
   role: string,
   tailorId: number,
   imageId: number,
@@ -105,7 +105,7 @@ export function updateDetails(
 
 export function setOrder(
   b: MediaBindings,
-  actorId: number,
+  actorId: Actor,
   role: string,
   tailorId: number,
   imageId: number,
@@ -124,7 +124,7 @@ export function setOrder(
 
 export function setVisibility(
   b: MediaBindings,
-  actorId: number,
+  actorId: Actor,
   role: string,
   tailorId: number,
   imageId: number,
@@ -151,7 +151,7 @@ export function setVisibility(
 /** Whether the tailor has allowed this photo to be shown (BR-06). Managers and owners only; applies to the public bucket at once. */
 export async function setImagePermission(
   b: MediaBindings,
-  actorId: number,
+  actorId: Actor,
   role: string,
   tailorId: number,
   imageId: number,
@@ -171,7 +171,7 @@ export async function setImagePermission(
     .bind(input.granted ? 1 : 0, input.granted ? date : null, imageId)
     .run();
   await audit(b.DB, {
-    userId: actorId,
+    ...who(actorId),
     action: 'image_changed',
     entityType: 'portfolio_image',
     entityId: imageId,
@@ -182,7 +182,7 @@ export async function setImagePermission(
 
 export async function setProfilePhoto(
   b: MediaBindings,
-  actorId: number,
+  actorId: Actor,
   role: string,
   tailorId: number,
   imageId: number,
@@ -199,7 +199,7 @@ export async function setProfilePhoto(
     .bind(imageId, tailorId)
     .run();
   await audit(b.DB, {
-    userId: actorId,
+    ...who(actorId),
     action: 'tailor_updated',
     entityType: 'tailor',
     entityId: tailorId,
@@ -209,7 +209,7 @@ export async function setProfilePhoto(
 
 export async function removePhoto(
   b: MediaBindings,
-  actorId: number,
+  actorId: Actor,
   role: string,
   tailorId: number,
   imageId: number,

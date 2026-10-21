@@ -1,4 +1,4 @@
-import { audit } from '../auth/audit';
+import { audit, who, type Actor } from '../auth/audit';
 import { can } from '../auth/permissions';
 import { canEdit, getTailor } from './repo';
 import { isRealDate } from './schemas';
@@ -92,7 +92,7 @@ async function editable(
 /** Replaces the tailor's category set. Prices come in as dollars and are stored as cents; "verified" is a manager-only claim (BR-11). */
 export async function setCategories(
   db: D1Database,
-  actorId: number,
+  actorId: Actor,
   role: string,
   tailorId: number,
   entries: CategoryEntry[],
@@ -171,7 +171,7 @@ export async function setCategories(
   );
   await db.batch(statements);
   await audit(db, {
-    userId: actorId,
+    ...who(actorId),
     action: 'tailor_updated',
     entityType: 'tailor',
     entityId: tailorId,
@@ -182,7 +182,7 @@ export async function setCategories(
 /** Replaces the tailor's shop-location and served-area links. */
 export async function setAreas(
   db: D1Database,
-  actorId: number,
+  actorId: Actor,
   role: string,
   tailorId: number,
   entries: AreaEntry[],
@@ -226,7 +226,7 @@ export async function setAreas(
     ),
   ]);
   await audit(db, {
-    userId: actorId,
+    ...who(actorId),
     action: 'tailor_updated',
     entityType: 'tailor',
     entityId: tailorId,

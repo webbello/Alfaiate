@@ -54,7 +54,15 @@ describe('photos section on the tailor page', () => {
       new Request(`https://example.test${src}`),
     );
     expect(script.status).toBe(200);
-    const code = await script.text();
+    let code = await script.text();
+    // The upload code is shared with the tailor portal, so the page script may only import it from a shared chunk: follow that import.
+    const chunk = /^import"\.\/([^"]+)";?$/.exec(code.trim())?.[1];
+    if (chunk) {
+      const dir = src!.slice(0, src!.lastIndexOf('/') + 1);
+      code = await (
+        await worker.fetch(new Request(`https://example.test${dir}${chunk}`))
+      ).text();
+    }
     expect(code).toContain('toBlob'); // pictures are redrawn on a canvas, which drops metadata
     expect(code).not.toContain('innerHTML');
   });

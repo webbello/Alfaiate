@@ -1,4 +1,4 @@
-import { audit } from '../auth/audit';
+import { audit, who, type Actor } from '../auth/audit';
 import { can } from '../auth/permissions';
 import { uniqueSlug } from '../db/unique-slug';
 import {
@@ -133,7 +133,7 @@ export async function listTailors(
 
 export async function createDraft(
   db: D1Database,
-  actorId: number,
+  actorId: Actor,
   input: ProfileInput,
 ): Promise<CreateResult> {
   const parsed = createSchema.safeParse(input);
@@ -163,7 +163,7 @@ export async function createDraft(
     .run();
   const id = created.meta.last_row_id;
   await audit(db, {
-    userId: actorId,
+    ...who(actorId),
     action: 'tailor_created',
     entityType: 'tailor',
     entityId: id,
@@ -173,7 +173,7 @@ export async function createDraft(
 
 export async function updateProfile(
   db: D1Database,
-  actorId: number,
+  actorId: Actor,
   role: string,
   id: number,
   input: ProfileInput,
@@ -247,7 +247,7 @@ export async function updateProfile(
     if (written.meta.changes === 0) return { ok: false, error: 'conflict' };
   }
   await audit(db, {
-    userId: actorId,
+    ...who(actorId),
     action: 'tailor_updated',
     entityType: 'tailor',
     entityId: id,

@@ -17,17 +17,17 @@ Order and reasons are in [plan-tailor-portal.md](plan-tailor-portal.md). Require
   - Verify: integration tests (accept flow, bad or used token, redirects by role, both 403 directions, headers); e2e keyboard path and axe on the accept page and shell; mutation check on the role redirect and the 403s.
   - Files: `src/pages/portal/accept.astro`, `src/pages/portal/index.astro`, `src/layouts/PortalLayout.astro`, `src/modules/portal/consent.ts`, `src/pages/admin/login.astro`, `src/middleware.ts` (headers only), tests
 
-- [ ] **S4 Profile edit**
+- [x] **S4 Profile edit**
   - Acceptance: `/portal/profile` edits display name, description, shop address, languages, home visits, price note (labelled tailor-supplied) and, before publish only, WhatsApp and phone; the tailor id comes from the session; extra fields (`slug`, `status`, `is_published`, `permission_recorded`, `verified_fields`, fee fields, `tailor_id`) are ignored; edits are audited with the tailor as actor; existing `profileFromForm` validation and error messages are reused.
   - Verify: workers tests for the allow-list and scoping; integration tests (own record only, tampered ids ignored, published tailor cannot change numbers); axe and keyboard e2e; mutation checks on scoping and on the allow-list.
   - Files: `src/modules/portal/profile.ts`, `src/pages/portal/profile.astro`, `src/pages/portal/profile/save.ts`, tests
 
-- [ ] **S5 Work categories and areas**
+- [x] **S5 Work categories and areas**
   - Acceptance: `/portal/work` (or a section of the profile) lets the tailor tick active categories and active areas (shop location and "I travel to"), reusing the catalog tick logic; only active catalog entries are accepted; prices stay out of the portal in this slice (price note only).
   - Verify: workers tests (inactive or unknown ids refused, other tailors' links untouched); integration and e2e as S4.
   - Files: `src/modules/portal/work.ts`, `src/pages/portal/work.astro`, handler, tests
 
-- [ ] **S6 Photos**
+- [x] **S6 Photos**
   - Acceptance: `/portal/photos` uploads, describes (alt text required), orders, hides and deletes the tailor's own photos through the existing media service with its validation, variants and limit; each upload records the tailor's confirmation that the photo may be shown (per-image permission); new photos are `is_visible = 0` and are never served from the public path until an admin shows them in `/admin/tailors/[id]/images`; rate limit per tailor.
   - Verify: workers tests (hidden by default, own photos only, limit, bad type or size refused); integration tests (hidden photo returns 404 publicly, 200 after an admin shows it; tailor cannot touch another tailor's image id); e2e upload with a fake image and axe; mutation checks on hidden-by-default and ownership.
   - Files: `src/modules/portal/photos.ts`, `src/pages/portal/photos.astro`, handlers, tests

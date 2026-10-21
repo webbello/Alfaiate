@@ -71,6 +71,10 @@ async function handle(form: HTMLFormElement, event: SubmitEvent) {
         name,
         (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '',
       );
+    // The tailor portal asks the tailor to confirm the photo may be shown; a ticked box is sent, an unticked one is simply absent.
+    const confirm = form.elements.namedItem('confirm');
+    if (confirm instanceof HTMLInputElement && confirm.checked)
+      body.set('confirm', 'yes');
     for (const name of Object.keys(VARIANT_WIDTHS) as VariantName[]) {
       body.set(
         name,
