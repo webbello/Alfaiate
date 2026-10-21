@@ -1,0 +1,76 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import { z } from 'zod';
+import Flash from '../../components/admin/Flash.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { readForm } from '../../modules/http/body';
+import { portalLogin } from '../../modules/portal/login';
+import { TAILOR_COOKIE } from '../../modules/portal/session';
+
+const p = en.portal;
+const schema = z.object({
+  email: z.string().trim().max(254),
+  password: z.string().max(1024),
+});
+let email = '';
+let message = '';
+if (Astro.request.method === 'POST') {
+  const parsed = schema.safeParse(
+    Object.fromEntries((await readForm(Astro.request)).form),
+  );
+  email = parsed.success ? parsed.data.email : '';
+  const result = parsed.success
+    ? await portalLogin(requireBindings(env).DB, {
+        ...parsed.data,
+        ip: Astro.request.headers.get('cf-connecting-ip') ?? undefined,
+        previousToken: Astro.cookies.get(TAILOR_COOKIE)?.value,
+      })
+    : { ok: false as const, limited: false };
+  if (result.ok) {
+    Astro.cookies.set(TAILOR_COOKIE, result.token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      path: '/',
+      expires: result.expiresAt,
+    });
+    return Astro.redirect('/portal', 303);
+  }
+  message = result.limited ? p.signInLimited : p.signInFailed;
+  Astro.response.status = result.limited ? 429 : 401;
+}
+---
+
+<PortalLayout title={p.signInHeading}>
+  <h1>{p.signInHeading}</h1>
+  {message && <Flash message={message} kind="problem" />}
+  <form method="post">
+    <p>
+      <label for="email">{p.email}</label>
+      <br />
+      <input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="username"
+        required
+        value={email}
+      />
+    </p>
+    <p>
+      <label for="password">{p.password}</label>
+      <br />
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="current-password"
+        required
+      />
+    </p>
+    <button type="submit">{p.signIn}</button>
+  </form>
+</PortalLayout>

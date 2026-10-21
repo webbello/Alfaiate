@@ -12,7 +12,7 @@ Order and reasons are in [plan-tailor-portal.md](plan-tailor-portal.md). Require
   - Verify: workers tests (single use, expiry, hashed at rest, re-issue invalidates, idempotent approval, one tailor and one account per approval); integration test for the admin routes with CSRF, permission and the AC-09 matrix entries; mutation checks (reuse allowed, expiry ignored, plain token stored) seen failing.
   - Files: `src/modules/auth/invite.ts`, `src/modules/portal/approve.ts`, `src/pages/admin/interest.astro`, `src/pages/admin/interest/[id]/approve.ts`, `decline.ts`, `reissue.ts`, `src/modules/auth/admin-routes.ts`, tests
 
-- [ ] **S2 Sign-in, accept page and portal shell**
+- [x] **S2 Sign-in, accept page and portal shell**  _(a staff cookie or tailor cookie on the other side's pages redirects to that side's sign-in instead of a 403: the two sessions are different tables)_
   - Acceptance: `/portal/accept?token=` sets email and password (existing rules and lockout), records the permission-to-publish consent (wording version, time) and signs the tailor in; the shared login sends tailors to `/portal` and staff to `/admin`; `/portal` shows a shell with account menu and sign out; `/admin/*` returns 403 to a tailor and `/portal/*` returns 403 to staff; portal pages are `noindex`, `no-store`, CSP unchanged.
   - Verify: integration tests (accept flow, bad or used token, redirects by role, both 403 directions, headers); e2e keyboard path and axe on the accept page and shell; mutation check on the role redirect and the 403s.
   - Files: `src/pages/portal/accept.astro`, `src/pages/portal/index.astro`, `src/layouts/PortalLayout.astro`, `src/modules/portal/consent.ts`, `src/pages/admin/login.astro`, `src/middleware.ts` (headers only), tests

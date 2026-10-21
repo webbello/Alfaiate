@@ -1,4 +1,4 @@
-// Security headers for every response (SEC-08) and indexing/caching rules for /admin (SEC-06).
+// Security headers for every response (SEC-08) and indexing/caching rules for /admin and the tailor portal /portal (SEC-06).
 const CSP = [
   "default-src 'self'",
   "img-src 'self'",
@@ -10,7 +10,7 @@ const CSP = [
   "frame-ancestors 'none'",
 ].join('; ');
 
-function isAdminPath(pathname: string): boolean {
+function isPrivatePath(pathname: string): boolean {
   let path = pathname;
   try {
     path = decodeURIComponent(pathname); // the router decodes %61dmin, so this must too
@@ -18,7 +18,7 @@ function isAdminPath(pathname: string): boolean {
     // an undecodable path cannot match a route; fall through with the raw value
   }
   path = path.toLowerCase();
-  return path === '/admin' || path.startsWith('/admin/');
+  return ['/admin', '/portal'].some((p) => path === p || path.startsWith(`${p}/`));
 }
 
 /** Returns a copy with the headers applied (the original may have immutable headers, e.g. a redirect). */
@@ -38,7 +38,7 @@ export function applySecurityHeaders(
     'Permissions-Policy',
     'camera=(), microphone=(), geolocation=(), payment=()',
   );
-  const admin = isAdminPath(pathname);
+  const admin = isPrivatePath(pathname);
   // /admin is never indexed; when the whole site is not indexable (staging) nothing is.
   if (admin || !indexable) h.set('X-Robots-Tag', 'noindex, nofollow');
   // Admin pages, and anything that sets a cookie (a session) whatever its path, must not be cached.

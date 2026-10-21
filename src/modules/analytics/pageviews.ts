@@ -4,7 +4,7 @@ import { diliDay, addDays } from '../referral/dates';
 // shortcut: one D1 write per counted visit is fine for the pilot; batch in memory or move to Workers Analytics Engine if traffic passes about 50,000 visits a day.
 
 const BOT = /bot|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|monitor|curl|wget|python|node-fetch|go-http|axios|httpclient|scrapy/i;
-const SKIP_PREFIX = ['/admin', '/api/', '/media/', '/_astro', '/fonts/', '/images/', '/icons.svg', '/robots.txt', '/sitemap', '/favicon'];
+const SKIP_PREFIX = ['/admin', '/portal', '/api/', '/media/', '/_astro', '/fonts/', '/images/', '/icons.svg', '/robots.txt', '/sitemap', '/favicon'];
 
 /** Whole domains only, so `google.evil.com` or `x.evil.com` cannot pass as a search engine or social site. */
 const SEARCH = /^(.+\.)?(google|bing|duckduckgo|yahoo|yandex|ecosia|baidu)\.[a-z]{2,3}(\.[a-z]{2})?$/;

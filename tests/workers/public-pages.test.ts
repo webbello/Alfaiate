@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 // Scope guard for the public site: a page that is not planned cannot appear unnoticed.
 const files = Object.keys(import.meta.glob('../../src/pages/**/*.{astro,ts}'))
   .map((p) => p.split('/src/pages/')[1])
-  .filter((p) => !p.startsWith('admin/'))
+  .filter((p) => !p.startsWith('admin/') && !p.startsWith('portal/')) // the tailor portal is private: see portal-route-inventory.test.ts
   .sort();
 
 describe('public routes (scope guard)', () => {

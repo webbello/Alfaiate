@@ -11,6 +11,8 @@ const PATHS = [
   '/tet/join',
   '/contact',
   '/services',
+  '/portal/login',
+  '/portal/accept?token=invalid',
   '/craft',
   '/business',
   '/tailors?q=a',

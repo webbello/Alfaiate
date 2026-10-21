@@ -11,6 +11,8 @@ const PATHS = [
   '/join',
   '/contact',
   '/services',
+  '/portal/login',
+  '/portal/accept?token=invalid',
   '/craft',
   '/business',
   '/newsletter',

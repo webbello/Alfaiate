@@ -1,0 +1,113 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Flash from '../../components/admin/Flash.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { readForm } from '../../modules/http/body';
+import { acceptInvite } from '../../modules/portal/accept';
+import { lookupInvite } from '../../modules/portal/invite';
+import { TAILOR_COOKIE } from '../../modules/portal/session';
+
+const p = en.portal;
+const { DB } = requireBindings(env);
+const post = Astro.request.method === 'POST';
+const form = post ? (await readForm(Astro.request)).form : null;
+const token = (form?.get('token') ?? Astro.url.searchParams.get('token') ?? '')
+  .toString()
+  .slice(0, 200);
+let email = form?.get('email')?.toString() ?? '';
+let message = '';
+if (post && form) {
+  const result = await acceptInvite(DB, {
+    token,
+    email,
+    password: form.get('password')?.toString() ?? '',
+    consent: form.get('consent')?.toString() ?? '',
+    ip: Astro.request.headers.get('cf-connecting-ip') ?? undefined,
+  });
+  if (result.ok) {
+    Astro.cookies.set(TAILOR_COOKIE, result.token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      path: '/',
+      expires: result.expiresAt,
+    });
+    return Astro.redirect('/portal', 303);
+  }
+  message = {
+    invalid_link: p.invalidLink,
+    email: p.badEmail,
+    password: p.badPassword,
+    consent: p.needConsent,
+    email_taken: p.emailTaken,
+    limited: p.signInLimited,
+  }[result.error];
+  Astro.response.status =
+    result.error === 'limited'
+      ? 429
+      : result.error === 'invalid_link'
+        ? 410
+        : 422;
+}
+const info = await lookupInvite(DB, token);
+const usable = info !== null;
+if (!usable && !message) Astro.response.status = 410;
+---
+
+<PortalLayout title={p.acceptHeading}>
+  {usable ? (
+    <>
+      <h1>{p.acceptHeading}</h1>
+      <p>{p.acceptIntro}</p>
+      {message && <Flash message={message} kind="problem" />}
+      <form method="post">
+        <input type="hidden" name="token" value={token} />
+        <p>
+          <label for="email">{p.email}</label>
+          <br />
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="username"
+            required
+            value={email}
+          />
+        </p>
+        <p>
+          <label for="password">{p.newPassword}</label>
+          <br />
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="new-password"
+            minlength="12"
+            required
+          />
+        </p>
+        <fieldset>
+          <legend>{p.consentLegend}</legend>
+          <label>
+            <input type="checkbox" name="consent" value="yes" required />
+            {p.consent}
+          </label>
+        </fieldset>
+        <p>
+          <button type="submit">{p.accept}</button>
+        </p>
+      </form>
+    </>
+  ) : (
+    <>
+      <h1>{p.invalidLinkHeading}</h1>
+      <p>{p.invalidLink}</p>
+      <p>
+        <a href="/portal/login">{p.signIn}</a>
+      </p>
+    </>
+  )}
+</PortalLayout>

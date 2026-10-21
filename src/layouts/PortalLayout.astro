@@ -1,0 +1,66 @@
+---
+import '../styles/admin.css';
+import { en } from '../i18n/en';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** The signed-in tailor. Left out for the sign-in and accept pages, which get a small centred card. */
+  auth?: { email: string; csrfToken: string };
+}
+const { title, description = title, auth } = Astro.props;
+const p = en.portal;
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/portal';
+const links = [{ href: '/portal', label: p.overview }];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · {p.brand}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex,nofollow" />
+  </head>
+  <body>
+    {auth ? (
+      <>
+        <a class="skip-link" href="#main">
+          Skip to main content
+        </a>
+        <header class="admin-header">
+          <div class="admin-header__inner">
+            <a class="admin-brand" href="/portal">
+              {p.brand}
+            </a>
+            <nav class="admin-nav" aria-label="Your page">
+              {links.map((l) => (
+                <a
+                  href={l.href}
+                  aria-current={l.href === path ? 'page' : undefined}
+                >
+                  {l.label}
+                </a>
+              ))}
+            </nav>
+            <div class="admin-user">
+              <span>{auth.email}</span>
+              <form method="post" action="/portal/logout">
+                <input type="hidden" name="csrf" value={auth.csrfToken} />
+                <button type="submit">{p.signOut}</button>
+              </form>
+            </div>
+          </div>
+        </header>
+        <main id="main" class="admin-main">
+          <slot />
+        </main>
+      </>
+    ) : (
+      <main class="admin-card-page">
+        <slot />
+      </main>
+    )}
+  </body>
+</html>

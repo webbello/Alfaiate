@@ -1,0 +1,33 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { requireTailor } from '../../modules/portal/require';
+
+const auth = await requireTailor(Astro);
+if (auth instanceof Response) return auth;
+const p = en.portal;
+// The tailor id comes from the session only.
+const tailor = await requireBindings(env)
+  .DB.prepare(
+    'SELECT display_name, status, is_published FROM tailor WHERE id = ?',
+  )
+  .bind(auth.tailorId)
+  .first<{ display_name: string; status: string; is_published: number }>();
+if (!tailor) return new Response('Not found', { status: 404 });
+const status =
+  tailor.is_published === 1
+    ? p.statusLive
+    : tailor.status === 'draft'
+      ? p.statusDraft
+      : p.statusPaused;
+---
+
+<PortalLayout title={p.title} auth={auth}>
+  <h1>
+    {p.welcome}, {tailor.display_name}
+  </h1>
+  <p>{status}</p>
+</PortalLayout>
