@@ -36,6 +36,10 @@ describe('shouldCount (ANA-01)', () => {
     expect(shouldCount(req({ dnt: '1' }), '/', 200, html)).toBe(false);
     expect(shouldCount(req({ 'sec-gpc': '1' }), '/', 200, html)).toBe(false);
   });
+  it('sees through an encoded admin prefix and refuses a broken encoding', () => {
+    expect(shouldCount(req(), '/%61dmin/login', 200, html)).toBe(false);
+    expect(shouldCount(req(), '/%E0%A4%A', 200, html)).toBe(false);
+  });
   it('ignores very long paths', () => {
     expect(shouldCount(req(), '/' + 'a'.repeat(130), 200, html)).toBe(false);
   });
@@ -49,7 +53,11 @@ describe('referrerBucket', () => {
     expect(referrerBucket('https://www.google.com/search?q=secret', host)).toBe('search');
     expect(referrerBucket('https://l.facebook.com/l.php?u=1', host)).toBe('social');
     expect(referrerBucket('https://alfaiate.example/tailors', host)).toBe('internal');
-    expect(referrerBucket('https://blog.example.org/post?id=3', host)).toBe('blog.example.org');
+    expect(referrerBucket('https://blog.example.org/post?id=3', host)).toBe('other');
+    expect(referrerBucket('https://google.evil.com/', host)).toBe('other');
+    expect(referrerBucket('https://x.evil.com/', host)).toBe('other');
+    expect(referrerBucket('https://www.google.com.tl/', host)).toBe('search');
+    expect(referrerBucket('https://m.facebook.com/', host)).toBe('social');
   });
 });
 
@@ -58,7 +66,7 @@ describe('recordPageView and trafficSummary', () => {
   it('adds up visits per day, path and source, and summarises the window', async () => {
     await recordPageView(db, { pathname: '/pv-a/', referrer: 'search', now });
     await recordPageView(db, { pathname: '/pv-a', referrer: 'search', now });
-    await recordPageView(db, { pathname: '/pv-a', referrer: 'direct', now });
+    await recordPageView(db, { pathname: '/PV%2Da', referrer: 'direct', now });
     await recordPageView(db, { pathname: '/pv-b', referrer: 'internal', now });
     await recordPageView(db, { pathname: '/pv-old', referrer: 'direct', now: new Date('2026-04-01T09:00:00.000Z') });
     const t = await trafficSummary(db, 30, now);

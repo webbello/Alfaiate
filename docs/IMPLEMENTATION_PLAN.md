@@ -134,7 +134,7 @@ No web fonts, no third-party requests; JavaScript only on a profile with contact
 |---|---|
 | FR-ADM-01, SEC-01/02/03/06/08/09 | 2 |
 | FR-ADM-02/03/04/05/08, FR-REF-08 | 3 |
-| FR-PUB-*, FR-DIR-*, FR-PRO-*, ANA-01/02 | 4 |
+| FR-PUB-*, FR-DIR-*, FR-PRO-*, ANA-01/02 | 4 (ANA-01 page-view counts added in launch preparation) |
 | FR-ENQ-*, FR-ADM-06/07, SEC-05/07, PRV-01/02/03 | 5 |
 | FR-REF-01–07, FR-RPT-*, ANA-03/04/05 | 6 (ANA-03 funnel counts were left out of 5 and 6) |
 | NFR-*, SEC-04 (3), PRV-04/05, FR-ADM-09 (anonymise only) | 7 |

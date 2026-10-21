@@ -283,7 +283,7 @@ Criteria are testable statements; full test mapping is in the implementation pla
 
 ## 13. Analytics and reporting requirements
 
-- **ANA-01** Aggregate, cookieless page analytics (or server-log aggregation) for visits to home, directory, profile, request form.
+- **ANA-01** Aggregate, cookieless page analytics (or server-log aggregation) for visits to public pages (implemented as `page_view_daily`; bots, Do Not Track and Global Privacy Control are not counted).
 - **ANA-02** Count events for WhatsApp/call link taps per tailor (no visitor identity). These are intent signals, not confirmed contacts.
 - **ANA-03** Form funnel counts: form viewed, submitted, failed validation.
 - **ANA-04** Admin dashboard per FR-RPT-01/02, with every manually-sourced figure labelled "reported".

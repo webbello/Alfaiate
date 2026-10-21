@@ -1,4 +1,4 @@
--- Phase 8 prep: cookie-free visit counts for the owner (ANA-01). One row per Dili day, public page, language and referring site, with a count.
+-- Phase 8 prep: cookie-free visit counts for the owner (ANA-01). One row per Dili Dili day, public page (a Tetum page has its own path) and referring group, with a count.
 -- No IP address, no user agent, no cookie, no visitor id: nothing here can identify a person. Visits from bots and from browsers that send
 -- Do Not Track or Global Privacy Control are not counted.
 CREATE TABLE page_view_daily (
