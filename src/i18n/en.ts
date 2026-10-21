@@ -14,6 +14,7 @@ export const en = {
   adminNavDashboard: 'Dashboard',
   adminNavAccount: 'My account',
   adminNavInterest: 'Tailor interest',
+  adminNavTraffic: 'Traffic',
   adminNavNewsletter: 'Newsletter',
   adminNavTailors: 'Tailors',
   tailorListHeading: 'Tailors',

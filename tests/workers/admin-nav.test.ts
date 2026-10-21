@@ -13,6 +13,7 @@ describe('navLinks (the header bar of every admin page)', () => {
       'categories',
       'areas',
       'interest',
+      'traffic',
       'newsletter',
       'users',
       'account',
@@ -24,6 +25,7 @@ describe('navLinks (the header bar of every admin page)', () => {
       'categories',
       'areas',
       'interest',
+      'traffic',
       'account',
     ]);
     expect(keys('editor')).toEqual([

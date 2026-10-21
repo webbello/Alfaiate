@@ -8,6 +8,7 @@ export type NavKey =
   | 'categories'
   | 'areas'
   | 'interest'
+  | 'traffic'
   | 'newsletter'
   | 'users'
   | 'account';
@@ -54,6 +55,12 @@ const ALL: NavLink[] = [
     key: 'interest',
     href: '/admin/interest',
     label: en.adminNavInterest,
+    permission: 'enquiry.view',
+  },
+  {
+    key: 'traffic',
+    href: '/admin/traffic',
+    label: en.adminNavTraffic,
     permission: 'enquiry.view',
   },
   {

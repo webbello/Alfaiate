@@ -39,6 +39,7 @@ test('every admin page passes axe (WCAG 2.2 AA)', async ({ page }) => {
     enquiryHref!,
     '/admin/users',
     '/admin/interest',
+    '/admin/traffic',
     '/admin/newsletter',
   ];
   const problems: string[] = [];

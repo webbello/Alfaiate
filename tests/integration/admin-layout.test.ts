@@ -33,10 +33,11 @@ describe('the admin header bar', () => {
         '/admin/categories',
         '/admin/areas',
         '/admin/interest',
+        '/admin/traffic',
         '/admin/newsletter',
         '/admin/users',
         '/admin/account',
-      ]); // brand + 9 links
+      ]); // brand + 10 links
       expect(header, label).toContain('action="/admin/logout"');
       expect(header, label).toContain('name="csrf"');
       expect(header, label).toMatch(/\(owner\)/);
@@ -85,6 +86,7 @@ describe('the admin header bar', () => {
       '/admin/categories',
       '/admin/areas',
       '/admin/interest',
+      '/admin/traffic',
       '/admin/account',
     ]);
     expect(await hrefs('editor')).toEqual([

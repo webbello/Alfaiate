@@ -1,6 +1,11 @@
 import { defineMiddleware } from 'astro:middleware';
-import { env } from 'cloudflare:workers';
+import { env, waitUntil } from 'cloudflare:workers';
 import { isEnabled, parsePath } from './i18n/lang';
+import {
+  recordPageView,
+  referrerBucket,
+  shouldCount,
+} from './modules/analytics/pageviews';
 import { applySecurityHeaders } from './modules/auth/headers';
 import { siteConfig } from './modules/config';
 
@@ -15,5 +20,25 @@ export const onRequest = defineMiddleware(async (context, next) => {
       indexable,
     );
   }
-  return applySecurityHeaders(await next(), pathname, indexable);
+  const response = await next();
+  // Cookie-free visit count (ANA-01): after the response, never blocks or breaks a page.
+  if (
+    shouldCount(
+      context.request,
+      pathname,
+      response.status,
+      response.headers.get('content-type'),
+    )
+  ) {
+    waitUntil(
+      recordPageView(env.DB, {
+        pathname,
+        referrer: referrerBucket(
+          context.request.headers.get('referer'),
+          context.url.hostname,
+        ),
+      }),
+    );
+  }
+  return applySecurityHeaders(response, pathname, indexable);
 });

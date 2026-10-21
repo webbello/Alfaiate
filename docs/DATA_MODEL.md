@@ -175,6 +175,7 @@ No customer or tailor identities exist. First owner is created by a seed script;
 
 ### 3.12 Aggregates and operational tables
 
+- `page_view_daily` (`day`, `path`, `referrer`, `count`; migration `0006_page_views.sql`) — cookie-free visit counts by Dili day, public page and referring group (`direct`, `internal`, `search`, `social` or a host name), no address, device or visitor id; bots and Do Not Track / Global Privacy Control visits are not counted (ANA-01). Public: no.
 - `contact_click_daily` (`tailor_id`, `channel`, `date`, `count`) — aggregate counts only, no visitor data (ANA-02, PRV-05). Public: no.
 - `rate_limit` (key hash, window, count) — transient; may live in memory instead.
 - Reports (FR-RPT) are computed by queries, not stored.
@@ -201,7 +202,7 @@ Index: `tailor(slug)`, `tailor(is_published, status)`, joins by FK, `enquiry(sta
 
 ## 8. Requirement coverage
 
-FR-PRO-* → tailor, tailor_category, tailor_area, portfolio_image · FR-ENQ-* → enquiry · FR-ADM-* → all admin tables · FR-REF-* → referral, tailor fee terms · FR-RPT-* → computed from enquiry, status_log, referral · SEC-05/BR-07 → public/private split · ANA-02 → contact_click_daily.
+FR-PRO-* → tailor, tailor_category, tailor_area, portfolio_image · FR-ENQ-* → enquiry · FR-ADM-* → all admin tables · FR-REF-* → referral, tailor fee terms · FR-RPT-* → computed from enquiry, status_log, referral · SEC-05/BR-07 → public/private split · ANA-01 → page_view_daily · ANA-02 → contact_click_daily.
 
 ## 9. As implemented in migrations (`migrations/0001`, `0002`, and `0003` from Phase 7c)
 

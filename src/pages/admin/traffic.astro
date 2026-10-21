@@ -1,0 +1,84 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import StatCard from '../../components/admin/StatCard.astro';
+import EmptyState from '../../components/admin/EmptyState.astro';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { requirePermission } from '../../modules/auth/require';
+import { trafficSummary } from '../../modules/analytics/pageviews';
+import { addDays, diliDay, diliDayStartUtc } from '../../modules/referral/dates';
+
+const auth = await requirePermission(Astro, 'enquiry.view');
+if (auth instanceof Response) return auth;
+
+const db = requireBindings(env).DB;
+const days = 30;
+const t = await trafficSummary(db, days);
+const from = addDays(diliDay(new Date()), -(days - 1));
+const [enquiries, taps] = await db.batch<{ c: number }>([
+  db
+    .prepare('SELECT count(*) AS c FROM enquiry WHERE created_at >= ?')
+    .bind(diliDayStartUtc(from)),
+  db
+    .prepare('SELECT coalesce(sum(count), 0) AS c FROM contact_click_daily WHERE date >= ?')
+    .bind(from),
+]);
+const enquiryCount = enquiries.results[0]?.c ?? 0;
+const tapCount = taps.results[0]?.c ?? 0;
+// A rough guide only: visits are not people, and one person may send more than one request.
+const rate = t.views > 0 ? ((enquiryCount / t.views) * 100).toFixed(1) : null;
+---
+
+<AdminLayout title={en.adminNavTraffic} description={en.adminNavTraffic} auth={auth}>
+  <h1>{en.adminNavTraffic}</h1>
+  <p>
+    Visits to public pages in the last {days} days. The site sets no cookies and
+    stores no address or device details: it only counts visits by day, page and
+    the site the visitor came from. Visitors who send Do Not Track or Global
+    Privacy Control, and known bots, are not counted, so real numbers are a
+    little higher.
+  </p>
+  {t.views === 0 ? (
+    <EmptyState title="No visits yet">
+      <p>Visits appear here once people open the public pages.</p>
+    </EmptyState>
+  ) : (
+    <>
+      <div class="stat-grid">
+        <StatCard label="Page views" value={String(t.views)} />
+        <StatCard label="Requests sent" value={String(enquiryCount)} />
+        <StatCard label="Contact taps" value={String(tapCount)} />
+        <StatCard label="Requests per 100 views" value={rate ?? '–'} />
+      </div>
+      <h2>Where visitors came from</h2>
+      <table>
+        <thead><tr><th>Source</th><th>Views</th></tr></thead>
+        <tbody>
+          {t.sources.map((s) => (
+            <tr><td>{s.source}</td><td>{s.views}</td></tr>
+          ))}
+        </tbody>
+      </table>
+      <h2>Most viewed pages</h2>
+      <table>
+        <thead><tr><th>Page</th><th>Views</th></tr></thead>
+        <tbody>
+          {t.topPages.map((p) => (
+            <tr><td>{p.path}</td><td>{p.views}</td></tr>
+          ))}
+        </tbody>
+      </table>
+      <h2>By day</h2>
+      <table>
+        <thead><tr><th>Day</th><th>Views</th></tr></thead>
+        <tbody>
+          {t.daily.map((d) => (
+            <tr><td>{d.day}</td><td>{d.views}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  )}
+</AdminLayout>

@@ -1,0 +1,82 @@
+import { diliDay, addDays } from '../referral/dates';
+
+// First-party, cookie-free visit counts (ANA-01). Only public HTML pages are counted, by Dili day, path and referring site.
+// shortcut: one D1 write per counted visit is fine for the pilot; batch in memory or move to Workers Analytics Engine if traffic passes about 50,000 visits a day.
+
+const BOT = /bot|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|monitor|curl|wget|python|node-fetch|go-http|axios|httpclient|scrapy/i;
+const SKIP_PREFIX = ['/admin', '/api/', '/media/', '/_astro', '/fonts/', '/images/', '/icons.svg', '/robots.txt', '/sitemap', '/favicon'];
+
+/** Search engines, social networks and messaging apps, so the owner sees where visitors come from without a long list of hosts. */
+const SEARCH = /(^|\.)(google|bing|duckduckgo|yahoo|yandex|ecosia|baidu|search\.brave)\./;
+const SOCIAL = /(^|\.)(facebook|instagram|t\.co|twitter|x|youtube|tiktok|linkedin|pinterest|whatsapp|wa\.me|l\.facebook|lm\.facebook)(\.|$)/;
+
+export function shouldCount(
+  request: Request,
+  pathname: string,
+  status: number,
+  contentType: string | null,
+): boolean {
+  if (request.method !== 'GET' || status !== 200) return false;
+  if (!(contentType ?? '').startsWith('text/html')) return false;
+  if (pathname.length > 120 || SKIP_PREFIX.some((p) => pathname.startsWith(p))) return false;
+  if (request.headers.get('dnt') === '1' || request.headers.get('sec-gpc') === '1') return false;
+  const ua = request.headers.get('user-agent') ?? '';
+  return ua.length > 0 && !BOT.test(ua);
+}
+
+/** "direct", "internal", "search", "social" or the referring host (shortened): never a full address or a query string. */
+export function referrerBucket(referer: string | null, siteHost: string): string {
+  if (!referer) return 'direct';
+  let host: string;
+  try {
+    host = new URL(referer).hostname.toLowerCase();
+  } catch {
+    return 'direct';
+  }
+  if (host === siteHost) return 'internal';
+  if (SEARCH.test(host)) return 'search';
+  if (SOCIAL.test(host)) return 'social';
+  return host.slice(0, 60) || 'direct';
+}
+
+export async function recordPageView(
+  db: D1Database,
+  input: { pathname: string; referrer: string; now?: Date },
+): Promise<void> {
+  try {
+    const path = input.pathname.replace(/\/+$/, '') || '/';
+    await db
+      .prepare(
+        'INSERT INTO page_view_daily (day, path, referrer, count) VALUES (?, ?, ?, 1) ON CONFLICT (day, path, referrer) DO UPDATE SET count = count + 1',
+      )
+      .bind(diliDay(input.now ?? new Date()), path, input.referrer)
+      .run();
+  } catch {
+    // counting must never affect the page
+  }
+}
+
+export type Traffic = {
+  days: number;
+  views: number;
+  topPages: { path: string; views: number }[];
+  sources: { source: string; views: number }[];
+  daily: { day: string; views: number }[];
+};
+
+/** The last `days` Dili days including today. */
+export async function trafficSummary(db: D1Database, days = 30, now = new Date()): Promise<Traffic> {
+  const from = addDays(diliDay(now), -(days - 1));
+  const [pages, sources, daily] = await db.batch<{ path?: string; source?: string; day?: string; views: number }>([
+    db.prepare('SELECT path, sum(count) AS views FROM page_view_daily WHERE day >= ? GROUP BY path ORDER BY views DESC, path LIMIT 15').bind(from),
+    db.prepare("SELECT referrer AS source, sum(count) AS views FROM page_view_daily WHERE day >= ? AND referrer <> 'internal' GROUP BY referrer ORDER BY views DESC, referrer LIMIT 12").bind(from),
+    db.prepare('SELECT day, sum(count) AS views FROM page_view_daily WHERE day >= ? GROUP BY day ORDER BY day').bind(from),
+  ]);
+  return {
+    days,
+    views: daily.results.reduce((n, r) => n + r.views, 0),
+    topPages: pages.results.map((r) => ({ path: r.path!, views: r.views })),
+    sources: sources.results.map((r) => ({ source: r.source!, views: r.views })),
+    daily: daily.results.map((r) => ({ day: r.day!, views: r.views })),
+  };
+}

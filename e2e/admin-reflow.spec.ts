@@ -11,6 +11,7 @@ const PATHS = [
   '/admin/areas',
   '/admin/users',
   '/admin/interest',
+  '/admin/traffic',
   '/admin/account',
 ];
 
