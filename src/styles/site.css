@@ -1186,3 +1186,79 @@ a:focus-visible > .icon--arrow {
     aspect-ratio: 16 / 9;
   }
 }
+
+/* Request form, shortened (2026-10-21): why and what next up front, one card with two sections, optional detail folded away. */
+.request__intro {
+  margin: 0 0 0.75rem;
+}
+.how {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+  counter-reset: how;
+  max-width: var(--measure);
+}
+.how li {
+  counter-increment: how;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+}
+.how li::before {
+  content: counter(how);
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  text-align: center;
+  font-size: 0.85rem;
+  line-height: 1.4rem;
+}
+.request__promise {
+  margin: 0 0 1rem;
+}
+.request .step {
+  margin: 0 0 0.75rem;
+  padding: 0.75rem 1rem 0.25rem;
+}
+.request .step > legend {
+  font-size: 1.35rem;
+}
+.request .field {
+  margin: 0 0 0.9rem;
+}
+.field-row {
+  display: grid;
+  gap: 0 1rem;
+}
+@media (min-width: 40rem) {
+  .field-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.request:has(#area-other:not(:checked)) .field--other {
+  display: none;
+}
+.request .more {
+  margin: 0 0 0.9rem;
+}
+.request .more summary {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+}
+.request .more[open] summary {
+  margin-bottom: 0.5rem;
+}
+.chip-choice span {
+  padding: 0 0.85rem;
+}

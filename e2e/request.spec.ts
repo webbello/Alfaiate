@@ -22,7 +22,7 @@ test('a customer completes the request with the keyboard only and sees a referen
   await page.keyboard.type('E2E Fake Customer');
   await tabTo(page, 'phone');
   await page.keyboard.type('7712 3456');
-  await tabTo(page, 'channel-whatsapp');
+  await tabTo(page, 'channel-either'); // "Either" is ticked already; arrows would change it
   await page.keyboard.press('Space');
   await tabTo(page, 'consent');
   await page.keyboard.press('Space');
@@ -44,6 +44,7 @@ test('mistakes show a summary and field errors, keep what was typed, and pass ax
   await page
     .locator('form.request')
     .evaluate((form: HTMLFormElement) => (form.noValidate = true)); // reach the server-side messages
+  await page.getByText('Add a preferred day or more details').click();
   await page.locator('#notes').fill('keep these words');
   await page.waitForTimeout(FILL_DELAY);
   await page.getByRole('button', { name: 'Send request' }).click();

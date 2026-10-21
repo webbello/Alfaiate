@@ -98,7 +98,13 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
     values && (
       <>
         <h1>{heading}</h1>
-        <p>{intro}</p>
+        <p class="request__intro">{intro}</p>
+        <ol class="how" aria-label={r.howLabel}>
+          <li>{r.how1}</li>
+          <li>{r.how2}</li>
+          <li>{r.how3}</li>
+        </ol>
+        <p class="hint request__promise">{r.promise}</p>
         {view.tailor && (
           <p class="notice">{fill(r.fromTailor, { name: view.tailor.name })}</p>
         )}
@@ -281,7 +287,7 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
                 </p>
               )}
             </fieldset>
-            <div class="field">
+            <div class="field field--other">
               <label for="area_text">{r.areaText}</label>
               <input
                 type="text"
@@ -298,114 +304,125 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
                 </p>
               )}
             </div>
-            <div class="field">
-              <label for="when">{r.when}</label>
-              <p class="hint" id="when-hint">
-                {r.whenHint}
-              </p>
-              <input
-                type="text"
-                id="when"
-                name="when"
-                value={values.when}
-                maxlength="100"
-                aria-invalid={invalid('when')}
-                aria-describedby={describedBy('when', 'when-hint')}
-              />
-              {errors.when && (
-                <p class="error" id="when-error">
-                  {message('when')}
-                </p>
+            <details
+              class="more"
+              open={Boolean(
+                values.when || values.notes || errors.when || errors.notes,
               )}
-            </div>
-            <div class="field">
-              <label for="notes">{r.notes}</label>
-              <textarea
-                id="notes"
-                name="notes"
-                rows="4"
-                maxlength="1000"
-                aria-invalid={invalid('notes')}
-                aria-describedby={describedBy('notes')}
-              >{values.notes}</textarea>
-              {errors.notes && (
-                <p class="error" id="notes-error">
-                  {message('notes')}
+            >
+              <summary>{r.more}</summary>
+              <div class="field">
+                <label for="when">{r.when}</label>
+                <p class="hint" id="when-hint">
+                  {r.whenHint}
                 </p>
-              )}
-            </div>
+                <input
+                  type="text"
+                  id="when"
+                  name="when"
+                  value={values.when}
+                  maxlength="100"
+                  aria-invalid={invalid('when')}
+                  aria-describedby={describedBy('when', 'when-hint')}
+                />
+                {errors.when && (
+                  <p class="error" id="when-error">
+                    {message('when')}
+                  </p>
+                )}
+              </div>
+              <div class="field">
+                <label for="notes">{r.notes}</label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  rows="3"
+                  maxlength="1000"
+                  aria-invalid={invalid('notes')}
+                  aria-describedby={describedBy('notes')}
+                >{values.notes}</textarea>
+                {errors.notes && (
+                  <p class="error" id="notes-error">
+                    {message('notes')}
+                  </p>
+                )}
+              </div>
+            </details>
           </fieldset>
           <fieldset class="step">
             <legend>{r.stepTwo}</legend>
-            <div class="field">
-              <label for="name">{r.name}</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={values.name}
-                autocomplete="name"
-                maxlength="100"
-                required
-                aria-invalid={invalid('name')}
-                aria-describedby={describedBy('name')}
-              />
-              {errors.name && (
-                <p class="error" id="name-error">
-                  {message('name')}
-                </p>
-              )}
-            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="name">{r.name}</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={values.name}
+                  autocomplete="name"
+                  maxlength="100"
+                  required
+                  aria-invalid={invalid('name')}
+                  aria-describedby={describedBy('name')}
+                />
+                {errors.name && (
+                  <p class="error" id="name-error">
+                    {message('name')}
+                  </p>
+                )}
+              </div>
 
-            <div class="field">
-              <label for="phone">{r.phone}</label>
-              <p class="hint" id="phone-hint">
-                {r.phoneHint}
-              </p>
-              <input
-                type="tel"
-                inputmode="tel"
-                id="phone"
-                name="phone"
-                value={values.phone}
-                autocomplete="tel"
-                maxlength="40"
-                required
-                aria-invalid={invalid('phone')}
-                aria-describedby={describedBy('phone', 'phone-hint')}
-              />
-              {errors.phone && (
-                <p class="error" id="phone-error">
-                  {message('phone')}
+              <div class="field">
+                <label for="phone">{r.phone}</label>
+                <p class="hint" id="phone-hint">
+                  {r.phoneHint}
                 </p>
-              )}
+                <input
+                  type="tel"
+                  inputmode="tel"
+                  id="phone"
+                  name="phone"
+                  value={values.phone}
+                  autocomplete="tel"
+                  maxlength="40"
+                  required
+                  aria-invalid={invalid('phone')}
+                  aria-describedby={describedBy('phone', 'phone-hint')}
+                />
+                {errors.phone && (
+                  <p class="error" id="phone-error">
+                    {message('phone')}
+                  </p>
+                )}
+              </div>
             </div>
-
             <fieldset
               class="field"
               id="channel"
               aria-describedby={describedBy('channel')}
             >
               <legend>{r.channel}</legend>
-              {(
-                [
-                  ['whatsapp', r.channelWhatsapp],
-                  ['phone', r.channelPhone],
-                  ['either', r.channelEither],
-                ] as const
-              ).map(([value, text]) => (
-                <label class="choice" for={`channel-${value}`}>
-                  <input
-                    type="radio"
-                    id={`channel-${value}`}
-                    name="channel"
-                    value={value}
-                    checked={values.channel === value}
-                    required
-                  />
-                  {text}
-                </label>
-              ))}
+              <div class="chip-choices">
+                {(
+                  [
+                    ['whatsapp', r.channelWhatsapp],
+                    ['phone', r.channelPhone],
+                    ['either', r.channelEither],
+                  ] as const
+                ).map(([value, text]) => (
+                  <label class="chip-choice" for={`channel-${value}`}>
+                    <input
+                      type="radio"
+                      id={`channel-${value}`}
+                      name="channel"
+                      value={value}
+                      checked={(values.channel || 'either') === value}
+                      required
+                    />
+                    <span>{text}</span>
+                  </label>
+                ))}
+              </div>
               {errors.channel && (
                 <p class="error" id="channel-error">
                   {message('channel')}

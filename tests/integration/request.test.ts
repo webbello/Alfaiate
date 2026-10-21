@@ -372,20 +372,24 @@ describe('two-step layout', () => {
       .first<{ id: number }>())!.id;
     return { c, a };
   };
-  it('has two numbered steps in one form: what and where first, then who and consent', async () => {
+  it('has two short sections in one form, with no step counter: what and where first, then who and consent', async () => {
     const html = await (await get('/request')).text();
     expect(/<main[\s\S]*<\/main>/.exec(html)![0].match(/<form /g)).toHaveLength(
       1,
     );
     const [one, two] = steps(html);
-    expect(one, 'step 1').toContain('Step 1 of 2');
-    expect(two, 'step 2').toContain('Step 2 of 2');
+    expect(one, 'step 1').toContain('What do you need?');
+    expect(two, 'step 2').toContain('How can we reach you?');
+    expect(html).not.toMatch(/Step \d of \d/);
+    // why and what next are stated before the form, and only name and number are asked for
+    expect(html).toContain('What happens next');
+    expect(html).toContain('Only your name and number are needed');
     for (const name of ['category', 'service', 'area', 'when', 'notes'])
       expect(one, name).toContain(`name="${name}"`);
     for (const name of ['name', 'phone', 'channel', 'consent'])
       expect(two, name).toContain(`name="${name}"`);
     expect(html.indexOf('type="submit"')).toBeGreaterThan(
-      html.indexOf('Step 2 of 2'),
+      html.indexOf('How can we reach you?'),
     );
   });
   it('offers categories and areas as radio choices (with "not sure yet"), not as drop-down lists', async () => {
