@@ -23,10 +23,24 @@ export type AuditAction =
   | 'referral_created'
   | 'referral_updated'
   | 'referral_fee_updated'
-  | 'enquiry_anonymised';
+  | 'enquiry_anonymised'
+  | 'interest_approved'
+  | 'interest_declined'
+  | 'tailor_invite_issued'
+  | 'portal_login'
+  | 'portal_login_failed'
+  | 'portal_account_activated'
+  | 'portal_profile_updated'
+  | 'portal_work_updated'
+  | 'portal_image_uploaded'
+  | 'portal_image_changed'
+  | 'portal_image_deleted'
+  | 'portal_submitted';
 
 type Entry = {
   userId: number | null;
+  /** Set instead of `userId` when a tailor, not staff, did it. */
+  tailorAccountId?: number;
   action: AuditAction;
   entityType?: string;
   entityId?: number;
@@ -36,10 +50,11 @@ type Entry = {
 export async function audit(db: D1Database, entry: Entry): Promise<void> {
   await db
     .prepare(
-      'INSERT INTO audit_log (admin_user_id, action, entity_type, entity_id) VALUES (?, ?, ?, ?)',
+      'INSERT INTO audit_log (admin_user_id, tailor_account_id, action, entity_type, entity_id) VALUES (?, ?, ?, ?, ?)',
     )
     .bind(
       entry.userId,
+      entry.tailorAccountId ?? null,
       entry.action,
       entry.entityType ?? null,
       entry.entityId ?? null,

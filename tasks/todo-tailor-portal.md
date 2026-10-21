@@ -2,10 +2,10 @@
 
 Order and reasons are in [plan-tailor-portal.md](plan-tailor-portal.md). Requirement IDs FR-TPO-01..08 are proposed in the spec and added to the PRD in S9 (and §7.3 amended there).
 
-- [ ] **S1 Migration and tailor role**
-  - Acceptance: `migrations/0007_tailor_accounts.sql` rebuilds `admin_user` with role `tailor` and nullable unique `tailor_id` (required for tailors, null for staff), keeps all existing rows and sessions, adds `tailor_invite` (hashed token, tailor id, expires, used_at) and approval columns on `tailor_interest` (`status` pending/approved/declined, `tailor_id`, `decided_at`). `permissions.ts` gets role `tailor` with only `portal.profile` and `portal.photos`; no staff role has them; `Session` carries `tailorId`.
-  - Verify: workers tests for the permission matrix (tailor has no staff permission, staff have no portal permission, unknown denied) and for the migration on a seeded database; `npm run check`.
-  - Files: `migrations/0007_tailor_accounts.sql`, `src/modules/auth/permissions.ts`, `src/modules/auth/session.ts`, `tests/workers/portal-permissions.test.ts`, `tests/workers/portal-migration.test.ts`
+- [x] **S1 Migration and tailor sign-in tables**
+  - Acceptance: `migrations/0007_tailor_accounts.sql` adds `tailor_account`, `tailor_session`, `tailor_invite`, interest decision columns and `audit_log.tailor_account_id`, without touching `admin_user` (a rebuild was tested and wipes staff sessions and audit actors). `src/modules/portal/session.ts` and `require.ts` give the tailor session and the `requireTailor` guard with its own cookie.
+  - Verify: workers tests (session lifecycle, idle and inactive refusal, sessions kept apart from staff both ways, staff permission table refuses any tailor role, schema constraints and cascades); mutations seen failing.
+  - Files: `migrations/0007_tailor_accounts.sql`, `src/modules/portal/session.ts`, `src/modules/portal/require.ts`, `src/modules/auth/audit.ts`, `tests/workers/portal-session.test.ts`
 
 - [ ] **S3 Invite and approval (admin side)**
   - Acceptance: on `/admin/interest` an admin with `tailor.edit` can Approve (creates a draft tailor from the interest, a tailor login without a password, an invite, an audit row; shows the one-time link once) or Decline; re-issue a link; approving twice or approving a declined or anonymised interest is refused; the interest's personal data rules (PRV-04) are unchanged. `src/modules/auth/invite.ts`: issue, hash, verify, consume.

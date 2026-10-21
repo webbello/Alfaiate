@@ -58,6 +58,7 @@ describe('audit', () => {
       'entity_id',
       'entity_type',
       'id',
+      'tailor_account_id', // an id only: which tailor acted (FR-TPO-08)
     ]);
   });
 });
