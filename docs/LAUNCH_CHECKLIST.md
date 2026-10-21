@@ -24,7 +24,7 @@ Everything the code can do before deployment is built and tested locally. What i
 - [ ] Click through it with demo data: join, approve, send the link yourself, tailor fills the page and adds a photo, you show the photo and publish.
 - [ ] Decide how you will send sign-in links (WhatsApp from your own number) and who may approve (managers and the owner).
 - [ ] Privacy text covers tailor accounts (OQ-08) and the permission wording `consent-tailor-2026-10-v1` is approved.
-- [ ] Decide whether phone-number sign-in is wanted (not built), and whether edits to a published page should wait for your approval (they go live at once now).
+- [ ] Decide whether phone-number sign-in is wanted (not built), and (decided 2026-10-21: edits to a published page go live at once, labelled tailor-supplied).
 - [ ] Tetum copy for the portal after the OQ-07 review (English only now).
 
 ## 3. Content
