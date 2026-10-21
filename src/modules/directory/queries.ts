@@ -356,6 +356,8 @@ export async function listSitemapPaths(db: Db): Promise<string[]> {
   return [
     '/',
     '/tailors',
+    '/services',
+    '/craft',
     ...categories.map((c) => `/categories/${c.slug}`),
     ...areas.map((a) => `/areas/${a.slug}`),
     ...tailors.results.map((t) => `/tailors/${t.slug}`),

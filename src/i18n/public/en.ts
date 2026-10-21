@@ -310,6 +310,20 @@ export const en = {
     groupSize: 'How many people or pieces? (optional)',
     groupSizeHint: 'For example: 30 school shirts, or 12 staff uniforms.',
   },
+  servicesPage: {
+    title: 'Tailoring services in Timor-Leste',
+    heading: 'Tailoring services',
+    intro:
+      'Choose a type of clothing to see the tailors who make it, or browse all tailors.',
+    browse: 'Browse all tailors',
+  },
+  craftPage: {
+    title: 'Our craft: tailoring in Timor-Leste',
+    heading: 'Our craft',
+    intro:
+      'Tailors on Alfaiate TL are independent local businesses. Here is what we care about, and how to find the right one.',
+    browse: 'Browse all tailors',
+  },
   contactPage: {
     title: 'Contact',
     heading: 'Contact us',

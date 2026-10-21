@@ -45,8 +45,8 @@ const year = new Date().getUTCFullYear();
     <nav class="footer-col" aria-label={t.footer.exploreLabel}>
       <h2 class="footer-col__title">{t.footer.explore}</h2>
       <a href={pathFor(lang, '/tailors')}>{t.nav.tailors}</a>
-      <a href={`${home}#services`}>{t.nav.services}</a>
-      <a href={`${home}#craft`}>{t.nav.craft}</a>
+      <a href={pathFor(lang, '/services')}>{t.nav.services}</a>
+      <a href={pathFor(lang, '/craft')}>{t.nav.craft}</a>
       <a href={pathFor(lang, '/business')}>{t.nav.business}</a>
     </nav>
     <nav aria-label={t.footer.label} class="footer-nav footer-col">

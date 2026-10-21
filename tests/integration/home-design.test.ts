@@ -60,8 +60,8 @@ describe('home page structure (reference design)', () => {
       /href="\/tailors"[\s\S]*href="\/request"/,
     );
     expect(section(html, 'craft-heading')).toContain('href="/how-it-works"');
-    expect(html).toContain('href="/#services"');
-    expect(html).toContain('href="/#craft"');
+    expect(html).toContain('href="/services"');
+    expect(html).toContain('href="/craft"');
     expect(html).toContain('id="services"');
     expect(html).toContain('id="craft"');
     expect(html).toContain('href="/tailors#search"');

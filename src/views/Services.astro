@@ -1,0 +1,47 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import '../styles/home.css';
+import ServiceCategories from '../components/home/ServiceCategories.astro';
+import { env } from 'cloudflare:workers';
+import { dictionary } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+import { requireBindings } from '../modules/config';
+import { listActiveCategories } from '../modules/directory/queries';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dictionary(lang);
+const p = t.servicesPage;
+const categories = await listActiveCategories(requireBindings(env).DB, {
+  onlyWithTailors: true,
+});
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${p.title} · ${t.siteName}`}
+  description={p.intro}
+  rest="/services"
+>
+  <div class="container page-intro">
+    <h1>{p.heading}</h1>
+    <p class="lead">{p.intro}</p>
+  </div>
+  <ServiceCategories
+    lang={lang}
+    t={t}
+    live={new Set(categories.map((c) => c.slug))}
+  />
+  <div class="container page-intro">
+    <p class="actions">
+      <a class="button" href={pathFor(lang, '/request')}>
+        {t.cta.requestHome}
+      </a>
+      <a class="button button--secondary" href={pathFor(lang, '/tailors')}>
+        {p.browse}
+      </a>
+    </p>
+  </div>
+</PublicLayout>

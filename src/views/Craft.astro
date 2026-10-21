@@ -1,0 +1,48 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import '../styles/home.css';
+import CraftsmanshipSection from '../components/home/CraftsmanshipSection.astro';
+import { dictionary } from '../i18n/public';
+import { pathFor, type Lang } from '../i18n/lang';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dictionary(lang);
+const p = t.craftPage;
+---
+
+<PublicLayout
+  lang={lang}
+  title={`${p.title} · ${t.siteName}`}
+  description={p.intro}
+  rest="/craft"
+>
+  <div class="container page-intro">
+    <h1>{p.heading}</h1>
+    <p class="lead">{p.intro}</p>
+  </div>
+  <div class="no-reveal">
+    <CraftsmanshipSection lang={lang} t={t} />
+  </div>
+  <div class="container page-intro">
+    <p class="actions">
+      <a class="button" href={pathFor(lang, '/request')}>
+        {t.cta.requestHome}
+      </a>
+      <a class="button button--secondary" href={pathFor(lang, '/tailors')}>
+        {p.browse}
+      </a>
+    </p>
+  </div>
+</PublicLayout>
+
+<style is:global>
+  /* The scroll reveal is for the long home page; here the section is already on screen. */
+  .no-reveal .reveal {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+</style>

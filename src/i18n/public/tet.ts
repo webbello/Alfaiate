@@ -316,6 +316,20 @@ export const tet: Dictionary = {
     groupSize: 'Ema ka roupa hira? (opsionál)',
     groupSizeHint: 'Ezemplu: kamiza eskola 30, ka uniforme funsionáriu 12.',
   },
+  servicesPage: {
+    title: 'Servisu alfaiate iha Timor-Leste',
+    heading: 'Servisu alfaiate',
+    intro:
+      "Hili tipu ropa ida atu haree alfaiate sira ne'ebé halo, ka haree alfaiate hotu-hotu.",
+    browse: 'Haree alfaiate hotu-hotu',
+  },
+  craftPage: {
+    title: 'Ami-nia ofísiu: alfaiate iha Timor-Leste',
+    heading: 'Ami-nia ofísiu',
+    intro:
+      "Alfaiate sira iha Alfaiate TL mak negósiu lokál independente. Ne'e mak buat ne'ebé ami fó atensaun, no oinsá atu hetan alfaiate ne'ebé loos.",
+    browse: 'Haree alfaiate hotu-hotu',
+  },
   contactPage: {
     title: 'Kontaktu',
     heading: 'Kontaktu ami',
