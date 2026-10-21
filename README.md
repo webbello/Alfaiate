@@ -22,6 +22,7 @@ To see the site and admin filled in, load clearly fake demo data into the **loca
 ```bash
 npm run db:demo                  # adds it (safe to repeat: earlier demo rows are cleared first)
 npm run db:demo:remove           # deletes exactly those rows (slug prefix demo-, reference prefix AT-DEMO); run before launch
+npm run db:seed:launch           # local only: starting categories and areas (OQ-10); owner edits them in the admin. See docs/LAUNCH_CHECKLIST.md
 ```
 
 The scripts take no options and always use `--local`; they cannot reach a remote database.

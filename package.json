@@ -18,6 +18,7 @@
     "types": "wrangler types",
     "db:migrate": "wrangler d1 migrations apply DB --local",
     "db:seed": "wrangler d1 execute DB --local --file=seeds/placeholders.sql",
+    "db:seed:launch": "wrangler d1 execute DB --local --file=seeds/launch.sql",
     "bench:hash": "node scripts/bench-hash.mjs",
     "test:integration": "npm run build && vitest run --project integration --project integration-en --project integration-staging",
     "owner:create": "node scripts/owner.mjs create",
