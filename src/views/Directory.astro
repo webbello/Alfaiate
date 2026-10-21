@@ -30,6 +30,27 @@ const [{ tailors, truncated }, categories, areas] = await Promise.all([
   listActiveAreas(DB, { onlyWithTailors: true }),
 ]);
 const action = pathFor(lang, '/tailors');
+// Removable chips for the filters in force: each link drops exactly one filter.
+type Chip = { label: string; clear: Partial<typeof filters> };
+const chips = (
+  [
+    filters.q && { label: `“${filters.q}”`, clear: { q: undefined } },
+    filters.category && {
+      label:
+        categories.find((c) => c.slug === filters.category)?.name ??
+        filters.category,
+      clear: { category: undefined },
+    },
+    filters.area && {
+      label: areas.find((a) => a.slug === filters.area)?.name ?? filters.area,
+      clear: { area: undefined },
+    },
+    filters.homeVisit && {
+      label: t.directory.homeVisit,
+      clear: { homeVisit: false },
+    },
+  ] as (Chip | false | undefined | '')[]
+).filter((c): c is Chip => Boolean(c));
 // Any query string (filters or junk) makes this a variant of the plain list: not indexed, canonical points at /tailors.
 const variant = Astro.url.search !== '';
 ---
@@ -42,19 +63,14 @@ const variant = Astro.url.search !== '';
   noindex={variant}
 >
   <h1>{t.directory.heading}</h1>
-  <p class="lead">{t.directory.intro}</p>
-  <p class="notice" role="note">
+  <p class="lead lead--tight">{t.directory.intro}</p>
+  <p class="notice notice--compact" role="note">
     <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
-  </p>
-  <p class="actions">
-    <a class="button" href={pathFor(lang, '/request')}>
-      {t.cta.requestHome}
-    </a>
   </p>
 
   <form class="filters" method="get" action={action}>
-    <h2>{t.directory.filtersHeading}</h2>
-    <p>
+    <h2 class="filters__title">{t.directory.filtersHeading}</h2>
+    <p class="filters__q">
       <label for="search">{t.directory.search}</label>
       <input
         type="search"
@@ -87,7 +103,7 @@ const variant = Astro.url.search !== '';
         ))}
       </select>
     </p>
-    <p>
+    <p class="filters__check">
       <label class="check">
         <input
           type="checkbox"
@@ -98,8 +114,8 @@ const variant = Astro.url.search !== '';
         {t.directory.homeVisit}
       </label>
     </p>
-    <p class="actions">
-      <button class="button" type="submit">
+    <p class="filters__actions">
+      <button class="button filters__apply" type="submit">
         {t.directory.apply}
       </button>
       {active && (
@@ -110,9 +126,32 @@ const variant = Astro.url.search !== '';
     </p>
   </form>
 
-  <p role="status" class="count">
-    {fill(t.directory.found, { count: tailors.length })}
-  </p>
+  <div class="toolbar">
+    <p role="status" class="count" data-template={t.directory.found}>
+      {fill(t.directory.found, { count: tailors.length })}
+    </p>
+    {chips.length > 0 && (
+      <ul class="chips chips--compact" role="list">
+        {chips.map((c) => (
+          <li>
+            <a
+              class="chip chip--remove"
+              href={`${action}${directoryQuery({ ...filters, ...c.clear })}`}
+              aria-label={`${t.directory.removeFilter}: ${c.label}`}
+            >
+              {c.label} <span aria-hidden="true">×</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+    <a
+      class="button button--small toolbar__cta"
+      href={pathFor(lang, '/request')}
+    >
+      {t.cta.requestHome}
+    </a>
+  </div>
 
   {tailors.length === 0 ? (
     <section aria-labelledby="empty">
@@ -130,13 +169,18 @@ const variant = Astro.url.search !== '';
       </p>
     </section>
   ) : (
-    <ul class="grid">
-      {tailors.map((tailor) => (
-        <li>
-          <TailorCard lang={lang} tailor={tailor} />
-        </li>
-      ))}
-    </ul>
+    <>
+      <p class="count" data-no-match hidden>
+        {t.directory.emptyBody}
+      </p>
+      <ul class="grid">
+        {tailors.map((tailor) => (
+          <li>
+            <TailorCard lang={lang} tailor={tailor} />
+          </li>
+        ))}
+      </ul>
+    </>
   )}
   {truncated && <p class="notice">{t.directory.truncated}</p>}
   {!variant && areas.length > 0 && (
@@ -164,4 +208,7 @@ const variant = Astro.url.search !== '';
     </nav>
   )}
   {!variant && <FaqBlock t={t} />}
+  <script>
+    import '../scripts/directory';
+  </script>
 </PublicLayout>

@@ -1051,3 +1051,138 @@ a:focus-visible > .icon--arrow {
 .browse-links a:hover {
   border-color: var(--color-terracotta);
 }
+
+/* Directory (space saving): one compact filter bar, a toolbar with the count, removable chips and the request button, and rows instead of tall cards on phones. */
+.lead--tight {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+}
+.notice--compact {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  max-width: none;
+}
+.filters {
+  max-width: none;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 0.75rem;
+  align-items: end;
+}
+.filters p {
+  margin: 0;
+}
+.filters__q,
+.filters__actions {
+  grid-column: 1 / -1;
+}
+.filters__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.filters__actions .button {
+  flex: 1;
+}
+.filters label.check {
+  min-height: var(--button-height);
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin: 0 0 1rem;
+}
+.toolbar .count {
+  margin: 0;
+}
+.toolbar__cta {
+  margin-left: auto;
+}
+.button--small {
+  min-height: 2.75rem;
+  padding: 0 1rem;
+}
+.chips--compact {
+  margin: 0;
+  gap: 0.4rem;
+}
+.chips--compact .chip {
+  min-height: 2.75rem;
+  padding: 0 0.85rem;
+  font-size: 0.95rem;
+}
+.chip--remove:hover {
+  background: var(--band);
+}
+.grid > li[hidden] {
+  display: none;
+}
+@media (min-width: 40rem) {
+  .filters {
+    grid-template-columns: 2fr 1.3fr 1.3fr auto auto;
+  }
+  .filters__q,
+  .filters__actions {
+    grid-column: auto;
+  }
+}
+@media (max-width: 39.99rem) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  .grid .card {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+  }
+  .grid .card__photo,
+  .grid .card__swatch {
+    height: 100%;
+    min-height: 6.5rem;
+    aspect-ratio: auto;
+  }
+  .grid .card__body {
+    padding: 0.5rem 0.75rem;
+  }
+  .grid .card__title {
+    margin-bottom: 0.15rem;
+    font-size: 1.35rem;
+  }
+  .grid .card__title a {
+    min-height: 2.75rem;
+    line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+  }
+  .grid .card__line {
+    margin-bottom: 0.15rem;
+    font-size: 0.95rem;
+  }
+}
+.filters__title {
+  /* Hidden but never clipped (WCAG 1.4.12 check): no overflow rule. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.filters__check {
+  grid-column: 1 / -1;
+}
+.chip--remove {
+  gap: 0.4rem;
+}
+@media (min-width: 40rem) {
+  .filters__check {
+    grid-column: auto;
+  }
+  .grid .card__swatch {
+    aspect-ratio: 16 / 9;
+  }
+}

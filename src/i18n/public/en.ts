@@ -183,6 +183,7 @@ export const en = {
     homeVisits: 'Home visits offered',
     viewProfile: 'View profile',
     moreFilters: 'Filter by area or home visits',
+    removeFilter: 'Remove filter',
   },
   pages: {
     how: {

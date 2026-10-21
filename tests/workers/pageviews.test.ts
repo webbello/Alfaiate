@@ -11,7 +11,10 @@ const db = env.DB;
 const req = (headers: Record<string, string> = {}, method = 'GET') =>
   new Request('https://example.test/tailors', {
     method,
-    headers: { 'user-agent': 'Mozilla/5.0 (Android 13) Chrome/120', ...headers },
+    headers: {
+      'user-agent': 'Mozilla/5.0 (Android 13) Chrome/120',
+      ...headers,
+    },
   });
 const html = 'text/html; charset=utf-8';
 
@@ -20,9 +23,17 @@ describe('shouldCount (ANA-01)', () => {
     expect(shouldCount(req(), '/tailors', 200, html)).toBe(true);
     expect(shouldCount(req(), '/tet/areas/dili', 200, html)).toBe(true);
   });
-  it.each(['/admin', '/admin/traffic', '/api/contact-click', '/media/x/y', '/_astro/a.css', '/robots.txt', '/sitemap.xml', '/icons.svg'])(
-    'does not count %s',
-    (path) => expect(shouldCount(req(), path, 200, html)).toBe(false),
+  it.each([
+    '/admin',
+    '/admin/traffic',
+    '/api/contact-click',
+    '/media/x/y',
+    '/_astro/a.css',
+    '/robots.txt',
+    '/sitemap.xml',
+    '/icons.svg',
+  ])('does not count %s', (path) =>
+    expect(shouldCount(req(), path, 200, html)).toBe(false),
   );
   it('ignores non-GET, non-200 and non-HTML responses', () => {
     expect(shouldCount(req({}, 'POST'), '/request', 200, html)).toBe(false);
@@ -31,7 +42,9 @@ describe('shouldCount (ANA-01)', () => {
     expect(shouldCount(req(), '/x', 200, null)).toBe(false);
   });
   it('ignores bots, missing user agents, Do Not Track and Global Privacy Control', () => {
-    expect(shouldCount(req({ 'user-agent': 'Googlebot/2.1' }), '/', 200, html)).toBe(false);
+    expect(
+      shouldCount(req({ 'user-agent': 'Googlebot/2.1' }), '/', 200, html),
+    ).toBe(false);
     expect(shouldCount(req({ 'user-agent': '' }), '/', 200, html)).toBe(false);
     expect(shouldCount(req({ dnt: '1' }), '/', 200, html)).toBe(false);
     expect(shouldCount(req({ 'sec-gpc': '1' }), '/', 200, html)).toBe(false);
@@ -50,10 +63,18 @@ describe('referrerBucket', () => {
   it('groups search, social, internal and direct; never keeps a full address', () => {
     expect(referrerBucket(null, host)).toBe('direct');
     expect(referrerBucket('not a url', host)).toBe('direct');
-    expect(referrerBucket('https://www.google.com/search?q=secret', host)).toBe('search');
-    expect(referrerBucket('https://l.facebook.com/l.php?u=1', host)).toBe('social');
-    expect(referrerBucket('https://alfaiate.example/tailors', host)).toBe('internal');
-    expect(referrerBucket('https://blog.example.org/post?id=3', host)).toBe('other');
+    expect(referrerBucket('https://www.google.com/search?q=secret', host)).toBe(
+      'search',
+    );
+    expect(referrerBucket('https://l.facebook.com/l.php?u=1', host)).toBe(
+      'social',
+    );
+    expect(referrerBucket('https://alfaiate.example/tailors', host)).toBe(
+      'internal',
+    );
+    expect(referrerBucket('https://blog.example.org/post?id=3', host)).toBe(
+      'other',
+    );
     expect(referrerBucket('https://google.evil.com/', host)).toBe('other');
     expect(referrerBucket('https://x.evil.com/', host)).toBe('other');
     expect(referrerBucket('https://www.google.com.tl/', host)).toBe('search');
@@ -68,7 +89,11 @@ describe('recordPageView and trafficSummary', () => {
     await recordPageView(db, { pathname: '/pv-a', referrer: 'search', now });
     await recordPageView(db, { pathname: '/PV%2Da', referrer: 'direct', now });
     await recordPageView(db, { pathname: '/pv-b', referrer: 'internal', now });
-    await recordPageView(db, { pathname: '/pv-old', referrer: 'direct', now: new Date('2026-04-01T09:00:00.000Z') });
+    await recordPageView(db, {
+      pathname: '/pv-old',
+      referrer: 'direct',
+      now: new Date('2026-04-01T09:00:00.000Z'),
+    });
     const t = await trafficSummary(db, 30, now);
     expect(t.topPages.find((p) => p.path === '/pv-a')?.views).toBe(3);
     expect(t.topPages.some((p) => p.path === '/pv-old')).toBe(false);
@@ -78,7 +103,13 @@ describe('recordPageView and trafficSummary', () => {
     expect(t.daily.at(-1)).toEqual({ day: '2026-06-10', views: 4 });
   });
   it('never throws when the write fails', async () => {
-    const broken = { prepare: () => { throw new Error('down'); } } as unknown as D1Database;
-    await expect(recordPageView(broken, { pathname: '/x', referrer: 'direct' })).resolves.toBeUndefined();
+    const broken = {
+      prepare: () => {
+        throw new Error('down');
+      },
+    } as unknown as D1Database;
+    await expect(
+      recordPageView(broken, { pathname: '/x', referrer: 'direct' }),
+    ).resolves.toBeUndefined();
   });
 });

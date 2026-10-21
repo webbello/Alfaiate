@@ -188,6 +188,7 @@ export const tet: Dictionary = {
     homeVisits: 'Bele vizita iha uma',
     viewProfile: 'Haree perfíl',
     moreFilters: 'Filtru ba área ka vizita iha uma',
+    removeFilter: 'Hasai filtru',
   },
   pages: {
     how: {

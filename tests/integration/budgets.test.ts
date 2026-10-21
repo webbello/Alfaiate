@@ -62,10 +62,10 @@ const BUDGET = {
     howItWorks: 9400,
     join: 9500,
   },
-  css: 17900,
+  css: 21000, // raised 2026-10-21 for the compact directory (filter bar, chips, phone rows): measured 18084 plus margin
   homeCss: 33000,
   adminCss: 8200,
-  js: 900,
+  js: 1500, // raised 2026-10-21: the directory page adds the filter script (measured 1195 with the header menu)
 } as const;
 
 describe('page weight budgets (NFR-PERF-01)', () => {

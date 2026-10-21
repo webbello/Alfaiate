@@ -73,3 +73,23 @@ test('Tetum pages are served when the language is on', async ({ page }) => {
   await page.goto('/tet/');
   await expect(page.locator('html')).toHaveAttribute('lang', 'tet');
 });
+
+test('the directory narrows as you type, shows a chip once a filter is applied that removes it', async ({
+  page,
+}) => {
+  await page.goto('/tailors');
+  const status = page.getByRole('status').first();
+  await page.getByLabel('Tailor or shop name').fill('zzz-no-such-tailor');
+  await expect(status).toHaveText('Tailors found: 0');
+  await page.getByLabel('Tailor or shop name').press('Escape');
+  await expect(status).not.toHaveText('Tailors found: 0');
+  await page
+    .getByLabel('Garment or service')
+    .selectOption({ label: '[Placeholder] Suits' });
+  await page.getByRole('button', { name: 'Show tailors' }).click();
+  await expect(page).toHaveURL(/category=placeholder-category-1/);
+  await page
+    .getByRole('link', { name: 'Remove filter: [Placeholder] Suits' })
+    .click();
+  await expect(page).toHaveURL(/\/tailors$/);
+});
