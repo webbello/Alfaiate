@@ -7,7 +7,7 @@ Order and reasons are in [plan-tailor-portal.md](plan-tailor-portal.md). Require
   - Verify: workers tests (session lifecycle, idle and inactive refusal, sessions kept apart from staff both ways, staff permission table refuses any tailor role, schema constraints and cascades); mutations seen failing.
   - Files: `migrations/0007_tailor_accounts.sql`, `src/modules/portal/session.ts`, `src/modules/portal/require.ts`, `src/modules/auth/audit.ts`, `tests/workers/portal-session.test.ts`
 
-- [ ] **S3 Invite and approval (admin side)**
+- [x] **S3 Invite and approval (admin side)**  _(permission is `tailor.publish`, owner and manager, not `tailor.edit`: it creates a sign-in)_
   - Acceptance: on `/admin/interest` an admin with `tailor.edit` can Approve (creates a draft tailor from the interest, a tailor login without a password, an invite, an audit row; shows the one-time link once) or Decline; re-issue a link; approving twice or approving a declined or anonymised interest is refused; the interest's personal data rules (PRV-04) are unchanged. `src/modules/auth/invite.ts`: issue, hash, verify, consume.
   - Verify: workers tests (single use, expiry, hashed at rest, re-issue invalidates, idempotent approval, one tailor and one account per approval); integration test for the admin routes with CSRF, permission and the AC-09 matrix entries; mutation checks (reuse allowed, expiry ignored, plain token stored) seen failing.
   - Files: `src/modules/auth/invite.ts`, `src/modules/portal/approve.ts`, `src/pages/admin/interest.astro`, `src/pages/admin/interest/[id]/approve.ts`, `decline.ts`, `reissue.ts`, `src/modules/auth/admin-routes.ts`, tests

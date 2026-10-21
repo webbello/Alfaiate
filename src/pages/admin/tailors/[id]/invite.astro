@@ -1,0 +1,45 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import InviteLink from '../../../../components/admin/InviteLink.astro';
+import { requireBindings, siteConfig } from '../../../../modules/config';
+import { requirePermission } from '../../../../modules/auth/require';
+import { verifyCsrf } from '../../../../modules/auth/csrf';
+import { SESSION_COOKIE } from '../../../../modules/auth/session';
+import { parseId, readForm } from '../../../../modules/http/body';
+import { reissueInvite } from '../../../../modules/portal/approve';
+
+// A new link for a tailor who lost theirs or forgot their password. Publish permission, like approval.
+const auth = await requirePermission(Astro, 'tailor.publish');
+if (auth instanceof Response) return auth;
+const id = parseId(Astro.params.id);
+if (!Number.isInteger(id) || id < 1)
+  return new Response('Not found', { status: 404 });
+if (Astro.request.method !== 'POST')
+  return Astro.redirect(`/admin/tailors/${id}`, 303);
+const form = (await readForm(Astro.request)).form;
+if (
+  !(await verifyCsrf(
+    Astro.cookies.get(SESSION_COOKIE)?.value ?? '',
+    form.get('csrf')?.toString(),
+  ))
+)
+  return new Response('Forbidden', { status: 403 });
+const { DB } = requireBindings(env);
+const result = await reissueInvite(DB, { tailorId: id, actorId: auth.userId });
+if (!result) return new Response('Not found', { status: 404 });
+const tailor = await DB.prepare('SELECT display_name FROM tailor WHERE id = ?')
+  .bind(id)
+  .first<{ display_name: string }>();
+const url = `${siteConfig(env).siteUrl}/portal/accept?token=${result.token}`;
+---
+
+<AdminLayout title="Sign-in link" description="Sign-in link" auth={auth}>
+  <InviteLink
+    name={tailor?.display_name ?? 'the tailor'}
+    url={url}
+    back={`/admin/tailors/${id}`}
+    backLabel="Back to the tailor"
+  />
+</AdminLayout>

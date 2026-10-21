@@ -156,6 +156,8 @@ export const en = {
   adminMessages: {
     created: 'User created.',
     interest_anonymised: 'Details removed.',
+    interest_declined: 'Declined. Nothing was sent to them.',
+    interest_already_decided: 'That request was already approved or declined.',
     newsletter_removed: 'Address removed.',
     interest_already_anonymised: 'Those details were already removed.',
     interest_wrong_reference:

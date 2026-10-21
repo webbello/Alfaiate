@@ -17,6 +17,7 @@ import {
   getTailorCategories,
 } from '../../../modules/tailors/links';
 import { listNotes } from '../../../modules/tailors/notes';
+import { getAccountState } from '../../../modules/portal/account';
 import { listImages } from '../../../modules/media/list';
 import { MAX_IMAGES } from '../../../modules/media/store';
 import { messageFrom } from '../../../modules/tailors/messages';
@@ -35,6 +36,7 @@ if (!tailor) return new Response('Not found', { status: 404 });
 
 const editable = canEdit(auth.role, tailor);
 const mayVerify = can(auth.role, 'tailor.publish');
+const account = await getAccountState(DB, id);
 const [categories, areas, links, areaLinks, notes, images] = await Promise.all([
   listEntries(DB, 'category'),
   listEntries(DB, 'area'),
@@ -538,6 +540,25 @@ const action = `/admin/tailors/${id}/actions`;
         </p>
         <button type="submit">{en.feeSave}</button>
       </form>
+    </>
+  )}
+
+  {mayVerify && (
+    <>
+      <h2 id="signin">Tailor sign-in</h2>
+      <p>
+        {account
+          ? account.email
+            ? `Active: ${account.email}${account.lastLoginAt ? `, last signed in ${account.lastLoginAt.slice(0, 10)}` : ', not signed in yet'}.`
+            : 'Invited, waiting for the tailor to open the link and choose a password.'
+          : 'No sign-in yet. A sign-in is made when you approve a join request.'}
+      </p>
+      {account && (
+        <form method="post" action={`/admin/tailors/${id}/invite`}>
+          <input type="hidden" name="csrf" value={auth.csrfToken} />
+          <button type="submit">Make a new sign-in link</button>
+        </form>
+      )}
     </>
   )}
 

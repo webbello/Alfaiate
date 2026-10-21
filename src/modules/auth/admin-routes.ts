@@ -42,6 +42,24 @@ export const ADMIN_ROUTES: readonly {
     methods: ['GET'],
   },
   {
+    file: 'interest/[id]/approve.astro',
+    path: '/admin/interest/[id]/approve',
+    permission: 'tailor.publish',
+    methods: ['POST'],
+  },
+  {
+    file: 'interest/[id]/decline.ts',
+    path: '/admin/interest/[id]/decline',
+    permission: 'tailor.publish',
+    methods: ['POST'],
+  },
+  {
+    file: 'tailors/[id]/invite.astro',
+    path: '/admin/tailors/[id]/invite',
+    permission: 'tailor.publish',
+    methods: ['POST'],
+  },
+  {
     file: 'interest/[id]/anonymise.ts',
     path: '/admin/interest/[id]/anonymise',
     permission: 'enquiry.delete',

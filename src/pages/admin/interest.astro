@@ -16,6 +16,7 @@ if (auth instanceof Response) return auth;
 
 const rows = await listInterest(requireBindings(env).DB);
 const mayRemove = can(auth.role, 'enquiry.delete');
+const mayDecide = can(auth.role, 'tailor.publish');
 const code = Astro.url.searchParams.get('msg') ?? '';
 const message = Object.hasOwn(en.adminMessages, code)
   ? en.adminMessages[code as keyof typeof en.adminMessages]
@@ -52,6 +53,7 @@ const message = Object.hasOwn(en.adminMessages, code)
           <th>Business and area</th>
           <th>Makes</th>
           <th>Message</th>
+          <th>Decision</th>
           {mayRemove && <th>Remove details</th>}
         </tr>
       </thead>
@@ -67,6 +69,44 @@ const message = Object.hasOwn(en.adminMessages, code)
             </td>
             <td>{r.craft_text}</td>
             <td>{r.message}</td>
+            <td>
+              {r.decision === 'approved' ? (
+                <>
+                  Approved
+                  {r.tailor_id && (
+                    <>
+                      {' '}
+                      <a href={`/admin/tailors/${r.tailor_id}`}>Open tailor</a>
+                    </>
+                  )}
+                </>
+              ) : r.decision === 'declined' ? (
+                'Declined'
+              ) : r.anonymised_at ? (
+                'Details removed'
+              ) : mayDecide ? (
+                <>
+                  <form
+                    method="post"
+                    action={`/admin/interest/${r.id}/approve`}
+                  >
+                    <input type="hidden" name="csrf" value={auth.csrfToken} />
+                    <button type="submit">Approve and make sign-in link</button>
+                  </form>
+                  <form
+                    method="post"
+                    action={`/admin/interest/${r.id}/decline`}
+                  >
+                    <input type="hidden" name="csrf" value={auth.csrfToken} />
+                    <button type="submit" class="secondary">
+                      Decline
+                    </button>
+                  </form>
+                </>
+              ) : (
+                'Waiting'
+              )}
+            </td>
             {mayRemove && (
               <td>
                 {r.anonymised_at ? null : (

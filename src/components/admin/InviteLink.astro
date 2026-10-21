@@ -1,0 +1,25 @@
+---
+interface Props {
+  name: string;
+  url: string;
+  back: string;
+  backLabel: string;
+}
+const { name, url, back, backLabel } = Astro.props;
+---
+
+<h1>Sign-in link for {name}</h1>
+<p>
+  Send this link to the tailor yourself, for example on WhatsApp. It opens a
+  page where they choose a password. It works once and stops working after 7
+  days. It is shown only now: if you lose it, make a new one from the tailor's
+  page.
+</p>
+<p>
+  <label for="invite-url">Link</label>
+  <br />
+  <input id="invite-url" type="text" readonly value={url} size="60" />
+</p>
+<p>
+  <a href={back}>{backLabel}</a>
+</p>

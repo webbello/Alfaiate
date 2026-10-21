@@ -1,0 +1,58 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import InviteLink from '../../../../components/admin/InviteLink.astro';
+import { requireBindings, siteConfig } from '../../../../modules/config';
+import { requirePermission } from '../../../../modules/auth/require';
+import { verifyCsrf } from '../../../../modules/auth/csrf';
+import { SESSION_COOKIE } from '../../../../modules/auth/session';
+import { parseId, readForm } from '../../../../modules/http/body';
+import { approveInterest } from '../../../../modules/portal/approve';
+
+// Approving a join request creates a tailor account, so it needs the publish permission (owner and manager), not just "edit".
+const auth = await requirePermission(Astro, 'tailor.publish');
+if (auth instanceof Response) return auth;
+if (Astro.request.method !== 'POST')
+  return Astro.redirect('/admin/interest', 303);
+const form = (await readForm(Astro.request)).form;
+if (
+  !(await verifyCsrf(
+    Astro.cookies.get(SESSION_COOKIE)?.value ?? '',
+    form.get('csrf')?.toString(),
+  ))
+)
+  return new Response('Forbidden', { status: 403 });
+const id = parseId(Astro.params.id);
+if (!Number.isInteger(id) || id < 1)
+  return new Response('Not found', { status: 404 });
+const result = await approveInterest(requireBindings(env).DB, {
+  id,
+  actorId: auth.userId,
+});
+if (!result.ok) {
+  if (result.reason === 'not_found')
+    return new Response('Not found', { status: 404 });
+  const code =
+    result.reason === 'anonymised'
+      ? 'interest_already_anonymised'
+      : result.reason === 'already_decided'
+        ? 'interest_already_decided'
+        : 'invalid';
+  return Astro.redirect(`/admin/interest?msg=${code}`, 303);
+}
+const tailor = await requireBindings(env)
+  .DB.prepare('SELECT display_name FROM tailor WHERE id = ?')
+  .bind(result.tailorId)
+  .first<{ display_name: string }>();
+const url = `${siteConfig(env).siteUrl}/portal/accept?token=${result.token}`;
+---
+
+<AdminLayout title="Sign-in link" description="Sign-in link" auth={auth}>
+  <InviteLink
+    name={tailor?.display_name ?? 'the tailor'}
+    url={url}
+    back={`/admin/tailors/${result.tailorId}`}
+    backLabel="Open the new draft tailor"
+  />
+</AdminLayout>
