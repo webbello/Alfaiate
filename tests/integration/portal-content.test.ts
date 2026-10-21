@@ -290,3 +290,68 @@ describe('photos', () => {
     );
   });
 });
+
+describe('overview and "ready for review"', () => {
+  it('shows the checklist, keeps the button off until the required items are done, and tells the owner once they are', async () => {
+    const t = await tailorLogin();
+    const page = await (await get('/portal', t.cookie)).text();
+    expect(page).toContain('Getting your page ready');
+    expect(page).toMatch(/<button type="submit" disabled>My page is ready/);
+    const early = await send('/portal/submit', t.cookie, { csrf: t.csrf });
+    expect(early.headers.get('location')).toBe('/portal?msg=incomplete');
+    const cat = (
+      await db
+        .prepare(
+          "INSERT INTO garment_category (slug, name) VALUES (?, 'Ready Cat')",
+        )
+        .bind(`rc-${unique()}`)
+        .run()
+    ).meta.last_row_id;
+    const area = (
+      await db
+        .prepare(
+          "INSERT INTO service_area (slug, name) VALUES (?, 'Ready Area')",
+        )
+        .bind(`ra-${unique()}`)
+        .run()
+    ).meta.last_row_id;
+    await db
+      .prepare(
+        "UPDATE tailor SET description = 'I sew.', whatsapp_e164 = '+67077123456' WHERE id = ?",
+      )
+      .bind(t.tailorId)
+      .run();
+    await db
+      .prepare(
+        'INSERT INTO tailor_category (tailor_id, category_id) VALUES (?, ?)',
+      )
+      .bind(t.tailorId, cat)
+      .run();
+    await db
+      .prepare(
+        "INSERT INTO tailor_area (tailor_id, area_id, kind) VALUES (?, ?, 'shop_location')",
+      )
+      .bind(t.tailorId, area)
+      .run();
+    expect(await (await get('/portal', t.cookie)).text()).not.toMatch(
+      /<button type="submit" disabled>My page is ready/,
+    );
+    expect(
+      (await send('/portal/submit', t.cookie, { csrf: 'bad' })).status,
+    ).toBe(403);
+    const done = await send('/portal/submit', t.cookie, { csrf: t.csrf });
+    expect(done.headers.get('location')).toBe('/portal?msg=submitted');
+    const after = await (await get('/portal?msg=submitted', t.cookie)).text();
+    expect(after).toContain('Waiting for the team');
+    expect(after).not.toContain('action="/portal/submit"');
+    const status = await db
+      .prepare('SELECT status, is_published FROM tailor WHERE id = ?')
+      .bind(t.tailorId)
+      .first();
+    expect(status).toEqual({ status: 'draft', is_published: 0 });
+    const staff = await (await import('./helpers')).signIn('manager');
+    expect(
+      await (await get(`/admin/tailors/${t.tailorId}`, staff)).text(),
+    ).toContain('please check it and publish');
+  });
+});

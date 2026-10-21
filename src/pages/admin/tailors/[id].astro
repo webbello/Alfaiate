@@ -552,6 +552,8 @@ const action = `/admin/tailors/${id}/actions`;
             ? `Active: ${account.email}${account.lastLoginAt ? `, last signed in ${account.lastLoginAt.slice(0, 10)}` : ', not signed in yet'}.`
             : 'Invited, waiting for the tailor to open the link and choose a password.'
           : 'No sign-in yet. A sign-in is made when you approve a join request.'}
+        {account?.reviewRequestedAt &&
+          ` The tailor said the page is ready on ${account.reviewRequestedAt.slice(0, 10)}: please check it and publish.`}
       </p>
       {account && (
         <form method="post" action={`/admin/tailors/${id}/invite`}>

@@ -4,6 +4,7 @@ export type AccountState = {
   isActive: boolean;
   consentAt: string | null;
   lastLoginAt: string | null;
+  reviewRequestedAt: string | null;
 };
 
 /** What the owner sees on a tailor's page: no account yet, waiting for the tailor to accept the invite, or active. Never the password hash. */
@@ -13,7 +14,7 @@ export async function getAccountState(
 ): Promise<AccountState | null> {
   const row = await db
     .prepare(
-      'SELECT id, email, is_active, consent_at, last_login_at FROM tailor_account WHERE tailor_id = ?',
+      'SELECT id, email, is_active, consent_at, last_login_at, review_requested_at FROM tailor_account WHERE tailor_id = ?',
     )
     .bind(tailorId)
     .first<{
@@ -22,6 +23,7 @@ export async function getAccountState(
       is_active: number;
       consent_at: string | null;
       last_login_at: string | null;
+      review_requested_at: string | null;
     }>();
   return row
     ? {
@@ -30,6 +32,7 @@ export async function getAccountState(
         isActive: row.is_active === 1,
         consentAt: row.consent_at,
         lastLoginAt: row.last_login_at,
+        reviewRequestedAt: row.review_requested_at,
       }
     : null;
 }

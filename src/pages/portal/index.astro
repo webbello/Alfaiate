@@ -4,7 +4,10 @@ import { env } from 'cloudflare:workers';
 import PortalLayout from '../../layouts/PortalLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
+import Flash from '../../components/admin/Flash.astro';
 import { requireTailor } from '../../modules/portal/require';
+import { portalChecklist } from '../../modules/portal/checklist';
+import { getAccountState } from '../../modules/portal/account';
 
 const auth = await requireTailor(Astro);
 if (auth instanceof Response) return auth;
@@ -17,6 +20,12 @@ const tailor = await requireBindings(env)
   .bind(auth.tailorId)
   .first<{ display_name: string; status: string; is_published: number }>();
 if (!tailor) return new Response('Not found', { status: 404 });
+const items = await portalChecklist(requireBindings(env).DB, auth.tailorId);
+const account = await getAccountState(requireBindings(env).DB, auth.tailorId);
+const ready = items.every((i) => !i.required || i.done);
+const code = Astro.url.searchParams.get('msg') ?? '';
+const messages = p.overviewMessages as Record<string, string>;
+const note = messages[code] ?? '';
 const status =
   tailor.is_published === 1
     ? p.statusLive
@@ -30,4 +39,27 @@ const status =
     {p.welcome}, {tailor.display_name}
   </h1>
   <p>{status}</p>
+  {note && (
+    <Flash message={note} kind={code === 'submitted' ? 'success' : 'problem'} />
+  )}
+  <h2>{p.checklistHeading}</h2>
+  <p>{p.checklistIntro}</p>
+  <ul>
+    {items.map((i) => (
+      <li>
+        <a href={i.href}>{i.label}</a>: {i.done ? p.done : p.todo}
+      </li>
+    ))}
+  </ul>
+  {tailor.is_published !== 1 &&
+    (account?.reviewRequestedAt ? (
+      <p>{p.waiting}</p>
+    ) : (
+      <form method="post" action="/portal/submit">
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <button type="submit" disabled={!ready}>
+          {p.submit}
+        </button>
+      </form>
+    ))}
 </PortalLayout>

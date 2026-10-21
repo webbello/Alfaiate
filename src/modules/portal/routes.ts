@@ -21,6 +21,12 @@ export const PORTAL_ROUTES: readonly {
     methods: ['GET', 'POST'],
   },
   {
+    file: 'submit.ts',
+    path: '/portal/submit',
+    access: 'tailor',
+    methods: ['POST'],
+  },
+  {
     file: 'logout.ts',
     path: '/portal/logout',
     access: 'tailor',

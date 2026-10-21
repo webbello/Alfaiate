@@ -32,7 +32,7 @@ Order and reasons are in [plan-tailor-portal.md](plan-tailor-portal.md). Require
   - Verify: workers tests (hidden by default, own photos only, limit, bad type or size refused); integration tests (hidden photo returns 404 publicly, 200 after an admin shows it; tailor cannot touch another tailor's image id); e2e upload with a fake image and axe; mutation checks on hidden-by-default and ownership.
   - Files: `src/modules/portal/photos.ts`, `src/pages/portal/photos.astro`, handlers, tests
 
-- [ ] **S7 Checklist and submit for review**
+- [x] **S7 Checklist and submit for review**
   - Acceptance: `/portal` shows the existing publish checklist in the tailor's words (what is missing, what the owner will check), the current status (draft, waiting for review, live, paused), and a "Ready for review" action that needs the permission consent and notifies the owner through the existing webhook (reference and link only); publishing stays admin-only.
   - Verify: unit test for the tailor-facing checklist copy; integration test that submitting without consent or required fields is refused and that no tailor action changes `status` or `is_published`; webhook test (no personal data in the body); e2e of the full local journey.
   - Files: `src/modules/portal/checklist.ts`, `src/pages/portal/index.astro`, `src/pages/portal/submit.ts`, `src/modules/notify/index.ts` (kind `'tailor-ready'`), tests
