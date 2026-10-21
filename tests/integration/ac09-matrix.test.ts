@@ -108,6 +108,7 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
   '/admin/interest/[id]/approve': (csrf) => ({ csrf }),
   '/admin/interest/[id]/decline': (csrf) => ({ csrf }),
   '/admin/tailors/[id]/invite': (csrf) => ({ csrf }),
+  '/admin/tailors/[id]/signin': (csrf) => ({ csrf, action: 'deactivate' }),
   '/admin/newsletter/[id]/remove': (csrf) => ({ csrf }),
   '/admin/users/actions': (csrf) => ({
     csrf,

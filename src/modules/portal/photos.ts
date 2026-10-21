@@ -51,14 +51,15 @@ export async function uploadPortalPhoto(
     b,
     { tailorAccountId: session.accountId },
     session.tailorId,
-    input,
+    {
+      ...input,
+      // Hidden and with the tailor's confirmation from the very first insert: no moment where the row is visible.
+      initial: {
+        visible: false,
+        permissionDate: now.toISOString().slice(0, 10),
+      },
+    },
   );
-  if (!stored.ok) return stored;
-  await b.DB.prepare(
-    'UPDATE portfolio_image SET is_visible = 0, permission_granted = 1, permission_date = ? WHERE id = ? AND tailor_id = ?',
-  )
-    .bind(now.toISOString().slice(0, 10), stored.id, session.tailorId)
-    .run();
   return stored;
 }
 

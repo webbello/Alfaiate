@@ -78,13 +78,13 @@ const tailorId = auth.tailorId; // from the session row, never from the request
 
 | ID | Requirement |
 |---|---|
-| FR-TPO-01 | Approve or decline a tailor interest in one action at `/admin/interest` (`tailor.edit`); approval creates a draft tailor and a tailor login and returns a one-time invite link; both actions are audited. |
-| FR-TPO-02 | The invite link is single-use, expires in 7 days, is stored only as a hash, and can be re-issued by an admin with `tailor.edit`. |
+| FR-TPO-01 | Approve or decline a tailor interest in one action at `/admin/interest` (`tailor.publish`, owner and manager: it creates a sign-in); approval creates a draft tailor and a tailor login and returns a one-time invite link; both actions are audited. |
+| FR-TPO-02 | The invite link is single-use, expires in 7 days, is stored only as a hash, and can be re-issued by an admin with `tailor.publish`. |
 | FR-TPO-03 | A signed-in tailor reaches only `/portal/*` and only their own record. No staff page, no other tailor, no enquiry, referral, fee, note or customer data is reachable or rendered. |
 | FR-TPO-04 | The tailor edits the fields in assumption 6 with the existing validation; fields in assumption 7 are not accepted from a tailor even if sent. |
-| FR-TPO-05 | The tailor uploads, describes, orders and removes their own photos with the existing validation and limits; new photos are hidden until an admin shows them. |
-| FR-TPO-06 | The tailor sees a checklist of what is missing before the owner can publish, and the current status (waiting for review, live, paused). |
-| FR-TPO-07 | The tailor's permission to publish is recorded (wording version, time) before their profile can be submitted for review; publishing remains admin-only (`tailor.publish`). |
+| FR-TPO-05 | The tailor uploads, describes and removes their own photos (staff order them) with the existing validation and limits; new photos are hidden until an admin shows them. |
+| FR-TPO-06 | The tailor sees a checklist of what is missing before the owner can publish, and the current status (waiting for review, live, paused), and can say the page is ready, which tells the owner through the notification channel (reference and link only). |
+| FR-TPO-07 | The tailor's permission to publish is recorded (wording version, time) when they accept the invite; publishing remains admin-only (`tailor.publish`). |
 | FR-TPO-08 | Tailor actions write audit rows with the tailor as actor; no customer data and no personal data beyond what exists today is logged. |
 
 ## Testing strategy

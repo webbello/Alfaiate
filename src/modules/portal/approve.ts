@@ -136,3 +136,38 @@ export async function reissueInvite(
   });
   return { token };
 }
+
+/** Switches a tailor's sign-in off (they left, or a session or password may be stolen) or back on. Switching off ends every session at once. */
+export async function setTailorSignIn(
+  db: D1Database,
+  input: { tailorId: number; actorId: number; active: boolean },
+): Promise<boolean> {
+  const account = await db
+    .prepare('SELECT id FROM tailor_account WHERE tailor_id = ?')
+    .bind(input.tailorId)
+    .first<{ id: number }>();
+  if (!account) return false;
+  await db.batch([
+    db
+      .prepare(
+        "UPDATE tailor_account SET is_active = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?",
+      )
+      .bind(input.active ? 1 : 0, account.id),
+    ...(input.active
+      ? []
+      : [
+          db
+            .prepare('DELETE FROM tailor_session WHERE tailor_account_id = ?')
+            .bind(account.id),
+        ]),
+  ]);
+  await audit(db, {
+    userId: input.actorId,
+    action: input.active
+      ? 'tailor_signin_activated'
+      : 'tailor_signin_deactivated',
+    entityType: 'tailor',
+    entityId: input.tailorId,
+  });
+  return true;
+}

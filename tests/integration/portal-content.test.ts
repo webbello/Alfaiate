@@ -100,6 +100,7 @@ describe('profile page', () => {
     expect(page).toContain('value="Content Atelier Fake"');
     expect(page).not.toContain('+67077123456'); // the private number is the owner's note, never shown back
     const done = await send('/portal/profile', t.cookie, {
+      csrf: t.csrf,
       display_name: 'Renamed Fake',
       description: 'Fake words',
       slug: 'hijack',
@@ -123,7 +124,23 @@ describe('profile page', () => {
       fee_terms_text: null,
     });
     expect(row!.slug).not.toBe('hijack');
-    const bad = await send('/portal/profile', t.cookie, { display_name: '' });
+    const noToken = await send('/portal/profile', t.cookie, {
+      display_name: 'No token',
+    });
+    expect(noToken.status).toBe(403);
+    expect((await send('/portal/work', t.cookie, { cat_1: 'on' })).status).toBe(
+      403,
+    );
+    expect(
+      (await db
+        .prepare('SELECT display_name FROM tailor WHERE id = ?')
+        .bind(t.tailorId)
+        .first<{ display_name: string }>())!.display_name,
+    ).not.toBe('No token');
+    const bad = await send('/portal/profile', t.cookie, {
+      csrf: t.csrf,
+      display_name: '',
+    });
     expect(bad.status).toBe(422);
     expect(await bad.text()).toContain('Please check the details');
   });
@@ -164,6 +181,7 @@ describe('work page', () => {
     expect(page).toContain('Work Cat Fake');
     expect(page).toContain('Work Area Fake');
     const done = await send('/portal/work', t.cookie, {
+      csrf: t.csrf,
       [`cat_${cat}`]: 'on',
       [`serves_${area}`]: 'on',
     });

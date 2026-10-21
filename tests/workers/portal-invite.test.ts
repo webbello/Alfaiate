@@ -280,3 +280,77 @@ describe('invite tokens (FR-TPO-02)', () => {
     ).toBe(true);
   });
 });
+
+describe('ending sessions (security review)', () => {
+  it('a re-issued link that sets a new password ends the older sessions of that account', async () => {
+    const { createTailorSession, validateTailorSession } =
+      await import('../../src/modules/portal/session');
+    const r = await approveInterest(
+      db,
+      { id: await interest(), actorId: await admin() },
+      T0,
+    );
+    if (!r.ok) throw new Error('setup');
+    await consumeInvite(db, r.token, activation(`sess${++n}@example.test`), T0);
+    const old = (await createTailorSession(db, r.accountId, T0)).token;
+    expect(await validateTailorSession(db, old, T0)).not.toBeNull();
+    const again = await issueInvite(db, r.accountId, T0);
+    expect(
+      (await consumeInvite(db, again, activation(`sess${n}@example.test`), T0))
+        .ok,
+    ).toBe(true);
+    expect(await validateTailorSession(db, old, T0)).toBeNull();
+  });
+  it('switching a sign-in off ends its sessions and refuses new ones, and switching on allows them again', async () => {
+    const { createTailorSession, validateTailorSession } =
+      await import('../../src/modules/portal/session');
+    const { setTailorSignIn } =
+      await import('../../src/modules/portal/approve');
+    const actor = await admin();
+    const r = await approveInterest(
+      db,
+      { id: await interest(), actorId: actor },
+      T0,
+    );
+    if (!r.ok) throw new Error('setup');
+    await consumeInvite(db, r.token, activation(`off${++n}@example.test`), T0);
+    const token = (await createTailorSession(db, r.accountId, T0)).token;
+    expect(
+      await setTailorSignIn(db, {
+        tailorId: r.tailorId,
+        actorId: actor,
+        active: false,
+      }),
+    ).toBe(true);
+    expect(
+      (await db
+        .prepare(
+          'SELECT count(*) AS c FROM tailor_session WHERE tailor_account_id = ?',
+        )
+        .bind(r.accountId)
+        .first<{ c: number }>())!.c,
+    ).toBe(0);
+    expect(await validateTailorSession(db, token, T0)).toBeNull();
+    expect(
+      await setTailorSignIn(db, {
+        tailorId: r.tailorId,
+        actorId: actor,
+        active: true,
+      }),
+    ).toBe(true);
+    expect(
+      await validateTailorSession(
+        db,
+        (await createTailorSession(db, r.accountId, T0)).token,
+        T0,
+      ),
+    ).not.toBeNull();
+    expect(
+      await setTailorSignIn(db, {
+        tailorId: 99999999,
+        actorId: actor,
+        active: false,
+      }),
+    ).toBe(false);
+  });
+});

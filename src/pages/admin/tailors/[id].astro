@@ -560,6 +560,11 @@ const action = `/admin/tailors/${id}/actions`;
           <input type="hidden" name="csrf" value={auth.csrfToken} />
           <button type="submit">Make a new sign-in link</button>
         </form>
+        <form method="post" action={`/admin/tailors/${id}/signin`}>
+          <input type="hidden" name="csrf" value={auth.csrfToken} />
+          <input type="hidden" name="action" value={account.isActive ? 'deactivate' : 'activate'} />
+          <button type="submit">{account.isActive ? 'Switch the sign-in off (ends their sessions)' : 'Switch the sign-in back on'}</button>
+        </form>
       )}
     </>
   )}

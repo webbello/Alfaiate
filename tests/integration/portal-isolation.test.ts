@@ -129,6 +129,10 @@ describe('two tailors', () => {
           method: 'POST',
           headers: { Cookie: a.cookie, Origin: ORIGIN },
           body: new URLSearchParams({
+            csrf:
+              /name="csrf" value="([^"]+)"/.exec(
+                await (await get('/portal', a.cookie)).text(),
+              )?.[1] ?? '',
             display_name: 'A renamed',
             tailor_id: String(b.tailorId),
             id: String(b.tailorId),

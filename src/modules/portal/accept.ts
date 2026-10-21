@@ -4,7 +4,7 @@ import { MIN_PASSWORD_LENGTH } from '../auth/admin-users';
 import { hashPassword } from '../auth/password';
 import { hit } from '../auth/rate-limit';
 import { en } from '../../i18n/en';
-import { consumeInvite } from './invite';
+import { consumeInvite, lookupInvite } from './invite';
 import { createTailorSession } from './session';
 
 const ACCEPT_LIMIT = 10;
@@ -42,9 +42,12 @@ export async function acceptInvite(
   now = new Date(),
 ): Promise<AcceptResult> {
   if (
-    input.ip &&
-    (await hit(db, `portal:accept:${input.ip}`, WINDOW_SECONDS, now)) >
-      ACCEPT_LIMIT
+    (await hit(
+      db,
+      `portal:accept:${input.ip ?? 'unknown'}`,
+      WINDOW_SECONDS,
+      now,
+    )) > ACCEPT_LIMIT
   )
     return { ok: false, error: 'limited' };
   const parsed = schema.safeParse(input);
@@ -60,6 +63,9 @@ export async function acceptInvite(
             : 'email',
     };
   }
+  // Hashing a password is slow on purpose: only do it for a link that works.
+  if (!(await lookupInvite(db, input.token, now)))
+    return { ok: false, error: 'invalid_link' };
   const result = await consumeInvite(
     db,
     input.token,

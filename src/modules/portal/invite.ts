@@ -88,6 +88,12 @@ export async function consumeInvite(
           stamp,
           info.accountId,
         ),
+      // A new password (a reset) ends every older session of this account; runs only if the account update just worked.
+      db
+        .prepare(
+          'DELETE FROM tailor_session WHERE tailor_account_id = ? AND changes() = 1',
+        )
+        .bind(info.accountId),
     ]);
     if (claim.meta.changes !== 1) return { ok: false, reason: 'invalid' };
   } catch (error) {

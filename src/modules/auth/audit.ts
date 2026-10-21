@@ -27,6 +27,8 @@ export type AuditAction =
   | 'interest_approved'
   | 'interest_declined'
   | 'tailor_invite_issued'
+  | 'tailor_signin_activated'
+  | 'tailor_signin_deactivated'
   | 'portal_login'
   | 'portal_login_failed'
   | 'portal_account_activated'

@@ -6,6 +6,8 @@ import PortalLayout from '../../layouts/PortalLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { readForm } from '../../modules/http/body';
+import { verifyCsrf } from '../../modules/auth/csrf';
+import { TAILOR_COOKIE } from '../../modules/portal/session';
 import { requireTailor } from '../../modules/portal/require';
 import { savePortalProfile, tailorMayEdit } from '../../modules/portal/profile';
 import { getTailor } from '../../modules/tailors/repo';
@@ -24,6 +26,13 @@ let sent: FormData | null = null;
 if (Astro.request.method === 'POST') {
   const { form, tooLarge } = await readForm(Astro.request);
   if (tooLarge) return new Response('Payload too large', { status: 413 });
+  if (
+    !(await verifyCsrf(
+      Astro.cookies.get(TAILOR_COOKIE)?.value ?? '',
+      form.get('csrf')?.toString(),
+    ))
+  )
+    return new Response('Forbidden', { status: 403 });
   const result = await savePortalProfile(DB, auth, form);
   if (result.ok) return Astro.redirect('/portal/profile?saved=1', 303);
   sent = form;
@@ -46,6 +55,7 @@ const editable = tailorMayEdit(tailor.status);
   <p>{p.profileIntro}</p>
   {message && <Flash message={message} kind={kind} />}
   <form method="post">
+    <input type="hidden" name="csrf" value={auth.csrfToken} />
     <p>
       <label for="display_name">{p.displayName}</label>
       <br />

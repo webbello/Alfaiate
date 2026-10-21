@@ -288,6 +288,9 @@ Criteria are testable statements; full test mapping is in the implementation pla
 | AC-15 | SEC-05 / BR-07 | No public route, sitemap, analytics event or log line contains customer name, phone or notes. |
 | AC-16 | NFR-REL-01 | A backup is restored to a clean environment and the site and admin function with the restored data. |
 | AC-17 | NFR-A11Y-01 | Automated accessibility checks pass on key pages and the form is completable by keyboard alone. |
+| AC-18 | FR-TPO-03 | A tailor session is treated as not signed in on every admin route, staff and visitors are refused on every portal route, and a tailor never sees another tailor's or any owner-only data (`portal-isolation.test.ts`). |
+| AC-19 | FR-TPO-02 | An invite link works once, expires after 7 days and is stored only as a hash. |
+| AC-20 | FR-TPO-04, FR-TPO-05 | A tailor's forged fields (slug, status, publishing, permission, verification, fees, other tailor ids) change nothing, and a tailor's new photo is hidden and not served publicly until staff show it. |
 
 ## 13. Analytics and reporting requirements
 

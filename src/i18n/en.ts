@@ -170,7 +170,7 @@ export const en = {
   photosDelete: 'Delete',
   photosProfile: 'Use as profile photo',
   photosIsProfile: 'Profile photo',
-  photosPermitted: 'Permission recorded on',
+  photosPermitted: 'Permission recorded on (by the tailor when uploading, or by staff)',
   photosNotPermitted: 'No permission recorded: not public',
   photosGrant: 'Record permission',
   photosWithdraw: 'Withdraw permission',

@@ -42,7 +42,7 @@ Order and reasons are in [plan-tailor-portal.md](plan-tailor-portal.md). Require
   - Verify: the suites pass and each guard's mutation is seen failing; privacy-scope-reviewer clean.
   - Files: `src/modules/auth/portal-routes.ts`, `tests/integration/ac09-matrix.test.ts`, `tests/integration/portal-isolation.test.ts`, `tests/workers/portal-route-inventory.test.ts`
 
-- [ ] **S9 Docs, review and wrap-up** _(docs done 2026-10-21; reviewers pending)_
+- [x] **S9 Docs, review and wrap-up** _(reviews done and fixed 2026-10-21)_
   - Acceptance: PRD gets FR-TPO-01..08 and an amended §7.3 (owner-approved reversal) and AC rows; ARCHITECTURE, DATA_MODEL, DECISIONS, STATUS, SECURITY_PRIVACY_REVIEW, README and `docs/DRAFT-privacy-and-terms.md` (tailor accounts) updated; LAUNCH_CHECKLIST gets the tailor-portal items (invite process, who sends links); `npm run check`, `npm run test:e2e`, then privacy-scope-reviewer, docs-sync and security-auditor, findings fixed.
   - Verify: all checks green; reviewers' findings resolved or flagged to the owner.
   - Files: docs only, plus review fixes

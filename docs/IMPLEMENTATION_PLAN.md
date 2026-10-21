@@ -113,6 +113,10 @@ No web fonts, no third-party requests; JavaScript only on a profile with contact
 - **Status (2026-10-19):** built in five commits; reviews and owner sign-off pending. No separate spec (owner chose to build straight away); decisions in DECISIONS.md.
 - **Measured budgets:** see `tests/integration/budgets.test.ts` (home HTML 27700 incl. the footer form, CSS 17900, home CSS 33000, JS 900).
 
+## Phase 7e — Tailor portal (added 2026-10-21, owner request)
+
+Spec [SPEC-tailor-portal.md](SPEC-tailor-portal.md), tasks `tasks/todo-tailor-portal.md` (S1 to S9, built locally). Requirements FR-TPO-01..08, AC-18..20. Migrations 0007 and 0008. Needs the owner's click-through and privacy text before Phase 8.
+
 ## Phase 8 — Deployment and initial pilot
 
 - **Objective:** go live with a small set of real tailors and learn.
@@ -133,6 +137,7 @@ No web fonts, no third-party requests; JavaScript only on a profile with contact
 | Requirements | Phase |
 |---|---|
 | FR-ADM-01, SEC-01/02/03/06/08/09 | 2 |
+| FR-TPO-01..08, AC-18..20 | 7e |
 | FR-ADM-02/03/04/05/08, FR-REF-08 | 3 |
 | FR-PUB-*, FR-DIR-*, FR-PRO-*, ANA-01/02 | 4 (ANA-01 page-view counts added in launch preparation) |
 | FR-ENQ-*, FR-ADM-06/07, SEC-05/07, PRV-01/02/03 | 5 |

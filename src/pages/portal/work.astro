@@ -6,6 +6,8 @@ import PortalLayout from '../../layouts/PortalLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { readForm } from '../../modules/http/body';
+import { verifyCsrf } from '../../modules/auth/csrf';
+import { TAILOR_COOKIE } from '../../modules/portal/session';
 import { requireTailor } from '../../modules/portal/require';
 import { saveWork, workView } from '../../modules/portal/work';
 
@@ -18,6 +20,13 @@ let kind: 'success' | 'problem' = 'success';
 if (Astro.request.method === 'POST') {
   const { form, tooLarge } = await readForm(Astro.request);
   if (tooLarge) return new Response('Payload too large', { status: 413 });
+  if (
+    !(await verifyCsrf(
+      Astro.cookies.get(TAILOR_COOKIE)?.value ?? '',
+      form.get('csrf')?.toString(),
+    ))
+  )
+    return new Response('Forbidden', { status: 403 });
   const result = await saveWork(DB, auth, form);
   if (result.ok) return Astro.redirect('/portal/work?saved=1', 303);
   kind = 'problem';
@@ -32,6 +41,7 @@ const view = await workView(DB, auth.tailorId);
   <p>{p.workIntro}</p>
   {message && <Flash message={message} kind={kind} />}
   <form method="post">
+    <input type="hidden" name="csrf" value={auth.csrfToken} />
     <fieldset>
       <legend>{p.workTypes}</legend>
       {view.categories.length === 0 && <p>{p.workNone}</p>}

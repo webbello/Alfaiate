@@ -46,6 +46,8 @@ export async function storeImage(
     alt_text: string;
     caption?: string;
     variants: Record<Variant, Uint8Array>;
+    /** Starting state, set in the same insert (the tailor portal stores photos hidden, with the tailor's confirmation). Default: visible, no permission. */
+    initial?: { visible: boolean; permissionDate?: string };
   },
 ): Promise<StoreResult> {
   const parsed = meta.safeParse(input);
@@ -84,8 +86,8 @@ export async function storeImage(
     }
     // One statement checks the cap and inserts, so parallel uploads cannot slip past MAX_IMAGES (check-then-act race).
     const row = await b.DB.prepare(
-      `INSERT INTO portfolio_image (tailor_id, file_key, alt_text, caption, sort_order)
-       SELECT ?1, ?2, ?3, ?4, coalesce(max(sort_order), 0) + 1 FROM portfolio_image WHERE tailor_id = ?1 HAVING count(*) < ?5`,
+      `INSERT INTO portfolio_image (tailor_id, file_key, alt_text, caption, sort_order, is_visible, permission_granted, permission_date)
+       SELECT ?1, ?2, ?3, ?4, coalesce(max(sort_order), 0) + 1, ?6, ?7, ?8 FROM portfolio_image WHERE tailor_id = ?1 HAVING count(*) < ?5`,
     )
       .bind(
         tailorId,
@@ -93,6 +95,9 @@ export async function storeImage(
         parsed.data.alt_text,
         parsed.data.caption || null,
         MAX_IMAGES,
+        input.initial?.visible === false ? 0 : 1,
+        input.initial?.permissionDate ? 1 : 0,
+        input.initial?.permissionDate ?? null,
       )
       .run();
     if (row.meta.changes === 0) {
