@@ -77,8 +77,6 @@ describe('public routes (scope guard)', () => {
     'tet/tailors/[slug].astro',
     'tet/tailors/index.astro',
     'tet/terms.astro',
-    'tet/theme-preview.astro',
-    'theme-preview.astro',
   ];
 
   it('are exactly the expected public pages', () => {

@@ -1,6 +1,6 @@
 # Spec: Handspark theme as the public face of Alfaiate TL
 
-Status: **Decisions approved 2026-10-23. Steps 1 to 6 done; step 7 partly done (brand, fonts, Tetun list, SEO check); the rest of step 7 and step 8 are open, then the shop (SPEC-shop.md).** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
+Status: **Decisions approved 2026-10-23. Steps 1 to 6 done; step 7 partly done; step 8 done except removing `handspark/` (waiting for the owner); then the shop (SPEC-shop.md).** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
 
 ## Objective
 
@@ -21,7 +21,7 @@ Signature features the owner named: the **hero image trail** (pictures appear an
 - `src/theme/` holds the theme's header (with a new EN | TET switch), footer, cart drawer, icons, styles and scripts; `src/layouts/ThemeLayout.astro` is the frame: our canonical and hreflang links, robots rules, social tags only on indexable pages, no inline style or script.
 - Fonts: the Astro fonts component writes an inline `<style>`, which our policy forbids, so the fonts are plain `@font-face` rules in `src/theme/styles/fonts.css` with files in `public/fonts/theme/`. The `js` class script is an external file (`public/js-flag.js`).
 - Tailwind scans only `src/theme/` (`source(none)` plus `@source "../"`), so page templates live in `src/theme/views/` and `src/pages/` has thin route files, as with the existing `src/views/`.
-- Test page `/theme-preview` and `/tet/theme-preview` (noindex, not in the sitemap, removed in step 8) prove the frame: security headers, no inline style or script, same-origin assets, head, language switch, axe clean, no text clipped, no CSP violation, reflow.
+- Test page `/theme-preview` and `/tet/theme-preview` (noindex, not in the sitemap, removed 2026-10-23) prove the frame: security headers, no inline style or script, same-origin assets, head, language switch, axe clean, no text clipped, no CSP violation, reflow.
 - Vendor rules: `src/theme/` is skipped by lint and the formatter, `src/theme/scripts` by the Workers typecheck (they are browser code); the one console call was made constant (SEC-05).
 - Checks: `npm run check` 771 and 676 tests, e2e 146.
 
@@ -45,7 +45,7 @@ Signature features the owner named: the **hero image trail** (pictures appear an
 ## Step 5: done (every remaining public page is inside the theme frame)
 
 - Request, request thanks, join (and thanks), business, contact, about, how it works, privacy, terms, services, craft, categories, areas, newsletter (and thanks) and the 404 page now render in `ThemeLayout` through `src/layouts/ThemePage.astro`. Their bodies keep the site's own markup, which is what carries the form behaviour (labels, error summary, pills, honeypot, fill-time token, no-script form); only the frame changed, so every protection and field is untouched.
-- Their old classes are scoped under `.legacy` in `src/theme/styles/legacy.css` (generated once from `site.css` for the classes these views use, plus the tokens), so they cannot restyle the theme. `.button` there resets the theme's button first. The theme's own About, Contact, FAQ and Privacy designs are **not** used yet: these pages keep our text and layout inside the theme frame. Re-laying them out with the theme's sections (and the FAQ accordion on `/how-it-works`) is a design pass for step 7.
+- Their old classes are scoped under `.legacy` in `src/theme/styles/legacy.css` (generated once from the now-deleted `site.css` for the classes these views use, plus the tokens), so they cannot restyle the theme. `.button` there resets the theme's button first. The theme's own About, Contact, FAQ and Privacy designs are **not** used yet: these pages keep our text and layout inside the theme frame. Re-laying them out with the theme's sections (and the FAQ accordion on `/how-it-works`) is a design pass for step 7.
 - Every page now carries the disclaimer in the footer (`ThemeLayout` passes it to the footer), as the old footer did (FR-PUB-02).
 - `PublicLayout`, `site.css` and the old Home, Directory and Profile views are no longer used by any public page; `home.css` is still imported by the Services and Craft pages for their service grid and craft section (checked in a screenshot of `/services`). All are cleaned up in step 8.
 - Tests: shell tests (404, menu, static pages, newsletter, font) retargeted to the theme's header, footer and fonts; budgets: all public pages use the theme's CSS and JS budgets (home CSS 295000; HTML request 30000, how it works 29000, join 28000, category 30000). `npm run check` 773 and 681, e2e 150, axe, CSP, reflow and no-script request tests all pass unchanged.
@@ -73,6 +73,13 @@ Signature features the owner named: the **hero image trail** (pictures appear an
 - **Not done, on purpose:** (1) *Motion script trim.* The 60 kB GSAP and Lenis script cannot be skipped on phones: the "Our services" section needs it at every width (without it only the first slide shows). I tried and reverted. A proper fix is to rebuild that section so it works without the script, which is a design change. **Fixed afterwards:** with a reduced-motion preference or no JavaScript the section is now a plain list of the four services with stacked photos (CSS in `alfaiate.css`, tested at 375 and 1280 px with axe in `e2e/reduced-motion.spec.ts`). Also found by the new wide-screen axe checks and fixed: the language switch's accessible names now start with the visible text ("TET (Tetun)", "EN (English)"). (2) *Per-page CSS.* The whole theme sheet (33 kB compressed) loads on every page; splitting it needs a second Tailwind entry per page type. (3) The theme's own About, Contact, FAQ and Privacy layouts, and replacing the theme's demo photos and sample partner logos, wait for your content.
 - Fonts licence: OFL texts for Libre Baskerville and Manrope added next to the files (`public/fonts/`), README updated; their name tables declare no Reserved Font Name, so the converted files keep their names.
 - Tests: `brand` and `seo-review` integration tests (the font and brand tests assert what is checked; the timings above come from `npm run perf`, one run). `npm run check` 773 and 691 and e2e 157 passed on the commit's tree.
+
+## Step 8: clean-up (done except `handspark/`)
+
+- Deleted (no longer reachable from any page, found with an import-graph check): `PublicLayout`, `src/styles/site.css`, the old header, footer and logo, nine old home components, and the old Home, Directory and Profile views; the old Alfaiate Display and Alfaiate Script fonts and their licence texts (README updated); `/theme-preview` and `/tet/theme-preview` with their view. The frame tests now run on `/about`, and `theme-preview` is out of the route guard and the e2e lists.
+- Kept: `src/styles/home.css` (Services and Craft still use its grid), `story.css` users, and the vendored theme code under `src/theme/`.
+- **Not done, owner to decide:** the runnable copy `handspark/` (the theme as delivered, with `npm run theme:dev`, root tooling skips it). The plan was to remove it. It is the only place the theme's own demo pages (shop, product, blog, style guide) can be viewed, and its demo photos are not in git, so deleting it loses them (the original zip in Downloads still has them). Say "remove handspark" to delete it, or keep it until the shop is built.
+- `npm run check` 773 and 688, e2e 159.
 
 ## What the theme contains (all of it is to be kept)
 

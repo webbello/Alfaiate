@@ -1,4 +1,4 @@
-/* Home page (Phase 7d): recreates the owner's reference design. Loaded only by the home page. Tokens live in site.css.
+/* Home page (Phase 7d): recreates the owner's reference design. Loaded by the Services and Craft pages only (the home page is the Handspark theme). Tokens come from `.legacy` in src/theme/styles/legacy.css.
    Motion: hover zoom, arrow nudge, CSS 3D tilt on cards and the craft tiles, scroll-driven reveals where the browser supports them.
    Everything moves only under prefers-reduced-motion: no-preference; without motion the page is complete and static. */
 

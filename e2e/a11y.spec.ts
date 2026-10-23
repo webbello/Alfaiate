@@ -10,7 +10,6 @@ const PATHS = [
   '/request',
   '/join',
   '/contact',
-  '/theme-preview',
   '/journal',
   '/gallery',
   '/faq',
@@ -35,7 +34,6 @@ for (const prefix of ['', '/tet']) {
       await page.goto(url);
       // the theme's hero text fades in with GSAP: check the colours once it has settled
       if (
-        url.includes('theme-preview') ||
         url.includes('/tailors') ||
         /\/(journal|gallery|faq)$/.test(url) ||
         url === '/' ||

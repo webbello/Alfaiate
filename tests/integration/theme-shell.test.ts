@@ -2,15 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { ORIGIN, get } from './helpers';
 import { worker } from './worker';
 
-// Handspark theme, step 2 (docs/SPEC-handspark-theme.md): the new page frame keeps our security rules, head and language switch.
+// The Handspark page frame (ThemeLayout) keeps our security rules, head and language switch. Checked on /about, a page in the frame.
 const page = async (path: string) => {
   const res = await get(path);
   return { res, html: await res.text() };
 };
 
 describe('the Handspark page frame (ThemeLayout)', () => {
-  it('serves the preview with the security headers and the theme frame', async () => {
-    const { res, html } = await page('/theme-preview');
+  it('serves a content page with the security headers and the theme frame', async () => {
+    const { res, html } = await page('/about');
     expect(res.status).toBe(200);
     expect(res.headers.get('content-security-policy')).toContain(
       "style-src 'self'",
@@ -19,11 +19,11 @@ describe('the Handspark page frame (ThemeLayout)', () => {
     expect(html).toContain('class="footer-section"');
     expect(html).toContain('data-cart');
     expect(html).toContain('class="skip-link"');
-    expect(html).toContain('Tailoring made to your measure');
+    expect(html).toContain('About Alfaiate TL');
   });
 
   it('writes no inline style or script, so the content security policy is never broken', async () => {
-    const { html } = await page('/theme-preview');
+    const { html } = await page('/about');
     expect(html, '<style> tag').not.toMatch(/<style[\s>]/);
     expect(html, 'style attribute').not.toMatch(/\sstyle="/);
     expect(html, 'event attribute').not.toMatch(/\son[a-z]+="/);
@@ -35,7 +35,7 @@ describe('the Handspark page frame (ThemeLayout)', () => {
   });
 
   it('loads one stylesheet and the theme script from this site, and no third-party address', async () => {
-    const { html } = await page('/theme-preview');
+    const { html } = await page('/about');
     const css = [
       ...html.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g),
     ].map((m) => m[1]);
@@ -60,12 +60,12 @@ describe('the Handspark page frame (ThemeLayout)', () => {
   });
 
   it('keeps our head: canonical, hreflang twins, noindex, and no social tags on a noindex page', async () => {
-    const { html } = await page('/theme-preview');
+    const { html } = await page('/request');
     expect(html).toContain(
-      '<link rel="canonical" href="https://alfaiate-tl.example/theme-preview"',
+      '<link rel="canonical" href="https://alfaiate-tl.example/request"',
     );
     expect(html).toContain(
-      'hreflang="tet" href="https://alfaiate-tl.example/tet/theme-preview"',
+      'hreflang="tet" href="https://alfaiate-tl.example/tet/request"',
     );
     expect(html).toContain('hreflang="x-default"');
     expect(html).toMatch(/<meta name="robots" content="noindex/);
@@ -74,20 +74,14 @@ describe('the Handspark page frame (ThemeLayout)', () => {
   });
 
   it('has the EN | TET switch in both directions and a Tetun page', async () => {
-    const en = (await page('/theme-preview')).html;
+    const en = (await page('/about')).html;
     expect(en).toMatch(
-      /<span aria-current="true" lang="en">\s*EN\s*<\/span><a href="\/tet\/theme-preview"[^>]*aria-label="TET \(Tetun\)">\s*TET\s*<\/a>/,
+      /<span aria-current="true" lang="en">\s*EN\s*<\/span><a href="\/tet\/about"[^>]*aria-label="TET \(Tetun\)">\s*TET\s*<\/a>/,
     );
-    const tet = (await page('/tet/theme-preview')).html;
+    const tet = (await page('/tet/about')).html;
     expect(tet).toContain('<html lang="tet"');
     expect(tet).toMatch(
-      /<span aria-current="true" lang="tet">\s*TET\s*<\/span><a href="\/theme-preview"[^>]*aria-label="EN \(English\)">\s*EN\s*<\/a>/,
+      /<span aria-current="true" lang="tet">\s*TET\s*<\/span><a href="\/about"[^>]*aria-label="EN \(English\)">\s*EN\s*<\/a>/,
     );
-    expect(tet).toContain('Alfaiate ba Ita-nia Estilu');
-  });
-
-  it('is not listed in the sitemap', async () => {
-    const { html } = await page('/sitemap.xml');
-    expect(html).not.toContain('theme-preview');
   });
 });

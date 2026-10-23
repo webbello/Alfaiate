@@ -1,3 +1,5 @@
+> **Superseded 2026-10-23.** The public site now uses the Handspark theme (docs/SPEC-handspark-theme.md). This file records the earlier art direction for history; `site.css`, the Instrument, Playfair and Allura fonts and the CSS 3D pieces it describes are no longer in the code.
+
 # Art direction (Phases 7c and 7d)
 
 Status: built in Phase 7c (T1-T9); copy and motifs still need the owner's approval. Spec: [SPEC-phase-7c.md](SPEC-phase-7c.md). All copy is a draft marked REVIEW until the owner approves it (BR-11).
