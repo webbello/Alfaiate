@@ -1,32 +1,34 @@
 /**
- * The cart.
+ * The request list (Alfaiate TL's use of the theme's cart).
  *
- * The panel opens and closes, and the basket behind it lives in the browser's
- * local storage: Add to Cart puts a line in it, the panel lists the lines with
- * a quantity box and a remove link, and the count and subtotal follow. It is a
- * basket for this browser only — a static site has no server to keep one on, and
- * nothing here takes payment. A provider that does (Snipcart, a Shopify Buy
- * Button) can still be dropped in over the same `data-cart-*` hooks; see
- * `docs/commerce.md`.
+ * Nothing is bought here. The list holds up to three tailors the visitor would like to ask; it lives in this browser's local storage
+ * (tailor slugs and public names only, no personal data), the panel lists them with a Remove link, and "Send request" opens the
+ * request form with those tailors chosen. Nothing is sent until the visitor fills in and sends that form.
  */
 
 interface Line {
   id: string;
   name: string;
-  price: number;
-  currency: string;
-  symbol: string;
   url: string;
   image: string;
-  quantity: number;
 }
 
-const STORAGE_KEY = 'handspark-cart';
+const STORAGE_KEY = 'alfaiate-request-list';
 
 function read(): Line[] {
   try {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
-    return Array.isArray(raw) ? (raw as Line[]) : [];
+    // Storage can be edited by hand: keep only our own paths so a link or picture can never point elsewhere.
+    return Array.isArray(raw)
+      ? (raw as Line[]).filter(
+          (l) =>
+            l &&
+            typeof l.id === 'string' &&
+            typeof l.name === 'string' &&
+            /^\/(?!\/)/.test(String(l.url)) &&
+            (l.image === '' || String(l.image).startsWith('/media/')),
+        )
+      : [];
   } catch {
     return [];
   }
@@ -36,88 +38,93 @@ function write(lines: Line[]): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
   } catch {
-    // Storage can be blocked; the basket then lasts for this page only.
+    // Storage can be blocked; the list then lasts for this page only.
   }
 }
 
 let lines: Line[] = read();
 
-const money = (line: Pick<Line, 'symbol' | 'currency'>, amount: number) =>
-  `${line.symbol} ${amount.toFixed(2)} ${line.currency}`;
+const labelOf = (cart: HTMLElement, key: string, name = '') =>
+  (cart.dataset[key] ?? '').replace('{name}', name);
 
-/** Draws the basket into every cart panel and the count beside every cart button. */
+/** Draws the list into every panel, the count beside every button and the link that opens the request form. */
 function render(): void {
-  const count = lines.reduce((sum, line) => sum + line.quantity, 0);
   for (const badge of document.querySelectorAll<HTMLElement>('[data-cart-count]')) {
-    badge.textContent = String(count);
+    badge.textContent = String(lines.length);
   }
 
   for (const cart of document.querySelectorAll<HTMLElement>('[data-cart]')) {
     const list = cart.querySelector<HTMLElement>('[data-cart-items]');
     const filled = cart.querySelector<HTMLElement>('[data-cart-lines]');
     const empty = cart.querySelector<HTMLElement>('[data-cart-empty]');
-    const total = cart.querySelector<HTMLElement>('[data-cart-total]');
-    if (!list || !filled || !empty || !total) continue;
+    const send = cart.querySelector<HTMLAnchorElement>('[data-cart-send]');
+    if (!list || !filled || !empty) continue;
 
     filled.hidden = lines.length === 0;
     empty.hidden = lines.length > 0;
-    list.replaceChildren(...lines.map(row));
-
-    const first = lines[0];
-    total.textContent = first
-      ? money(first, lines.reduce((sum, line) => sum + line.price * line.quantity, 0))
-      : '\u2014';
+    list.replaceChildren(...lines.map((line) => row(line, cart)));
+    if (send) {
+      const base = cart.dataset.requestHref ?? '/request';
+      send.href = `${base}?${lines.map((l) => `tailor=${encodeURIComponent(l.id)}`).join('&')}`;
+    }
   }
 }
 
-function row(line: Line): HTMLElement {
+function row(line: Line, cart: HTMLElement): HTMLElement {
   const item = document.createElement('div');
   item.className = 'header-cart-item';
   item.dataset.cartLine = line.id;
 
   const link = document.createElement('a');
   link.href = line.url;
-  const thumb = document.createElement('img');
-  thumb.className = 'header-cart-thumb';
-  thumb.src = line.image;
-  thumb.alt = line.name;
-  thumb.loading = 'lazy';
-  link.append(thumb);
+  if (line.image) {
+    const thumb = document.createElement('img');
+    thumb.className = 'header-cart-thumb';
+    thumb.src = line.image;
+    thumb.alt = '';
+    thumb.loading = 'lazy';
+    link.append(thumb);
+  } else {
+    const badge = document.createElement('span');
+    badge.className = 'header-cart-thumb header-cart-thumb--initials';
+    badge.textContent = line.name.match(/[\p{L}\p{N}]+/gu)?.slice(0, 2).map((w) => w[0]!.toUpperCase()).join('') ?? '';
+    badge.setAttribute('aria-hidden', 'true');
+    link.append(badge);
+  }
 
   const details = document.createElement('div');
   details.className = 'header-cart-details';
-  const name = document.createElement('div');
+  const name = document.createElement('a');
   name.className = 'header-cart-name';
+  name.href = line.url;
   name.textContent = line.name;
-  const price = document.createElement('div');
-  price.className = 'header-cart-price';
-  price.textContent = money(line, line.price);
   const remove = document.createElement('button');
   remove.type = 'button';
   remove.className = 'header-cart-remove';
   remove.dataset.cartRemove = line.id;
-  remove.textContent = 'Remove';
-  details.append(name, price, remove);
+  remove.textContent = labelOf(cart, 'labelRemove');
+  remove.setAttribute('aria-label', labelOf(cart, 'labelRemoveNamed', line.name));
+  details.append(name, remove);
 
-  const quantity = document.createElement('input');
-  quantity.className = 'header-cart-quantity w-input';
-  quantity.type = 'number';
-  quantity.min = '1';
-  quantity.max = '99';
-  quantity.value = String(line.quantity);
-  quantity.dataset.cartQuantity = line.id;
-  quantity.setAttribute('aria-label', `Quantity of ${line.name}`);
-
-  item.append(link, details, quantity);
+  item.append(link, details);
   return item;
 }
 
-function add(line: Line): void {
-  const existing = lines.find((entry) => entry.id === line.id);
-  if (existing) existing.quantity = Math.min(99, existing.quantity + line.quantity);
-  else lines.push({ ...line, quantity: Math.min(99, line.quantity) });
+function say(message: string): void {
+  for (const status of document.querySelectorAll<HTMLElement>('[data-cart-status]')) status.textContent = message;
+}
+
+function add(line: Line, max: number, full: string): boolean {
+  if (lines.some((entry) => entry.id === line.id)) return true;
+  if (lines.length >= max) {
+    say(full);
+    return false;
+  }
+  lines.push(line);
   write(lines);
+  say('');
   render();
+  return true;
 }
 
 export function initCart(): void {
@@ -138,19 +145,13 @@ export function initCart(): void {
     toggle.setAttribute('aria-expanded', String(open));
     window.clearTimeout(closing.get(panel));
     if (open) {
-      // The panel is drawn inside the bar; a bar that has slid away would take
-      // it along, so bring the bar back first.
       document.querySelector('[data-header]')?.removeAttribute('data-hidden');
       panel.toggleAttribute('data-open', true);
-      // Displayed for a frame first, so the fade has something to animate from.
       requestAnimationFrame(() => panel.toggleAttribute('data-visible', true));
       panel.querySelector<HTMLElement>('[data-cart-close]')?.focus();
     } else {
       panel.removeAttribute('data-visible');
-      closing.set(
-        panel,
-        window.setTimeout(() => panel.removeAttribute('data-open'), 250)
-      );
+      closing.set(panel, window.setTimeout(() => panel.removeAttribute('data-open'), 250));
     }
     document.body.style.overflow = open ? 'hidden' : '';
   };
@@ -167,10 +168,7 @@ export function initCart(): void {
       closeAll();
       if (!open) setOpen(cart, true);
     });
-
     cart.querySelector('[data-cart-close]')?.addEventListener('click', () => setOpen(cart, false));
-
-    // The panel is a full-screen scrim; a click on the scrim itself dismisses it.
     panel.addEventListener('click', (event) => {
       if (event.target === panel) setOpen(cart, false);
     });
@@ -180,49 +178,20 @@ export function initCart(): void {
     if (event.key === 'Escape') closeAll();
   });
 
-  // Add to Cart, on a card or a product page. Listening on the document keeps
-  // it working for cards that arrive later, as when the shop changes page.
+  // "Add to request list", on a card or a profile.
   document.addEventListener('submit', (event) => {
     const form = event.target;
     if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-add-to-cart')) return;
     event.preventDefault();
 
-    const data = new FormData(form);
-    const text = (key: string) => String(data.get(key) ?? '');
-    const price = Number(text('price'));
-    if (!text('id') || !Number.isFinite(price)) return;
+    const id = String(new FormData(form).get('tailor') ?? '');
+    if (!id) return;
+    const cart = [...carts].find((c) => c.getClientRects().length > 0) ?? carts[0]!;
+    const max = Number(cart.dataset.max) || 3;
+    add({ id, name: form.dataset.name ?? '', url: form.dataset.url ?? '', image: form.dataset.image ?? '' }, max, labelOf(cart, 'labelFull'));
 
-    add({
-      id: text('id'),
-      name: text('name'),
-      price,
-      currency: text('currency'),
-      symbol: text('symbol') || '$',
-      url: text('url'),
-      image: text('image'),
-      quantity: Math.max(1, Math.round(Number(text('quantity')) || 1)),
-    });
-
-    // Show the basket, in whichever of the two panels this width displays.
-    const visible = [...carts].find((cart) => cart.getClientRects().length > 0);
-    const toggle = visible?.querySelector<HTMLButtonElement>('[data-cart-toggle]');
-    if (visible && toggle && toggle.getAttribute('aria-expanded') !== 'true') toggle.click();
-  });
-
-  // Quantity boxes and Remove links inside the panels.
-  document.addEventListener('change', (event) => {
-    const input = event.target;
-    if (!(input instanceof HTMLInputElement) || !input.dataset.cartQuantity) return;
-    const line = lines.find((entry) => entry.id === input.dataset.cartQuantity);
-    if (!line) return;
-    const quantity = Math.round(Number(input.value));
-    if (!(quantity >= 1)) {
-      input.value = String(line.quantity);
-      return;
-    }
-    line.quantity = Math.min(99, quantity);
-    write(lines);
-    render();
+    const toggle = cart.querySelector<HTMLButtonElement>('[data-cart-toggle]');
+    if (toggle && toggle.getAttribute('aria-expanded') !== 'true') toggle.click();
   });
 
   document.addEventListener('click', (event) => {
@@ -230,10 +199,11 @@ export function initCart(): void {
     if (!button) return;
     lines = lines.filter((entry) => entry.id !== button.dataset.cartRemove);
     write(lines);
+    say('');
     render();
   });
 
-  // Another tab changed the basket.
+  // Another tab changed the list.
   window.addEventListener('storage', (event) => {
     if (event.key !== STORAGE_KEY) return;
     lines = read();

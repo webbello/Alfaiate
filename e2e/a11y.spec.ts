@@ -31,7 +31,12 @@ for (const prefix of ['', '/tet']) {
     test(`axe: ${url}`, async ({ page }) => {
       await page.goto(url);
       // the theme's hero text fades in with GSAP: check the colours once it has settled
-      if (url.includes('theme-preview') || url === '/' || url === '/tet/')
+      if (
+        url.includes('theme-preview') ||
+        url.includes('/tailors') ||
+        url === '/' ||
+        url === '/tet/'
+      )
         await page.waitForTimeout(2500);
       expect(await violationsOf(page)).toEqual([]);
     });

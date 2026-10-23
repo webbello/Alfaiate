@@ -54,10 +54,10 @@ const seed = async () => {
 // they are lazy except the hero, and `npm run perf` reports them.
 const BUDGET = {
   html: {
-    home: 46000, // Handspark theme home (step 3): menus and cart drawer twice, four layouts of stories when samples are on; was 27700 for the old home
-    directory: 11000, // +1000 for the WhatsApp button on each card and the initials badge (2026-10-23); was 10000 (+200 the day before for the View Profile button)
+    home: 50000, // Handspark theme home: menus and the request list panel twice, four layouts of stories when samples are on (48.2 kB with the request list, step 4); was 27700 for the old home
+    directory: 38000, // theme frame (menus and request list panel twice, hero, FAQ) with one card (35.2 kB, step 4); was 11000 on the old frame
     category: 10400,
-    profile: 9600,
+    profile: 34000, // theme frame with a profile that has contact, categories, prices and a gallery (28.9 kB measured, step 4); was 9600 on the old frame
     request: 13200,
     howItWorks: 9400,
     join: 9500,
@@ -70,6 +70,9 @@ const BUDGET = {
   adminCss: 28500, // admin redesign 2026-10-23: sidebar, top bar, dark theme, worklist, cards, portal; was 8200 (about 25 kB measured)
   js: 1500, // raised 2026-10-21: the directory page adds the filter script (measured 1195 with the header menu)
 } as const;
+
+// Pages in the Handspark theme load its stylesheet and motion script; the rest still use the old frame until their step (docs/SPEC-handspark-theme.md).
+const THEMED: string[] = ['home', 'directory', 'profile'];
 
 describe('page weight budgets (NFR-PERF-01)', () => {
   it('keeps each page, its stylesheet and its script within budget', async () => {
@@ -95,11 +98,13 @@ describe('page weight budgets (NFR-PERF-01)', () => {
       expect(
         await assetsOf(html, /<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g),
         `${name} css`,
-      ).toBeLessThanOrEqual(name === 'home' ? BUDGET.homeCss : BUDGET.css);
+      ).toBeLessThanOrEqual(
+        THEMED.includes(name) ? BUDGET.homeCss : BUDGET.css,
+      );
       expect(
         await assetsOf(html, /<script[^>]*src="([^"]+)"/g),
         `${name} js`,
-      ).toBeLessThanOrEqual(name === 'home' ? BUDGET.homeJs : BUDGET.js);
+      ).toBeLessThanOrEqual(THEMED.includes(name) ? BUDGET.homeJs : BUDGET.js);
     }
   });
 
@@ -155,7 +160,10 @@ describe('images are sized, described and lazy (NFR-PERF-01, NFR-A11Y-01)', () =
       .bind(id)
       .first<{ slug: string }>())!.slug;
     for (const path of ['/tailors', `/tailors/${slugOf}`]) {
-      const html = await (await get(path)).text();
+      // the page's own pictures: the header and footer logos belong to the theme frame
+      const html = /<main[\s\S]*<\/main>/.exec(
+        await (await get(path)).text(),
+      )![0];
       const images = [...html.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]);
       expect(images.length, path).toBeGreaterThan(0);
       images.forEach((tag, index) => {

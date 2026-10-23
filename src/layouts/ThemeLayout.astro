@@ -12,9 +12,11 @@ import { dictionary } from '../i18n/public';
 import { isEnabled, pathFor, twinPath, type Lang } from '../i18n/lang';
 import {
   googleSiteVerification,
+  siteWhatsapp,
   siteConfig,
   socialLinks,
 } from '../modules/config';
+import { whatsappLink } from '../modules/contact-links/whatsapp';
 import { buildHead } from '../modules/seo/head';
 import { serialiseJsonLd } from '../modules/seo/jsonld';
 import { metaText } from '../modules/seo/meta';
@@ -33,6 +35,8 @@ interface Props {
   jsonLd?: object[];
   /** Absolute URL of the social sharing image. */
   ogImage?: string;
+  /** On a tailor's page: that tailor's own buttons for the phone bar. */
+  tailorBar?: { slug: string; whatsapp: string | null; phone: string | null; requestHref: string };
   /** Set on pages whose hero sits behind the header. */
   overlayHeader?: boolean;
   class?: string;
@@ -47,6 +51,7 @@ const {
   realPage = true,
   jsonLd = [],
   ogImage,
+  tailorBar,
   overlayHeader = false,
   class: className,
 } = Astro.props;
@@ -75,6 +80,11 @@ const showNewsletter =
   !['/newsletter', '/request', '/business', '/join'].some((p) =>
     rest.startsWith(p),
   );
+// The quick-action bar for phones: never on the home page (it has its own calls to action), the forms (it could cover them) or the legal pages.
+const showBar =
+  rest !== '/' &&
+  !['/request', '/business', '/join', '/privacy', '/terms'].some((p) => rest.startsWith(p));
+const ownerWhatsapp = siteWhatsapp(env as { SITE_WHATSAPP?: string });
 const social = [
   ...socialLinks(
     env as {
@@ -89,7 +99,7 @@ const social = [
     icon: s.name,
   })),
 ];
-const pageTitle = title.includes(SITE.name) ? title : `${title} · ${SITE.name}`;
+const pageTitle = title.includes(t.siteName) ? title : `${title} · ${t.siteName}`;
 ---
 
 <!doctype html>
@@ -112,7 +122,7 @@ const pageTitle = title.includes(SITE.name) ? title : `${title} · ${SITE.name}`
         <meta property="og:description" content={description} />
         <meta property="og:url" content={head.canonical} />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content={SITE.name} />
+        <meta property="og:site_name" content={t.siteName} />
         {ogImage && <meta property="og:image" content={ogImage} />}
         <meta name="twitter:card" content="summary_large_image" />
         {jsonLd.map((block) => (
@@ -148,6 +158,8 @@ const pageTitle = title.includes(SITE.name) ? title : `${title} · ${SITE.name}`
         mega={shell.mega}
         homeHref={shell.home}
         labels={{ main: t.nav.label, pages: t.nav.more, menu: t.nav.menu }}
+        list={t.requestList}
+        requestHref={pathFor(lang, '/request')}
       />
       <main class="main-wrapper" id="main">
         <slot />
@@ -166,6 +178,35 @@ const pageTitle = title.includes(SITE.name) ? title : `${title} · ${SITE.name}`
         )}
       </Footer>
     </div>
+    {
+      showBar && (
+        <nav class="sticky-bar" aria-label={t.bar.label}>
+          {tailorBar && (tailorBar.whatsapp || tailorBar.phone) ? (
+            <>
+              <a class="button w-inline-block" href={(tailorBar.whatsapp ?? tailorBar.phone)!} data-contact-channel={tailorBar.whatsapp ? 'whatsapp' : 'phone'} data-tailor={tailorBar.slug}>
+                <div class="button-bg" />
+                <div class="button-text">{tailorBar.whatsapp ? t.contact.whatsapp : t.contact.call}</div>
+              </a>
+              <a class="button w-inline-block is-shop" href={tailorBar.requestHref}>
+                <div class="button-bg" />
+                <div class="button-text">{t.profile.requestThis}</div>
+              </a>
+            </>
+          ) : (
+            <a class="button w-inline-block" href={pathFor(lang, '/request')}>
+              <div class="button-bg" />
+              <div class="button-text">{t.bar.ask}</div>
+            </a>
+          )}
+          {ownerWhatsapp && !(tailorBar && (tailorBar.whatsapp || tailorBar.phone)) && (
+            <a class="button w-inline-block is-shop" href={whatsappLink(ownerWhatsapp, t.bar.whatsappMessage)}>
+              <div class="button-bg" />
+              <div class="button-text">{t.bar.whatsapp}</div>
+            </a>
+          )}
+        </nav>
+      )
+    }
     <script>
       import '../theme/scripts/index.ts';
     </script>

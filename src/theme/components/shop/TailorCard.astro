@@ -62,7 +62,22 @@ const priceLine =
       <a class="shop-name" {href}>{tailor.name}</a>
       {place && <div class="shop-price">{place}</div>}
       {priceLine && <div class="shop-price shop-price--small">{priceLine}</div>}
+      {tailor.homeVisits === 'yes' && <div class="shop-price shop-price--small">{t.directory.homeVisits}</div>}
     </div>
+    <form
+      class="shop-bag-card"
+      method="get"
+      action={pathFor(lang, '/request')}
+      data-add-to-cart
+      data-name={tailor.name}
+      data-url={href}
+      data-image={tailor.photo ? `/media/${tailor.photo.base}/thumb.jpg` : ''}
+    >
+      <input type="hidden" name="tailor" value={tailor.slug} />
+      <button type="submit" aria-label={fill(t.requestList.add, { name: tailor.name })} title={t.requestList.addLabel}>
+        <Icon name="shop-bag" class="shop-bag" />
+      </button>
+    </form>
     {
       whatsapp && (
         <a class="shop-whatsapp" href={whatsapp} data-contact-channel="whatsapp" data-tailor={tailor.slug} aria-label={fill(t.home.featured.whatsapp, { name: tailor.name })}>

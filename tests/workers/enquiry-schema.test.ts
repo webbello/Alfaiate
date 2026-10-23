@@ -3,6 +3,7 @@ import { env } from 'cloudflare:workers';
 import {
   parseEnquiryForm,
   resolveChoices,
+  tailorParams,
 } from '../../src/modules/enquiry/schema';
 
 const db = env.DB;
@@ -38,6 +39,7 @@ describe('parseEnquiryForm (FR-ENQ-01/02/05, PRV-01)', () => {
       when: null,
       notes: null,
       tailorSlug: null,
+      alsoSlugs: [],
       organisation: null,
       groupSize: null,
       business: false,
@@ -162,7 +164,7 @@ describe('resolveChoices (active lists and a published preselected tailor)', () 
         )
         .run()
     ).meta.last_row_id as number;
-    return { slug, id };
+    return { slug, id, n };
   };
 
   it('accepts an active category and area', async () => {
@@ -199,6 +201,57 @@ describe('resolveChoices (active lists and a published preselected tailor)', () 
       const r = await resolveChoices(db, { ...ok(), tailorSlug: slug });
       expect(r).toMatchObject({ ok: true, tailorId: null, source: 'form' });
     }
+  });
+
+  it('prefers the first tailor and names only the other published ones', async () => {
+    const first = await tailor(true);
+    const second = await tailor(true);
+    const draft = await tailor(false);
+    const r = await resolveChoices(db, {
+      ...ok(),
+      tailorSlug: first.slug,
+      alsoSlugs: [second.slug, draft.slug, 'no-such-tailor'],
+    });
+    // an unpublished first tailor is skipped: the next published one becomes the preferred tailor
+    const skipped = await resolveChoices(db, {
+      ...ok(),
+      tailorSlug: draft.slug,
+      alsoSlugs: [first.slug, second.slug],
+    });
+    expect(skipped).toMatchObject({
+      tailorId: first.id,
+      source: `profile:${first.slug}`,
+      alsoNames: [`T ${second.n}`],
+    });
+    expect(r).toMatchObject({
+      ok: true,
+      tailorId: first.id,
+      source: `profile:${first.slug}`,
+      alsoNames: [`T ${second.n}`],
+    });
+  });
+});
+
+describe('the request list: several tailors in one request', () => {
+  it('keeps at most three valid slugs, once each, in order', () => {
+    expect(
+      tailorParams([
+        'a-one',
+        'a-one',
+        'bad slug!',
+        'b-two',
+        'c-three',
+        'd-four',
+      ]),
+    ).toEqual(['a-one', 'b-two', 'c-three']);
+    const form = valid();
+    form.append('tailor', 'a-one');
+    form.append('tailor', 'b-two');
+    const r = parseEnquiryForm(form);
+    expect(r.ok && r.data).toMatchObject({
+      tailorSlug: 'a-one',
+      alsoSlugs: ['b-two'],
+    });
   });
 });
 

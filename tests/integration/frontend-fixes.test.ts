@@ -89,7 +89,7 @@ describe('the five frontend fixes', () => {
     const card =
       html.match(
         new RegExp(
-          `<article class="card">(?:(?!</article>)[\\s\\S])*Ff Tailor ${n}[\\s\\S]*?</article>`,
+          `<li data-directory-item[^>]*>(?:(?!</li>)[\\s\\S])*Ff Tailor ${n}[\\s\\S]*?</li>`,
         ),
       )?.[0] ?? '';
     expect(card).toContain(`Ff Suits ${n} (approximate): $120 – $350`);
@@ -139,16 +139,16 @@ describe('the medium-priority polish', () => {
     const card = (n: number) =>
       html.match(
         new RegExp(
-          `<article class="card">(?:(?!</article>)[\\s\\S])*Ff Tailor ${n}[\\s\\S]*?</article>`,
+          `<li data-directory-item[^>]*>(?:(?!</li>)[\\s\\S])*Ff Tailor ${n}[\\s\\S]*?</li>`,
         ),
       )?.[0] ?? '';
-    expect(card(withWa.n)).toContain('class="card__whatsapp"');
+    expect(card(withWa.n)).toContain('class="shop-whatsapp"');
     expect(card(withWa.n)).toContain('wa.me/67077123456');
     expect(card(withWa.n)).toContain(`data-tailor="${withWa.slug}"`);
     expect(card(withWa.n)).toContain(
       `aria-label="WhatsApp Ff Tailor ${withWa.n}"`,
     );
-    expect(card(without.n)).not.toContain('card__whatsapp');
+    expect(card(without.n)).not.toContain('shop-whatsapp');
     expect(html).toMatch(/<script[^>]*\bsrc="[^"]+"/);
   });
 
@@ -174,6 +174,6 @@ describe('the medium-priority polish', () => {
   it('shows the disclaimer in the slim style on a profile', async () => {
     const { slug } = await seed({ whatsapp: '+67077123456', phone: null });
     const html = await (await get(`/tailors/${slug}`)).text();
-    expect(html).toContain('<p class="notice notice--compact" role="note">');
+    expect(html).toContain('<p class="dir-note" role="note">');
   });
 });

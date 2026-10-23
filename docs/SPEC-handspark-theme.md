@@ -1,6 +1,6 @@
 # Spec: Handspark theme as the public face of Alfaiate TL
 
-Status: **Decisions approved 2026-10-23. Steps 1 to 3 done; step 4 (directory, profile, request list) next.** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
+Status: **Decisions approved 2026-10-23. Steps 1 to 4 done; step 5 (request, join, contact, FAQ, about, privacy and terms pages) next.** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
 
 ## Objective
 
@@ -32,6 +32,15 @@ Signature features the owner named: the **hero image trail** (pictures appear an
 - Accessibility: where the theme's text-splitting animation would hide a link or label a plain block (axe), the block uses a fade instead.
 - Tests: home and design tests rewritten for the new markup (nothing dropped: the service-card test moved to `/services`), shell tests retargeted to `/about` while it keeps the old frame, an e2e test for the image trail, budgets re-set from measurements. `npm run check` 771 and 677, e2e 147.
 - **Weight (measured at 375 px, 4x CPU, 1.6 Mbps):** home CSS 30 kB and JS 60 kB compressed (the whole theme sheet; GSAP and Lenis), fonts 188 kB (TTF), images 376 kB; load 5.5 s, first content 2.3 s, largest paint 2.3 s. The old home was far lighter. Step 7 trims it: woff2 fonts, per-page CSS, motion only on wide pointer devices.
+
+## Step 4: done (directory, tailor profile and request list are the theme's)
+
+- `/tailors` and `/tailors/[slug]` (and `/tet/...`) now render `src/theme/views/Directory.astro` and `Profile.astro`. The directory keeps everything it had: name search, garment and area filters, home-visit filter, removable chips, live count, "no match" way out, the disclaimer, area and type links, the FAQ, noindex with the plain list as canonical for filtered pages. Cards are the theme's shop cards (photo or initials badge, one place, one named price, "Home visits offered" only when yes, consent-gated WhatsApp). The profile keeps every fact with its verified or supplied label (BR-11), only permitted photos (BR-06), contact buttons only for consented numbers (taps counted), JSON-LD and the social image. The phone bar (hidden on the home, forms and legal pages) is now part of `ThemeLayout`, and on a profile it is that tailor's own contact.
+- **The cart is a request list** (`src/theme/scripts/cart.ts`, panel in `CartDrawer.astro`): no price, quantity, subtotal or checkout. Up to three tailors are kept in this browser (local storage key `alfaiate-request-list`: slug, public name, link, small photo; no personal data). "Send request" opens `/request?tailor=a&tailor=b`. Without JavaScript the add button is a plain link to the request form for that tailor.
+- **Request flow:** the form accepts up to three `tailor` values (valid slugs, no repeats, published ones only). The first is the preferred tailor and the source (`profile:slug`, unchanged); the others are named in the notes ("Also asked about: ..."), because the data model has one preferred tailor. No migration. The form shows who is being asked and carries each as a hidden field.
+- Fixed on the way: the theme's own name no longer leaks into the page title or `og:site_name`.
+- Tests: directory, profile, visuals, search and frontend-fix tests rewritten for the new markup (same facts asserted), new `request-list` integration tests (panel, add buttons, several tailors in the form, stored notes and preferred tailor) and e2e (add, send, remove, no script), schema tests for the list, shell tests for contrast and font read the old frame (`/about`) until it goes. Budgets: directory and profile now use the theme's CSS and JS budgets (they load the same sheet as the home); HTML 38000 and 34000 (measured 35.2 and 28.9 kB), home HTML 50000 (48.2 kB, the request list panel is in the header twice). `npm run check` 773 and 681, e2e 150.
+- **Not done / for the owner:** the Tetun request list labels and the "You are asking these tailors" line are my wording (OQ-07). Not looked at in a browser by me for this step: screenshots at phone and desktop widths are the owner's check. Category pages, the request form, and the other pages still use the old frame (steps 5 and 6).
 
 ## What the theme contains (all of it is to be kept)
 

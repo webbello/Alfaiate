@@ -115,7 +115,7 @@ Fields: `slug` (unique), `name`, `description` (null), `sort_order`, `is_active`
 | area_text | text, null — if not in the list |
 | preferred_datetime_text | text, null — a preference, not a booking |
 | notes | text, null |
-| preferred_tailor_id | FK tailor, null — set when started from a profile |
+| preferred_tailor_id | FK tailor, null — set when started from a profile or request list (the first published tailor on the list). Other tailors on the list are written into `notes` as free text ("Also asked about: ..."), not linked rows, and are cleared with the notes on anonymise |
 | consent_shared_with_tailor | bool, must be true |
 | consent_text_version | text |
 | consent_at | timestamp |

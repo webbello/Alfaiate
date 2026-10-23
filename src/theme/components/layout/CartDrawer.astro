@@ -2,34 +2,41 @@
 import Icon from '../ui/Icon.astro';
 
 /**
- * The cart button and the panel behind it.
- *
- * A static site has nowhere to keep a basket, so nothing here pretends to: the
- * count reads zero, the panel opens on its empty state, and the checkout button
- * is absent rather than being a link that charges nobody. Every element a cart
- * provider needs to write into carries a `data-cart-*` hook, so wiring Snipcart
- * or a Shopify Buy Button to it is markup-free — see `docs/commerce.md`.
- *
- * The design places this twice: in the desktop menu row, and again in the
- * mobile bar beside the menu toggle. `id` keeps the two apart for labelling.
+ * The request list button and the panel behind it (the theme's cart, used without prices or payment).
+ * Labels come from our dictionary in the page's language; `scripts/cart.ts` fills the list and the link to the request form.
+ * The design places this twice: in the desktop menu row, and again in the mobile bar beside the menu toggle. `id` keeps the two apart.
  */
 interface Props {
   id: string;
+  list: {
+    toggle: string;
+    title: string;
+    close: string;
+    empty: string;
+    remove: string;
+    removeNamed: string;
+    send: string;
+    full: string;
+    note: string;
+  };
+  requestHref: string;
 }
 
-const { id } = Astro.props;
+const { id, list, requestHref } = Astro.props;
 ---
 
 <div class="header-cart-block">
-  <div class="header-cart" data-cart>
-    <button
-      type="button"
-      class="header-cart-button w-inline-block"
-      aria-expanded="false"
-      aria-controls={`${id}-panel`}
-      data-cart-toggle
-    >
-      <span class="header-cart-text w-inline-block">Cart</span>
+  <div
+    class="header-cart"
+    data-cart
+    data-max="3"
+    data-request-href={requestHref}
+    data-label-remove={list.remove}
+    data-label-remove-named={list.removeNamed}
+    data-label-full={list.full}
+  >
+    <button type="button" class="header-cart-button w-inline-block" aria-expanded="false" aria-controls={`${id}-panel`} data-cart-toggle>
+      <span class="header-cart-text w-inline-block">{list.toggle}</span>
       <Icon name="cart" class="header-cart-icon" />
       <span class="header-cart-num" data-cart-count>0</span>
     </button>
@@ -37,27 +44,29 @@ const { id } = Astro.props;
     <div class="header-cart-wrapp" id={`${id}-panel`} data-cart-panel>
       <div class="header-cart-wrap">
         <div class="header-cart-header">
-          <h4 class="header-cart-title">Your Cart</h4>
-          <button type="button" class="header-cart-close w-inline-block" aria-label="Close cart" data-cart-close>
+          <h4 class="header-cart-title">{list.title}</h4>
+          <button type="button" class="header-cart-close w-inline-block" aria-label={list.close} data-cart-close>
             <Icon name="close" />
           </button>
         </div>
 
         <div class="header-cart-footer">
-          {/* Hidden until a cart provider has lines to put in it. */}
           <div class="header-cart-default" data-cart-lines hidden>
             <div class="header-cart-list" data-cart-items></div>
-
-            <div class="header-cart-link">
-              <div class="header-cart-prices">
-                <div>Subtotal</div>
-                <div data-cart-total>&mdash;</div>
+            <p class="header-cart-note">{list.note}</p>
+            <p class="header-cart-status" role="status" data-cart-status></p>
+            <a class="button w-inline-block header-cart-send" href={requestHref} data-cart-send>
+              <div class="button-bg"></div>
+              <div class="button-text">{list.send}</div>
+              <div class="button-wrap">
+                <Icon name="arrow-up-right" class="button-icon" />
+                <Icon name="arrow-up-right" class="button-icon" />
               </div>
-            </div>
+            </a>
           </div>
 
           <div class="header-cart-empty" data-cart-empty>
-            <div>Your cart is empty.</div>
+            <div>{list.empty}</div>
           </div>
         </div>
       </div>

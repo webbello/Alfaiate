@@ -99,7 +99,7 @@ describe('profile page (AC-03, FR-PRO-01/02/03/05/08)', () => {
     });
     const { status, html } = await page(`/tailors/${slug}`);
     expect(status).toBe(200);
-    expect(html).toContain('<h1>Pf Bare Fake</h1>');
+    expect(html).toContain('>Pf Bare Fake</h1>');
     expect(sections(html)).toEqual(['contact']);
     for (const empty of [
       'Their work',
@@ -230,14 +230,14 @@ describe('profile page (AC-03, FR-PRO-01/02/03/05/08)', () => {
       .bind(p.id, t.id)
       .run();
     expect((await page(`/tailors/${t.slug}`)).html).toContain(
-      'class="profile__photo"',
+      'class="prof-photo"><img',
     );
     await db
       .prepare('UPDATE portfolio_image SET permission_granted = 0 WHERE id = ?')
       .bind(p.id)
       .run();
     expect((await page(`/tailors/${t.slug}`)).html).not.toContain(
-      'class="profile__photo"',
+      'class="prof-photo"><img',
     );
   });
 
@@ -364,7 +364,8 @@ describe('hostile content stays inert, in both languages', () => {
     await photo(t.id, '"><svg onload=alert(1)>', 1, 1, '<i>caption</i>');
     for (const prefix of ['', '/tet']) {
       const { html } = await page(`${prefix}/tailors/${t.slug}`);
-      expect(html).not.toContain('<img src=x');
+      // Astro leaves < and > as they are inside attribute values, where they are inert text; check the markup around them.
+      expect(html.replace(/="[^"]*"/g, '=""')).not.toContain('<img src=x');
       expect(html).not.toContain('<script>alert');
       // Inside a quoted attribute a "<" is harmless; what matters is that the quote is escaped so nothing can break out.
       expect(html).not.toMatch(/alt=""[^"]*<svg/);

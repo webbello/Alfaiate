@@ -9,7 +9,7 @@ describe('the quick-action bar', () => {
   it('offers "Request a Tailor" (the same words as the header and the hero) on content pages in both languages, with a labelled landmark', async () => {
     for (const [path, label] of [
       ['/about', 'Request a Tailor'], // content pages still on the old frame; the home page uses the theme frame (step 3)
-      ['/tailors', 'Request a Tailor'],
+      ['/tailors', 'Request a Tailor'], // the directory is in the theme, which has its own bar
       ['/tet/about', 'Husu Alfaiate'],
     ] as const) {
       const b = bar(await (await get(path)).text());

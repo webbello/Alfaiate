@@ -23,9 +23,21 @@ interface Props {
   mega: Link[];
   homeHref: string;
   labels: { main: string; pages: string; menu: string };
+  list: {
+    toggle: string;
+    title: string;
+    close: string;
+    empty: string;
+    remove: string;
+    removeNamed: string;
+    send: string;
+    full: string;
+    note: string;
+  };
+  requestHref: string;
 }
 
-const { overlay = false, twin = null, nav, mega, homeHref, labels } = Astro.props;
+const { overlay = false, twin = null, nav, mega, homeHref, labels, list, requestHref } = Astro.props;
 const here = twin?.lang === 'tet' ? 'en' : 'tet';
 const code = (lang: string) => (lang === 'tet' ? 'TET' : 'EN');
 
@@ -172,12 +184,12 @@ const isCurrent = (href: string) => path === href;
           )
         }
 
-        <CartDrawer id="cart-desktop" />
+        <CartDrawer id="cart-desktop" {list} {requestHref} />
       </div>
     </div>
 
     <div class="header-wrap-block">
-      <CartDrawer id="cart-mobile" />
+      <CartDrawer id="cart-mobile" {list} {requestHref} />
 
       <button
         type="button"

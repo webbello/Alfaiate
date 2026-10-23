@@ -48,6 +48,20 @@ export const tet: Dictionary = {
   },
   language: { switchLabel: 'Lian', en: 'English', tet: 'Tetun' },
   cta: { requestHome: 'Husu Alfaiate' },
+  requestList: {
+    toggle: 'Lista pedidu',
+    title: 'Ita-nia lista pedidu',
+    close: 'Taka lista pedidu',
+    empty:
+      'Hatama alfaiate sira ne’ebé ita hakarak husu. Bele husu to’o tolu iha tempu ida.',
+    addLabel: 'Hatama ba lista pedidu',
+    add: 'Hatama {name} ba ha’u-nia lista pedidu',
+    remove: 'Hasai',
+    removeNamed: 'Hasai {name} husi ha’u-nia lista pedidu',
+    send: 'Haruka pedidu',
+    full: 'Bele husu alfaiate to’o tolu de’it.',
+    note: 'Sei la haruka buat ida to’o ita prense formuláriu pedidu.',
+  },
   contact: {
     whatsapp: 'WhatsApp',
     call: 'Telefone',
@@ -395,6 +409,7 @@ export const tet: Dictionary = {
       "Ida-ne'e pedidu de'it, la'ós marka konfirma ona. Alfaiate tenke konfirma ho ita direta se nia bele atende.",
     summaryHeading: "Favór hadi'a buat hirak ne'e",
     fromTailor: "Ita hahú pedidu ne'e husi pájina ba {name}.",
+    fromList: "Ita husu alfaiate sira ne'e: {names}.",
     name: 'Ita-nia naran',
     phone: 'Númeru telefone ka WhatsApp',
     phoneHint: 'Ezemplu: 7712 3456',

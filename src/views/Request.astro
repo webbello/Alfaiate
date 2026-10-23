@@ -106,7 +106,15 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
         </ol>
         <p class="hint request__promise">{r.promise}</p>
         {view.tailor && (
-          <p class="notice">{fill(r.fromTailor, { name: view.tailor.name })}</p>
+          <p class="notice">
+            {view.also.length > 0
+              ? fill(r.fromList, {
+                  names: [view.tailor, ...view.also]
+                    .map((x) => x.name)
+                    .join(', '),
+                })
+              : fill(r.fromTailor, { name: view.tailor.name })}
+          </p>
         )}
         {(failing.length > 0 || view.formError) && (
           <div class="error-summary" role="alert" tabindex="-1" autofocus>
@@ -129,6 +137,9 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
           {view.tailor && (
             <input type="hidden" name="tailor" value={view.tailor.slug} />
           )}
+          {view.also.map((x) => (
+            <input type="hidden" name="tailor" value={x.slug} />
+          ))}
           <div class="hp" aria-hidden="true">
             <label for="extra_info">Leave this empty</label>
             <input

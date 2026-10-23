@@ -118,7 +118,7 @@ describe('directory (AC-02, FR-DIR-01..04)', () => {
     expect(html).toContain('Dir Suits Fake (approximate): $20 – $35.50');
     expect(html).not.toContain('Dir Hidden Draft Fake');
     expect(html).toMatch(
-      /<h3 class="card__title"><a href="\/tailors\/dir-\d+">Dir Visible Fake<\/a><\/h3>/,
+      /<a class="shop-name" href="\/tailors\/dir-\d+">Dir Visible Fake<\/a>/,
     );
   });
 
@@ -130,7 +130,7 @@ describe('directory (AC-02, FR-DIR-01..04)', () => {
     const card = (name: string) =>
       html.slice(
         html.indexOf(name),
-        html.indexOf('</article>', html.indexOf(name)),
+        html.indexOf('</li>', html.indexOf(name)),
       );
     expect(card('Dir Home Yes Fake')).toContain('Home visits offered');
     expect(card('Dir Home No Fake')).not.toContain('Home visits');
@@ -232,13 +232,13 @@ describe('directory (AC-02, FR-DIR-01..04)', () => {
     const c = await cat('Dir Selected Cat Fake');
     await tailor({ name: 'Dir Sel Fake', categories: [c.id] });
     const { html } = await page(`/tailors?category=${c.slug}&home_visit=1`);
-    expect(html).toContain(
-      '<form class="filters" method="get" action="/tailors">',
+    expect(html).toMatch(
+      /<form class="dir-filters" method="get" action="\/tailors"[^>]*>/,
     );
     expect(html).toContain('<label for="filter-category">');
     expect(html).toMatch(new RegExp(`<option value="${c.slug}" selected`));
     expect(html).toMatch(/name="home_visit" value="1" checked/);
-    // the only script is the external header-menu enhancement; the form itself needs none
+    // scripts are external files only; the form itself needs none
     expect(html).not.toMatch(/<script(?![^>]*\bsrc=)/);
   });
 
@@ -320,7 +320,9 @@ describe('directory (AC-02, FR-DIR-01..04)', () => {
   it('keeps hostile names inert and the page free of inline script and style', async () => {
     await tailor({ name: '"><img src=x onerror=alert(1)>' });
     const { html } = await page('/tailors');
-    expect(html).not.toContain('<img src=x');
+    // Astro leaves < and > as they are inside attribute values (names, labels), where they are inert text; check the markup around them.
+    const markup = html.replace(/="[^"]*"/g, '=""');
+    expect(markup).not.toContain('<img src=x');
     expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;');
     expect(html).not.toContain('<style');
     expect(html).not.toMatch(

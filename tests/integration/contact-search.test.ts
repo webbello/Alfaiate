@@ -26,8 +26,8 @@ describe('directory search', () => {
       .bind(slug)
       .run();
     const html = await (await get('/tailors?q=zebra')).text();
-    expect(html).toMatch(/<label for="search">/);
-    expect(html).toMatch(/<input[^>]*id="search"[^>]*value="zebra"/);
+    expect(html).toMatch(/<label for="search-q">/);
+    expect(html).toMatch(/<input[^>]*id="search-q"[^>]*value="zebra"/);
     expect(html).toContain(`href="/tailors/${slug}"`);
     expect(html).toContain('name="robots" content="noindex,follow"');
     const none = await (await get('/tailors?q=nothing-matches-this')).text();

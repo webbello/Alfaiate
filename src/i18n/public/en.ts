@@ -43,6 +43,20 @@ export const en = {
   },
   language: { switchLabel: 'Language', en: 'English', tet: 'Tetun' },
   cta: { requestHome: 'Request a Tailor' },
+  requestList: {
+    toggle: 'Request list',
+    title: 'Your request list',
+    close: 'Close the request list',
+    empty:
+      'Add the tailors you would like to ask. You can ask up to three at once.',
+    addLabel: 'Add to request list',
+    add: 'Add {name} to my request list',
+    remove: 'Remove',
+    removeNamed: 'Remove {name} from my request list',
+    send: 'Send request',
+    full: 'You can ask up to three tailors at once.',
+    note: 'Nothing is sent until you fill in the request form.',
+  },
   contact: {
     whatsapp: 'WhatsApp',
     call: 'Call',
@@ -389,6 +403,7 @@ export const en = {
       'This is a request, not a confirmed appointment. The tailor must confirm availability with you directly.',
     summaryHeading: 'Please fix the following',
     fromTailor: 'You started this request from the page of {name}.',
+    fromList: 'You are asking these tailors: {names}.',
     name: 'Your name',
     phone: 'Phone or WhatsApp number',
     phoneHint: 'For example 7712 3456',

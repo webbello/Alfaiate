@@ -31,6 +31,8 @@ export type EnquiryInput = {
   when: string | null;
   notes: string | null;
   tailorSlug: string | null;
+  /** Up to two more tailors from the request list; they are named in the notes, only the first is the preferred tailor. */
+  alsoSlugs?: string[];
   /** Set only on the business form (FR-ENQ-09). */
   organisation?: string | null;
   groupSize?: string | null;
@@ -51,6 +53,13 @@ const LIMITS = {
 };
 const CHANNELS = ['whatsapp', 'phone', 'either'] as const;
 const ID = /^[0-9]{1,9}$/;
+
+export const MAX_TAILORS = 3;
+/** Every `tailor` value of a request-list link: valid slugs only, no repeats, at most MAX_TAILORS. */
+export const tailorParams = (values: string[]): string[] =>
+  [
+    ...new Set(values.map(tailorParam).filter((s): s is string => s !== null)),
+  ].slice(0, MAX_TAILORS);
 
 /** The `?tailor=` / hidden `tailor` value: a plain slug or nothing. */
 export const tailorParam = (value: string | null): string | null => {
@@ -132,7 +141,8 @@ export function parseEnquiryForm(
       areaText,
       when: values.when || null,
       notes: values.notes || null,
-      tailorSlug: tailorParam(form.get('tailor')),
+      tailorSlug: tailorParams(form.getAll('tailor'))[0] ?? null,
+      alsoSlugs: tailorParams(form.getAll('tailor')).slice(1),
       organisation: business ? values.organisation : null,
       groupSize: business ? values.group_size || null : null,
       business,
@@ -146,6 +156,8 @@ export type Resolved =
       categoryId: number | null;
       areaId: number | null;
       tailorId: number | null;
+      /** Names of the other tailors the visitor asked about (published ones only). */
+      alsoNames: string[];
       source: string;
     }
   | { ok: false; errors: FieldErrors };
@@ -170,23 +182,33 @@ export async function resolveChoices(
   if (!(await active('service_area', input.areaId))) errors.area = 'invalid';
   if (Object.keys(errors).length > 0) return { ok: false, errors };
 
-  const tailor = input.tailorSlug
-    ? await db
-        .prepare(
-          'SELECT id FROM tailor WHERE slug = ? AND is_published = 1 AND permission_recorded = 1',
-        )
-        .bind(input.tailorSlug)
-        .first<{ id: number }>()
-    : null;
+  const find = (slug: string) =>
+    db
+      .prepare(
+        'SELECT id, display_name AS name FROM tailor WHERE slug = ? AND is_published = 1 AND permission_recorded = 1',
+      )
+      .bind(slug)
+      .first<{ id: number; name: string }>();
+  // The first published tailor on the list is the preferred one; the rest are only named in the notes.
+  let tailor: { id: number; name: string; slug: string } | null = null;
+  const alsoNames: string[] = [];
+  for (const slug of [input.tailorSlug, ...(input.alsoSlugs ?? [])]) {
+    if (!slug) continue;
+    const found = await find(slug);
+    if (!found) continue;
+    if (tailor) alsoNames.push(found.name);
+    else tailor = { ...found, slug };
+  }
   return {
     ok: true,
     categoryId: input.categoryId,
     areaId: input.areaId,
     tailorId: tailor?.id ?? null,
+    alsoNames,
     source: input.business
       ? 'business'
       : tailor
-        ? `profile:${input.tailorSlug}`
+        ? `profile:${tailor.slug}`
         : 'form',
   };
 }

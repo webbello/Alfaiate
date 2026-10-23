@@ -16,6 +16,15 @@ export async function formChoices(
   return { categories: categories.results, areas: areas.results };
 }
 
+/** The published tailors among these slugs, by name, in the order given. */
+export async function alsoTailors(
+  db: D1Database,
+  slugs: string[],
+): Promise<{ slug: string; name: string }[]> {
+  const found = await Promise.all(slugs.map((s) => preselectedTailor(db, s)));
+  return found.filter((t): t is { slug: string; name: string } => t !== null);
+}
+
 /** The tailor a request was started from, by name, only if published. */
 export async function preselectedTailor(
   db: D1Database,

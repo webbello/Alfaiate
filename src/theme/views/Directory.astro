@@ -1,0 +1,199 @@
+---
+// The tailor directory in the theme's shop layout (docs/SPEC-handspark-theme.md, step 4). Our filters, chips, count, disclaimer, area and type links, FAQ.
+// Filtered or junk-query versions are noindex with the plain list as canonical.
+import { env } from 'cloudflare:workers';
+import ThemeLayout from '../../layouts/ThemeLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import TailorCard from '../components/shop/TailorCard.astro';
+import Icon from '../components/ui/Icon.astro';
+import { dictionary, fill } from '../../i18n/public';
+import { pathFor, type Lang } from '../../i18n/lang';
+import { requireBindings } from '../../modules/config';
+import { directoryQuery, parseDirectoryFilters } from '../../modules/directory/filters';
+import { listActiveAreas, listActiveCategories, listPublished } from '../../modules/directory/queries';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dictionary(lang);
+const d = t.directory;
+const { DB } = requireBindings(env);
+const filters = parseDirectoryFilters(Astro.url.searchParams);
+const active = directoryQuery(filters) !== '';
+const [{ tailors, truncated }, categories, areas] = await Promise.all([
+  listPublished(DB, filters),
+  listActiveCategories(DB, { onlyWithTailors: true }),
+  listActiveAreas(DB, { onlyWithTailors: true }),
+]);
+const action = pathFor(lang, '/tailors');
+type Chip = { label: string; clear: Partial<typeof filters> };
+// Removable chips for the filters in force: each link drops exactly one filter.
+const chips = (
+  [
+    filters.q && { label: `“${filters.q}”`, clear: { q: undefined } },
+    filters.category && { label: categories.find((c) => c.slug === filters.category)?.name ?? filters.category, clear: { category: undefined } },
+    filters.area && { label: areas.find((a) => a.slug === filters.area)?.name ?? filters.area, clear: { area: undefined } },
+    filters.homeVisit && { label: d.homeVisit, clear: { homeVisit: false } },
+  ] as (Chip | false | undefined | '')[]
+).filter((c): c is Chip => Boolean(c));
+const variant = Astro.url.search !== '';
+const faq = [
+  [t.faq.q1, t.faq.a1],
+  [t.faq.q2, t.faq.a2],
+  [t.faq.q3, t.faq.a3],
+  [t.faq.q4, t.faq.a4],
+] as const;
+---
+
+<ThemeLayout lang={lang} title={d.title} description={d.intro} rest="/tailors" noindex={variant}>
+  <Hero tag={d.heading} title={d.heading} />
+
+  <section class="global-section">
+    <div class="w-layout-blockcontainer main-container w-container">
+      <div class="global-block">
+        <p class="dir-intro" data-anim="hero">{d.intro}</p>
+        <p class="dir-note" role="note"><strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}</p>
+
+        <form class="dir-filters" method="get" action={action} id="search">
+          <h2 class="sr-only">{d.filtersHeading}</h2>
+          <p class="dir-filters__q">
+            <label for="search-q">{d.search}</label>
+            <input class="w-input" type="search" id="search-q" name="q" value={filters.q ?? ''} maxlength="60" autocomplete="off" />
+          </p>
+          <p>
+            <label for="filter-category">{d.category}</label>
+            <select class="w-input" id="filter-category" name="category">
+              <option value="">{d.any}</option>
+              {categories.map((c) => <option value={c.slug} selected={filters.category === c.slug}>{c.name}</option>)}
+            </select>
+          </p>
+          <p>
+            <label for="filter-area">{d.area}</label>
+            <select class="w-input" id="filter-area" name="area">
+              <option value="">{d.any}</option>
+              {areas.map((a) => <option value={a.slug} selected={filters.area === a.slug}>{a.name}</option>)}
+            </select>
+          </p>
+          <p class="dir-filters__check">
+            <label class="dir-check">
+              <input type="checkbox" name="home_visit" value="1" checked={filters.homeVisit} />
+              {d.homeVisit}
+            </label>
+          </p>
+          <p class="dir-filters__actions">
+            <button class="button w-inline-block" type="submit">
+              <span class="button-bg"></span>
+              <span class="button-text">{d.apply}</span>
+            </button>
+            {active && <a class="dir-clear" href={action}>{d.clear}</a>}
+          </p>
+        </form>
+
+        <div class="dir-toolbar">
+          <p role="status" class="dir-count" data-count-template={d.found}>{fill(d.found, { count: tailors.length })}</p>
+          {
+            chips.length > 0 && (
+              <ul class="dir-chips" role="list">
+                {chips.map((c) => (
+                  <li>
+                    <a class="dir-chip" href={`${action}${directoryQuery({ ...filters, ...c.clear })}`} aria-label={`${d.removeFilter}: ${c.label}`}>
+                      {c.label} <span aria-hidden="true">×</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+        </div>
+
+        {
+          tailors.length === 0 ? (
+            <section class="dir-empty" aria-labelledby="empty">
+              <h2 id="empty">{d.emptyHeading}</h2>
+              <p>{d.emptyBody}</p>
+              <p class="dir-empty__actions">
+                {active && <a class="dir-clear" href={action}>{d.clear}</a>}
+                <a class="button w-inline-block" href={pathFor(lang, '/request')}>
+                  <span class="button-bg"></span>
+                  <span class="button-text">{t.cta.requestHome}</span>
+                </a>
+              </p>
+            </section>
+          ) : (
+            <>
+              <p class="dir-count" data-no-match hidden>{d.emptyBody}</p>
+              <ul class="shop-list dir-grid" role="list">
+                {tailors.map((tailor) => (
+                  <li data-directory-item data-directory-name={tailor.name.toLowerCase()}>
+                    <TailorCard {lang} {t} {tailor} />
+                  </li>
+                ))}
+              </ul>
+            </>
+          )
+        }
+        {truncated && <p class="dir-note">{d.truncated}</p>}
+
+        {
+          !variant && areas.length > 0 && (
+            <nav class="dir-browse" aria-labelledby="browse-areas">
+              <h2 id="browse-areas">{t.area.browseAreas}</h2>
+              <ul role="list">
+                {areas.map((a) => <li><a href={pathFor(lang, `/areas/${a.slug}`)}>{a.name}</a></li>)}
+              </ul>
+            </nav>
+          )
+        }
+        {
+          !variant && categories.length > 0 && (
+            <nav class="dir-browse" aria-labelledby="browse-categories">
+              <h2 id="browse-categories">{t.area.browseCategories}</h2>
+              <ul role="list">
+                {categories.map((c) => <li><a href={pathFor(lang, `/categories/${c.slug}`)}>{c.name}</a></li>)}
+              </ul>
+            </nav>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  {
+    !variant && (
+      <section class="global-section">
+        <div class="w-layout-blockcontainer main-container w-container">
+          <div class="faq-block">
+            <div class="faq-title-block">
+              <h2 class="faq-title is-display-show-for-desktop" data-anim="fade">{t.faq.heading}</h2>
+              <h3 class="faq-title is-display-show-for-mobile" data-anim="fade">{t.faq.heading}</h3>
+            </div>
+            <div class="faq-card-block" data-accordion>
+              {faq.map(([q, a], i) => (
+                <div class="faq-card w-dropdown" data-accordion-item>
+                  <button type="button" class="faq-info-card w-dropdown-toggle" aria-expanded="false" aria-controls={`faq-${i + 1}`} data-accordion-trigger>
+                    <span class="faq-info-text">{q}</span>
+                    <span class="faq-info-icon">
+                      <Icon name="faq-plus" class="faq-info-plus" />
+                      <Icon name="faq-minus" class="faq-info-minus" />
+                    </span>
+                  </button>
+                  <div class="faq-text-card w-dropdown-list" id={`faq-${i + 1}`} data-accordion-panel>
+                    <div class="faq-wrapper"><p class="faq-except">{a}</p></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+</ThemeLayout>
+
+<script>
+  import '../../scripts/directory';
+</script>
+<script>
+  import '../../scripts/contact-click';
+</script>

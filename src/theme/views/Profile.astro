@@ -1,0 +1,255 @@
+---
+// A tailor's page in the theme's product layout (docs/SPEC-handspark-theme.md, step 4): the facts we hold, each labelled verified or supplied (BR-11),
+// only photos with recorded permission (BR-06), contact buttons only for consented numbers, and the request list button in place of "add to cart".
+import { env } from 'cloudflare:workers';
+import ThemeLayout from '../../layouts/ThemeLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import Icon from '../components/ui/Icon.astro';
+import Source from '../../components/Source.astro';
+import { dictionary, fill } from '../../i18n/public';
+import { pathFor, type Lang } from '../../i18n/lang';
+import { telLink } from '../../modules/contact-links/tel';
+import { whatsappLink, whatsappMessage } from '../../modules/contact-links/whatsapp';
+import { priceText } from '../../modules/directory/format';
+import { siteConfig } from '../../modules/config';
+import { localBusinessJsonLd } from '../../modules/seo/jsonld';
+import { metaText } from '../../modules/seo/meta';
+import type { ProfileView } from '../../modules/directory/view';
+import { initials } from '../../components/story/variant';
+
+interface Props {
+  lang: Lang;
+  tailor: ProfileView;
+}
+const { lang, tailor } = Astro.props;
+const t = dictionary(lang);
+const { contacts } = tailor;
+// A stored number that is not a valid number must never take the page down: that button is simply left out.
+const safe = (build: () => string | null): string | null => {
+  try {
+    return build();
+  } catch {
+    return null;
+  }
+};
+const whatsapp = contacts.whatsapp ? safe(() => whatsappLink(contacts.whatsapp!.value, whatsappMessage(t, tailor.name))) : null;
+const phone = contacts.phone ? safe(() => telLink(contacts.phone!.value)) : null;
+const shop = tailor.areas.filter((a) => a.kind === 'shop_location');
+const serves = tailor.areas.filter((a) => a.kind === 'serves');
+const description = metaText(tailor.description?.value ?? '', 155) || fill(t.profile.metaDescription, { name: tailor.name });
+const requestHref = `${pathFor(lang, '/request')}?tailor=${tailor.slug}`;
+const url = pathFor(lang, `/tailors/${tailor.slug}`);
+const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') => `/media/${base}/${size}.jpg`;
+---
+
+<ThemeLayout
+  lang={lang}
+  title={`${tailor.name} · ${t.siteName}`}
+  {description}
+  rest={`/tailors/${tailor.slug}`}
+  tailorBar={{ slug: tailor.slug, whatsapp, phone, requestHref }}
+  jsonLd={[localBusinessJsonLd(tailor, siteConfig(env).siteUrl, lang)]}
+  ogImage={tailor.profilePhoto ? `${siteConfig(env).siteUrl}${imageSrc(tailor.profilePhoto.base, 'large')}` : undefined}
+>
+  <Hero parent={{ label: t.directory.heading, href: pathFor(lang, '/tailors') }} variant="show" tag={t.directory.heading} title={tailor.name} />
+
+  <article class="profile shop-section">
+    <div class="w-layout-blockcontainer main-container w-container">
+      <p class="prof-back"><a href={pathFor(lang, '/tailors')}>{t.profile.back}</a></p>
+
+      <div class="prof-top">
+        <div class="prof-photo">
+          {
+            tailor.profilePhoto ? (
+              <img
+                src={imageSrc(tailor.profilePhoto.base, 'medium')}
+                srcset={`${imageSrc(tailor.profilePhoto.base, 'medium')} 800w, ${imageSrc(tailor.profilePhoto.base, 'large')} 1600w`}
+                sizes="(min-width: 48rem) 40rem, 100vw"
+                alt={tailor.profilePhoto.alt}
+              />
+            ) : (
+              <div class="shop-thumb shop-thumb--initials" data-initials={initials(tailor.name)} aria-hidden="true" />
+            )
+          }
+        </div>
+
+        <section class="prof-contact" aria-labelledby="contact">
+          <h2 id="contact">{t.profile.contact}</h2>
+          <p class="dir-note" role="note"><strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}</p>
+          <div class="prof-actions">
+            <form
+              method="get"
+              action={pathFor(lang, '/request')}
+              data-add-to-cart
+              data-name={tailor.name}
+              data-url={url}
+              data-image={tailor.profilePhoto ? imageSrc(tailor.profilePhoto.base, 'thumb') : ''}
+            >
+              <input type="hidden" name="tailor" value={tailor.slug} />
+              <button type="submit" class="button w-inline-block">
+                <div class="button-bg"></div>
+                <div class="button-text">{t.requestList.addLabel}</div>
+                <div class="button-wrap">
+                  <Icon name="arrow-up-right" class="button-icon" />
+                  <Icon name="arrow-up-right" class="button-icon" />
+                </div>
+              </button>
+            </form>
+            <a class="button w-inline-block is-shop" href={requestHref}>
+              <div class="button-bg"></div>
+              <div class="button-text">{t.profile.requestThis}</div>
+            </a>
+            {
+              whatsapp && (
+                <a class="button w-inline-block is-shop" href={whatsapp} data-contact-channel="whatsapp" data-tailor={tailor.slug}>
+                  <div class="button-bg"></div>
+                  <div class="button-text">{t.contact.whatsapp}</div>
+                </a>
+              )
+            }
+            {
+              phone && (
+                <a class="button w-inline-block is-shop" href={phone} data-contact-channel="phone" data-tailor={tailor.slug}>
+                  <div class="button-bg"></div>
+                  <div class="button-text">{t.contact.call}</div>
+                </a>
+              )
+            }
+          </div>
+          <p>{t.profile.contactNote}</p>
+        </section>
+      </div>
+
+      {
+        tailor.description && (
+          <section class="prof-section" aria-labelledby="about">
+            <h2 id="about">{t.profile.about}</h2>
+            <p>{tailor.description.value}</p>
+            <p class="meta"><Source {lang} verified={tailor.description.verified} /></p>
+          </section>
+        )
+      }
+
+      {
+        tailor.categories.length > 0 && (
+          <section class="prof-section" aria-labelledby="makes">
+            <h2 id="makes">{t.profile.makes}</h2>
+            <ul class="prof-facts">
+              {tailor.categories.map((c) => {
+                const price = priceText(t, c.priceFrom, c.priceTo);
+                return (
+                  <li>
+                    <a href={pathFor(lang, `/categories/${c.slug}`)}>{c.name}</a>
+                    {price && (
+                      <>
+                        <br />
+                        <span>
+                          {t.price.approximate}: {price}
+                          {c.unit ? ` (${c.unit})` : ''}
+                        </span>
+                        {c.confirmedOn && <span> · {fill(t.price.confirmedOn, { date: c.confirmedOn })}</span>}
+                        <br />
+                        <Source {lang} verified={c.verified} />
+                      </>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        tailor.priceNote && (
+          <section class="prof-section" aria-labelledby="pricenote">
+            <h2 id="pricenote">{t.profile.priceNote}</h2>
+            <p>{tailor.priceNote.value}</p>
+            <p class="meta"><Source {lang} verified={tailor.priceNote.verified} /></p>
+          </section>
+        )
+      }
+
+      {
+        tailor.areas.length > 0 && (
+          <section class="prof-section" aria-labelledby="where">
+            <h2 id="where">{t.profile.where}</h2>
+            <ul class="prof-facts">
+              {shop.length > 0 && (
+                <li>
+                  <strong>{t.profile.shopLocation}:</strong> {shop.map((a) => a.name).join(' · ')}
+                </li>
+              )}
+              {serves.length > 0 && (
+                <li>
+                  <strong>{t.profile.serves}:</strong> {serves.map((a) => a.name).join(' · ')}
+                </li>
+              )}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        (tailor.homeVisits || tailor.languages || tailor.address) && (
+          <section class="prof-section" aria-labelledby="details">
+            <h2 id="details">{t.profile.details}</h2>
+            <dl class="prof-facts">
+              {tailor.homeVisits && (
+                <>
+                  <dt>{t.profile.homeVisits}</dt>
+                  <dd>
+                    {tailor.homeVisits.value === 'yes' ? t.profile.homeYes : t.profile.homeNo} <Source {lang} verified={tailor.homeVisits.verified} />
+                  </dd>
+                </>
+              )}
+              {tailor.languages && (
+                <>
+                  <dt>{t.profile.languages}</dt>
+                  <dd>
+                    {tailor.languages.value} <Source {lang} verified={tailor.languages.verified} />
+                  </dd>
+                </>
+              )}
+              {tailor.address && (
+                <>
+                  <dt>{t.profile.address}</dt>
+                  <dd>
+                    {tailor.address.value} <Source {lang} verified={tailor.address.verified} />
+                  </dd>
+                </>
+              )}
+            </dl>
+          </section>
+        )
+      }
+
+      {
+        tailor.photos.length > 0 && (
+          <section class="prof-section" aria-labelledby="work">
+            <h2 id="work">{t.profile.work}</h2>
+            <ul class="prof-gallery">
+              {tailor.photos.map((p) => (
+                <li>
+                  <figure>
+                    <img
+                      src={imageSrc(p.base, 'medium')}
+                      srcset={`${imageSrc(p.base, 'thumb')} 320w, ${imageSrc(p.base, 'medium')} 800w, ${imageSrc(p.base, 'large')} 1600w`}
+                      sizes="(min-width: 48rem) 20rem, 100vw"
+                      alt={p.alt}
+                      loading="lazy"
+                    />
+                    {p.caption && <figcaption>{p.caption}</figcaption>}
+                  </figure>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <p class="meta">{t.profile.suppliedNote}</p>
+    </div>
+  </article>
+  {(whatsapp || phone) && <script>import '../../scripts/contact-click';</script>}
+</ThemeLayout>

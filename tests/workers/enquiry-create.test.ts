@@ -22,6 +22,7 @@ const choices: Resolved & { ok: true } = {
   categoryId: null,
   areaId: null,
   tailorId: null,
+  alsoNames: [],
   source: 'form',
 };
 const NOW = new Date('2026-06-01T09:00:00.000Z');
@@ -102,6 +103,7 @@ describe('createEnquiry (FR-ENQ-04, PRV-03, AC-07)', () => {
         categoryId: cat as number,
         areaId: area as number,
         tailorId: t as number,
+        alsoNames: [],
         source: 'profile:ec-tailor',
       },
       consentVersion: 'v',

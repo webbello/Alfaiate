@@ -122,7 +122,7 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-ENQ-01 | Form collects only: name, phone or WhatsApp number (and which it is), requested garment/service, general neighbourhood/area, preferred date/time (optional), notes (optional), consent. Optional preselected tailor when started from a profile. | Must |
+| FR-ENQ-01 | Form collects only: name, phone or WhatsApp number (and which it is), requested garment/service, general neighbourhood/area, preferred date/time (optional), notes (optional), consent. Optional preselected tailor when started from a profile, or up to three tailors from the visitor's request list (the first is the preferred tailor, the others are named in the notes). | Must |
 | FR-ENQ-02 | Submission requires an explicit, unticked-by-default consent checkbox stating that the details will be shared with a suitable partner tailor, linking to the privacy notice. | Must |
 | FR-ENQ-03 | Form and acknowledgement state that submitting is a request, **not** a confirmed appointment, and that the tailor must confirm availability directly. | Must |
 | FR-ENQ-04 | On success, show an acknowledgement with a reference code and next steps. No promise of timing beyond what the owner has approved (OQ-05). | Must |

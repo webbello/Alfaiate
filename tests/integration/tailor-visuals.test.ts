@@ -30,42 +30,43 @@ const add = async (withPhoto: boolean) => {
   }
   return slug;
 };
+// the card is the list item that holds the tailor's link; the profile's own part is the article
 const card = (html: string, slug: string) =>
   new RegExp(
-    `<article class="card">(?:(?!</article>)[\\s\\S])*href="/tailors/${slug}"[\\s\\S]*?</article>`,
+    `<li data-directory-item[^>]*>(?:(?!</li>)[\\s\\S])*href="/tailors/${slug}"[\\s\\S]*?</li>`,
   ).exec(html)?.[0] ?? '';
+const article = (html: string) =>
+  /<article class="profile[\s\S]*?<\/article>/.exec(html)?.[0] ?? '';
+const BADGE =
+  /<div class="shop-thumb shop-thumb--initials" data-initials="[A-Z0-9]{1,2}" aria-hidden="true">/;
 
 describe('listing visuals', () => {
-  it('shows an aria-hidden illustrated swatch on a card and a profile with no photo, and no image', async () => {
+  it('shows an aria-hidden initials badge on a card and a profile with no photo, and no image', async () => {
     const slug = await add(false);
     const c = card(await (await get('/tailors')).text(), slug);
     expect(c).not.toBe('');
-    expect(c).toMatch(
-      /<div class="card__swatch card__swatch--[012]" data-initials="[A-Z0-9]{1,2}" aria-hidden="true">/,
-    );
+    expect(c).toMatch(BADGE);
     expect(c).not.toContain('<img');
-    const profile = await (await get(`/tailors/${slug}`)).text();
-    expect(profile).toMatch(
-      /<div class="profile__swatch profile__swatch--[012]" data-initials="[A-Z0-9]{1,2}" aria-hidden="true">/,
-    );
+    const profile = article(await (await get(`/tailors/${slug}`)).text());
+    expect(profile).toMatch(BADGE);
     expect(profile).not.toContain('<img');
   });
-  it('shows the photo, and no swatch, when a permitted photo exists', async () => {
+  it('shows the photo, and no badge, when a permitted photo exists', async () => {
     const slug = await add(true);
     const c = card(await (await get('/tailors')).text(), slug);
     expect(c).toContain('<img');
-    expect(c).not.toContain('card__swatch');
-    const profile = await (await get(`/tailors/${slug}`)).text();
+    expect(c).not.toContain('shop-thumb--initials');
+    const profile = article(await (await get(`/tailors/${slug}`)).text());
     expect(profile).toContain('<img');
-    expect(profile).not.toContain('profile__swatch');
+    expect(profile).not.toContain('shop-thumb--initials');
   });
-  it('gives the same look to the same tailor on the card and the profile', async () => {
+  it('gives the same initials to the same tailor on the card and the profile', async () => {
     const slug = await add(false);
-    const c = /card__swatch--([012])/.exec(
+    const c = /data-initials="([A-Z0-9]{1,2})"/.exec(
       card(await (await get('/tailors')).text(), slug),
     )![1];
-    expect(await (await get(`/tailors/${slug}`)).text()).toContain(
-      `profile__swatch--${c}`,
+    expect(article(await (await get(`/tailors/${slug}`)).text())).toContain(
+      `data-initials="${c}"`,
     );
   });
 });
