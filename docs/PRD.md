@@ -185,7 +185,7 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 
 ### 7.3 Explicitly excluded from the MVP
 
-Customer accounts; open tailor self-registration or public self-publishing (the Phase 7c interest form, FR-JOIN-01..03, is not registration: it creates no account, profile or listing; since 2026-10-21 an **owner-approved** tailor portal exists, FR-TPO-01..08: a tailor sees and edits only their own page and photos, never customers, enquiries, referrals or fees, and cannot publish); booking calendars/real-time availability; online payments, escrow, holding funds; in-app chat; automatic dispatch/matching; delivery fleet; production management; fabric inventory; automated commission collection; native apps; AI recommendations; ratings and reviews. Unrequested extras (loyalty, coupons, blogs, marketplaces) are also out of scope.
+Customer accounts; open tailor self-registration or public self-publishing (the Phase 7c interest form, FR-JOIN-01..03, is not registration: it creates no account, profile or listing; since 2026-10-21 an **owner-approved** tailor portal exists, FR-TPO-01..08: a tailor sees and edits only their own page and photos, never customers, enquiries, referrals or fees, and cannot publish); booking calendars/real-time availability; online payments, escrow, holding funds; in-app chat; automatic dispatch/matching; delivery fleet; production management; fabric inventory; automated commission collection; native apps; AI recommendations; ratings and reviews. Unrequested extras (loyalty, coupons, blogs, open marketplaces) are also out of scope. **Amended 2026-10-23 (owner):** a product shop is allowed for the platform's own items and for products listed by approved tailors, as an enquiry only, with payment made directly to the seller (SPEC-shop.md, FR-SHP-01..08); online payment, checkout, delivery, stock counts and open listing by anyone stay excluded.
 
 ### 7.4 Future enhancements (not designed here)
 
@@ -205,6 +205,8 @@ Further languages beyond English and Tetum (English and Tetum ship at launch, Te
 | BR-08 | Customer information is shared with a tailor only after disclosure and the customer's consent, and only the necessary fields. |
 | BR-09 | Referral fees and payment terms are agreed with each tailor before any fee is recorded as due. |
 | BR-10 | Referral completion and revenue reporting are manual. Completion is tailor-reported unless the owner independently confirms it. |
+| BR-12 | The platform lists shop items but is not the seller of a tailor's product and never handles payment; the buyer and seller agree price, delivery and returns directly. |
+| BR-13 | A tailor's product needs the same recorded permission, photo permission and supplied/verified labelling as other tailor content (BR-06, BR-11). |
 | BR-11 | Every public fact is either verified by the owner or labelled as supplied by the tailor; unverified prices, ratings, credentials and service claims are not published as fact. |
 | BR-12 | Customers are never charged by the platform in the MVP. **[Proposed]** |
 
