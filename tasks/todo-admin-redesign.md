@@ -1,10 +1,10 @@
 # Todo: Admin redesign
 
-- [ ] T1 Tokens and shell: blue palette tokens with contrast test, sidebar grouped by permission, slim top bar, CSS-only mobile menu, content at full width
+- [x] T1 Tokens and shell: blue palette tokens with contrast test, sidebar grouped by permission, slim top bar, CSS-only mobile menu, content at full width
   - Acceptance: every admin page renders in the new frame; nav filtered by role as before; works with JavaScript off
   - Verify: `npm run check`; `admin-nav`, `admin-layout` tests updated; e2e keyboard path and 320 px
   - Files: admin.css, AdminLayout.astro, nav.ts, tests (about 5)
-- [ ] T2 Components: Card, FormGrid, Field (label, help, inline error), StickyBar, PageHeader, chips, table styles
+- [x] T2 Components: Card, FormGrid, Field (label, help, inline error), StickyBar, PageHeader, chips, table styles
   - Acceptance: used on one page as proof; 44 px targets and visible focus kept
   - Verify: axe on that page; unit/integration markup test
   - Files: src/components/admin/*, admin.css

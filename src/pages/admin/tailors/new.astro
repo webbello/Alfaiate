@@ -2,7 +2,10 @@
 export const prerender = false;
 import { readForm } from '../../../modules/http/body';
 import { env } from 'cloudflare:workers';
+import Card from '../../../components/admin/Card.astro';
 import Flash from '../../../components/admin/Flash.astro';
+import FormGrid from '../../../components/admin/FormGrid.astro';
+import StickyBar from '../../../components/admin/StickyBar.astro';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import ProfileFields from '../../../components/ProfileFields.astro';
 import { en } from '../../../i18n/en';
@@ -62,7 +65,13 @@ const { message, kind, fields } = messageFrom(Astro.url);
   )}
   <form method="post">
     <input type="hidden" name="csrf" value={auth.csrfToken} />
-    <ProfileFields />
-    <button type="submit">{en.tailorCreate}</button>
+    <Card>
+      <FormGrid>
+        <ProfileFields />
+      </FormGrid>
+    </Card>
+    <StickyBar>
+      <button type="submit">{en.tailorCreate}</button>
+    </StickyBar>
   </form>
 </AdminLayout>

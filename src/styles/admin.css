@@ -591,3 +591,50 @@ details[open] > summary {
 .check--missing strong {
   color: #8a1c1c;
 }
+
+/* Form parts (T2): a grid of fields inside a card, and a bar that keeps the buttons in reach. */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.75rem 1.25rem;
+}
+.form-grid > p {
+  min-width: 0;
+  margin: 0;
+  max-width: none;
+}
+.form-grid br {
+  display: none;
+}
+.form-grid > p:has(textarea),
+.form-grid > .wide {
+  grid-column: 1 / -1;
+}
+.form-grid input:not([type='checkbox'], [type='radio'], [type='hidden']),
+.form-grid select,
+.form-grid textarea {
+  max-width: none;
+}
+.sticky-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 -1rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -2px 6px rgb(28 36 52 / 6%);
+}
+@media (min-width: 64rem) {
+  .sticky-bar {
+    margin: 0 -2rem;
+    padding-inline: 2rem;
+  }
+}
+tbody tr:hover {
+  background: #f8fafc;
+}
