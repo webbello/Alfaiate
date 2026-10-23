@@ -388,3 +388,19 @@ html:not(.js) .works-thumb-wrap { position: relative; inset: auto; height: 40vh;
 html:not(.js) .works-button-block { position: static; display: inline-flex; margin-top: 1rem; }
 html:not(.js) .works-title, html:not(.js) .our-works-section .section-info-item { color: #1d1914; }
 html:not(.js) .works-button { background: #3d5a33; }
+
+/* ---- One-row header on wide screens: logo on the left, menu on the right (saves about 85px of height) ---- */
+@media (min-width: 992px) {
+  .header-section { top: 0; padding: 0.9rem clamp(1.5rem, 4vw, 3.5rem); border-bottom: 1px dashed var(--color-line, #8a8a8a4d); }
+  .header-block { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; }
+  .header-brand-block { margin: 0; flex: none; align-items: flex-start; }
+  .header-brand { max-width: none; width: auto; }
+  .header-menu-block.is-display-show-for-desktop { flex: 1 1 auto; padding: 0; border: 0; min-width: 0; }
+  .header-menu-wrap { justify-content: flex-end; gap: clamp(1rem, 1.8vw, 2.25rem); flex-wrap: nowrap; }
+  .header-cart-block { margin-left: 0; }
+  .brand-name { font-size: 1.6rem; }
+  /* the pages were laid out for a header about 85px taller */
+  .hero-block, .home-block, .error-section { padding-top: max(3.5rem, calc(var(--global-variables--hero-top-space) - 85px)); }
+  .shop-section:not(.profile) { padding-top: max(4rem, calc(var(--global-variables--shop-space) - 85px)); }
+  .legacy-band { padding-top: 7.5rem; }
+}
