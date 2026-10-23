@@ -10,6 +10,7 @@ export default [
       '.astro/',
       '.wrangler/',
       'node_modules/',
+      'handspark/',
     ],
   },
   js.configs.recommended,

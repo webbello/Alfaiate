@@ -8,3 +8,4 @@ tasks
 .claude
 *.md
 worker-configuration.d.ts
+handspark
