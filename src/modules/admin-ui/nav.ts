@@ -7,6 +7,7 @@ export type NavKey =
   | 'tailors'
   | 'categories'
   | 'areas'
+  | 'products'
   | 'interest'
   | 'traffic'
   | 'newsletter'
@@ -55,6 +56,13 @@ const ALL: NavLink[] = [
     href: '/admin/areas',
     label: en.adminNavAreas,
     permission: 'tailor.edit',
+    group: 'Catalogue',
+  },
+  {
+    key: 'products',
+    href: '/admin/products',
+    label: en.adminNavProducts,
+    permission: 'product.edit',
     group: 'Catalogue',
   },
   {

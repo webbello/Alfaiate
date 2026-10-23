@@ -27,6 +27,7 @@ export const SUCCESS_CODES: readonly string[] = [
 ];
 
 export const PROBLEM_CODES: readonly string[] = [
+  'needs_description',
   'conflict',
   'metadata',
   'too_large',

@@ -143,6 +143,14 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 | FR-TPO-06 | The portal shows what is still to do and lets the tailor say the page is ready; the owner is told by the notification channel (reference and link only). | Should |
 | FR-TPO-07 | The tailor's permission to show their page is recorded (wording version and time) when they accept the invite; publishing and approval stay with staff (`tailor.publish`). | Should |
 | FR-TPO-08 | Tailor actions are audited with the tailor account as actor; no customer data is logged. | Should |
+| FR-SHP-01 | (Shop, owner request 2026-10-23, SPEC-shop.md; built in S1) Staff with `product.edit` add and edit products: name, type, price in US dollars (optional, with a note), description, availability. A new product is a draft. | Must |
+| FR-SHP-02 | (Built in S1) Only staff with `product.publish` (manager, owner) publish or unpublish a product, and edit a published one; a published product always has a description (checked in code and by the database). Every change is audited by ids only. | Must |
+| FR-SHP-03 | Public shop pages (`/shop`, `/shop/[slug]`, categories, both languages) list only published products, with a seller label; they are noindex until the owner approves them (S2, not yet built). | Must |
+| FR-SHP-04 | A visitor keeps a separate product list in the browser and sends a product enquiry through a consent-gated form with the same spam controls as the request form; nothing is paid or ordered on the site (S3, not yet built). | Must |
+| FR-SHP-05 | Product enquiries appear in the staff inbox with their own kind and status and are passed on manually (S3, not yet built). | Must |
+| FR-SHP-06 | Product photos need recorded permission and are stored in R2 through the media module (S1b, not yet built). | Must |
+| FR-SHP-07 | An approved tailor drafts their own products and photos in the portal; staff publish; the tailor never sees enquiries or customers (S4, not yet built). | Should |
+| FR-SHP-08 | The seller is shown on every product (the platform or the tailor), and BR-13 and BR-14 are stated on product pages (S2). | Must |
 
 #### Administration
 

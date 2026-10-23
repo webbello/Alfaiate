@@ -234,6 +234,7 @@ export const en = {
   tailorNoAreas: 'No areas yet. Add some under Areas.',
   adminNavCategories: 'Garment types',
   adminNavAreas: 'Areas',
+  adminNavProducts: 'Products',
   catalogName: 'Name',
   catalogDescription: 'Description',
   catalogOrder: 'Order',
@@ -286,6 +287,7 @@ export const en = {
       'The photo could not be saved. Nothing was stored; please try again.',
     not_permitted:
       'Only a photo with recorded permission that is not hidden can be the profile photo.',
+    needs_description: 'A product needs a description before it can be published.',
     published: 'Published.',
     unpublished: 'Unpublished.',
     blocked: 'This tailor cannot be published yet.',

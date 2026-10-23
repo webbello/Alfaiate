@@ -96,6 +96,12 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     action: 'add_note',
     body: 'matrix note',
   }),
+  '/admin/products/new': (csrf) => ({
+    csrf,
+    name: `Matrix Product ${Date.now()}${n++}`,
+  }),
+  '/admin/products/[id]': (csrf) => ({ csrf, name: 'Matrix Product' }),
+  '/admin/products/[id]/publish': (csrf) => ({ csrf, action: 'unpublish' }),
   '/admin/tailors/[id]/publish': (csrf) => ({ csrf, action: 'approve' }),
   '/admin/tailors/[id]/fees': (csrf) => ({
     csrf,

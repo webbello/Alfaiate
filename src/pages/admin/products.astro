@@ -1,0 +1,80 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import PageHeader from '../../components/admin/PageHeader.astro';
+import EmptyState from '../../components/admin/EmptyState.astro';
+import StatusChip from '../../components/admin/StatusChip.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { requirePermission } from '../../modules/auth/require';
+import { can } from '../../modules/auth/permissions';
+import { listProducts, priceInput } from '../../modules/shop/products';
+
+const auth = await requirePermission(Astro, 'product.edit');
+if (auth instanceof Response) return auth;
+const products = await listProducts(requireBindings(env).DB);
+---
+
+<AdminLayout
+  title={en.adminNavProducts}
+  description={en.adminNavProducts}
+  auth={auth}
+>
+  <PageHeader
+    title={en.adminNavProducts}
+    sub="Items the shop lists. Customers ask about an item; they never pay here."
+  >
+    <a class="button-link button-link--primary" href="/admin/products/new">
+      Add a product
+    </a>
+  </PageHeader>
+  {products.length === 0 && (
+    <EmptyState title="No products yet">
+      <p>
+        Add the first product. It stays hidden until someone with publish rights
+        publishes it.
+      </p>
+    </EmptyState>
+  )}
+  {products.length > 0 && (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Product</th>
+          <th scope="col">Type</th>
+          <th scope="col">Price (USD)</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {products.map((p) => (
+          <tr>
+            <td>
+              <a href={`/admin/products/${p.id}`}>{p.name}</a>
+            </td>
+            <td>{p.category_name ?? '–'}</td>
+            <td>{priceInput(p) || '–'}</td>
+            <td>
+              <StatusChip
+                state={p.is_published ? 'published' : 'draft'}
+                label={p.is_published ? 'Published' : 'Draft'}
+              />
+              {p.availability === 'unavailable' && (
+                <>
+                  {' '}
+                  <StatusChip state="suspended" label="Unavailable" />
+                </>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+  {!can(auth.role, 'product.publish') && (
+    <p class="hint">
+      You can edit products. A manager or owner publishes them.
+    </p>
+  )}
+</AdminLayout>

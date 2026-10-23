@@ -1,0 +1,116 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import { parseId, readForm } from '../../../modules/http/body';
+import Card from '../../../components/admin/Card.astro';
+import PageHeader from '../../../components/admin/PageHeader.astro';
+import Flash from '../../../components/admin/Flash.astro';
+import FormGrid from '../../../components/admin/FormGrid.astro';
+import StickyBar from '../../../components/admin/StickyBar.astro';
+import StatusChip from '../../../components/admin/StatusChip.astro';
+import ProductFields from '../../../components/admin/ProductFields.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { en } from '../../../i18n/en';
+import { requireBindings } from '../../../modules/config';
+import { requirePermission } from '../../../modules/auth/require';
+import { can } from '../../../modules/auth/permissions';
+import { verifyCsrf } from '../../../modules/auth/csrf';
+import { SESSION_COOKIE } from '../../../modules/auth/session';
+import {
+  getProduct,
+  listProductCategories,
+  productFromForm,
+  updateProduct,
+} from '../../../modules/shop/products';
+import { productMessage } from '../../../modules/shop/messages';
+
+const auth = await requirePermission(Astro, 'product.edit');
+if (auth instanceof Response) return auth;
+const { DB } = requireBindings(env);
+const id = parseId(Astro.params.id);
+if (!Number.isInteger(id)) return new Response('Not found', { status: 404 });
+
+if (Astro.request.method === 'POST') {
+  const form = (await readForm(Astro.request)).form;
+  if (
+    !(await verifyCsrf(
+      Astro.cookies.get(SESSION_COOKIE)?.value ?? '',
+      form.get('csrf')?.toString(),
+    ))
+  )
+    return new Response('Forbidden', { status: 403 });
+  const saved = await updateProduct(
+    DB,
+    auth.userId,
+    auth.role,
+    id,
+    productFromForm(form),
+  );
+  if (!saved.ok && saved.error === 'not_found')
+    return new Response('Not found', { status: 404 });
+  if (!saved.ok && saved.error === 'forbidden')
+    return new Response('Forbidden', { status: 403 });
+  return Astro.redirect(
+    saved.ok
+      ? `/admin/products/${id}?msg=saved`
+      : `/admin/products/${id}?msg=${saved.error}&fields=${(saved.fields ?? []).join(',')}`,
+    303,
+  );
+}
+const product = await getProduct(DB, id);
+if (!product) return new Response('Not found', { status: 404 });
+const { message, kind, fields } = productMessage(Astro.url);
+const categories = await listProductCategories(DB);
+const mayPublish = can(auth.role, 'product.publish');
+---
+
+<AdminLayout title={product.name} description={product.name} auth={auth}>
+  <PageHeader
+    title={product.name}
+    sub="Edit the product. Publishing makes it visible on the shop."
+    back={{ href: '/admin/products', label: en.adminNavProducts }}
+  >
+    <StatusChip
+      state={product.is_published ? 'published' : 'draft'}
+      label={product.is_published ? 'Published' : 'Draft'}
+    />
+  </PageHeader>
+  {message && (
+    <Flash message={message} kind={kind}>
+      {fields.length > 0 && <>Check: {fields.join(', ')}</>}
+    </Flash>
+  )}
+  <form method="post">
+    <input type="hidden" name="csrf" value={auth.csrfToken} />
+    <Card title="Product" id="product">
+      <FormGrid>
+        <ProductFields categories={categories} values={product} />
+      </FormGrid>
+    </Card>
+    <StickyBar>
+      <button type="submit">Save changes</button>
+    </StickyBar>
+  </form>
+  <Card title="Visibility" id="visibility">
+    {mayPublish ? (
+      <form method="post" action={`/admin/products/${product.id}/publish`}>
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <input
+          type="hidden"
+          name="action"
+          value={product.is_published ? 'unpublish' : 'publish'}
+        />
+        <p>
+          {product.is_published
+            ? 'This product is visible on the shop.'
+            : 'This product is hidden. Publishing needs a description.'}
+        </p>
+        <button type="submit">
+          {product.is_published ? 'Unpublish' : 'Publish'}
+        </button>
+      </form>
+    ) : (
+      <p>A manager or owner publishes products.</p>
+    )}
+  </Card>
+</AdminLayout>

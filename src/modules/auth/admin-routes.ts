@@ -138,6 +138,30 @@ export const ADMIN_ROUTES: readonly {
     methods: ['GET', 'POST'],
   },
   {
+    file: 'products.astro',
+    path: '/admin/products',
+    permission: 'product.edit',
+    methods: ['GET'],
+  },
+  {
+    file: 'products/new.astro',
+    path: '/admin/products/new',
+    permission: 'product.edit',
+    methods: ['GET', 'POST'],
+  },
+  {
+    file: 'products/[id].astro',
+    path: '/admin/products/[id]',
+    permission: 'product.edit',
+    methods: ['GET', 'POST'],
+  },
+  {
+    file: 'products/[id]/publish.ts',
+    path: '/admin/products/[id]/publish',
+    permission: 'product.publish',
+    methods: ['POST'],
+  },
+  {
     file: 'tailors.astro',
     path: '/admin/tailors',
     permission: 'tailor.edit',

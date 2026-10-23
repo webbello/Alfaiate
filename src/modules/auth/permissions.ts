@@ -11,6 +11,8 @@ export const PERMISSIONS = [
   'fee.view',
   'enquiry.delete',
   'user.manage',
+  'product.edit',
+  'product.publish',
 ] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 
@@ -22,11 +24,13 @@ const MANAGER: readonly Permission[] = [
   'enquiry.view',
   'enquiry.update',
   'referral.edit',
+  'product.edit',
+  'product.publish',
 ];
 const GRANTS: Record<Role, readonly Permission[]> = {
   owner: PERMISSIONS,
   manager: MANAGER,
-  editor: ['dashboard.view', 'tailor.edit'],
+  editor: ['dashboard.view', 'tailor.edit', 'product.edit'],
   viewer: ['dashboard.view'],
 };
 

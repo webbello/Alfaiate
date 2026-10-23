@@ -14,7 +14,7 @@ export const ROLE_INFO: Record<Role, { label: string; summary: string }> = {
   editor: {
     label: 'Editor',
     summary:
-      'Edits tailor profiles, work types, areas and photos. Cannot publish and cannot see enquiries.',
+      'Edits tailor profiles, work types, areas, photos and shop products. Cannot publish and cannot see enquiries.',
   },
   viewer: {
     label: 'Viewer',
@@ -39,6 +39,8 @@ export const ABILITIES: { permission: Permission; label: string }[] = [
   { permission: 'fee.view', label: 'See and edit fees' },
   { permission: 'enquiry.delete', label: 'Remove personal details' },
   { permission: 'user.manage', label: 'Manage users' },
+  { permission: 'product.edit', label: 'Add and edit shop products' },
+  { permission: 'product.publish', label: 'Publish shop products' },
 ];
 
 /** "Today", "3 days ago", or the date: for "last signed in". */

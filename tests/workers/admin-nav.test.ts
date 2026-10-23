@@ -12,6 +12,7 @@ describe('navLinks (the header bar of every admin page)', () => {
       'tailors',
       'categories',
       'areas',
+      'products',
       'interest',
       'traffic',
       'newsletter',
@@ -24,6 +25,7 @@ describe('navLinks (the header bar of every admin page)', () => {
       'tailors',
       'categories',
       'areas',
+      'products',
       'interest',
       'traffic',
       'account',
@@ -33,6 +35,7 @@ describe('navLinks (the header bar of every admin page)', () => {
       'tailors',
       'categories',
       'areas',
+      'products',
       'account',
     ]);
     expect(keys('viewer')).toEqual(['dashboard', 'account']);
@@ -63,6 +66,7 @@ describe('currentKey (which link is the current page)', () => {
     expect(currentKey('/admin/tailors/7')).toBe('tailors');
     expect(currentKey('/admin/categories')).toBe('categories');
     expect(currentKey('/admin/areas')).toBe('areas');
+    expect(currentKey('/admin/products/3')).toBe('products');
     expect(currentKey('/admin/interest')).toBe('interest');
     expect(currentKey('/admin/newsletter')).toBe('newsletter');
     expect(currentKey('/admin/users')).toBe('users');

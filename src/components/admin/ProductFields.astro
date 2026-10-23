@@ -1,0 +1,81 @@
+---
+import type { ProductCategory, ProductRow } from '../../modules/shop/products';
+import { centsToDollars } from '../../modules/tailors/links';
+
+interface Props {
+  categories: ProductCategory[];
+  values?: Partial<ProductRow>;
+}
+const { categories, values = {} } = Astro.props;
+---
+
+<p>
+  <label for="name">Product name</label>
+  <br />
+  <input
+    id="name"
+    name="name"
+    value={values.name ?? ''}
+    maxlength="100"
+    required
+  />
+</p>
+<p>
+  <label for="category_id">Type</label>
+  <br />
+  <select id="category_id" name="category_id">
+    <option value="">No type</option>
+    {categories.map((c) => (
+      <option value={c.id} selected={c.id === values.category_id}>
+        {c.name}
+      </option>
+    ))}
+  </select>
+</p>
+<p>
+  <label for="price">Price in US dollars (optional)</label>
+  <br />
+  <input
+    id="price"
+    name="price"
+    value={centsToDollars(values.price_cents ?? null)}
+    inputmode="decimal"
+    maxlength="10"
+    pattern="\d{1,7}(\.\d{1,2})?"
+  />
+</p>
+<p>
+  <label for="price_note">Price note (optional, for example "per metre")</label>
+  <br />
+  <input
+    id="price_note"
+    name="price_note"
+    value={values.price_note ?? ''}
+    maxlength="100"
+  />
+</p>
+<p>
+  <label for="availability">Availability</label>
+  <br />
+  <select id="availability" name="availability">
+    <option value="available" selected={values.availability !== 'unavailable'}>
+      Available to ask about
+    </option>
+    <option
+      value="unavailable"
+      selected={values.availability === 'unavailable'}
+    >
+      Not available now
+    </option>
+  </select>
+</p>
+<p class="wide">
+  <label for="description">Description (needed to publish)</label>
+  <br />
+  <textarea
+    id="description"
+    name="description"
+    maxlength="2000"
+    rows="5"
+  >{values.description ?? ''}</textarea>
+</p>

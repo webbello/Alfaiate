@@ -13,6 +13,8 @@ const expected = {
     'fee.view',
     'enquiry.delete',
     'user.manage',
+    'product.edit',
+    'product.publish',
   ],
   manager: [
     'dashboard.view',
@@ -21,8 +23,10 @@ const expected = {
     'enquiry.view',
     'enquiry.update',
     'referral.edit',
+    'product.edit',
+    'product.publish',
   ],
-  editor: ['dashboard.view', 'tailor.edit'],
+  editor: ['dashboard.view', 'tailor.edit', 'product.edit'],
   viewer: ['dashboard.view'],
 } as const;
 

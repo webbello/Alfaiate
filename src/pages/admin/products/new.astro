@@ -1,0 +1,76 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import { readForm } from '../../../modules/http/body';
+import Card from '../../../components/admin/Card.astro';
+import PageHeader from '../../../components/admin/PageHeader.astro';
+import Flash from '../../../components/admin/Flash.astro';
+import FormGrid from '../../../components/admin/FormGrid.astro';
+import StickyBar from '../../../components/admin/StickyBar.astro';
+import ProductFields from '../../../components/admin/ProductFields.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { en } from '../../../i18n/en';
+import { requireBindings } from '../../../modules/config';
+import { requirePermission } from '../../../modules/auth/require';
+import { verifyCsrf } from '../../../modules/auth/csrf';
+import { SESSION_COOKIE } from '../../../modules/auth/session';
+import {
+  createProduct,
+  listProductCategories,
+  productFromForm,
+} from '../../../modules/shop/products';
+import { productMessage } from '../../../modules/shop/messages';
+
+const auth = await requirePermission(Astro, 'product.edit');
+if (auth instanceof Response) return auth;
+const { DB } = requireBindings(env);
+
+if (Astro.request.method === 'POST') {
+  const form = (await readForm(Astro.request)).form;
+  if (
+    !(await verifyCsrf(
+      Astro.cookies.get(SESSION_COOKIE)?.value ?? '',
+      form.get('csrf')?.toString(),
+    ))
+  )
+    return new Response('Forbidden', { status: 403 });
+  const created = await createProduct(
+    DB,
+    auth.userId,
+    auth.role,
+    productFromForm(form),
+  );
+  if (!created.ok)
+    return Astro.redirect(
+      `/admin/products/new?msg=${created.error === 'forbidden' ? 'invalid' : created.error}&fields=${(created.fields ?? []).join(',')}`,
+      303,
+    );
+  return Astro.redirect(`/admin/products/${created.id}?msg=created`, 303);
+}
+const { message, kind, fields } = productMessage(Astro.url);
+const categories = await listProductCategories(DB);
+---
+
+<AdminLayout title="Add a product" description="Add a product" auth={auth}>
+  <PageHeader
+    title="Add a product"
+    sub="Start with the essentials. Add the description before you publish."
+    back={{ href: '/admin/products', label: en.adminNavProducts }}
+  />
+  {message && (
+    <Flash message={message} kind={kind}>
+      {fields.length > 0 && <>Check: {fields.join(', ')}</>}
+    </Flash>
+  )}
+  <form method="post">
+    <input type="hidden" name="csrf" value={auth.csrfToken} />
+    <Card title="Product" id="product">
+      <FormGrid>
+        <ProductFields categories={categories} />
+      </FormGrid>
+    </Card>
+    <StickyBar>
+      <button type="submit">Save product</button>
+    </StickyBar>
+  </form>
+</AdminLayout>
