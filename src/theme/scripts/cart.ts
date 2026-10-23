@@ -25,7 +25,7 @@ function read(): Line[] {
             l &&
             typeof l.id === 'string' &&
             typeof l.name === 'string' &&
-            /^\/(?!\/)/.test(String(l.url)) &&
+            /^\/(?![/\\])/.test(String(l.url)) &&
             (l.image === '' || String(l.image).startsWith('/media/')),
         )
       : [];

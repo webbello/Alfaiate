@@ -1,4 +1,5 @@
 import { normalisePhone } from '../contact-links/phone';
+import { publishedProductNames } from '../shop/products';
 import { SLUG } from '../tailors/schemas';
 
 // Form fields of the request (FR-ENQ-01, PRV-01): nothing else is read from the submission.
@@ -33,6 +34,8 @@ export type EnquiryInput = {
   tailorSlug: string | null;
   /** Up to two more tailors from the request list; they are named in the notes, only the first is the preferred tailor. */
   alsoSlugs?: string[];
+  /** Up to three published shop products the visitor is asking about (named in the notes; source becomes 'shop'). */
+  productSlugs?: string[];
   /** Set only on the business form (FR-ENQ-09). */
   organisation?: string | null;
   groupSize?: string | null;
@@ -143,6 +146,7 @@ export function parseEnquiryForm(
       notes: values.notes || null,
       tailorSlug: tailorParams(form.getAll('tailor'))[0] ?? null,
       alsoSlugs: tailorParams(form.getAll('tailor')).slice(1),
+      productSlugs: tailorParams(form.getAll('product')),
       organisation: business ? values.organisation : null,
       groupSize: business ? values.group_size || null : null,
       business,
@@ -158,6 +162,8 @@ export type Resolved =
       tailorId: number | null;
       /** Names of the other tailors the visitor asked about (published ones only). */
       alsoNames: string[];
+      /** Names of the published shop products asked about. */
+      productNames: string[];
       source: string;
     }
   | { ok: false; errors: FieldErrors };
@@ -199,16 +205,22 @@ export async function resolveChoices(
     if (tailor) alsoNames.push(found.name);
     else tailor = { ...found, slug };
   }
+  const productNames = (
+    await publishedProductNames(db, input.productSlugs ?? [])
+  ).map((p) => p.name);
   return {
     ok: true,
     categoryId: input.categoryId,
     areaId: input.areaId,
     tailorId: tailor?.id ?? null,
     alsoNames,
+    productNames,
     source: input.business
       ? 'business'
-      : tailor
-        ? `profile:${tailor.slug}`
-        : 'form',
+      : productNames.length > 0
+        ? 'shop'
+        : tailor
+          ? `profile:${tailor.slug}`
+          : 'form',
   };
 }

@@ -3,6 +3,7 @@ import { readForm, SMALL_FORM_LIMIT } from '../http/body';
 import { notifyNewEnquiry, type Notifier } from '../notify';
 import { consentVersion } from './consent';
 import { createEnquiry } from './create';
+import { publishedProductNames } from '../shop/products';
 import { alsoTailors, formChoices, type Choice } from './queries';
 import { newReference } from './reference';
 import {
@@ -23,6 +24,8 @@ export type FormView = {
   tailor: { slug: string; name: string } | null;
   /** The rest of the request list (up to two more). */
   also: { slug: string; name: string }[];
+  /** Shop products the visitor is asking about (published ones only). */
+  products: { slug: string; name: string }[];
   categories: Choice[];
   areas: Choice[];
 };
@@ -64,29 +67,43 @@ const EMPTY: FormValues = {
 
 async function formView(
   deps: Deps,
-  tailorSlugs: string[],
+  slugs: { tailors: string[]; products: string[] },
   values: FormValues = EMPTY,
   errors: FieldErrors = {},
   formError: FormView['formError'] = null,
 ): Promise<FormView> {
-  const [token, listed, choices] = await Promise.all([
+  const [token, listed, products, choices] = await Promise.all([
     issueToken(deps.secret, deps.now),
-    alsoTailors(deps.db, tailorSlugs),
+    alsoTailors(deps.db, slugs.tailors),
+    publishedProductNames(deps.db, slugs.products),
     formChoices(deps.db),
   ]);
   const [tailor = null, ...also] = listed;
-  return { values, errors, formError, token, tailor, also, ...choices };
+  return {
+    values,
+    errors,
+    formError,
+    token,
+    tailor,
+    also,
+    products,
+    ...choices,
+  };
 }
 
 /** GET: the empty form, optionally started from a published tailor's profile. */
 export async function showForm(
   deps: Deps,
   tailorParamValues: string[],
+  productParamValues: string[] = [],
 ): Promise<Outcome> {
   return {
     kind: 'form',
     status: 200,
-    view: await formView(deps, tailorParams(tailorParamValues)),
+    view: await formView(deps, {
+      tailors: tailorParams(tailorParamValues),
+      products: tailorParams(productParamValues),
+    }),
   };
 }
 
@@ -116,7 +133,10 @@ export async function submitForm(
     return thanks(newReference());
 
   const params = new URLSearchParams(textFields(form));
-  const tailorSlugs = tailorParams(params.getAll('tailor'));
+  const slugs = {
+    tailors: tailorParams(params.getAll('tailor')),
+    products: tailorParams(params.getAll('product')),
+  };
   const timing = await checkToken(
     secret,
     params.get('form_token') ?? '',
@@ -131,7 +151,7 @@ export async function submitForm(
       status: 400,
       view: await formView(
         deps,
-        tailorSlugs,
+        slugs,
         valuesOf(params),
         parsed.ok ? {} : parsed.errors,
         timing === 'too_fast' ? 'too_fast' : 'expired',
@@ -141,7 +161,7 @@ export async function submitForm(
     return {
       kind: 'form',
       status: 400,
-      view: await formView(deps, tailorSlugs, parsed.values, parsed.errors),
+      view: await formView(deps, slugs, parsed.values, parsed.errors),
     };
 
   const choices = await resolveChoices(db, parsed.data);
@@ -149,7 +169,7 @@ export async function submitForm(
     return {
       kind: 'form',
       status: 400,
-      view: await formView(deps, tailorSlugs, valuesOf(params), choices.errors),
+      view: await formView(deps, slugs, valuesOf(params), choices.errors),
     };
 
   // The other tailors on the request list are named in the notes; admin staff see them next to the customer's own words.
@@ -157,6 +177,9 @@ export async function submitForm(
     parsed.data.notes,
     choices.alsoNames.length > 0
       ? `Also asked about: ${choices.alsoNames.join(', ')}`
+      : null,
+    choices.productNames.length > 0
+      ? `Asked about shop items: ${choices.productNames.join(', ')}`
       : null,
   ]
     .filter(Boolean)

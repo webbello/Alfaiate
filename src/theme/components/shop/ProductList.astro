@@ -1,0 +1,31 @@
+---
+// The visitor's shop list, filled in by scripts/product-list.ts. Hidden until it holds something.
+import { pathFor, type Lang } from '../../../i18n/lang';
+import type { Dictionary } from '../../../i18n/public/en';
+
+interface Props {
+  lang: Lang;
+  t: Dictionary;
+}
+const { lang, t } = Astro.props;
+const s = t.shop;
+---
+
+<section
+  class="dir-note shop-list-box"
+  aria-labelledby="shop-list-title"
+  data-product-list
+  data-request-href={pathFor(lang, '/request')}
+  data-label-remove={s.listRemove}
+  data-label-remove-named={s.listRemoveNamed}
+  hidden
+>
+  <h2 id="shop-list-title">{s.listTitle}</h2>
+  <ul data-product-list-items role="list"></ul>
+  <p>{s.listNote}</p>
+  <p role="status" data-product-list-status></p>
+  <a class="button w-inline-block" href={pathFor(lang, '/request')} data-product-list-send>
+    <div class="button-bg"></div>
+    <div class="button-text">{s.listSend}</div>
+  </a>
+</section>

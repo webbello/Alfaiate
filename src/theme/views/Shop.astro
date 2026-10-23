@@ -9,6 +9,7 @@ import { requireBindings } from '../../modules/config';
 import { formatMoney } from '../../modules/directory/format';
 import { listPublishedProducts, listShopCategories } from '../../modules/shop/products';
 import { initials } from '../../components/story/variant';
+import ProductList from '../components/shop/ProductList.astro';
 import { isIndexable } from '../../modules/seo/pages';
 
 interface Props {
@@ -37,6 +38,7 @@ const title = current ? current.name : s.heading;
       <div class="global-block">
         <p class="dir-intro">{s.intro}</p>
         <p class="dir-note" role="note">{s.notice}</p>
+        <ProductList {lang} {t} />
         {
           types.length > 0 && (
             <nav class="dir-browse" aria-label={s.types}>
@@ -87,3 +89,6 @@ const title = current ? current.name : s.heading;
     </div>
   </section>
 </ThemeLayout>
+<script>
+  import '../../scripts/product-list';
+</script>

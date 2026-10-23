@@ -116,6 +116,13 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
               : fill(r.fromTailor, { name: view.tailor.name })}
           </p>
         )}
+        {view.products.length > 0 && (
+          <p class="notice">
+            {fill(r.fromProducts, {
+              names: view.products.map((x) => x.name).join(', '),
+            })}
+          </p>
+        )}
         {(failing.length > 0 || view.formError) && (
           <div class="error-summary" role="alert" tabindex="-1" autofocus>
             <h2>{r.summaryHeading}</h2>
@@ -137,6 +144,9 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
           {view.tailor && (
             <input type="hidden" name="tailor" value={view.tailor.slug} />
           )}
+          {view.products.map((x) => (
+            <input type="hidden" name="product" value={x.slug} />
+          ))}
           {view.also.map((x) => (
             <input type="hidden" name="tailor" value={x.slug} />
           ))}

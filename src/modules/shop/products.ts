@@ -356,3 +356,20 @@ export async function listPublishedProductSlugs(
     .all<{ slug: string }>();
   return results.map((r) => r.slug);
 }
+
+/** The published products among these slugs, by name, in the order given (a draft or unknown slug is ignored). */
+export async function publishedProductNames(
+  db: D1Database,
+  slugs: string[],
+): Promise<{ slug: string; name: string }[]> {
+  if (slugs.length === 0) return [];
+  const { results } = await db
+    .prepare(
+      'SELECT slug, name FROM product WHERE is_published = 1 AND slug IN (SELECT value FROM json_each(?))',
+    )
+    .bind(JSON.stringify(slugs))
+    .all<{ slug: string; name: string }>();
+  return slugs
+    .map((s) => results.find((r) => r.slug === s))
+    .filter((r): r is { slug: string; name: string } => r !== undefined);
+}

@@ -40,6 +40,7 @@ describe('parseEnquiryForm (FR-ENQ-01/02/05, PRV-01)', () => {
       notes: null,
       tailorSlug: null,
       alsoSlugs: [],
+      productSlugs: [],
       organisation: null,
       groupSize: null,
       business: false,
@@ -298,5 +299,26 @@ describe('parseEnquiryForm on the business form (FR-ENQ-09)', () => {
       groupSize: null,
       business: false,
     });
+  });
+});
+
+describe('shop items in a request (S3)', () => {
+  it('reads up to three valid product slugs, once each, and ignores the rest', () => {
+    const form = valid();
+    for (const slug of [
+      'shirt-one',
+      'shirt-one',
+      'bad slug!',
+      'cloth-two',
+      'belt-three',
+      'fourth-four',
+    ])
+      form.append('product', slug);
+    const r = parseEnquiryForm(form);
+    expect(r.ok && r.data.productSlugs).toEqual([
+      'shirt-one',
+      'cloth-two',
+      'belt-three',
+    ]);
   });
 });

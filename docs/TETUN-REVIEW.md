@@ -60,7 +60,7 @@ Status: **not reviewed.** The Tetun below was written by the assistant during th
 - `hero.reassure` and the home hero button "Husu Alfaiate ba Uma" (earlier visual pass)
 - `request.fromList` "Ita husu alfaiate sira ne'e: {names}."
 
-## Shop (S2) — `shop`
+## Shop (S2, S3) — `shop`
 
 ```ts
     title: 'Loja',
@@ -77,10 +77,17 @@ Status: **not reviewed.** The Tetun below was written by the assistant during th
     unavailable: 'La disponivel agora',
     ask: 'Husu kona-ba item ne’e',
     askMessage: 'Olá, haʼu hakarak husu kona-ba: {name}',
-    askNoContact: 'Haruka pedidu',
     back: 'Fila ba loja',
     notice: 'Alfaiate TL lista item ne’e. Folin, entrega no fila fali item hatene diretamente ho ema ne’ebé fa’an. La iha pagamentu ka enkomenda iha sítiu ne’e.',
     photoOf: 'Foto husi {name}',
+    listTitle: 'Ita-nia lista loja',
+    listAdd: 'Tau iha ha’u-nia lista loja',
+    listRemove: 'Hasai',
+    listRemoveNamed: 'Hasai {name} husi ha’u-nia lista loja',
+    listSend: 'Haruka pedidu',
+    listFull: 'Ita-nia lista loja la’ós iha fatin (item 3). Hasai ida ka haruka ita-nia pedidu.',
+    listNote: 'La iha buat ida haruka to’o ita hakerek no haruka formuláriu.',
 ```
 
 - `nav.shop` Loja
+- `request.fromProducts` (the notice on the request form when shop items are named)

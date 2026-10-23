@@ -39,7 +39,8 @@ export async function runRequestPage(
       request,
       request.headers.get('cf-connecting-ip') ?? undefined,
     );
-  return showForm(deps, new URL(request.url).searchParams.getAll('tailor'));
+  const query = new URL(request.url).searchParams;
+  return showForm(deps, query.getAll('tailor'), query.getAll('product'));
 }
 
 const REFERENCE = /^AT-[A-HJ-NP-Z2-9]{8}$/;

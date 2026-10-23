@@ -12,6 +12,7 @@ import { metaText } from '../../modules/seo/meta';
 import { isIndexable } from '../../modules/seo/pages';
 import type { PublicProduct } from '../../modules/shop/products';
 import { initials } from '../../components/story/variant';
+import ProductList from '../components/shop/ProductList.astro';
 
 interface Props {
   lang: Lang;
@@ -21,9 +22,9 @@ const { lang, product } = Astro.props;
 const t = dictionary(lang);
 const s = t.shop;
 const owner = siteWhatsapp(env as { SITE_WHATSAPP?: string });
-const ask = owner
-  ? whatsappLink(owner, fill(s.askMessage, { name: product.name }))
-  : pathFor(lang, '/request');
+// The enquiry goes through the request form (consent, spam checks, staff inbox) with this product named; the owner's WhatsApp is a second way when it is set.
+const askForm = `${pathFor(lang, '/request')}?product=${product.slug}`;
+const askWhatsapp = owner ? whatsappLink(owner, fill(s.askMessage, { name: product.name })) : null;
 const description = metaText(product.description ?? '', 155) || s.intro;
 const { siteUrl } = siteConfig(env);
 const jsonLd = {
@@ -49,6 +50,7 @@ const jsonLd = {
   <Hero parent={{ label: s.heading, href: pathFor(lang, '/shop') }} variant="show" tag={product.category_name ?? s.heading} title={product.name} />
   <article class="profile shop-section">
     <div class="w-layout-blockcontainer main-container w-container">
+      <ProductList {lang} {t} />
       <p class="prof-back"><a href={pathFor(lang, '/shop')}>{s.back}</a></p>
       <div class="prof-top">
         <div class="prof-photo">
@@ -72,10 +74,31 @@ const jsonLd = {
           {product.availability === 'unavailable' && <p><strong>{s.unavailable}</strong></p>}
           <p class="dir-note" role="note">{s.notice}</p>
           <div class="prof-actions">
-            <a class="button w-inline-block" href={ask} data-shop-ask>
+            <a class="button w-inline-block" href={askForm} data-shop-ask>
               <div class="button-bg"></div>
-              <div class="button-text">{owner ? s.ask : s.askNoContact}</div>
+              <div class="button-text">{s.ask}</div>
             </a>
+            <form
+              method="get"
+              action={pathFor(lang, '/request')}
+              data-add-product
+              data-slug={product.slug}
+              data-name={product.name}
+              data-url={pathFor(lang, `/shop/${product.slug}`)}
+              data-label-full={s.listFull}
+            >
+              <input type="hidden" name="product" value={product.slug} />
+              <button type="submit" class="button w-inline-block is-shop">
+                <div class="button-bg"></div>
+                <div class="button-text">{s.listAdd}</div>
+              </button>
+            </form>
+            {askWhatsapp && (
+              <a class="button w-inline-block is-shop" href={askWhatsapp} data-shop-whatsapp>
+                <div class="button-bg"></div>
+                <div class="button-text">{t.contact.whatsapp}</div>
+              </a>
+            )}
           </div>
         </section>
       </div>
@@ -103,3 +126,6 @@ const jsonLd = {
     </div>
   </article>
 </ThemeLayout>
+<script>
+  import '../../scripts/product-list';
+</script>

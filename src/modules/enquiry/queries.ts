@@ -61,6 +61,8 @@ export type EnquiryRow = {
   status: Status;
   is_spam: number;
   created_at: string;
+  /** Where the request came from: form, profile:<slug>, business or shop. */
+  source: string | null;
   /** The active referral's response, else the latest outcome, else null (not passed to a tailor yet). */
   referral_state: 'pending' | 'accepted' | 'declined' | 'no_response' | null;
 };
@@ -94,7 +96,7 @@ export async function listEnquiries(
   }
   const { results } = await db
     .prepare(
-      `SELECT id, reference_code, customer_name, contact_number_e164, contact_channel, status, is_spam, created_at,
+      `SELECT id, reference_code, customer_name, contact_number_e164, contact_channel, status, is_spam, created_at, source,
               (SELECT r.tailor_response FROM referral r WHERE r.enquiry_id = enquiry.id
                ORDER BY (r.tailor_response IN ('pending', 'accepted')) DESC, r.id DESC LIMIT 1) AS referral_state
        FROM enquiry

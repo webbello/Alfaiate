@@ -102,7 +102,8 @@ describe('product page', () => {
     expect(html).toContain('Price set by the seller');
     expect(html).toContain('Sold by Alfaiate TL');
     expect(html).toMatch(/data-shop-ask/);
-    expect(html).toContain('href="/request"'); // no owner WhatsApp in this test project
+    expect(html).toContain(`href="/request?product=${p.slug}"`); // the enquiry goes through the request form
+    expect(html).not.toContain('data-shop-whatsapp'); // no owner WhatsApp in this test project
     expect(html).not.toMatch(/<form[^>]*(checkout|payment|order)/i);
     // structured data is written only on indexable pages, so none until the owner approves the shop; it never carries a rating, review or price
     expect(html).not.toMatch(/ratingValue|"offers"|"price"/);

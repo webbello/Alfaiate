@@ -122,7 +122,7 @@ Fields: `slug` (unique), `name`, `description` (null), `sort_order`, `is_active`
 | status | enum, see below |
 | status_changed_at | timestamp |
 | is_spam | bool |
-| source | e.g. `form`, `profile:<slug>` |
+| source | e.g. `form`, `profile:<slug>`, `business`, `shop` (a request that named shop items; the item names are in `notes`) |
 | anonymised_at | timestamp, null |
 
 **Status values** (PRD §7.2, manual): `new`, `contacted`, `referred`, `accepted_by_tailor`, `completed_reported`, `not_converted`, `cancelled`. Default `new`. No enforced transitions.
@@ -240,4 +240,4 @@ Where the migrations refine the conceptual model above, the migrations win; this
 - **Phase 3 conventions (no schema change):** `tailor.verified_fields` holds a JSON list drawn from `description, shop_address_text, home_visits, languages, price_note, whatsapp, phone`, in that order; editing a verified value removes it from the list. `portfolio_image.file_key` is the 32-hex base of the three R2 objects `tailor/<tailor_id>/<file_key>/<variant>.jpg`. `tailor.profile_photo_id` may only point to a photo with permission that is visible, and is cleared otherwise. `tailor_category.price_*` are US cents (OQ-14). `internal_note` rows for a tailor can be added by any role with `tailor.edit`, even when the tailor is published.
 
 - **Phase 6 conventions (no schema change):** `referral.forwarded_at`, `responded_at`, `completion_reported_at` and `fee_paid_at` are `YYYY-MM-DD` text meaning the Dili calendar day (UTC+9), typed by an admin; `fee_amount` is integer cents (US dollars); a referral is never deleted and a new one is created on reassignment; only one referral per enquiry may be `pending` or `accepted` (checked in the INSERT, not by the database); `enquiry.consent_shared_with_tailor` is always 1 (CHECK), so the consent refusal in practice means an anonymised enquiry; audit actions `referral_created`, `referral_updated`, `referral_fee_updated` (referral id only).
-- **Phase 5 conventions (no schema change):** `enquiry.source` is `form` or `profile:<slug>`; `reference_code` is `AT-` plus 8 characters from `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`; `consent_text_version` is `consent-2026-10-v1-<language>`; the first `enquiry_status_log` row has `from_status` NULL, `to_status` `new` and `changed_by` NULL; spam toggles write only an `audit_log` row (`enquiry_spam_changed`), and status changes write `enquiry_status_changed` (ids only).
+- **Phase 5 conventions (no schema change):** `enquiry.source` is `form`, `profile:<slug>`, `business` or `shop`; `reference_code` is `AT-` plus 8 characters from `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`; `consent_text_version` is `consent-2026-10-v1-<language>`; the first `enquiry_status_log` row has `from_status` NULL, `to_status` `new` and `changed_by` NULL; spam toggles write only an `audit_log` row (`enquiry_spam_changed`), and status changes write `enquiry_status_changed` (ids only).
