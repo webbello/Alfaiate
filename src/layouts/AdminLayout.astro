@@ -11,6 +11,7 @@ interface Props {
 }
 const { title, description = title, auth } = Astro.props;
 const current = currentKey(Astro.url.pathname);
+const links = auth ? navLinks(auth.role) : [];
 ---
 
 <!doctype html>
@@ -33,24 +34,44 @@ const current = currentKey(Astro.url.pathname);
             <a class="admin-brand" href="/admin">
               Alfaiate TL admin
             </a>
-            <nav class="admin-nav" aria-label="Admin">
-              {navLinks(auth.role).map((link) => (
-                <a
-                  href={link.href}
-                  aria-current={link.key === current ? 'page' : undefined}
-                >
-                  {link.label}
-                </a>
-              ))}
-            </nav>
-            <div class="admin-user">
-              <span>
-                {auth.email} ({auth.role})
-              </span>
-              <form method="post" action="/admin/logout">
-                <input type="hidden" name="csrf" value={auth.csrfToken} />
-                <button type="submit">{en.adminSignOut}</button>
-              </form>
+            <input
+              class="admin-menu-toggle"
+              type="checkbox"
+              id="admin-menu"
+              aria-label="Menu"
+            />
+            <label
+              class="admin-menu-button"
+              for="admin-menu"
+              aria-hidden="true"
+            >
+              Menu
+            </label>
+            <div class="admin-panel">
+              <nav class="admin-nav" aria-label="Admin">
+                {links.map((link, i) => (
+                  <>
+                    {(i === 0 || link.group !== links[i - 1].group) && (
+                      <p class="admin-nav__group">{link.group}</p>
+                    )}
+                    <a
+                      href={link.href}
+                      aria-current={link.key === current ? 'page' : undefined}
+                    >
+                      {link.label}
+                    </a>
+                  </>
+                ))}
+              </nav>
+              <div class="admin-user">
+                <span>
+                  {auth.email} ({auth.role})
+                </span>
+                <form method="post" action="/admin/logout">
+                  <input type="hidden" name="csrf" value={auth.csrfToken} />
+                  <button type="submit">{en.adminSignOut}</button>
+                </form>
+              </div>
             </div>
           </div>
         </header>

@@ -17,69 +17,80 @@ export type NavLink = {
   href: string;
   label: string;
   permission: Permission;
+  group: string;
 };
 
-// Order is the order in the header bar. A link appears only for a role that holds its permission (the server checks again on every request).
+// Order is the order in the sidebar; links sharing a group sit together under its heading. A link appears only for a role that holds its permission (the server checks again on every request).
 const ALL: NavLink[] = [
   {
     key: 'dashboard',
     href: '/admin',
     label: en.adminNavDashboard,
     permission: 'dashboard.view',
+    group: 'Overview',
   },
   {
     key: 'enquiries',
     href: '/admin/enquiries',
     label: en.adminNavEnquiries,
     permission: 'enquiry.view',
+    group: 'Overview',
   },
   {
     key: 'tailors',
     href: '/admin/tailors',
     label: en.adminNavTailors,
     permission: 'tailor.edit',
+    group: 'Catalogue',
   },
   {
     key: 'categories',
     href: '/admin/categories',
     label: en.adminNavCategories,
     permission: 'tailor.edit',
+    group: 'Catalogue',
   },
   {
     key: 'areas',
     href: '/admin/areas',
     label: en.adminNavAreas,
     permission: 'tailor.edit',
+    group: 'Catalogue',
   },
   {
     key: 'interest',
     href: '/admin/interest',
     label: en.adminNavInterest,
     permission: 'enquiry.view',
+    group: 'Reach',
   },
   {
     key: 'traffic',
     href: '/admin/traffic',
     label: en.adminNavTraffic,
     permission: 'enquiry.view',
+    group: 'Reach',
   },
   {
     key: 'newsletter',
     href: '/admin/newsletter',
     label: en.adminNavNewsletter,
     permission: 'enquiry.delete',
+    group: 'Reach',
   },
   {
     key: 'users',
     href: '/admin/users',
     label: en.adminNavUsers,
     permission: 'user.manage',
+    group: 'Settings',
   },
   {
     key: 'account',
     href: '/admin/account',
     label: en.adminNavAccount,
     permission: 'dashboard.view',
+    group: 'Settings',
   },
 ];
 

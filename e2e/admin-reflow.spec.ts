@@ -94,12 +94,20 @@ test('the header can be used from the keyboard, in visual order, and marks the c
     page.getByRole('link', { name: 'Alfaiate TL admin' }),
   ).toBeFocused();
   await page.keyboard.press('Tab');
+  const menu = page.getByRole('checkbox', { name: 'Menu' });
+  if (await menu.isVisible()) {
+    // a phone: the links sit behind the menu button, which opens with the space bar and needs no script
+    await expect(menu).toBeFocused();
+    await page.keyboard.press('Space');
+    await page.keyboard.press('Tab');
+  }
   await expect(
     page.getByRole('navigation', { name: 'Admin' }).getByRole('link').first(),
   ).toBeFocused();
   await page.keyboard.press('Tab');
   await page.keyboard.press('Enter'); // the second link: Enquiries
   await expect(page).toHaveURL(/\/admin\/enquiries$/);
+  if (await menu.isVisible()) await menu.check(); // the new page starts with the menu closed
   await expect(
     page
       .getByRole('navigation', { name: 'Admin' })
