@@ -9,3 +9,4 @@ tasks
 *.md
 worker-configuration.d.ts
 handspark
+src/theme

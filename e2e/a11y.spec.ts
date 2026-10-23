@@ -10,6 +10,7 @@ const PATHS = [
   '/request',
   '/join',
   '/contact',
+  '/theme-preview',
   '/services',
   '/portal/login',
   '/portal/accept?token=invalid',
@@ -29,6 +30,8 @@ for (const prefix of ['', '/tet']) {
     const url = prefix ? (path === '/' ? '/tet/' : `/tet${path}`) : path;
     test(`axe: ${url}`, async ({ page }) => {
       await page.goto(url);
+      // the theme's hero text fades in with GSAP: check the colours once it has settled
+      if (url.includes('theme-preview')) await page.waitForTimeout(2500);
       expect(await violationsOf(page)).toEqual([]);
     });
   }

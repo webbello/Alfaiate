@@ -1,0 +1,69 @@
+---
+// A small page that exercises the shell (header, footer, cart drawer, motion layer, language switch) before the real pages move in.
+// It is noindex and is not in the sitemap; step 8 of docs/SPEC-handspark-theme.md removes it.
+import ThemeLayout from '../../layouts/ThemeLayout.astro';
+import Icon from '../components/ui/Icon.astro';
+import type { Lang } from '../../i18n/lang';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const text =
+  lang === 'tet'
+    ? {
+        title: 'Pájina teste tema',
+        heading: 'Alfaiate ba Ita-nia Estilu',
+        intro: 'Pájina ida-ne’e hatudu fatin, menu no karrinhu tema foun nian.',
+      }
+    : {
+        title: 'Theme preview',
+        heading: 'Tailoring made to your measure',
+        intro:
+          'This page shows the new frame: header, menu, request list and footer, before the real pages move in.',
+      };
+---
+
+<ThemeLayout
+  lang={lang}
+  title={text.title}
+  description={text.intro}
+  rest="/theme-preview"
+  noindex
+>
+  <section class="home-section">
+    <div class="w-layout-blockcontainer main-container w-container">
+      <div class="home-block">
+        <div class="home-gsap">
+          <div class="home-text-block">
+            <div class="home-title-block">
+              <h1 class="home-title" data-anim="hero">
+                {text.heading}
+              </h1>
+            </div>
+            <div class="home-except-block">
+              <div class="home-except" data-anim="hero">
+                {text.intro}
+              </div>
+            </div>
+            <div class="home-button-block">
+              <div class="home-button" data-anim="hero">
+                <a class="button w-inline-block" href="/tailors">
+                  <div class="button-bg"></div>
+                  <div class="button-text">Find a Tailor</div>
+                  <div class="button-wrap">
+                    <Icon name="arrow-up-right" class="button-icon" />
+                    <Icon name="arrow-up-right" class="button-icon" />
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="home-line-block">
+            <Icon name="hero-line" class="hero-line" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</ThemeLayout>

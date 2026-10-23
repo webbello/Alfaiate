@@ -1,6 +1,6 @@
 # Spec: Handspark theme as the public face of Alfaiate TL
 
-Status: **DRAFT. Step 1 done (theme installed beside the site, running). Steps 2 onward wait for the decisions at the end.** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
+Status: **Decisions approved 2026-10-23. Steps 1 and 2 done; step 3 (home) next.** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
 
 ## Objective
 
@@ -14,6 +14,16 @@ Signature features the owner named: the **hero image trail** (pictures appear an
 - Verified in a browser: the hero image trail works with the mouse, the ruler shows under the hero, the cart badge and header render.
 - Its Freepik demo photos and videos are **not tracked in git** (licence: Freepik stock, not redistributable; `npm run check:repo` also forbids tracked photos). Code only is committed.
 - Root lint, typecheck, formatter, tests and `check:repo` skip the folder. `npm run check` is still green on the branch (771 and 670 tests).
+
+## Step 2: done (the shared frame is inside the real site)
+
+- Added `tailwindcss`, `@tailwindcss/vite`, `gsap`, `lenis` (exact versions), Tailwind in the Vite config, `imageService: 'compile'` (pictures on built pages are resized at build time).
+- `src/theme/` holds the theme's header (with a new EN | TET switch), footer, cart drawer, icons, styles and scripts; `src/layouts/ThemeLayout.astro` is the frame: our canonical and hreflang links, robots rules, social tags only on indexable pages, no inline style or script.
+- Fonts: the Astro fonts component writes an inline `<style>`, which our policy forbids, so the fonts are plain `@font-face` rules in `src/theme/styles/fonts.css` with files in `public/fonts/theme/`. The `js` class script is an external file (`public/js-flag.js`).
+- Tailwind scans only `src/theme/` (`source(none)` plus `@source "../"`), so page templates live in `src/theme/views/` and `src/pages/` has thin route files, as with the existing `src/views/`.
+- Test page `/theme-preview` and `/tet/theme-preview` (noindex, not in the sitemap, removed in step 8) prove the frame: security headers, no inline style or script, same-origin assets, head, language switch, axe clean, no text clipped, no CSP violation, reflow.
+- Vendor rules: `src/theme/` is skipped by lint and the formatter, `src/theme/scripts` by the Workers typecheck (they are browser code); the one console call was made constant (SEC-05).
+- Checks: `npm run check` 771 and 676 tests, e2e 146.
 
 ## What the theme contains (all of it is to be kept)
 

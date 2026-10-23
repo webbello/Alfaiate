@@ -24,3 +24,8 @@ handspark/src/assets/images/*.png
 handspark/public/*.jpg
 handspark/public/*.png
 handspark/public/videos/
+src/theme/assets/images/*.webp
+src/theme/assets/images/*.avif
+src/theme/assets/images/*.jpg
+src/theme/assets/images/*.jpeg
+src/theme/assets/images/*.png

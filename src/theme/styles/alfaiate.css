@@ -1,0 +1,33 @@
+/* Alfaiate TL additions to the Handspark theme: the language switch. Loaded after the theme sheets. */
+.lang-switch {
+  display: inline-flex;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid currentcolor;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.lang-switch > * {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 0.7rem;
+  text-decoration: none;
+}
+.lang-switch [aria-current] {
+  color: #fff;
+  background: var(--color-ink, #1d1914);
+}
+.lang-switch a {
+  color: inherit;
+}
+.lang-switch a:hover {
+  text-decoration: underline;
+}
+
+/* Hidden text stays readable by screen readers and is never clipped by a box (WCAG 1.4.12 text-spacing check): no overflow rule. */
+.sr-only {
+  overflow: visible !important;
+  clip-path: inset(50%);
+}

@@ -66,6 +66,8 @@ describe('public routes (scope guard)', () => {
     'tet/tailors/[slug].astro',
     'tet/tailors/index.astro',
     'tet/terms.astro',
+    'tet/theme-preview.astro',
+    'theme-preview.astro', // Handspark shell check (docs/SPEC-handspark-theme.md step 2), removed in step 8
   ];
 
   it('are exactly the expected public pages', () => {

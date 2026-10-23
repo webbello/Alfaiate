@@ -10,6 +10,7 @@ const PATHS = [
   '/join',
   '/tet/join',
   '/contact',
+  '/theme-preview',
   '/services',
   '/portal/login',
   '/portal/accept?token=invalid',
