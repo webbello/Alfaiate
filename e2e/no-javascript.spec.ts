@@ -18,12 +18,11 @@ test('browse to a profile and find the contact links, with JavaScript off', asyn
     page.getByRole('heading', { level: 1, name: 'E2E Fake Tailor' }),
   ).toBeVisible();
   await expect(
-    page.locator('a[data-contact-channel="whatsapp"]'),
+    page.locator('#main a[data-contact-channel="whatsapp"]'),
   ).toHaveAttribute('href', /^https:\/\/wa\.me\//);
-  await expect(page.locator('a[data-contact-channel="phone"]')).toHaveAttribute(
-    'href',
-    'tel:+67033123456',
-  );
+  await expect(
+    page.locator('#main a[data-contact-channel="phone"]'),
+  ).toHaveAttribute('href', 'tel:+67033123456');
 });
 
 test('the directory filter works as a plain form', async ({ page }) => {

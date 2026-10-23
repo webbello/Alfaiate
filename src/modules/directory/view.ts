@@ -11,7 +11,9 @@ export type CardView = {
   specialties: string[];
   areas: string[];
   homeVisits: 'yes' | 'no' | null;
+  /** The price of the first priced work type, named: a card never mixes the cheapest and dearest of different garments. */
   priceHint: Price | null;
+  priceCategory: string | null;
   /** The tailor's own description, shortened for a card (supplied by the tailor, BR-11). */
   description: string | null;
   /** Only when the tailor agreed to show it (contact_publish_consent). */

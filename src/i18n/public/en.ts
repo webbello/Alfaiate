@@ -36,12 +36,12 @@ export const en = {
   },
   bar: {
     label: 'Quick actions',
-    ask: 'Ask for a tailor',
+    ask: 'Request a Tailor',
     whatsapp: 'WhatsApp us',
     whatsappMessage: 'Hello, I would like help finding a tailor.',
   },
   language: { switchLabel: 'Language', en: 'English', tet: 'Tetun' },
-  cta: { requestHome: 'Request a tailor at home' },
+  cta: { requestHome: 'Request a Tailor' },
   contact: {
     whatsapp: 'WhatsApp',
     call: 'Call',
@@ -52,6 +52,7 @@ export const en = {
     from: 'From {amount}',
     upTo: 'Up to {amount}',
     approximate: 'Approximate prices',
+    cardLine: '{category} (approximate): {price}',
     confirmedOn: 'Confirmed {date}',
   },
   disclaimer: {
@@ -71,7 +72,7 @@ export const en = {
       intro:
         'Discover talented local tailors across Timor-Leste. Explore their work, find the right service, and bring your next clothing idea to life.',
       find: 'Find a Tailor',
-      request: 'Request a Tailor at Home',
+      request: 'Request a Tailor',
       reassure: 'No account needed. Message a tailor on WhatsApp, or ask for a home visit.',
       script: 'Tailoring a better Timor-Leste',
       badge: 'Support local craftsmanship',
@@ -243,6 +244,7 @@ export const en = {
     serves: 'Serves',
     languages: 'Languages',
     homeVisits: 'Home visits',
+    details: 'Details',
     homeYes: 'Offers home visits',
     homeNo: 'Does not offer home visits',
     address: 'Shop address',
@@ -255,7 +257,7 @@ export const en = {
     suppliedNote:
       'Details marked "Supplied by the tailor" come from the tailor and have not been checked by Alfaiate TL.',
     back: 'Back to all tailors',
-    requestThis: 'Request this tailor at home',
+    requestThis: 'Request this tailor',
   },
   category: {
     title: '{name} tailors in Timor-Leste',

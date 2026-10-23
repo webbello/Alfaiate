@@ -1,6 +1,6 @@
 ---
 import Source from './Source.astro';
-import { dictionary } from '../i18n/public';
+import { dictionary, fill } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 import { priceText } from '../modules/directory/format';
 import type { CardView } from '../modules/directory/view';
@@ -55,7 +55,10 @@ const photo = tailor.photo;
     )}
     {price && (
       <p class="card__line">
-        {t.price.approximate}: {price} <Source lang={lang} verified={false} />
+        {tailor.priceCategory
+          ? fill(t.price.cardLine, { category: tailor.priceCategory, price })
+          : `${t.price.approximate}: ${price}`}{' '}
+        <Source lang={lang} verified={false} />
       </p>
     )}
     <span class="button button--outline card__action" aria-hidden="true">

@@ -25,6 +25,7 @@ const ALLOWED = new Set([
   'areas',
   'homeVisits',
   'priceHint',
+  'priceCategory', // the public name of one work type, for the price line on a card
   'from',
   'to',
   'base',

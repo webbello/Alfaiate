@@ -34,6 +34,13 @@ interface Props {
   ogImage?: string;
   /** Full-width sections that bring their own container (the home page). */
   bare?: boolean;
+  /** On a tailor's own page the phone bar is that tailor's contact, not the general request: ready-made links, left out when the tailor has none. */
+  tailorBar?: {
+    slug: string;
+    whatsapp: string | null;
+    phone: string | null;
+    requestHref: string;
+  };
   /** An image to fetch early because it is the largest thing on the first screen. */
   preloadImage?: { href: string; srcset: string; sizes: string };
 }
@@ -49,6 +56,7 @@ const {
   ogImage,
   bare = false,
   preloadImage,
+  tailorBar,
 } = Astro.props;
 const t = dictionary(lang);
 const { siteUrl, languages, indexable } = siteConfig(env);
@@ -157,17 +165,45 @@ const ownerWhatsapp = siteWhatsapp(env as { SITE_WHATSAPP?: string });
     </SiteFooter>
     {showBar && (
       <nav class="sticky-bar" aria-label={t.bar.label}>
-        <a class="button" href={pathFor(lang, '/request')}>
-          {t.bar.ask}
-        </a>
-        {ownerWhatsapp && (
-          <a
-            class="button button--secondary"
-            href={whatsappLink(ownerWhatsapp, t.bar.whatsappMessage)}
-          >
-            {t.bar.whatsapp}
+        {tailorBar && (tailorBar.whatsapp || tailorBar.phone) ? (
+          <>
+            {tailorBar.whatsapp ? (
+              <a
+                class="button"
+                href={tailorBar.whatsapp}
+                data-contact-channel="whatsapp"
+                data-tailor={tailorBar.slug}
+              >
+                {t.contact.whatsapp}
+              </a>
+            ) : (
+              <a
+                class="button"
+                href={tailorBar.phone!}
+                data-contact-channel="phone"
+                data-tailor={tailorBar.slug}
+              >
+                {t.contact.call}
+              </a>
+            )}
+            <a class="button button--secondary" href={tailorBar.requestHref}>
+              {t.profile.requestThis}
+            </a>
+          </>
+        ) : (
+          <a class="button" href={pathFor(lang, '/request')}>
+            {t.bar.ask}
           </a>
         )}
+        {ownerWhatsapp &&
+          !(tailorBar && (tailorBar.whatsapp || tailorBar.phone)) && (
+            <a
+              class="button button--secondary"
+              href={whatsappLink(ownerWhatsapp, t.bar.whatsappMessage)}
+            >
+              {t.bar.whatsapp}
+            </a>
+          )}
       </nav>
     )}
   </body>

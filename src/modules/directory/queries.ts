@@ -177,6 +177,9 @@ export async function listPublished(
     truncated,
     tailors: rows.map((r) => {
       const own = cats.filter((c) => c.tailor_id === r.id);
+      const priced = own.find(
+        (c) => c.price_from !== null || c.price_to !== null,
+      );
       const found =
         r.profile_photo_id !== null
           ? photoById.get(r.profile_photo_id)
@@ -187,12 +190,25 @@ export async function listPublished(
         name: r.display_name,
         photo: photo ? photoView(r.id, photo) : null,
         specialties: own.map((c) => c.name),
-        areas: areas.filter((a) => a.tailor_id === r.id).map((a) => a.name),
+        // shop first, each place once, even when a tailor both has a shop and serves there
+        areas: [
+          ...new Set(
+            areas
+              .filter((a) => a.tailor_id === r.id)
+              .sort(
+                (a, b) =>
+                  Number(b.kind === 'shop_location') -
+                  Number(a.kind === 'shop_location'),
+              )
+              .map((a) => a.name),
+          ),
+        ],
         homeVisits:
           r.home_visits === 'yes' || r.home_visits === 'no'
             ? r.home_visits
             : null,
-        priceHint: priceHint(own),
+        priceHint: priceHint(priced ? [priced] : []),
+        priceCategory: priced?.name ?? null,
         description: shorten(r.description, 110),
         whatsapp: r.contact_publish_consent === 1 ? r.whatsapp_e164 : null,
       };

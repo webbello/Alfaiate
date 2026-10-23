@@ -41,12 +41,12 @@ export const tet: Dictionary = {
   },
   bar: {
     label: 'Asaun lais',
-    ask: 'Husu alfaiate',
+    ask: 'Husu Alfaiate',
     whatsapp: 'WhatsApp ba ami',
     whatsappMessage: "Bondia, ha'u hakarak ajuda atu buka alfaiate.",
   },
   language: { switchLabel: 'Lian', en: 'English', tet: 'Tetun' },
-  cta: { requestHome: 'Husu alfaiate ba uma' },
+  cta: { requestHome: 'Husu Alfaiate' },
   contact: {
     whatsapp: 'WhatsApp',
     call: 'Telefone',
@@ -57,6 +57,7 @@ export const tet: Dictionary = {
     from: 'Hahú husi {amount}',
     upTo: "To'o {amount}",
     approximate: 'Folin aproximadu',
+    cardLine: '{category} (aproximadu): {price}',
     confirmedOn: 'Konfirma iha {date}',
   },
   disclaimer: {
@@ -76,7 +77,7 @@ export const tet: Dictionary = {
       intro:
         'Hetan alfaiate lokál ho talentu iha Timor-Leste tomak. Haree sira-nia serbisu, hili serbisu ne’ebé loos, no halo ita-nia ideia roupa foun sai realidade.',
       find: 'Buka Alfaiate',
-      request: 'Husu Alfaiate ba Uma',
+      request: 'Husu Alfaiate',
       reassure: 'La presiza konta. Haruka mensajen ba alfaiate liu WhatsApp, ka husu vizita ba uma.',
       script: 'Alfaiate ba Timor-Leste di’ak liu',
       badge: 'Apoia kbiit lokál',
@@ -248,6 +249,7 @@ export const tet: Dictionary = {
     serves: 'Serbisu iha',
     languages: 'Lian sira',
     homeVisits: 'Vizita iha uma',
+    details: 'Detallu',
     homeYes: 'Bele vizita iha uma',
     homeNo: 'La vizita iha uma',
     address: 'Enderesu loja',
@@ -260,7 +262,7 @@ export const tet: Dictionary = {
     suppliedNote:
       'Informasaun ne\'ebé marka "Informasaun husi alfaiate" mai husi alfaiate rasik no Alfaiate TL seidauk verifika.',
     back: 'Fila ba alfaiate hotu-hotu',
-    requestThis: "Husu alfaiate ida-ne'e ba uma",
+    requestThis: "Husu alfaiate ida-ne'e",
   },
   category: {
     title: 'Alfaiate {name} iha Timor-Leste',

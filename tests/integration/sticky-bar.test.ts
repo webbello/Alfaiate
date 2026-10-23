@@ -6,11 +6,11 @@ const bar = (html: string) =>
   /<nav class="sticky-bar"[\s\S]*?<\/nav>/.exec(html)?.[0] ?? '';
 
 describe('the quick-action bar', () => {
-  it('offers "Ask for a tailor" on content pages in both languages, with a labelled landmark', async () => {
+  it('offers "Request a Tailor" (the same words as the header and the hero) on content pages in both languages, with a labelled landmark', async () => {
     for (const [path, label] of [
-      ['/', 'Ask for a tailor'],
-      ['/tailors', 'Ask for a tailor'],
-      ['/tet/', 'Husu alfaiate'],
+      ['/', 'Request a Tailor'],
+      ['/tailors', 'Request a Tailor'],
+      ['/tet/', 'Husu Alfaiate'],
     ] as const) {
       const b = bar(await (await get(path)).text());
       expect(b, path).toContain('aria-label=');

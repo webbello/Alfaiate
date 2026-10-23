@@ -54,6 +54,7 @@ const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') =>
   title={`${tailor.name} · ${t.siteName}`}
   description={description}
   rest={`/tailors/${tailor.slug}`}
+  tailorBar={{ slug: tailor.slug, whatsapp, phone, requestHref }}
   jsonLd={[localBusinessJsonLd(tailor, siteConfig(env).siteUrl, lang)]}
   ogImage={
     tailor.profilePhoto
@@ -190,7 +191,7 @@ const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') =>
 
     {(tailor.homeVisits || tailor.languages || tailor.address) && (
       <section aria-labelledby="details">
-        <h2 id="details">{t.profile.homeVisits}</h2>
+        <h2 id="details">{t.profile.details}</h2>
         <dl class="facts">
           {tailor.homeVisits && (
             <>

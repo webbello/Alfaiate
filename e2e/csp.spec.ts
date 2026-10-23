@@ -53,7 +53,7 @@ for (const path of PATHS) {
     // exercise the script on the profile page: a tap must not raise a violation either
     if (path.includes('/tailors/e2e-fake-tailor'))
       await page
-        .locator('a[data-contact-channel="phone"]')
+        .locator('#main a[data-contact-channel="phone"]')
         .dispatchEvent('click');
     const violations = await page.evaluate(
       () => (window as unknown as { __csp?: string[] }).__csp ?? [],

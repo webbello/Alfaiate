@@ -22,12 +22,11 @@ test('browse to a profile and see working WhatsApp and Call links', async ({
     page.getByRole('heading', { level: 1, name: 'E2E Fake Tailor' }),
   ).toBeVisible();
   await expect(
-    page.locator('a[data-contact-channel="whatsapp"]'),
+    page.locator('#main a[data-contact-channel="whatsapp"]'),
   ).toHaveAttribute('href', /^https:\/\/wa\.me\/67077123456/);
-  await expect(page.locator('a[data-contact-channel="phone"]')).toHaveAttribute(
-    'href',
-    'tel:+67033123456',
-  );
+  await expect(
+    page.locator('#main a[data-contact-channel="phone"]'),
+  ).toHaveAttribute('href', 'tel:+67033123456');
 });
 
 test('the page does not scroll sideways at 375 px', async ({ page }) => {
@@ -65,7 +64,9 @@ test('a tap on Call is counted (204) and the link keeps its address', async ({
     (r) =>
       r.url().endsWith('/api/contact-click') && r.request().method() === 'POST',
   );
-  await page.locator('a[data-contact-channel="phone"]').dispatchEvent('click');
+  await page
+    .locator('#main a[data-contact-channel="phone"]')
+    .dispatchEvent('click');
   expect((await counted).status()).toBe(204);
 });
 

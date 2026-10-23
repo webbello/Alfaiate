@@ -115,7 +115,7 @@ describe('directory (AC-02, FR-DIR-01..04)', () => {
     expect(html).toContain('Dir Suits Fake');
     expect(html).toContain('Dir Comoro Fake');
     expect(html).toContain('Home visits offered');
-    expect(html).toContain('Approximate prices: $20 – $35.50');
+    expect(html).toContain('Dir Suits Fake (approximate): $20 – $35.50');
     expect(html).not.toContain('Dir Hidden Draft Fake');
     expect(html).toMatch(
       /<h3 class="card__title"><a href="\/tailors\/dir-\d+">Dir Visible Fake<\/a><\/h3>/,
@@ -142,13 +142,13 @@ describe('directory (AC-02, FR-DIR-01..04)', () => {
       [
         '/tailors',
         'introduces you to independent tailors',
-        'Request a tailor at home',
+        'Request a Tailor',
         'href="/request"',
       ],
       [
         '/tet/tailors',
         'aprezenta ita ba alfaiate independente',
-        'Husu alfaiate ba uma',
+        'Husu Alfaiate',
         'href="/tet/request"',
       ],
     ] as const) {
