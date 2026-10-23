@@ -1,0 +1,105 @@
+---
+// One published product. The seller is named, price and terms are the seller's (BR-13), and the only way to buy is to ask: by WhatsApp when the owner has set a number, otherwise through the request form.
+import { env } from 'cloudflare:workers';
+import ThemeLayout from '../../layouts/ThemeLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import { dictionary, fill } from '../../i18n/public';
+import { pathFor, type Lang } from '../../i18n/lang';
+import { siteConfig, siteWhatsapp } from '../../modules/config';
+import { whatsappLink } from '../../modules/contact-links/whatsapp';
+import { formatMoney } from '../../modules/directory/format';
+import { metaText } from '../../modules/seo/meta';
+import { isIndexable } from '../../modules/seo/pages';
+import type { PublicProduct } from '../../modules/shop/products';
+import { initials } from '../../components/story/variant';
+
+interface Props {
+  lang: Lang;
+  product: PublicProduct & { photos: { base: string; alt: string }[] };
+}
+const { lang, product } = Astro.props;
+const t = dictionary(lang);
+const s = t.shop;
+const owner = siteWhatsapp(env as { SITE_WHATSAPP?: string });
+const ask = owner
+  ? whatsappLink(owner, fill(s.askMessage, { name: product.name }))
+  : pathFor(lang, '/request');
+const description = metaText(product.description ?? '', 155) || s.intro;
+const { siteUrl } = siteConfig(env);
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.name,
+  description: metaText(product.description ?? '', 300),
+  url: `${siteUrl}${pathFor(lang, `/shop/${product.slug}`)}`,
+  ...(product.photo ? { image: `${siteUrl}/media/shop/${product.photo.base}/large.jpg` } : {}),
+  brand: { '@type': 'Organization', name: t.siteName },
+};
+---
+
+<ThemeLayout
+  {lang}
+  title={`${product.name} · ${t.siteName}`}
+  {description}
+  rest={`/shop/${product.slug}`}
+  noindex={!isIndexable('shop')}
+  jsonLd={[jsonLd]}
+  ogImage={product.photo ? `${siteUrl}/media/shop/${product.photo.base}/large.jpg` : undefined}
+>
+  <Hero parent={{ label: s.heading, href: pathFor(lang, '/shop') }} variant="show" tag={product.category_name ?? s.heading} title={product.name} />
+  <article class="profile shop-section">
+    <div class="w-layout-blockcontainer main-container w-container">
+      <p class="prof-back"><a href={pathFor(lang, '/shop')}>{s.back}</a></p>
+      <div class="prof-top">
+        <div class="prof-photo">
+          {
+            product.photo ? (
+              <img
+                src={`/media/shop/${product.photo.base}/medium.jpg`}
+                srcset={`/media/shop/${product.photo.base}/medium.jpg 800w, /media/shop/${product.photo.base}/large.jpg 1600w`}
+                sizes="(min-width: 48rem) 40rem, 100vw"
+                alt={product.photo.alt}
+              />
+            ) : (
+              <div class="shop-thumb shop-thumb--initials" data-initials={initials(product.name)} aria-hidden="true" />
+            )
+          }
+        </div>
+        <section class="prof-contact" aria-labelledby="buy">
+          <h2 id="buy">{product.price_cents !== null ? formatMoney(product.price_cents) : s.noPrice}</h2>
+          {product.price_note && <p>{product.price_note}</p>}
+          <p class="meta">{product.price_cents !== null && `${s.priceNote}. `}{fill(s.sold, { name: s.platform })}.</p>
+          {product.availability === 'unavailable' && <p><strong>{s.unavailable}</strong></p>}
+          <p class="dir-note" role="note">{s.notice}</p>
+          <div class="prof-actions">
+            <a class="button w-inline-block" href={ask} data-shop-ask>
+              <div class="button-bg"></div>
+              <div class="button-text">{owner ? s.ask : s.askNoContact}</div>
+            </a>
+          </div>
+        </section>
+      </div>
+      {
+        product.description && (
+          <section class="prof-section" aria-labelledby="about">
+            <h2 id="about">{product.name}</h2>
+            <p>{product.description}</p>
+          </section>
+        )
+      }
+      {
+        product.photos.length > 1 && (
+          <ul class="prof-gallery" role="list">
+            {product.photos.slice(1).map((p) => (
+              <li>
+                <figure>
+                  <img src={`/media/shop/${p.base}/medium.jpg`} srcset={`/media/shop/${p.base}/thumb.jpg 320w, /media/shop/${p.base}/medium.jpg 800w`} sizes="(min-width: 48rem) 20rem, 100vw" alt={p.alt} loading="lazy" />
+                </figure>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </article>
+</ThemeLayout>

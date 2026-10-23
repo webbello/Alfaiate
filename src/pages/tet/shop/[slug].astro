@@ -1,0 +1,14 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import ShopProduct from '../../../theme/views/ShopProduct.astro';
+import { requireBindings } from '../../../modules/config';
+import { getPublishedProduct } from '../../../modules/shop/products';
+
+// A draft and an unknown address look the same: 404 before any HTML is sent.
+const slug = Astro.params.slug;
+const product = slug ? await getPublishedProduct(requireBindings(env).DB, slug) : null;
+if (!product) return Astro.rewrite('/404');
+---
+
+<ShopProduct lang="tet" {product} />

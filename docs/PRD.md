@@ -145,12 +145,12 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 | FR-TPO-08 | Tailor actions are audited with the tailor account as actor; no customer data is logged. | Should |
 | FR-SHP-01 | (Shop, owner request 2026-10-23, SPEC-shop.md; built in S1) Staff with `product.edit` add and edit products: name, type, price in US dollars (optional, with a note), description, availability. A new product is a draft. | Must |
 | FR-SHP-02 | (Built in S1) Only staff with `product.publish` (manager, owner) publish or unpublish a product, and edit a published one; a published product always has a description (checked in code and by the database). Every change is audited by ids only. | Must |
-| FR-SHP-03 | Public shop pages (`/shop`, `/shop/[slug]`, categories, both languages) list only published products, with a seller label; they are noindex until the owner approves them (S2, not yet built). | Must |
+| FR-SHP-03 | (Built in S2) Public shop pages (`/shop`, `/shop/[slug]`, categories, both languages) list only published products, with a seller label; they are noindex until the owner approves them. | Must |
 | FR-SHP-04 | A visitor keeps a separate product list in the browser and sends a product enquiry through a consent-gated form with the same spam controls as the request form; nothing is paid or ordered on the site (S3, not yet built). | Must |
 | FR-SHP-05 | Product enquiries appear in the staff inbox with their own kind and status and are passed on manually (S3, not yet built). | Must |
 | FR-SHP-06 | (Built in S1b for the platform's own products) Product photos are stored in R2, private until the product is published; a photo of a tailor's product needs the same recorded permission as other tailor photos (S4, not yet built). | Must |
 | FR-SHP-07 | An approved tailor drafts their own products and photos in the portal; staff publish; the tailor never sees enquiries or customers (S4, not yet built). | Should |
-| FR-SHP-08 | The seller is shown on every product (the platform or the tailor), and BR-13 and BR-14 are stated on product pages (S2). | Must |
+| FR-SHP-08 | (Built in S2 for the platform) The seller is shown on every product (the platform or the tailor), and BR-13 is stated on product pages (BR-14 matters once tailors sell, S4). | Must |
 
 #### Administration
 

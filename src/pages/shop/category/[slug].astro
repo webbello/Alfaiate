@@ -1,0 +1,14 @@
+---
+export const prerender = false;
+import Shop from '../../../theme/views/Shop.astro';
+import { env } from 'cloudflare:workers';
+import { requireBindings } from '../../../modules/config';
+import { listShopCategories } from '../../../modules/shop/products';
+
+// An unknown type, or one with no published product, is a plain 404.
+const slug = Astro.params.slug ?? '';
+const known = (await listShopCategories(requireBindings(env).DB)).some((c) => c.slug === slug);
+if (!known) return Astro.rewrite('/404');
+---
+
+<Shop lang="en" category={slug} />

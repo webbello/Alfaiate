@@ -59,3 +59,28 @@ Status: **not reviewed.** The Tetun below was written by the assistant during th
 - `nav.more` Liu tan, `nav.journal` Jornál, `nav.gallery` Galeria, `nav.faq` Pergunta sira
 - `hero.reassure` and the home hero button "Husu Alfaiate ba Uma" (earlier visual pass)
 - `request.fromList` "Ita husu alfaiate sira ne'e: {names}."
+
+## Shop (S2) — `shop`
+
+```ts
+    title: 'Loja',
+    heading: 'Loja',
+    intro: 'Ropa, tecidu no asesóriu husi Alfaiate TL. Husu kona-ba item ida no koko hatene detalle ho ema ne’ebé fa’an.',
+    empty: 'Seidauk iha produtu. Favór fila fali iha tempu badak.',
+    allTypes: 'Item hotu',
+    types: 'Tipu',
+    sold: 'Fa’an husi {name}',
+    platform: 'Alfaiate TL',
+    price: 'Folin',
+    priceNote: 'Folin define husi ema ne’ebé fa’an',
+    noPrice: 'Husu folin',
+    unavailable: 'La disponivel agora',
+    ask: 'Husu kona-ba item ne’e',
+    askMessage: 'Olá, haʼu hakarak husu kona-ba: {name}',
+    askNoContact: 'Haruka pedidu',
+    back: 'Fila ba loja',
+    notice: 'Alfaiate TL lista item ne’e. Folin, entrega no fila fali item hatene diretamente ho ema ne’ebé fa’an. La iha pagamentu ka enkomenda iha sítiu ne’e.',
+    photoOf: 'Foto husi {name}',
+```
+
+- `nav.shop` Loja

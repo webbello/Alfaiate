@@ -23,6 +23,7 @@ export const THEME_PAGES: readonly { slug: string; reviewed: boolean }[] = [
   { slug: 'faq', reviewed: false },
   { slug: 'gallery', reviewed: false },
   { slug: 'journal', reviewed: false },
+  { slug: 'shop', reviewed: false },
 ];
 export const isIndexable = (slug: string) =>
   staticPage(slug)?.reviewed === true ||

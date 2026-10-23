@@ -13,6 +13,7 @@ export function shellNav(t: Dictionary, lang: Lang) {
   const nav: Link[] = [
     { label: t.nav.home, href: to('/') },
     { label: t.nav.tailors, href: to('/tailors') },
+    { label: t.nav.shop, href: to('/shop') },
     { label: t.nav.about, href: to('/about') },
     { label: t.nav.contact, href: to('/contact') },
   ];
@@ -33,6 +34,7 @@ export function shellNav(t: Dictionary, lang: Lang) {
       title: t.footer.explore,
       links: [
         { label: t.nav.tailors, href: to('/tailors') },
+        { label: t.nav.shop, href: to('/shop') },
         { label: t.nav.services, href: to('/services') },
         { label: t.nav.craft, href: to('/craft') },
         { label: t.nav.business, href: to('/business') },

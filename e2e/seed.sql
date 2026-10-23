@@ -11,3 +11,6 @@ UPDATE tailor SET fee_terms_agreed_on = '2026-01-01' WHERE slug = 'e2e-fake-tail
 INSERT INTO enquiry (reference_code, customer_name, contact_number_e164, contact_channel, consent_shared_with_tailor, consent_text_version, consent_at)
 VALUES ('AT-E2EFAKE3', 'E2E Fake Customer Three', '+67077654322', 'phone', 1, 'consent-2026-10-v1-en', '2026-01-01T00:00:00Z');
 INSERT INTO enquiry_status_log (enquiry_id, from_status, to_status) SELECT id, NULL, 'new' FROM enquiry WHERE reference_code = 'AT-E2EFAKE3';
+-- A published product for the shop pages (made up).
+INSERT INTO product (slug, name, description, price_cents, price_note, category_id, is_published, published_at)
+SELECT 'e2e-fake-shirt', 'E2E Fake Shirt', 'A made-up shirt for browser tests.', 2500, 'each', c.id, 1, '2026-01-01T00:00:00Z' FROM product_category c WHERE c.slug = 'ready-made';

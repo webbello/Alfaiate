@@ -1,4 +1,9 @@
 import { fitLike, likeAnywhere } from '../db/like';
+import { isIndexable } from '../seo/pages';
+import {
+  listPublishedProductSlugs,
+  listShopCategories,
+} from '../shop/products';
 import { isVerifiable } from '../tailors/verification';
 import type { DirectoryFilters } from './filters';
 import type { CardView, Choice, PhotoView, Price, ProfileView } from './view';
@@ -360,7 +365,8 @@ export async function getActiveArea(
 
 /** Pages that belong in the sitemap: the home page, the directory, categories and areas that have a published tailor, and every published tailor. */
 export async function listSitemapPaths(db: Db): Promise<string[]> {
-  const [tailors, categories, areas] = await Promise.all([
+  const shopOn = isIndexable('shop');
+  const [tailors, categories, areas, shopSlugs, shopTypes] = await Promise.all([
     db
       .prepare(
         'SELECT slug FROM tailor WHERE is_published = 1 AND permission_recorded = 1 ORDER BY slug LIMIT 50000',
@@ -368,6 +374,8 @@ export async function listSitemapPaths(db: Db): Promise<string[]> {
       .all<{ slug: string }>(),
     listActiveCategories(db, { onlyWithTailors: true }),
     listActiveAreas(db, { onlyWithTailors: true }),
+    shopOn ? listPublishedProductSlugs(db) : Promise.resolve([] as string[]),
+    shopOn ? listShopCategories(db) : Promise.resolve([] as { slug: string }[]),
   ]);
   return [
     '/',
@@ -377,13 +385,25 @@ export async function listSitemapPaths(db: Db): Promise<string[]> {
     ...categories.map((c) => `/categories/${c.slug}`),
     ...areas.map((a) => `/areas/${a.slug}`),
     ...tailors.results.map((t) => `/tailors/${t.slug}`),
+    // the shop's product and type pages join the sitemap only once the owner has approved the shop (THEME_PAGES)
+    ...shopSlugs.map((slug) => `/shop/${slug}`),
+    ...shopTypes.map((c) => `/shop/category/${c.slug}`),
   ];
 }
 
-export type GalleryPhoto = { slug: string; name: string; base: string; alt: string; caption: string | null };
+export type GalleryPhoto = {
+  slug: string;
+  name: string;
+  base: string;
+  alt: string;
+  caption: string | null;
+};
 
 /** Photos with recorded permission, visible, from published and permitted tailors only (BR-06). Newest first. */
-export async function listGalleryPhotos(db: Db, limit = 18): Promise<GalleryPhoto[]> {
+export async function listGalleryPhotos(
+  db: Db,
+  limit = 18,
+): Promise<GalleryPhoto[]> {
   const { results } = await db
     .prepare(
       `SELECT t.slug, t.display_name AS name, i.tailor_id, i.file_key, i.alt_text, i.caption
@@ -392,6 +412,19 @@ export async function listGalleryPhotos(db: Db, limit = 18): Promise<GalleryPhot
        ORDER BY i.id DESC LIMIT ?`,
     )
     .bind(limit)
-    .all<{ slug: string; name: string; tailor_id: number; file_key: string; alt_text: string; caption: string | null }>();
-  return results.map((r) => ({ slug: r.slug, name: r.name, base: `tailor/${r.tailor_id}/${r.file_key}`, alt: r.alt_text, caption: r.caption }));
+    .all<{
+      slug: string;
+      name: string;
+      tailor_id: number;
+      file_key: string;
+      alt_text: string;
+      caption: string | null;
+    }>();
+  return results.map((r) => ({
+    slug: r.slug,
+    name: r.name,
+    base: `tailor/${r.tailor_id}/${r.file_key}`,
+    alt: r.alt_text,
+    caption: r.caption,
+  }));
 }

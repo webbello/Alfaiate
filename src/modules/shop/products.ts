@@ -233,3 +233,126 @@ export async function listProductCategories(
 
 export const priceInput = (row: Pick<ProductRow, 'price_cents'>) =>
   centsToDollars(row.price_cents);
+
+/* ---- Public reads (S2): published products only ---- */
+export type PublicProduct = {
+  slug: string;
+  name: string;
+  description: string | null;
+  price_cents: number | null;
+  price_note: string | null;
+  availability: 'available' | 'unavailable';
+  category_slug: string | null;
+  category_name: string | null;
+  /** The first photo, if any (public only because the product is published). */
+  photo: { base: string; alt: string } | null;
+};
+
+type PublicRow = Omit<PublicProduct, 'photo'> & { id: number };
+
+const PUBLIC_SELECT = `SELECT p.id, p.slug, p.name, p.description, p.price_cents, p.price_note, p.availability,
+  c.slug AS category_slug, c.name AS category_name
+  FROM product p LEFT JOIN product_category c ON c.id = p.category_id AND c.is_active = 1
+  WHERE p.is_published = 1`;
+
+async function withPhotos(
+  db: D1Database,
+  rows: PublicRow[],
+): Promise<PublicProduct[]> {
+  if (rows.length === 0) return [];
+  const { results } = await db
+    .prepare(
+      `SELECT i.product_id, i.file_key, i.alt_text FROM product_image i
+       WHERE i.product_id IN (SELECT value FROM json_each(?)) ORDER BY i.sort_order, i.id`,
+    )
+    .bind(JSON.stringify(rows.map((r) => r.id)))
+    .all<{ product_id: number; file_key: string; alt_text: string }>();
+  const first = new Map<number, { base: string; alt: string }>();
+  for (const r of results)
+    if (!first.has(r.product_id))
+      first.set(r.product_id, {
+        base: `product/${r.product_id}/${r.file_key}`,
+        alt: r.alt_text,
+      });
+  return rows.map(({ id, ...rest }) => ({
+    ...rest,
+    photo: first.get(id) ?? null,
+  }));
+}
+
+export async function listPublishedProducts(
+  db: D1Database,
+  categorySlug?: string,
+): Promise<PublicProduct[]> {
+  const { results } = categorySlug
+    ? await db
+        .prepare(
+          `${PUBLIC_SELECT} AND c.slug = ? ORDER BY p.name COLLATE NOCASE LIMIT 200`,
+        )
+        .bind(categorySlug)
+        .all<PublicRow>()
+    : await db
+        .prepare(`${PUBLIC_SELECT} ORDER BY p.name COLLATE NOCASE LIMIT 200`)
+        .all<PublicRow>();
+  return withPhotos(db, results);
+}
+
+/** One published product with all its photos; null for a draft or an unknown slug (the page answers 404 for both). */
+export async function getPublishedProduct(
+  db: D1Database,
+  slug: string,
+): Promise<
+  (PublicProduct & { photos: { base: string; alt: string }[] }) | null
+> {
+  const row = await db
+    .prepare(`${PUBLIC_SELECT} AND p.slug = ?`)
+    .bind(slug)
+    .first<PublicRow>();
+  if (!row) return null;
+  const { results } = await db
+    .prepare(
+      'SELECT file_key, alt_text FROM product_image WHERE product_id = ? ORDER BY sort_order, id',
+    )
+    .bind(row.id)
+    .all<{ file_key: string; alt_text: string }>();
+  const photos = results.map((r) => ({
+    base: `product/${row.id}/${r.file_key}`,
+    alt: r.alt_text,
+  }));
+  return {
+    slug: row.slug,
+    name: row.name,
+    description: row.description,
+    price_cents: row.price_cents,
+    price_note: row.price_note,
+    availability: row.availability,
+    category_slug: row.category_slug,
+    category_name: row.category_name,
+    photo: photos[0] ?? null,
+    photos,
+  };
+}
+
+/** Types that have at least one published product, for the filter links. */
+export async function listShopCategories(
+  db: D1Database,
+): Promise<{ slug: string; name: string }[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT DISTINCT c.slug, c.name, c.sort_order FROM product_category c JOIN product p ON p.category_id = c.id
+       WHERE c.is_active = 1 AND p.is_published = 1 ORDER BY c.sort_order, c.name`,
+    )
+    .all<{ slug: string; name: string }>();
+  return results.map(({ slug, name }) => ({ slug, name }));
+}
+
+export async function listPublishedProductSlugs(
+  db: D1Database,
+): Promise<string[]> {
+  const { results } = await db
+    .prepare(
+      'SELECT slug FROM product WHERE is_published = 1 ORDER BY slug LIMIT 5000',
+    )
+    .all<{ slug: string }>();
+  return results.map((r) => r.slug);
+}

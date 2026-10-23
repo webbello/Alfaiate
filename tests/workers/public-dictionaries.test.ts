@@ -39,6 +39,7 @@ describe('public dictionaries', () => {
   it('are not English copied into the Tetum file (except names that are the same in both)', () => {
     const sameOnPurpose = new Set([
       'siteName',
+      'shop.platform', // the seller's name
       'language.en',
       'language.tet',
       'contact.whatsapp',

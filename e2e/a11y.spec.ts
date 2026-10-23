@@ -13,6 +13,8 @@ const PATHS = [
   '/journal',
   '/gallery',
   '/faq',
+  '/shop',
+  '/shop/e2e-fake-shirt',
   '/services',
   '/portal/login',
   '/portal/accept?token=invalid',
@@ -35,7 +37,8 @@ for (const prefix of ['', '/tet']) {
       // the theme's hero text fades in with GSAP: check the colours once it has settled
       if (
         url.includes('/tailors') ||
-        /\/(journal|gallery|faq)$/.test(url) ||
+        /\/(journal|gallery|faq|shop)$/.test(url) ||
+        url.includes('/shop/') ||
         url === '/' ||
         url === '/tet/'
       )

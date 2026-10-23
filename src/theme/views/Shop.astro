@@ -1,0 +1,89 @@
+---
+// The shop list, or one type of it (docs/SPEC-shop.md, S2). Published products only; the seller is named; nothing is paid here (BR-13).
+import { env } from 'cloudflare:workers';
+import ThemeLayout from '../../layouts/ThemeLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import { dictionary, fill } from '../../i18n/public';
+import { pathFor, type Lang } from '../../i18n/lang';
+import { requireBindings } from '../../modules/config';
+import { formatMoney } from '../../modules/directory/format';
+import { listPublishedProducts, listShopCategories } from '../../modules/shop/products';
+import { initials } from '../../components/story/variant';
+import { isIndexable } from '../../modules/seo/pages';
+
+interface Props {
+  lang: Lang;
+  category?: string;
+}
+const { lang, category } = Astro.props;
+const t = dictionary(lang);
+const s = t.shop;
+const { DB } = requireBindings(env);
+const [products, types] = await Promise.all([listPublishedProducts(DB, category), listShopCategories(DB)]);
+const current = category ? types.find((c) => c.slug === category) : undefined;
+const title = current ? current.name : s.heading;
+---
+
+<ThemeLayout
+  {lang}
+  title={`${title} · ${t.siteName}`}
+  description={s.intro}
+  rest={current ? `/shop/category/${category}` : '/shop'}
+  noindex={!isIndexable('shop') || products.length === 0}
+>
+  <Hero parent={{ label: s.heading, href: pathFor(lang, '/shop') }} variant="show" tag={s.heading} title={title} />
+  <section class="global-section">
+    <div class="w-layout-blockcontainer main-container w-container">
+      <div class="global-block">
+        <p class="dir-intro">{s.intro}</p>
+        <p class="dir-note" role="note">{s.notice}</p>
+        {
+          types.length > 0 && (
+            <nav class="dir-browse" aria-label={s.types}>
+              <ul>
+                <li><a href={pathFor(lang, '/shop')} aria-current={category ? undefined : 'page'}>{s.allTypes}</a></li>
+                {types.map((c) => <li><a href={pathFor(lang, `/shop/category/${c.slug}`)} aria-current={c.slug === category ? 'page' : undefined}>{c.name}</a></li>)}
+              </ul>
+            </nav>
+          )
+        }
+        {products.length === 0 && <p class="dir-intro">{s.empty}</p>}
+        <ul class="shop-list dir-grid" role="list">
+          {
+            products.map((p) => {
+              const href = pathFor(lang, `/shop/${p.slug}`);
+              return (
+                <li>
+                  <div class="shop-card">
+                    <div class="shop-thumb-card">
+                      {p.photo ? (
+                        <img
+                          class="shop-thumb"
+                          src={`/media/shop/${p.photo.base}/medium.jpg`}
+                          srcset={`/media/shop/${p.photo.base}/thumb.jpg 320w, /media/shop/${p.photo.base}/medium.jpg 800w`}
+                          sizes="(max-width: 767px) 88vw, 30vw"
+                          alt={p.photo.alt}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div class="shop-thumb shop-thumb--initials" data-initials={initials(p.name)} aria-hidden="true" />
+                      )}
+                    </div>
+                    <div class="shop-details-card">
+                      <div class="shop-info-card">
+                        <a class="shop-name" {href}>{p.name}</a>
+                        <div class="shop-price">{p.price_cents !== null ? formatMoney(p.price_cents) : s.noPrice}</div>
+                        <div class="shop-price shop-price--small">{fill(s.sold, { name: s.platform })}</div>
+                        {p.availability === 'unavailable' && <div class="shop-price shop-price--small">{s.unavailable}</div>}
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+</ThemeLayout>
