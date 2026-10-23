@@ -205,10 +205,10 @@ Further languages beyond English and Tetum (English and Tetum ship at launch, Te
 | BR-08 | Customer information is shared with a tailor only after disclosure and the customer's consent, and only the necessary fields. |
 | BR-09 | Referral fees and payment terms are agreed with each tailor before any fee is recorded as due. |
 | BR-10 | Referral completion and revenue reporting are manual. Completion is tailor-reported unless the owner independently confirms it. |
-| BR-12 | The platform lists shop items but is not the seller of a tailor's product and never handles payment; the buyer and seller agree price, delivery and returns directly. |
-| BR-13 | A tailor's product needs the same recorded permission, photo permission and supplied/verified labelling as other tailor content (BR-06, BR-11). |
 | BR-11 | Every public fact is either verified by the owner or labelled as supplied by the tailor; unverified prices, ratings, credentials and service claims are not published as fact. |
 | BR-12 | Customers are never charged by the platform in the MVP. **[Proposed]** |
+| BR-13 | The platform lists shop items but is not the seller of a tailor's product and never handles payment; the buyer and seller agree price, delivery and returns directly. |
+| BR-14 | A tailor's product needs the same recorded permission, photo permission and supplied/verified labelling as other tailor content (BR-06, BR-11). |
 
 **Operational policies to agree before launch** (see also OQ list): referral-fee terms (rate/flat, trigger, payment timing, disputes, what counts as an introduced customer, attribution window, repeat customers); tailor participation agreement and removal/suspension rules; response-time expectation for tailors and for the owner; what to do when a tailor does not respond; handling a customer who contacts a tailor directly (attribution of direct-contact customers is not trackable in the MVP — decide whether fees apply only to form-based referrals); complaint handling; verification standard for each public claim; photo/consent process and takedown; customer-data retention and deletion; enquiry-sharing channel and tailor data-handling expectations; service-area boundaries; languages; dormant-listing policy; legal/tax/regulatory review (no conclusions are drawn here).
 

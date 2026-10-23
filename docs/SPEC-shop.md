@@ -39,7 +39,7 @@ Online payment, checkout, shipping, delivery, tax, refunds, stock counts, discou
 ## PRD changes needed (for approval)
 
 - §7.3: replace "marketplaces" in the exclusions with: a **product shop** for the platform's own items and approved tailors' items, enquiry only, no online payment; open marketplaces remain excluded.
-- New business rules: BR-12 the platform lists items but is not the seller of tailors' products and does not handle payment; BR-13 a tailor's product needs the same permission and labelling as other tailor content.
+- New business rules: BR-13 the platform lists items but is not the seller of tailors' products and does not handle payment; BR-14 a tailor's product needs the same permission and labelling as other tailor content.
 - New requirements FR-SHP-01..08 (browse, product page, seller label, product list, product enquiry, admin CRUD, tailor draft, permissions).
 
 ## Plan (each step ends with `npm run check`, e2e, reviewers, commit)
