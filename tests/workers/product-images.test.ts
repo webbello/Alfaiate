@@ -40,6 +40,10 @@ const product = async () => {
     price_note: '',
     category_id: null,
     availability: 'available',
+    details: '',
+    features: '',
+    returns: '',
+    featured: false,
   });
   if (!r.ok) throw new Error('setup');
   return { id: r.id!, by };

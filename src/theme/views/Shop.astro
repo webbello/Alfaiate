@@ -1,15 +1,17 @@
 ---
-// The shop list, or one type of it (docs/SPEC-shop.md, S2). Published products only; the seller is named; nothing is paid here (BR-13).
+// The shop in the Handspark theme's shop page (docs/SPEC-shop.md): category drop-down, six products a page with Back and Next, and the "most loved" rail.
+// Published products only; each card names the seller; nothing is paid here (BR-13).
 import { env } from 'cloudflare:workers';
 import ThemeLayout from '../../layouts/ThemeLayout.astro';
 import Hero from '../components/sections/Hero.astro';
-import { dictionary, fill } from '../../i18n/public';
+import MoreSlider from '../components/sections/MoreSlider.astro';
+import Pagination from '../components/sections/Pagination.astro';
+import CategoryFilter from '../components/shop/CategoryFilter.astro';
+import ProductCard from '../components/shop/ProductCard.astro';
+import { dictionary } from '../../i18n/public';
 import { pathFor, type Lang } from '../../i18n/lang';
 import { requireBindings } from '../../modules/config';
-import { formatMoney } from '../../modules/directory/format';
 import { listPublishedProducts, listShopCategories } from '../../modules/shop/products';
-import { initials } from '../../components/story/variant';
-import ProductList from '../components/shop/ProductList.astro';
 import { isIndexable } from '../../modules/seo/pages';
 
 interface Props {
@@ -19,10 +21,20 @@ interface Props {
 const { lang, category } = Astro.props;
 const t = dictionary(lang);
 const s = t.shop;
+const PAGE_SIZE = 6;
 const { DB } = requireBindings(env);
-const [products, types] = await Promise.all([listPublishedProducts(DB, category), listShopCategories(DB)]);
+const requested = Number(Astro.url.searchParams.get('page') ?? '1');
+const page = Number.isInteger(requested) && requested > 0 ? Math.min(requested, 500) : 1;
+const [{ products, total }, types, loved] = await Promise.all([
+  listPublishedProducts(DB, { category, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }),
+  listShopCategories(DB),
+  listPublishedProducts(DB, { featured: true, limit: 8 }),
+]);
+const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 const current = category ? types.find((c) => c.slug === category) : undefined;
 const title = current ? current.name : s.heading;
+const base = pathFor(lang, current ? `/shop/category/${category}` : '/shop');
+const go = (n: number) => (n <= 1 ? base : `${base}?page=${n}`);
 ---
 
 <ThemeLayout
@@ -30,65 +42,40 @@ const title = current ? current.name : s.heading;
   title={`${title} · ${t.siteName}`}
   description={s.intro}
   rest={current ? `/shop/category/${category}` : '/shop'}
-  noindex={!isIndexable('shop') || products.length === 0}
+  noindex={!isIndexable('shop') || total === 0 || page > 1}
+  canonicalRest={current ? `/shop/category/${category}` : '/shop'}
 >
-  <Hero parent={{ label: s.heading, href: pathFor(lang, '/shop') }} variant="show" tag={s.heading} title={title} />
+  <Hero tag={s.heading} title={current ? current.name : s.heroTitle} />
+
   <section class="global-section">
     <div class="w-layout-blockcontainer main-container w-container">
       <div class="global-block">
-        <p class="dir-intro">{s.intro}</p>
         <p class="dir-note" role="note">{s.notice}</p>
-        <ProductList {lang} {t} />
-        {
-          types.length > 0 && (
-            <nav class="dir-browse" aria-label={s.types}>
-              <ul>
-                <li><a href={pathFor(lang, '/shop')} aria-current={category ? undefined : 'page'}>{s.allTypes}</a></li>
-                {types.map((c) => <li><a href={pathFor(lang, `/shop/category/${c.slug}`)} aria-current={c.slug === category ? 'page' : undefined}>{c.name}</a></li>)}
-              </ul>
-            </nav>
-          )
-        }
-        {products.length === 0 && <p class="dir-intro">{s.empty}</p>}
-        <ul class="shop-list dir-grid" role="list">
-          {
-            products.map((p) => {
-              const href = pathFor(lang, `/shop/${p.slug}`);
-              return (
-                <li>
-                  <div class="shop-card">
-                    <div class="shop-thumb-card">
-                      {p.photo ? (
-                        <img
-                          class="shop-thumb"
-                          src={`/media/shop/${p.photo.base}/medium.jpg`}
-                          srcset={`/media/shop/${p.photo.base}/thumb.jpg 320w, /media/shop/${p.photo.base}/medium.jpg 800w`}
-                          sizes="(max-width: 767px) 88vw, 30vw"
-                          alt={p.photo.alt}
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div class="shop-thumb shop-thumb--initials" data-initials={initials(p.name)} aria-hidden="true" />
-                      )}
-                    </div>
-                    <div class="shop-details-card">
-                      <div class="shop-info-card">
-                        <a class="shop-name" {href}>{p.name}</a>
-                        <div class="shop-price">{p.price_cents !== null ? formatMoney(p.price_cents) : s.noPrice}</div>
-                        <div class="shop-price shop-price--small">{p.seller_name ? fill(s.soldByTailor, { name: p.seller_name }) : fill(s.sold, { name: s.platform })}</div>
-                        {p.availability === 'unavailable' && <div class="shop-price shop-price--small">{s.unavailable}</div>}
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              );
-            })
-          }
-        </ul>
+        <div class="product-block">
+          <CategoryFilter {lang} categories={types} current={category} allLabel={s.allCategories} navLabel={s.categoriesLabel} />
+          <div class="shop-wrapper" data-paginated>
+            {total === 0 && <p class="dir-intro">{s.empty}</p>}
+            <div class="shop-list">
+              {products.map((product) => <ProductCard {lang} {t} {product} />)}
+            </div>
+            <Pagination back={page > 1 ? go(page - 1) : undefined} next={page < pages ? go(page + 1) : undefined} labels={{ back: s.pageBack, next: s.pageNext, nav: s.pagination }} />
+          </div>
+        </div>
       </div>
     </div>
   </section>
+
+  {
+    loved.products.length > 0 && (
+      <MoreSlider section="popular-section" title={s.lovedTitle} count={loved.products.length} label={s.lovedLabel}>
+        {loved.products.map((product) => (
+          <div class="more-slide w-slide" data-slide data-anim="fade">
+            <div class="shop-list is-shop-slider">
+              <ProductCard {lang} {t} {product} sizes="(max-width: 767px) 88vw, 30vw" />
+            </div>
+          </div>
+        ))}
+      </MoreSlider>
+    )
+  }
 </ThemeLayout>
-<script>
-  import '../../scripts/product-list';
-</script>

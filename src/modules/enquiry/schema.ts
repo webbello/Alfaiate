@@ -36,6 +36,8 @@ export type EnquiryInput = {
   alsoSlugs?: string[];
   /** Up to three published shop products the visitor is asking about (named in the notes; source becomes 'shop'). */
   productSlugs?: string[];
+  /** The quantity asked for each of those items. */
+  productQty?: Record<string, number>;
   /** Set only on the business form (FR-ENQ-09). */
   organisation?: string | null;
   groupSize?: string | null;
@@ -58,6 +60,25 @@ const CHANNELS = ['whatsapp', 'phone', 'either'] as const;
 const ID = /^[0-9]{1,9}$/;
 
 export const MAX_TAILORS = 3;
+/** Shop items one request may name, and the quantity limit for each (the cart's own limits). */
+export const MAX_PRODUCTS = 10;
+/** Every `product` value of a cart link: valid slugs, no repeats, at most MAX_PRODUCTS. */
+export const productParams = (values: string[]): string[] =>
+  [
+    ...new Set(values.map(tailorParam).filter((s): s is string => s !== null)),
+  ].slice(0, MAX_PRODUCTS);
+/** The quantity asked for each item (`qty_<slug>`), 1 to 99, one when missing or odd. */
+export function productQuantities(
+  slugs: string[],
+  get: (key: string) => string | null,
+): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const slug of slugs) {
+    const n = Number(get(`qty_${slug}`));
+    out[slug] = Number.isInteger(n) && n >= 1 && n <= 99 ? n : 1;
+  }
+  return out;
+}
 /** Every `tailor` value of a request-list link: valid slugs only, no repeats, at most MAX_TAILORS. */
 export const tailorParams = (values: string[]): string[] =>
   [
@@ -146,7 +167,11 @@ export function parseEnquiryForm(
       notes: values.notes || null,
       tailorSlug: tailorParams(form.getAll('tailor'))[0] ?? null,
       alsoSlugs: tailorParams(form.getAll('tailor')).slice(1),
-      productSlugs: tailorParams(form.getAll('product')),
+      productSlugs: productParams(form.getAll('product')),
+      productQty: productQuantities(
+        productParams(form.getAll('product')),
+        (k) => form.get(k),
+      ),
       organisation: business ? values.organisation : null,
       groupSize: business ? values.group_size || null : null,
       business,
@@ -205,9 +230,12 @@ export async function resolveChoices(
     if (tailor) alsoNames.push(found.name);
     else tailor = { ...found, slug };
   }
+  const qty = input.productQty ?? {};
   const productNames = (
     await publishedProductNames(db, input.productSlugs ?? [])
-  ).map((p) => p.name);
+  ).map((p) =>
+    (qty[p.slug] ?? 1) > 1 ? `${p.name} × ${qty[p.slug]}` : p.name,
+  );
   return {
     ok: true,
     categoryId: input.categoryId,

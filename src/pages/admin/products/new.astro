@@ -12,6 +12,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { en } from '../../../i18n/en';
 import { requireBindings } from '../../../modules/config';
 import { requirePermission } from '../../../modules/auth/require';
+import { can } from '../../../modules/auth/permissions';
 import { verifyCsrf } from '../../../modules/auth/csrf';
 import { SESSION_COOKIE } from '../../../modules/auth/session';
 import {
@@ -66,7 +67,10 @@ const categories = await listProductCategories(DB);
     <input type="hidden" name="csrf" value={auth.csrfToken} />
     <Card title="Product" id="product">
       <FormGrid>
-        <ProductFields categories={categories} />
+        <ProductFields
+          categories={categories}
+          staff={can(auth.role, 'product.publish')}
+        />
       </FormGrid>
     </Card>
     <StickyBar>

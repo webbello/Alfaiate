@@ -4,6 +4,8 @@ import {
   createProduct,
   getProduct,
   invalidFields,
+  lines,
+  listPublishedProducts,
   listProductCategories,
   listProducts,
   productFromForm,
@@ -31,6 +33,10 @@ const input = (over: Partial<ProductInput> = {}): ProductInput => ({
   price_note: '',
   category_id: null,
   availability: 'available',
+  details: '',
+  features: '',
+  returns: '',
+  featured: false,
   ...over,
 });
 const make = async (over: Partial<ProductInput> = {}) => {
@@ -222,5 +228,76 @@ describe('publishing (BR-13)', () => {
     expect(rows.findIndex((r) => r.id === a.id)).toBeLessThan(
       rows.findIndex((r) => r.is_published === 0),
     );
+  });
+});
+
+describe('product page lists and the most loved flag', () => {
+  it('rejects overlong or too many list items, and lets only product.publish feature a product', async () => {
+    expect(invalidFields(input({ details: 'x'.repeat(201) }))).toEqual([
+      'details',
+    ]);
+    expect(
+      invalidFields(
+        input({
+          features: Array.from({ length: 13 }, (_, i) => `item ${i}`).join(
+            '\n',
+          ),
+        }),
+      ),
+    ).toEqual(['features']);
+    expect(invalidFields(input({ returns: 'One\nTwo\n\n  Three  ' }))).toEqual(
+      [],
+    );
+    const by = await actor();
+    const editor = await createProduct(
+      db,
+      by,
+      'editor',
+      input({ featured: true }),
+    );
+    const manager = await createProduct(
+      db,
+      by,
+      'manager',
+      input({ featured: true }),
+    );
+    expect(
+      (await getProduct(db, (editor as { id: number }).id))!.is_featured,
+    ).toBe(0);
+    expect(
+      (await getProduct(db, (manager as { id: number }).id))!.is_featured,
+    ).toBe(1);
+    // an editor's later edit cannot switch it off or on
+    await updateProduct(
+      db,
+      by,
+      'editor',
+      (manager as { id: number }).id,
+      input({ featured: false }),
+    );
+    expect(
+      (await getProduct(db, (manager as { id: number }).id))!.is_featured,
+    ).toBe(1);
+  });
+});
+
+describe('public listing limits', () => {
+  it('turns odd limit and offset values into whole numbers in range', async () => {
+    const odd = [NaN, 1.5, -4, 1e12, Infinity];
+    for (const value of odd) {
+      const r = await listPublishedProducts(db, {
+        limit: value,
+        offset: value,
+      });
+      expect(Array.isArray(r.products)).toBe(true);
+      expect(r.products.length).toBeLessThanOrEqual(200);
+    }
+  });
+  it('keeps panel items as plain lines', () => {
+    expect(lines('  One \n\n<b>Two</b>\r\nThree  ')).toEqual([
+      'One',
+      '<b>Two</b>',
+      'Three',
+    ]);
   });
 });

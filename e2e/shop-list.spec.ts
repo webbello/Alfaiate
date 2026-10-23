@@ -1,36 +1,68 @@
 import { expect, test } from '@playwright/test';
 
-// Shop S3: the shop list (separate from the tailor request list) and the product enquiry through the request form.
-test('adds an item to the shop list, sees it, sends the enquiry to the request form, and removes it', async ({
+// The shop cart (the Handspark cart): quantity, price and subtotal; "Send request" opens the request form with the items and quantities named.
+test('adds a product to the cart, changes the quantity, sees the subtotal, sends it to the request form and removes it', async ({
   page,
 }) => {
   await page.goto('/shop/e2e-fake-shirt');
-  await page.getByRole('button', { name: 'Add to my shop list' }).click();
-  const box = page.locator('[data-product-list]');
-  await expect(box).toBeVisible();
-  await expect(box.getByRole('link', { name: 'E2E Fake Shirt' })).toBeVisible();
-  await box.getByRole('link', { name: 'Send an enquiry' }).click();
-  await expect(page).toHaveURL(/\/request\?product=e2e-fake-shirt$/);
+  await page.getByRole('button', { name: 'Add to Cart' }).click();
+  const panel = page.locator('[data-cart-panel][data-open]').first();
+  await expect(panel).toBeVisible();
   await expect(
-    page.getByText(/You are asking about these shop items: E2E Fake Shirt/),
+    panel.getByRole('link', { name: 'E2E Fake Shirt' }).first(),
+  ).toBeVisible();
+  await expect(panel.locator('[data-cart-total]')).toHaveText('$ 25.00 USD');
+  await panel.getByLabel('Quantity of E2E Fake Shirt').fill('2');
+  await panel.getByLabel('Quantity of E2E Fake Shirt').press('Tab');
+  await expect(panel.locator('[data-cart-total]')).toHaveText('$ 50.00 USD');
+  await expect(page.locator('[data-cart-count]').first()).toHaveText('2');
+  await panel.getByRole('link', { name: 'Send request' }).click();
+  await expect(page).toHaveURL(
+    /\/request\?product=e2e-fake-shirt&qty_e2e-fake-shirt=2$/,
+  );
+  await expect(
+    page.getByText(/You are asking about these shop items: E2E Fake Shirt × 2/),
   ).toBeVisible();
   await expect(page.locator('input[name="product"]')).toHaveValue(
     'e2e-fake-shirt',
   );
+  await expect(page.locator('input[name="qty_e2e-fake-shirt"]')).toHaveValue(
+    '2',
+  );
   await page.goto('/shop/e2e-fake-shirt');
+  await page.locator('[data-cart-toggle]:visible').first().click();
   await page
-    .getByRole('button', { name: 'Remove E2E Fake Shirt from my shop list' })
+    .getByRole('button', { name: 'Remove E2E Fake Shirt from my cart' })
     .click();
-  await expect(page.locator('[data-product-list]')).toBeHidden();
+  await expect(page.locator('[data-cart-empty]:visible')).toBeVisible();
+});
+
+test('the shop page has the category drop-down and a card with a bag button', async ({
+  page,
+}) => {
+  await page.goto('/shop');
+  await expect(
+    page.getByRole('navigation', { name: 'Product categories' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'E2E Fake Shirt' }).first(),
+  ).toBeVisible();
+  await page
+    .getByRole('button', { name: 'Add E2E Fake Shirt to cart' })
+    .click();
+  await expect(page.locator('[data-cart-count]').first()).toHaveText('1');
 });
 
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
-  test('the add button opens the request form with the item', async ({
-    page,
-  }) => {
+  test('Add to Cart opens the request form with the item', async ({ page }) => {
     await page.goto('/shop/e2e-fake-shirt');
-    await page.getByRole('button', { name: 'Add to my shop list' }).click();
-    await expect(page).toHaveURL(/\/request\?product=e2e-fake-shirt$/);
+    await page.getByRole('button', { name: 'Add to Cart' }).click();
+    await expect(page).toHaveURL(
+      /\/request\?id=e2e-fake-shirt&price=25&product=e2e-fake-shirt&quantity=1$/,
+    );
+    await expect(
+      page.getByText(/You are asking about these shop items: E2E Fake Shirt/),
+    ).toBeVisible();
   });
 });

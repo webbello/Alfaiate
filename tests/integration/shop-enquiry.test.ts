@@ -64,19 +64,20 @@ describe('the request form with shop items', () => {
       )
     ).text();
     expect(html).toContain(
-      'You are asking about these shop items: Se Shirt Fake, Se Cloth Fake.',
+      'You are asking about these shop items: Se Shirt Fake, Se Cloth Fake, Se Belt Fake, Se Fourth Fake.',
     );
     expect(html).not.toContain('Se Draft Fake');
-    expect(html).not.toContain('Se Belt Fake'); // the cap is three slugs and the draft took one slot
-    expect(html).not.toContain('Se Fourth Fake');
-    expect(html.match(/<input type="hidden" name="product"/g)).toHaveLength(2); // a and b
+    expect(html.match(/<input type="hidden" name="product"/g)).toHaveLength(4); // the draft is ignored
+    expect(html.match(/<input type="hidden" name="qty_/g)).toHaveLength(4);
   });
   it('turns the Tetun form into Tetun and leaves a plain request unchanged', async () => {
     const a = await addProduct('Se Tetun Fake');
     expect(await (await get(`/tet/request?product=${a}`)).text()).toContain(
       'Ita husu kona-ba item loja nian sira ne',
     );
-    expect(await (await get('/request')).text()).not.toContain('shop items');
+    expect(await (await get('/request')).text()).not.toContain(
+      'You are asking about these shop items',
+    );
   });
 });
 
@@ -127,19 +128,28 @@ describe('sending a product enquiry', () => {
 });
 
 describe('the product page', () => {
-  it('offers the request form with this item, an add-to-list button that works without a script, and a hidden list box', async () => {
+  it('offers add to cart with a quantity (a link to the request form without a script) and the request form with this item', async () => {
     const a = await addProduct('Se Page Fake');
+    await db
+      .prepare('UPDATE product SET price_cents = 1250 WHERE slug = ?')
+      .bind(a)
+      .run();
     const html = await (await get(`/shop/${a}`)).text();
     expect(html).toContain(`href="/request?product=${a}"`);
     expect(html).toMatch(
       new RegExp(
-        `<form[^>]*method="get"[^>]*action="/request"[^>]*data-add-product[^>]*data-slug="${a}"`,
+        `<form[^>]*method="get"[^>]*action="/request"[^>]*data-add-to-cart[^>]*data-name="Se Page Fake"`,
       ),
     );
-    expect(html).toMatch(/<section[^>]*data-product-list[^>]*hidden/);
-    expect(html).toContain(
-      'Nothing is sent until you fill in and send the form.',
-    );
+    expect(html).toContain('name="price" value="12.5"');
+    expect(html).toMatch(/<input[^>]*name="quantity"[^>]*min="1"[^>]*max="99"/);
+    expect(html).toContain('Add to Cart');
     expect(html).not.toMatch(/<script(?![^>]*\bsrc=)(?![^>]*ld\+json)/);
+  });
+  it('has no add to cart for an item with no price: only the way to ask', async () => {
+    const a = await addProduct('Se Unpriced Fake');
+    const html = await (await get(`/shop/${a}`)).text();
+    expect(html).not.toContain('id="quantity"'); // no add-to-cart form on this page (related cards have their own)
+    expect(html).toContain(`href="/request?product=${a}"`);
   });
 });

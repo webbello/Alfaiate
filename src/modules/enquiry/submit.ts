@@ -9,6 +9,8 @@ import { newReference } from './reference';
 import {
   parseEnquiryForm,
   resolveChoices,
+  productParams,
+  productQuantities,
   tailorParams,
   type FieldErrors,
   type FormValues,
@@ -25,7 +27,7 @@ export type FormView = {
   /** The rest of the request list (up to two more). */
   also: { slug: string; name: string }[];
   /** Shop products the visitor is asking about (published ones only). */
-  products: { slug: string; name: string }[];
+  products: { slug: string; name: string; qty: number }[];
   categories: Choice[];
   areas: Choice[];
 };
@@ -67,7 +69,7 @@ const EMPTY: FormValues = {
 
 async function formView(
   deps: Deps,
-  slugs: { tailors: string[]; products: string[] },
+  slugs: { tailors: string[]; products: string[]; qty: Record<string, number> },
   values: FormValues = EMPTY,
   errors: FieldErrors = {},
   formError: FormView['formError'] = null,
@@ -86,7 +88,7 @@ async function formView(
     token,
     tailor,
     also,
-    products,
+    products: products.map((p) => ({ ...p, qty: slugs.qty[p.slug] ?? 1 })),
     ...choices,
   };
 }
@@ -96,13 +98,15 @@ export async function showForm(
   deps: Deps,
   tailorParamValues: string[],
   productParamValues: string[] = [],
+  qtyOf: (key: string) => string | null = () => null,
 ): Promise<Outcome> {
   return {
     kind: 'form',
     status: 200,
     view: await formView(deps, {
       tailors: tailorParams(tailorParamValues),
-      products: tailorParams(productParamValues),
+      products: productParams(productParamValues),
+      qty: productQuantities(productParams(productParamValues), qtyOf),
     }),
   };
 }
@@ -135,7 +139,10 @@ export async function submitForm(
   const params = new URLSearchParams(textFields(form));
   const slugs = {
     tailors: tailorParams(params.getAll('tailor')),
-    products: tailorParams(params.getAll('product')),
+    products: productParams(params.getAll('product')),
+    qty: productQuantities(productParams(params.getAll('product')), (k) =>
+      params.get(k),
+    ),
   };
   const timing = await checkToken(
     secret,

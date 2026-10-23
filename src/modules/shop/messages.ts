@@ -7,6 +7,9 @@ const FIELDS = [
   'price',
   'price_note',
   'category_id',
+  'details',
+  'features',
+  'returns',
 ] as const;
 const LABELS: Record<(typeof FIELDS)[number], string> = {
   name: 'Product name',
@@ -14,6 +17,9 @@ const LABELS: Record<(typeof FIELDS)[number], string> = {
   price: 'Price',
   price_note: 'Price note',
   category_id: 'Type',
+  details: 'Details',
+  features: 'Features',
+  returns: 'Returns and exchanges',
 };
 
 /** ?msg= and ?fields= as text, accepting only known keys (nothing from the URL is shown as is). */

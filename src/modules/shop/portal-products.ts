@@ -99,7 +99,7 @@ export async function updateOwnProduct(
     };
   await db
     .prepare(
-      `UPDATE product SET name = ?, description = ?, price_cents = ?, price_note = ?, category_id = ?, availability = ?, updated_at = ${NOW} WHERE id = ? AND seller_tailor_id = ?`,
+      `UPDATE product SET name = ?, description = ?, price_cents = ?, price_note = ?, category_id = ?, availability = ?, details = ?, features = ?, returns = ?, updated_at = ${NOW} WHERE id = ? AND seller_tailor_id = ?`,
     )
     .bind(
       input.name,
@@ -108,6 +108,9 @@ export async function updateOwnProduct(
       input.price_note || null,
       input.category_id,
       input.availability,
+      input.details || null,
+      input.features || null,
+      input.returns || null,
       id,
       session.tailorId,
     )

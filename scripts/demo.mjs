@@ -9,11 +9,14 @@ try {
   console.error(e.message);
   process.exit(1);
 }
+const shop = (mode) => spawnSync('node', ['scripts/demo-shop.mjs', mode], { stdio: 'inherit' }).status === 0;
+if (process.argv[2] === 'remove' && !shop('remove')) process.exit(1);
 for (const args of steps)
   if (
     spawnSync('npx', ['--no-install', 'wrangler', ...args], { stdio: 'inherit' }).status !== 0
   )
     process.exit(1);
+if (process.argv[2] === 'add' && !shop('add')) process.exit(1);
 console.log(
   process.argv[2] === 'add'
     ? 'Demo data loaded (local database only). Remove it with: npm run db:demo:remove'

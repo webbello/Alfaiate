@@ -52,7 +52,7 @@ describe('shop list', () => {
     const html = await response.text();
     expect(response.status).toBe(200);
     expect(html).toContain('Shop Fake Shirt');
-    expect(html).toContain('$20.50');
+    expect(html).toContain('$ 20.50 USD');
     expect(html).toContain('Sold by Alfaiate TL');
     expect(html).toContain('Nothing is paid or ordered on this site');
     expect(html).toContain(`href="/shop/${live.slug}"`);
@@ -97,7 +97,7 @@ describe('product page', () => {
     const response = await get(`/shop/${p.slug}`);
     const html = await response.text();
     expect(response.status).toBe(200);
-    expect(html).toContain('$15');
+    expect(html).toContain('$ 15.00 USD');
     expect(html).toContain('per metre');
     expect(html).toContain('Price set by the seller');
     expect(html).toContain('Sold by Alfaiate TL');
@@ -106,7 +106,7 @@ describe('product page', () => {
     expect(html).not.toContain('data-shop-whatsapp'); // no owner WhatsApp in this test project
     expect(html).not.toMatch(/<form[^>]*(checkout|payment|order)/i);
     // structured data is written only on indexable pages, so none until the owner approves the shop; it never carries a rating, review or price
-    expect(html).not.toMatch(/ratingValue|"offers"|"price"/);
+    expect(html).not.toMatch(/ratingValue|"offers":|"price":/);
   });
   it('is 404 for a draft and an unknown address, in both languages', async () => {
     const draft = await add({ published: 0 });
@@ -121,7 +121,7 @@ describe('product page', () => {
     const p = await add({ name: 'Shop Fake Tetun' });
     const html = await (await get(`/tet/shop/${p.slug}`)).text();
     expect(html).toContain('<html lang="tet">');
-    expect(html).toContain('Fila ba loja');
+    expect(html).toContain('// Loja');
     expect(html).toContain('href="/tet/shop"');
   });
   it('lists photos with alt text from the public shop route only', async () => {

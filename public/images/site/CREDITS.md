@@ -1,6 +1,6 @@
 # Scene photo credits
 
-Licensed stock photos for the public site's scene images only (owner decision 2026-10-19). They show tailoring in general and are **never** used as, or next to, a listed tailor's own work: tailor cards and profiles show only that tailor's permitted photos (BR-06, BR-11). Every file `<name>-<width>.webp` here must have its `<name>` in this table, or `npm run check:repo` fails.
+Licensed stock photos for the public site's scene images (owner decision 2026-10-19), and, locally only, as the demo shop's product photos (`npm run db:demo`; replace them with real photos from the admin). They show tailoring in general and are **never** used as, or next to, a listed tailor's own work: tailor cards and profiles show only that tailor's permitted photos (BR-06, BR-11). Every file `<name>-<width>.webp` here must have its `<name>` in this table, or `npm run check:repo` fails.
 
 All photos: [Unsplash License](https://unsplash.com/license) (free to use, no permission needed, attribution appreciated). Downloaded 2026-10-19 as WebP from images.unsplash.com.
 

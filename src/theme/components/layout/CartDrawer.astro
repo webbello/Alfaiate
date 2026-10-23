@@ -18,6 +18,11 @@ interface Props {
     send: string;
     full: string;
     note: string;
+    subtotal: string;
+    itemsHeading: string;
+    tailorsHeading: string;
+    quantityNamed: string;
+    fullItems: string;
   };
   requestHref: string;
 }
@@ -34,6 +39,10 @@ const { id, list, requestHref } = Astro.props;
     data-label-remove={list.remove}
     data-label-remove-named={list.removeNamed}
     data-label-full={list.full}
+    data-label-full-items={list.fullItems}
+    data-label-items={list.itemsHeading}
+    data-label-tailors={list.tailorsHeading}
+    data-label-qty={list.quantityNamed}
   >
     <button type="button" class="header-cart-button w-inline-block" aria-expanded="false" aria-controls={`${id}-panel`} data-cart-toggle>
       <span class="header-cart-text w-inline-block">{list.toggle}</span>
@@ -53,6 +62,12 @@ const { id, list, requestHref } = Astro.props;
         <div class="header-cart-footer">
           <div class="header-cart-default" data-cart-lines hidden>
             <div class="header-cart-list" data-cart-items></div>
+            <div class="header-cart-link" data-cart-subtotal hidden>
+              <div class="header-cart-prices">
+                <div>{list.subtotal}</div>
+                <div data-cart-total>&mdash;</div>
+              </div>
+            </div>
             <p class="header-cart-note">{list.note}</p>
             <p class="header-cart-status" role="status" data-cart-status></p>
             <a class="button w-inline-block header-cart-send" href={requestHref} data-cart-send>

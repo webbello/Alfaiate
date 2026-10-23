@@ -1,18 +1,19 @@
 ---
-// One published product. The seller is named, price and terms are the seller's (BR-13), and the only way to buy is to ask: by WhatsApp when the owner has set a number, otherwise through the request form.
+// One published product in the theme's product page: image tabs, title, price, add to cart with a quantity, and the Details, Features and Returns & Exchanges panels,
+// then related products. The seller is named, price and terms are the seller's (BR-13), and nothing is paid on the site.
 import { env } from 'cloudflare:workers';
 import ThemeLayout from '../../layouts/ThemeLayout.astro';
-import Hero from '../components/sections/Hero.astro';
+import Icon from '../components/ui/Icon.astro';
+import MoreSlider from '../components/sections/MoreSlider.astro';
+import ProductCard from '../components/shop/ProductCard.astro';
 import { dictionary, fill } from '../../i18n/public';
 import { pathFor, type Lang } from '../../i18n/lang';
-import { siteConfig, siteWhatsapp } from '../../modules/config';
+import { requireBindings, siteConfig, siteWhatsapp } from '../../modules/config';
 import { whatsappLink } from '../../modules/contact-links/whatsapp';
-import { formatMoney } from '../../modules/directory/format';
 import { metaText } from '../../modules/seo/meta';
 import { isIndexable } from '../../modules/seo/pages';
-import type { PublicProduct } from '../../modules/shop/products';
+import { listPublishedProducts, type PublicProduct } from '../../modules/shop/products';
 import { initials } from '../../components/story/variant';
-import ProductList from '../components/shop/ProductList.astro';
 
 interface Props {
   lang: Lang;
@@ -22,21 +23,34 @@ const { lang, product } = Astro.props;
 const t = dictionary(lang);
 const s = t.shop;
 const owner = siteWhatsapp(env as { SITE_WHATSAPP?: string });
-// The enquiry goes through the request form (consent, spam checks, staff inbox) with this product named; the owner's WhatsApp is a second way when it is set.
+const seller = product.seller_slug && product.seller_name ? { slug: product.seller_slug, name: product.seller_name } : null;
+const price = product.price_cents !== null ? product.price_cents / 100 : null;
+const canAdd = price !== null && product.availability === 'available';
 const askForm = `${pathFor(lang, '/request')}?product=${product.slug}`;
 const askWhatsapp = owner ? whatsappLink(owner, fill(s.askMessage, { name: product.name })) : null;
-const seller = product.seller_slug && product.seller_name ? { slug: product.seller_slug, name: product.seller_name } : null;
 const description = metaText(product.description ?? '', 155) || s.intro;
 const { siteUrl } = siteConfig(env);
+const href = pathFor(lang, `/shop/${product.slug}`);
+const image = (base: string, size: 'thumb' | 'medium' | 'large') => `/media/shop/${base}/${size}.jpg`;
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: product.name,
   description: metaText(product.description ?? '', 300),
-  url: `${siteUrl}${pathFor(lang, `/shop/${product.slug}`)}`,
-  ...(product.photo ? { image: `${siteUrl}/media/shop/${product.photo.base}/large.jpg` } : {}),
+  url: `${siteUrl}${href}`,
+  ...(product.photo ? { image: `${siteUrl}${image(product.photo.base, 'large')}` } : {}),
   brand: { '@type': 'Organization', name: t.siteName },
 };
+// The three panels under the price. Returns fall back to the standard words when the seller wrote none.
+const panels = [
+  { label: s.tabDetails, items: product.details },
+  { label: s.tabFeatures, items: product.features },
+  { label: s.tabReturns, items: product.returns.length > 0 ? product.returns : s.returnsDefault.split('|') },
+].filter((p) => p.items.length > 0);
+const related = (
+  await listPublishedProducts(requireBindings(env).DB, { excludeSlug: product.slug, category: product.category_slug ?? undefined, limit: 6 })
+).products;
+const more = related.length >= 3 ? related : (await listPublishedProducts(requireBindings(env).DB, { excludeSlug: product.slug, limit: 6 })).products;
 ---
 
 <ThemeLayout
@@ -46,88 +60,165 @@ const jsonLd = {
   rest={`/shop/${product.slug}`}
   noindex={!isIndexable('shop')}
   jsonLd={[jsonLd]}
-  ogImage={product.photo ? `${siteUrl}/media/shop/${product.photo.base}/large.jpg` : undefined}
+  ogImage={product.photo ? `${siteUrl}${image(product.photo.base, 'large')}` : undefined}
 >
-  <Hero parent={{ label: s.heading, href: pathFor(lang, '/shop') }} variant="show" tag={product.category_name ?? s.heading} title={product.name} />
-  <article class="profile shop-section">
+  <section class="shop-section">
     <div class="w-layout-blockcontainer main-container w-container">
-      <ProductList {lang} {t} />
-      <p class="prof-back"><a href={pathFor(lang, '/shop')}>{s.back}</a></p>
-      <div class="prof-top">
-        <div class="prof-photo">
-          {
-            product.photo ? (
-              <img
-                src={`/media/shop/${product.photo.base}/medium.jpg`}
-                srcset={`/media/shop/${product.photo.base}/medium.jpg 800w, /media/shop/${product.photo.base}/large.jpg 1600w`}
-                sizes="(min-width: 48rem) 40rem, 100vw"
-                alt={product.photo.alt}
-              />
-            ) : (
-              <div class="shop-thumb shop-thumb--initials" data-initials={initials(product.name)} aria-hidden="true" />
-            )
-          }
-        </div>
-        <section class="prof-contact" aria-labelledby="buy">
-          <h2 id="buy">{product.price_cents !== null ? formatMoney(product.price_cents) : s.noPrice}</h2>
-          {product.price_note && <p>{product.price_note}</p>}
-          <p class="meta">{product.price_cents !== null && `${s.priceNote}. `}{seller ? fill(s.soldByTailor, { name: seller.name }) : fill(s.sold, { name: s.platform })}.</p>
-          {seller && <p class="meta">{s.supplied}. <a href={pathFor(lang, `/tailors/${seller.slug}`)}>{s.seeTailor}</a></p>}
-          {product.availability === 'unavailable' && <p><strong>{s.unavailable}</strong></p>}
-          <p class="dir-note" role="note">{seller ? s.noticeTailor : s.notice}</p>
-          <div class="prof-actions">
-            <a class="button w-inline-block" href={askForm} data-shop-ask>
-              <div class="button-bg"></div>
-              <div class="button-text">{s.ask}</div>
-            </a>
-            <form
-              method="get"
-              action={pathFor(lang, '/request')}
-              data-add-product
-              data-slug={product.slug}
-              data-name={product.name}
-              data-url={pathFor(lang, `/shop/${product.slug}`)}
-              data-label-full={s.listFull}
-            >
-              <input type="hidden" name="product" value={product.slug} />
-              <button type="submit" class="button w-inline-block is-shop">
-                <div class="button-bg"></div>
-                <div class="button-text">{s.listAdd}</div>
-              </button>
-            </form>
-            {askWhatsapp && (
-              <a class="button w-inline-block is-shop" href={askWhatsapp} data-shop-whatsapp>
-                <div class="button-bg"></div>
-                <div class="button-text">{t.contact.whatsapp}</div>
-              </a>
-            )}
+      <div class="product-block">
+        <div class="product-info-block">
+          <div class="product-info" data-anim="fade">
+            <a class="product-info-link" href={pathFor(lang, '/shop')}>// {s.shopLink}</a>
+            {product.category_name && <div class="product-info-text">- {product.category_name}</div>}
           </div>
-        </section>
+        </div>
+
+        <div class="product-text-block">
+          <div class="product-thumb-block">
+            <div class="product-tabs w-tabs" data-anim="fade" data-tabs>
+              {
+                product.photos.length > 1 && (
+                  <div class="product-tabs-menu w-tab-menu" role="tablist" aria-label={fill(s.imagesLabel, { name: product.name })}>
+                    {product.photos.map((p, index) => (
+                      <button
+                        type="button"
+                        class:list={['product-tab-link', 'w-tab-link', index === 0 && 'is-current']}
+                        role="tab"
+                        aria-selected={index === 0 ? 'true' : 'false'}
+                        data-tab
+                      >
+                        <img src={image(p.base, 'thumb')} alt="" class="product-thumb" width="160" loading="lazy" />
+                      </button>
+                    ))}
+                  </div>
+                )
+              }
+              <div class="product-tabs-wrap w-tab-content">
+                {
+                  product.photos.length === 0 ? (
+                    <div class="product-tab-pane w-tab-pane is-tab-active" data-tab-pane data-active>
+                      <div class="product-thumb shop-thumb--initials" data-initials={initials(product.name)} aria-hidden="true" />
+                    </div>
+                  ) : (
+                    product.photos.map((p, index) => (
+                      <div class:list={['product-tab-pane', 'w-tab-pane', index === 0 && 'is-tab-active']} data-tab-pane data-active={index === 0 ? '' : undefined}>
+                        <img
+                          src={image(p.base, 'medium')}
+                          srcset={`${image(p.base, 'medium')} 800w, ${image(p.base, 'large')} 1600w`}
+                          sizes="(max-width: 991px) 92vw, 45vw"
+                          alt={p.alt}
+                          class="product-thumb"
+                          loading={index === 0 ? 'eager' : 'lazy'}
+                        />
+                      </div>
+                    ))
+                  )
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="product-details-block">
+            <div class="product-title-block">
+              <h1 class="product-title" data-anim="fade">{product.name}</h1>
+            </div>
+            <div class="product-price-block">
+              <div class="shop-original-price" data-anim="fade">{price !== null ? `$ ${price.toFixed(2)} USD` : s.noPrice}</div>
+              {product.price_note && <div class="shop-price shop-price--small">{product.price_note}</div>}
+            </div>
+            {product.description && <div class="product-desp-block"><p class="shop-desp" data-anim="fade">{product.description}</p></div>}
+            <p class="meta">
+              {price !== null && `${s.priceNote}. `}
+              {seller ? fill(s.soldByTailor, { name: seller.name }) : fill(s.sold, { name: s.platform })}.
+              {seller && <> {s.supplied}. <a href={pathFor(lang, `/tailors/${seller.slug}`)}>{s.seeTailor}</a></>}
+            </p>
+            {product.availability === 'unavailable' && <p><strong>{s.unavailable}</strong></p>}
+
+            <div class="product-button-block">
+              <div class="shop-add-to-cart w-form">
+                {
+                  canAdd ? (
+                    <form
+                      class="shop-quantity"
+                      method="get"
+                      action={pathFor(lang, '/request')}
+                      data-add-to-cart
+                      data-name={product.name}
+                      data-url={href}
+                      data-image={product.photo ? image(product.photo.base, 'thumb') : ''}
+                    >
+                      <input type="hidden" name="id" value={product.slug} />
+                      <input type="hidden" name="price" value={price} />
+                      <input type="hidden" name="product" value={product.slug} />
+                      <div class="shop-detals">
+                        <label class="shop-text" for="quantity">{s.quantity}</label>
+                        <input class="shop-num w-input" name="quantity" id="quantity" type="number" min="1" max="99" value="1" required />
+                      </div>
+                      <button type="submit" class="button w-inline-block">
+                        <div class="button-bg"></div>
+                        <div class="button-text">{s.addToCart}</div>
+                        <div class="button-wrap is-form">
+                          <Icon name="arrow-up-right" class="button-icon" />
+                          <Icon name="arrow-up-right" class="button-icon" />
+                        </div>
+                      </button>
+                    </form>
+                  ) : (
+                    <p>
+                      <a class="button w-inline-block" href={askForm} data-shop-ask>
+                        <div class="button-bg"></div>
+                        <div class="button-text">{s.ask}</div>
+                      </a>
+                    </p>
+                  )
+                }
+                {canAdd && <p class="meta"><a href={askForm} data-shop-ask>{s.ask}</a>{askWhatsapp && <> · <a href={askWhatsapp} data-shop-whatsapp>{t.contact.whatsapp}</a></>}</p>}
+                <p class="dir-note" role="note">{seller ? s.noticeTailor : s.notice}</p>
+              </div>
+            </div>
+
+            {
+              panels.length > 0 && (
+                <div class="product-content-block">
+                  <div class="product-content w-tabs" data-anim="fade" data-tabs>
+                    <div class="product-menu w-tab-menu" role="tablist" aria-label={s.infoLabel}>
+                      {panels.map((panel, index) => (
+                        <button type="button" class:list={['product-menu-link', 'w-tab-link', index === 0 && 'is-current']} role="tab" aria-selected={index === 0 ? 'true' : 'false'} data-tab>
+                          <div>{panel.label}</div>
+                        </button>
+                      ))}
+                    </div>
+                    <div class="product-wrap w-tab-content">
+                      {panels.map((panel, index) => (
+                        <div class:list={['product-wrap-pane', 'w-tab-pane', index === 0 && 'is-tab-active']} data-tab-pane data-active={index === 0 ? '' : undefined}>
+                          <div class="product-desp w-richtext">
+                            <ul role="list">
+                              {panel.items.map((item) => <li>{item}</li>)}
+                            </ul>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+          </div>
+        </div>
       </div>
-      {
-        product.description && (
-          <section class="prof-section" aria-labelledby="about">
-            <h2 id="about">{product.name}</h2>
-            <p>{product.description}</p>
-          </section>
-        )
-      }
-      {
-        product.photos.length > 1 && (
-          <ul class="prof-gallery" role="list">
-            {product.photos.slice(1).map((p) => (
-              <li>
-                <figure>
-                  <img src={`/media/shop/${p.base}/medium.jpg`} srcset={`/media/shop/${p.base}/thumb.jpg 320w, /media/shop/${p.base}/medium.jpg 800w`} sizes="(min-width: 48rem) 20rem, 100vw" alt={p.alt} loading="lazy" />
-                </figure>
-              </li>
-            ))}
-          </ul>
-        )
-      }
     </div>
-  </article>
+  </section>
+
+  {
+    more.length > 0 && (
+      <MoreSlider title={s.relatedTitle} link={{ label: s.viewAll, href: pathFor(lang, '/shop') }} count={more.length} label={s.relatedLabel}>
+        {more.map((p) => (
+          <div class="more-slide w-slide" data-slide data-anim="fade">
+            <div class="shop-list is-shop-slider">
+              <ProductCard {lang} {t} product={p} sizes="(max-width: 767px) 88vw, 30vw" />
+            </div>
+          </div>
+        ))}
+      </MoreSlider>
+    )
+  }
 </ThemeLayout>
-<script>
-  import '../../scripts/product-list';
-</script>

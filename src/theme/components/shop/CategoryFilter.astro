@@ -1,0 +1,30 @@
+---
+// The category list above the shop grid, in the theme's drop-down: links, so it works with no JavaScript.
+import Icon from '../ui/Icon.astro';
+import { pathFor, type Lang } from '../../../i18n/lang';
+
+interface Props {
+  lang: Lang;
+  categories: { slug: string; name: string }[];
+  current?: string;
+  allLabel: string;
+  navLabel: string;
+}
+const { lang, categories, current, allLabel, navLabel } = Astro.props;
+const label = categories.find((c) => c.slug === current)?.name ?? allLabel;
+---
+
+<nav class="shop-category w-dropdown" data-anim="fade" data-category-dropdown aria-label={navLabel}>
+  <div class="shop-toggle w-dropdown-toggle" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" data-category-toggle>
+    <div class="shop-toggle-text">{label}</div>
+    <div class="shop-toggle-icon w-icon-dropdown-toggle">
+      <Icon name="chevron-down" />
+    </div>
+  </div>
+  <div class="shop-wrapp w-dropdown-list">
+    <div class="shop-category-list">
+      <a class:list={['shop-category-link', 'w-dropdown-link', !current && 'is-current']} href={pathFor(lang, '/shop')}>{allLabel}</a>
+      {categories.map((c) => <a class:list={['shop-category-link', 'w-dropdown-link', c.slug === current && 'is-current']} href={pathFor(lang, `/shop/category/${c.slug}`)}>{c.name}</a>)}
+    </div>
+  </div>
+</nav>

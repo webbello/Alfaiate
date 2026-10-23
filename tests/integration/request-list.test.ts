@@ -20,7 +20,7 @@ const addTailor = async (name: string, published = 1) => {
 };
 
 describe('the request list panel', () => {
-  it('replaces the shop cart: no prices, subtotal, quantity or checkout, and a link to the request form', async () => {
+  it('is the theme cart (items, quantity, subtotal) with no checkout or payment, and a link to the request form', async () => {
     for (const [path, send] of [
       ['/', 'Send request'],
       ['/tailors', 'Send request'],
@@ -32,9 +32,12 @@ describe('the request list panel', () => {
       expect(panel, path).toContain('data-cart-send');
       expect(panel, path).toContain(send);
       expect(panel, path).toContain('data-request-href="/request"');
-      expect(panel, path).toContain('data-max="3"');
-      for (const word of ['Subtotal', 'Checkout', 'Quantity', 'Your Cart'])
+      // the theme's cart: a subtotal for shop items, but no checkout and no payment
+      expect(panel, path).toContain('data-cart-subtotal');
+      expect(panel, path).toContain('Subtotal');
+      for (const word of ['Checkout', 'Pay now', 'Card number'])
         expect(panel, `${path} ${word}`).not.toContain(word);
+      expect(panel, path).toContain('No payment is taken on this site');
     }
     expect(await (await get('/tet/tailors')).text()).toContain(
       'data-request-href="/tet/request"',

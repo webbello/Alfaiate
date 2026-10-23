@@ -17,6 +17,10 @@ export type ProductRow = {
   category_id: number | null;
   seller_tailor_id: number | null;
   availability: 'available' | 'unavailable';
+  details: string | null;
+  features: string | null;
+  returns: string | null;
+  is_featured: number;
   is_published: number;
   published_at: string | null;
 };
@@ -33,6 +37,12 @@ export type ProductInput = {
   price_note: string;
   category_id: number | null;
   availability: 'available' | 'unavailable';
+  /** One item a line, shown in the product page's panels. */
+  details: string;
+  features: string;
+  returns: string;
+  /** Show in the shop's "most loved" slider (staff with product.publish only). */
+  featured: boolean;
 };
 export type Failure =
   | 'forbidden'
@@ -43,7 +53,20 @@ export type Failure =
 export type Result =
   { ok: true; id?: number } | { ok: false; error: Failure; fields?: string[] };
 
-const LIMITS = { name: 100, description: 2000, price_note: 100 };
+const LIMITS = {
+  name: 100,
+  description: 2000,
+  price_note: 100,
+  list: 1500,
+  listLines: 12,
+  listLine: 200,
+};
+/** The non-empty lines of a text field, trimmed: the items of a panel list. */
+export const lines = (text: string | null): string[] =>
+  (text ?? '')
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
 
 /** Reads the admin form. Anything odd becomes an empty or default value that the checks below then refuse. */
 export function productFromForm(form: FormData): ProductInput {
@@ -57,6 +80,10 @@ export function productFromForm(form: FormData): ProductInput {
     category_id: Number.isInteger(cat) && cat > 0 ? cat : null,
     availability:
       text('availability') === 'unavailable' ? 'unavailable' : 'available',
+    details: text('details'),
+    features: text('features'),
+    returns: text('returns'),
+    featured: form.get('featured')?.toString() === '1',
   };
 }
 
@@ -66,6 +93,15 @@ export function invalidFields(input: ProductInput): string[] {
   if (!input.name || input.name.length > LIMITS.name) bad.push('name');
   if (input.description.length > LIMITS.description) bad.push('description');
   if (input.price_note.length > LIMITS.price_note) bad.push('price_note');
+  for (const key of ['details', 'features', 'returns'] as const) {
+    const items = lines(input[key]);
+    if (
+      input[key].length > LIMITS.list ||
+      items.length > LIMITS.listLines ||
+      items.some((l) => l.length > LIMITS.listLine)
+    )
+      bad.push(key);
+  }
   try {
     dollarsToCents(input.price);
   } catch {
@@ -98,6 +134,7 @@ export async function insertProduct(
   actor: Actor,
   input: ProductInput,
   sellerTailorId: number | null,
+  featured = false,
 ): Promise<Result> {
   const fields = invalidFields(input);
   if (fields.length > 0 || !(await categoryOk(db, input.category_id)))
@@ -109,7 +146,7 @@ export async function insertProduct(
   const slug = await uniqueSlug(db, 'product', input.name);
   const created = await db
     .prepare(
-      'INSERT INTO product (slug, name, description, price_cents, price_note, category_id, seller_tailor_id, availability) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO product (slug, name, description, price_cents, price_note, category_id, seller_tailor_id, availability, details, features, returns, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     )
     .bind(
       slug,
@@ -120,6 +157,10 @@ export async function insertProduct(
       input.category_id,
       sellerTailorId,
       input.availability,
+      input.details || null,
+      input.features || null,
+      input.returns || null,
+      featured ? 1 : 0,
     )
     .run();
   const id = created.meta.last_row_id as number;
@@ -139,7 +180,13 @@ export async function createProduct(
   input: ProductInput,
 ): Promise<Result> {
   if (!can(role, 'product.edit')) return { ok: false, error: 'forbidden' };
-  return insertProduct(db, actor, input, null);
+  return insertProduct(
+    db,
+    actor,
+    input,
+    null,
+    input.featured && can(role, 'product.publish'),
+  );
 }
 
 export async function updateProduct(
@@ -167,7 +214,7 @@ export async function updateProduct(
     return { ok: false, error: 'needs_description' };
   await db
     .prepare(
-      `UPDATE product SET name = ?, description = ?, price_cents = ?, price_note = ?, category_id = ?, availability = ?, updated_at = ${NOW} WHERE id = ?`,
+      `UPDATE product SET name = ?, description = ?, price_cents = ?, price_note = ?, category_id = ?, availability = ?, details = ?, features = ?, returns = ?, is_featured = CASE WHEN ? THEN ? ELSE is_featured END, updated_at = ${NOW} WHERE id = ?`,
     )
     .bind(
       input.name,
@@ -176,6 +223,11 @@ export async function updateProduct(
       input.price_note || null,
       input.category_id,
       input.availability,
+      input.details || null,
+      input.features || null,
+      input.returns || null,
+      can(role, 'product.publish') ? 1 : 0,
+      input.featured ? 1 : 0,
       id,
     )
     .run();
@@ -280,14 +332,28 @@ export type PublicProduct = {
   /** The tailor who sells it, or null for the platform's own product. */
   seller_slug: string | null;
   seller_name: string | null;
+  /** The panel lists of the product page, one item each. */
+  details: string[];
+  features: string[];
+  returns: string[];
+  featured: boolean;
   /** The first photo, if any (public only because the product is published). */
   photo: { base: string; alt: string } | null;
 };
 
-type PublicRow = Omit<PublicProduct, 'photo'> & { id: number };
+type PublicRow = Omit<
+  PublicProduct,
+  'photo' | 'details' | 'features' | 'returns' | 'featured'
+> & {
+  id: number;
+  details: string | null;
+  features: string | null;
+  returns: string | null;
+  is_featured: number;
+};
 
 // Public means published, and for a tailor's product also: that tailor is published with recorded permission (BR-05, BR-06, BR-14).
-const PUBLIC_SELECT = `SELECT p.id, p.slug, p.name, p.description, p.price_cents, p.price_note, p.availability,
+const PUBLIC_SELECT = `SELECT p.id, p.slug, p.name, p.description, p.price_cents, p.price_note, p.availability, p.details, p.features, p.returns, p.is_featured,
   c.slug AS category_slug, c.name AS category_name, st.slug AS seller_slug, st.display_name AS seller_name
   FROM product p LEFT JOIN product_category c ON c.id = p.category_id AND c.is_active = 1
   LEFT JOIN tailor st ON st.id = p.seller_tailor_id
@@ -312,27 +378,61 @@ async function withPhotos(
         base: `product/${r.product_id}/${r.file_key}`,
         alt: r.alt_text,
       });
-  return rows.map(({ id, ...rest }) => ({
-    ...rest,
-    photo: first.get(id) ?? null,
-  }));
+  return rows.map(
+    ({ id, details, features, returns, is_featured, ...rest }) => ({
+      ...rest,
+      details: lines(details),
+      features: lines(features),
+      returns: lines(returns),
+      featured: is_featured === 1,
+      photo: first.get(id) ?? null,
+    }),
+  );
 }
 
+export type ShopQuery = {
+  category?: string;
+  featured?: boolean;
+  excludeSlug?: string;
+  limit?: number;
+  offset?: number;
+};
+
+/** Published products in the shop's order (the owner's pick first, then by name), with the total for paging. */
 export async function listPublishedProducts(
   db: D1Database,
-  categorySlug?: string,
-): Promise<PublicProduct[]> {
-  const { results } = categorySlug
-    ? await db
-        .prepare(
-          `${PUBLIC_SELECT} AND c.slug = ? ORDER BY p.name COLLATE NOCASE LIMIT 200`,
-        )
-        .bind(categorySlug)
-        .all<PublicRow>()
-    : await db
-        .prepare(`${PUBLIC_SELECT} ORDER BY p.name COLLATE NOCASE LIMIT 200`)
-        .all<PublicRow>();
-  return withPhotos(db, results);
+  q: ShopQuery = {},
+): Promise<{ products: PublicProduct[]; total: number }> {
+  const where: string[] = [];
+  const binds: (string | number)[] = [];
+  if (q.category) {
+    where.push('c.slug = ?');
+    binds.push(q.category);
+  }
+  if (q.featured) where.push('p.is_featured = 1');
+  if (q.excludeSlug) {
+    where.push('p.slug <> ?');
+    binds.push(q.excludeSlug);
+  }
+  const extra = where.length ? ` AND ${where.join(' AND ')}` : '';
+  // LIMIT and OFFSET are written into the statement, so they are made whole numbers in range here, whatever the caller passes.
+  const limit = Math.trunc(Math.min(Math.max(Number(q.limit) || 200, 1), 200));
+  const offset = Math.trunc(
+    Math.min(Math.max(Number(q.offset) || 0, 0), 100_000),
+  );
+  const [rows, count] = await Promise.all([
+    db
+      .prepare(
+        `${PUBLIC_SELECT}${extra} ORDER BY p.is_featured DESC, p.name COLLATE NOCASE LIMIT ${limit} OFFSET ${offset}`,
+      )
+      .bind(...binds)
+      .all<PublicRow>(),
+    db
+      .prepare(`SELECT count(*) AS c FROM (${PUBLIC_SELECT}${extra})`)
+      .bind(...binds)
+      .first<{ c: number }>(),
+  ]);
+  return { products: await withPhotos(db, rows.results), total: count?.c ?? 0 };
 }
 
 /** One published product with all its photos; null for a draft or an unknown slug (the page answers 404 for both). */
@@ -368,6 +468,10 @@ export async function getPublishedProduct(
     category_name: row.category_name,
     seller_slug: row.seller_slug,
     seller_name: row.seller_name,
+    details: lines(row.details),
+    features: lines(row.features),
+    returns: lines(row.returns),
+    featured: row.is_featured === 1,
     photo: photos[0] ?? null,
     photos,
   };

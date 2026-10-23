@@ -95,7 +95,11 @@ const mayEditPhotos = !product.is_published || mayPublish;
     <input type="hidden" name="csrf" value={auth.csrfToken} />
     <Card title="Product" id="product">
       <FormGrid>
-        <ProductFields categories={categories} values={product} />
+        <ProductFields
+          categories={categories}
+          values={product}
+          staff={mayPublish}
+        />
       </FormGrid>
     </Card>
     <StickyBar>

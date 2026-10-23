@@ -41,6 +41,7 @@ describe('parseEnquiryForm (FR-ENQ-01/02/05, PRV-01)', () => {
       tailorSlug: null,
       alsoSlugs: [],
       productSlugs: [],
+      productQty: {},
       organisation: null,
       groupSize: null,
       business: false,
@@ -303,7 +304,7 @@ describe('parseEnquiryForm on the business form (FR-ENQ-09)', () => {
 });
 
 describe('shop items in a request (S3)', () => {
-  it('reads up to three valid product slugs, once each, and ignores the rest', () => {
+  it('reads up to ten valid product slugs, once each, with their quantities', () => {
     const form = valid();
     for (const slug of [
       'shirt-one',
@@ -311,14 +312,24 @@ describe('shop items in a request (S3)', () => {
       'bad slug!',
       'cloth-two',
       'belt-three',
-      'fourth-four',
     ])
       form.append('product', slug);
+    form.set('qty_cloth-two', '3');
+    form.set('qty_belt-three', '500');
     const r = parseEnquiryForm(form);
     expect(r.ok && r.data.productSlugs).toEqual([
       'shirt-one',
       'cloth-two',
       'belt-three',
     ]);
+    expect(r.ok && r.data.productQty).toEqual({
+      'shirt-one': 1,
+      'cloth-two': 3,
+      'belt-three': 1,
+    });
+    const many = valid();
+    for (let i = 0; i < 14; i++) many.append('product', `item-${i}`);
+    const m = parseEnquiryForm(many);
+    expect(m.ok && m.data.productSlugs).toHaveLength(10);
   });
 });

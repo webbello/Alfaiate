@@ -1,0 +1,77 @@
+---
+// One product in the shop grid or a slider, in the theme's card (docs/SPEC-shop.md). The bag button adds the product to the cart (price and quantity, like the
+// theme); without JavaScript it opens the request form with this item named. The seller is always named; nothing is paid here (BR-13).
+import Icon from '../ui/Icon.astro';
+import { fill } from '../../../i18n/public';
+import { pathFor, type Lang } from '../../../i18n/lang';
+import type { Dictionary } from '../../../i18n/public/en';
+import type { PublicProduct } from '../../../modules/shop/products';
+import { initials } from '../../../components/story/variant';
+
+interface Props {
+  lang: Lang;
+  t: Dictionary;
+  product: PublicProduct;
+  sizes?: string;
+}
+const { lang, t, product, sizes = '(max-width: 767px) 92vw, (max-width: 991px) 45vw, 30vw' } = Astro.props;
+const s = t.shop;
+const href = pathFor(lang, `/shop/${product.slug}`);
+const price = product.price_cents !== null ? product.price_cents / 100 : null;
+const cartImage = product.photo ? `/media/shop/${product.photo.base}/thumb.jpg` : '';
+const seller = product.seller_name ? fill(s.soldByTailor, { name: product.seller_name }) : fill(s.sold, { name: s.platform });
+---
+
+<div class="shop-card">
+  <div class="shop-thumb-card">
+    {
+      product.photo ? (
+        <img
+          class="shop-thumb"
+          src={`/media/shop/${product.photo.base}/medium.jpg`}
+          srcset={`/media/shop/${product.photo.base}/thumb.jpg 320w, /media/shop/${product.photo.base}/medium.jpg 800w`}
+          {sizes}
+          alt={product.photo.alt}
+          loading="lazy"
+        />
+      ) : (
+        <div class="shop-thumb shop-thumb--initials" data-initials={initials(product.name)} aria-hidden="true" />
+      )
+    }
+    <div class="shop-details">
+      <a class="button is-shop w-inline-block" {href} aria-label={fill(s.viewNamed, { name: product.name })}>
+        <div class="button-bg"></div>
+        <div class="button-text">{s.viewDetails}</div>
+      </a>
+    </div>
+  </div>
+  <div class="shop-details-card">
+    <div class="shop-info-card">
+      <a class="shop-name" {href}>{product.name}</a>
+      <div class="shop-price">{price !== null ? `$ ${price.toFixed(2)} USD` : s.noPrice}</div>
+      <div class="shop-price shop-price--small">{seller}</div>
+      {product.availability === 'unavailable' && <div class="shop-price shop-price--small">{s.unavailable}</div>}
+    </div>
+    {
+      price !== null && product.availability === 'available' && (
+        <form
+          class="shop-bag-card"
+          method="get"
+          action={pathFor(lang, '/request')}
+          data-add-to-cart
+          data-name={product.name}
+          data-url={href}
+          data-image={cartImage}
+        >
+          <input type="hidden" name="id" value={product.slug} />
+          <input type="hidden" name="price" value={price} />
+          <input type="hidden" name="quantity" value="1" />
+          <input type="hidden" name="product" value={product.slug} />
+          <button type="submit" aria-label={fill(s.addNamed, { name: product.name })}>
+            <Icon name="shop-bag" class="shop-bag" />
+          </button>
+        </form>
+      )
+    }
+  </div>
+</div>

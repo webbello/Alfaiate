@@ -5,8 +5,10 @@ import { centsToDollars } from '../../modules/tailors/links';
 interface Props {
   categories: ProductCategory[];
   values?: Partial<ProductRow>;
+  /** Staff with product.publish also see the "most loved" switch. */
+  staff?: boolean;
 }
-const { categories, values = {} } = Astro.props;
+const { categories, values = {}, staff = false } = Astro.props;
 ---
 
 <p>
@@ -79,3 +81,50 @@ const { categories, values = {} } = Astro.props;
     rows="5"
   >{values.description ?? ''}</textarea>
 </p>
+<p class="wide">
+  <label for="details">
+    Details (one item per line, shown on the product page)
+  </label>
+  <br />
+  <textarea
+    id="details"
+    name="details"
+    maxlength="1500"
+    rows="4"
+  >{values.details ?? ''}</textarea>
+</p>
+<p class="wide">
+  <label for="features">Features (one per line)</label>
+  <br />
+  <textarea
+    id="features"
+    name="features"
+    maxlength="1500"
+    rows="4"
+  >{values.features ?? ''}</textarea>
+</p>
+<p class="wide">
+  <label for="returns">
+    Returns and exchanges (one per line; leave empty for the standard text)
+  </label>
+  <br />
+  <textarea
+    id="returns"
+    name="returns"
+    maxlength="1500"
+    rows="3"
+  >{values.returns ?? ''}</textarea>
+</p>
+{staff && (
+  <p>
+    <label>
+      <input
+        type="checkbox"
+        name="featured"
+        value="1"
+        checked={values.is_featured === 1}
+      />
+      Show in "Most loved" on the shop page
+    </label>
+  </p>
+)}

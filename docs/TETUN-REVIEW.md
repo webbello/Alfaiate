@@ -60,7 +60,7 @@ Status: **not reviewed.** The Tetun below was written by the assistant during th
 - `hero.reassure` and the home hero button "Husu Alfaiate ba Uma" (earlier visual pass)
 - `request.fromList` "Ita husu alfaiate sira ne'e: {names}."
 
-## Shop (S2, S3) — `shop`
+## Shop (S2, S3, S5) — `shop`
 
 ```ts
     title: 'Loja',
@@ -80,14 +80,55 @@ Status: **not reviewed.** The Tetun below was written by the assistant during th
     back: 'Fila ba loja',
     notice: 'Alfaiate TL lista item ne’e. Folin, entrega no fila fali item hatene diretamente ho ema ne’ebé fa’an. La iha pagamentu ka enkomenda iha sítiu ne’e.',
     photoOf: 'Foto husi {name}',
-    listTitle: 'Ita-nia lista loja',
-    listAdd: 'Tau iha ha’u-nia lista loja',
-    listRemove: 'Hasai',
-    listRemoveNamed: 'Hasai {name} husi ha’u-nia lista loja',
-    listSend: 'Haruka pedidu',
-    listFull: 'Ita-nia lista loja la’ós iha fatin (item 3). Hasai ida ka haruka ita-nia pedidu.',
-    listNote: 'La iha buat ida haruka to’o ita hakerek no haruka formuláriu.',
+    soldByTailor: 'Fa’an husi {name}',
+    supplied: 'Deskrisaun no folin fornese husi alfaiate',
+    noticeTailor: 'Alfaiate TL lista item ne’e ba alfaiate ne’ebé fa’an. Folin, entrega no fila fali item hatene diretamente ho alfaiate. La iha pagamentu ka enkomenda iha sítiu ne’e.',
+    seeTailor: 'Haree alfaiate nia pájina',
+    heroTitle: 'Ropa, tecidu no seluk tan, husi fatin ida deit',
+    allCategories: 'Kategoria hotu',
+    categoriesLabel: 'Kategoria produtu',
+    viewDetails: 'Haree Detalle',
+    viewNamed: 'Haree {name}',
+    addToCart: 'Tau iha Karreta',
+    addNamed: 'Tau {name} iha karreta',
+    quantity: 'Kuantidade',
+    tabDetails: 'Detalle',
+    tabFeatures: 'Karakterístika',
+    tabReturns: 'Fila fali & Troka',
+    returnsDefault: 'Folin, entrega no fila fali item hatene diretamente ho ema ne’ebé fa’an.|La iha pagamentu iha sítiu ne’e.|Husu ba ema ne’ebé fa’an molok ita foti ka haruka fila fali buat ruma.',
+    lovedTitle: 'Ne’ebé kliente sira gosta liu',
+    lovedLabel: 'Produtu ne’ebé gosta liu',
+    relatedTitle: 'Produtu relasionadu',
+    relatedLabel: 'Produtu seluk tan',
+    viewAll: 'Haree Hotu',
+    shopLink: 'Loja',
+    imagesLabel: 'Imajen husi {name}',
+    infoLabel: 'Informasaun produtu',
+    pageBack: 'Fila',
+    pageNext: 'Tuir',
+    pagination: 'Pájina sira',
 ```
 
 - `nav.shop` Loja
 - `request.fromProducts` (the notice on the request form when shop items are named)
+
+## Cart (S5) — `requestList`
+
+```ts
+    toggle: 'Karreta',
+    title: 'Ita-nia karreta',
+    close: 'Taka karreta',
+    empty: 'Ita-nia karreta mamuk. Tau item loja ka alfaiate sira ne’ebé ita hakarak husu.',
+    addLabel: 'Tau iha lista pedidu',
+    add: 'Tau {name} iha ha’u-nia lista pedidu',
+    remove: 'Hasai',
+    removeNamed: 'Hasai {name} husi ha’u-nia karreta',
+    send: 'Haruka pedidu',
+    full: 'Ita bele husu to’o alfaiate nain tolu iha tempu ida.',
+    note: 'La iha pagamentu iha sítiu ne’e. La iha buat ida haruka to’o ita hakerek no haruka formuláriu pedidu; ema ne’ebé fa’an no alfaiate sira hatene folin, entrega no data diretamente ho ita.',
+    subtotal: 'Total parsiál',
+    itemsHeading: 'Item loja',
+    tailorsHeading: 'Alfaiate sira',
+    quantityNamed: 'Kuantidade husi {name}',
+    fullItems: 'Ita bele husu kona-ba item loja to’o 10 iha tempu ida.',
+```

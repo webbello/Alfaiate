@@ -1,96 +1,85 @@
 /**
- * The request list (Alfaiate TL's use of the theme's cart).
+ * The cart (the Handspark cart, kept honest for Alfaiate TL).
  *
- * Nothing is bought here. The list holds up to three tailors the visitor would like to ask; it lives in this browser's local storage
- * (tailor slugs and public names only, no personal data), the panel lists them with a Remove link, and "Send request" opens the
- * request form with those tailors chosen. Nothing is sent until the visitor fills in and sends that form.
+ * One panel holds two kinds of line, both kept in this browser's local storage (no personal data):
+ * shop items (name, price, quantity, link, small photo, like the theme's cart) and tailors to ask (slug, name, link, small photo).
+ * The panel shows the quantity box, a remove button, the count and the subtotal of the shop items, as the theme does. Nothing is bought here:
+ * "Send request" opens the request form with the tailors and items named, and nothing is sent until the visitor fills in and sends that form.
+ * The seller agrees price and delivery with the visitor directly (no payment, PRD 7.3).
  */
 
-interface Line {
+interface Item {
   id: string;
   name: string;
   url: string;
   image: string;
 }
+interface Product extends Item {
+  price: number;
+  quantity: number;
+}
 
-const STORAGE_KEY = 'alfaiate-request-list';
+const TAILORS_KEY = 'alfaiate-request-list';
+const PRODUCTS_KEY = 'alfaiate-cart';
+const MAX_TAILORS = 3;
+const MAX_PRODUCTS = 10;
+const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
-function read(): Line[] {
+const ownPath = (url: unknown) => /^\/(?![/\\])/.test(String(url));
+const ownImage = (image: unknown) => image === '' || String(image).startsWith('/media/');
+
+function load<T>(key: string, keep: (i: T) => boolean): T[] {
   try {
-    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
-    // Storage can be edited by hand: keep only our own paths so a link or picture can never point elsewhere.
-    return Array.isArray(raw)
-      ? (raw as Line[]).filter(
-          (l) =>
-            l &&
-            typeof l.id === 'string' &&
-            typeof l.name === 'string' &&
-            /^\/(?![/\\])/.test(String(l.url)) &&
-            (l.image === '' || String(l.image).startsWith('/media/')),
-        )
-      : [];
+    const raw = JSON.parse(localStorage.getItem(key) ?? '[]');
+    // Storage can be edited by hand: keep only plain slugs and our own paths.
+    return Array.isArray(raw) ? (raw as T[]).filter((i) => i && keep(i)) : [];
   } catch {
     return [];
   }
 }
+const readTailors = () =>
+  load<Item>(TAILORS_KEY, (l) => typeof l.id === 'string' && typeof l.name === 'string' && ownPath(l.url) && ownImage(l.image));
+const readProducts = () =>
+  load<Product>(PRODUCTS_KEY, (l) => SLUG.test(String(l.id)) && typeof l.name === 'string' && ownPath(l.url) && ownImage(l.image) && Number.isFinite(l.price) && l.price >= 0 && Number.isInteger(l.quantity) && l.quantity >= 1 && l.quantity <= 99);
 
-function write(lines: Line[]): void {
+function write(key: string, value: unknown[]): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
+    localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // Storage can be blocked; the list then lasts for this page only.
+    // Storage can be blocked; the cart then lasts for this page only.
   }
 }
 
-let lines: Line[] = read();
+let tailors: Item[] = readTailors();
+let products: Product[] = readProducts();
 
-const labelOf = (cart: HTMLElement, key: string, name = '') =>
-  (cart.dataset[key] ?? '').replace('{name}', name);
+const label = (cart: HTMLElement, key: string, name = '') => (cart.dataset[key] ?? '').replace('{name}', name);
+const money = (amount: number) => `$ ${amount.toFixed(2)} USD`;
 
-/** Draws the list into every panel, the count beside every button and the link that opens the request form. */
-function render(): void {
-  for (const badge of document.querySelectorAll<HTMLElement>('[data-cart-count]')) {
-    badge.textContent = String(lines.length);
+function thumb(line: Item): HTMLElement {
+  if (line.image) {
+    const img = document.createElement('img');
+    img.className = 'header-cart-thumb';
+    img.src = line.image;
+    img.alt = '';
+    img.loading = 'lazy';
+    return img;
   }
-
-  for (const cart of document.querySelectorAll<HTMLElement>('[data-cart]')) {
-    const list = cart.querySelector<HTMLElement>('[data-cart-items]');
-    const filled = cart.querySelector<HTMLElement>('[data-cart-lines]');
-    const empty = cart.querySelector<HTMLElement>('[data-cart-empty]');
-    const send = cart.querySelector<HTMLAnchorElement>('[data-cart-send]');
-    if (!list || !filled || !empty) continue;
-
-    filled.hidden = lines.length === 0;
-    empty.hidden = lines.length > 0;
-    list.replaceChildren(...lines.map((line) => row(line, cart)));
-    if (send) {
-      const base = cart.dataset.requestHref ?? '/request';
-      send.href = `${base}?${lines.map((l) => `tailor=${encodeURIComponent(l.id)}`).join('&')}`;
-    }
-  }
+  const badge = document.createElement('span');
+  badge.className = 'header-cart-thumb header-cart-thumb--initials';
+  badge.textContent = line.name.match(/[\p{L}\p{N}]+/gu)?.slice(0, 2).map((w) => w[0]!.toUpperCase()).join('') ?? '';
+  badge.setAttribute('aria-hidden', 'true');
+  return badge;
 }
 
-function row(line: Line, cart: HTMLElement): HTMLElement {
+function row(line: Item, cart: HTMLElement, kind: 'tailor' | 'product'): HTMLElement {
   const item = document.createElement('div');
   item.className = 'header-cart-item';
-  item.dataset.cartLine = line.id;
+  item.dataset.cartLine = `${kind}:${line.id}`;
 
   const link = document.createElement('a');
   link.href = line.url;
-  if (line.image) {
-    const thumb = document.createElement('img');
-    thumb.className = 'header-cart-thumb';
-    thumb.src = line.image;
-    thumb.alt = '';
-    thumb.loading = 'lazy';
-    link.append(thumb);
-  } else {
-    const badge = document.createElement('span');
-    badge.className = 'header-cart-thumb header-cart-thumb--initials';
-    badge.textContent = line.name.match(/[\p{L}\p{N}]+/gu)?.slice(0, 2).map((w) => w[0]!.toUpperCase()).join('') ?? '';
-    badge.setAttribute('aria-hidden', 'true');
-    link.append(badge);
-  }
+  link.appendChild(thumb(line));
 
   const details = document.createElement('div');
   details.className = 'header-cart-details';
@@ -98,40 +87,100 @@ function row(line: Line, cart: HTMLElement): HTMLElement {
   name.className = 'header-cart-name';
   name.href = line.url;
   name.textContent = line.name;
+  details.appendChild(name);
+  const product = kind === 'product' ? (line as Product) : null;
+  if (product) {
+    const price = document.createElement('div');
+    price.className = 'header-cart-price';
+    price.textContent = money(product.price);
+    details.appendChild(price);
+  }
   const remove = document.createElement('button');
   remove.type = 'button';
   remove.className = 'header-cart-remove';
-  remove.dataset.cartRemove = line.id;
-  remove.textContent = labelOf(cart, 'labelRemove');
-  remove.setAttribute('aria-label', labelOf(cart, 'labelRemoveNamed', line.name));
-  details.append(name, remove);
+  remove.dataset.cartRemove = `${kind}:${line.id}`;
+  remove.textContent = label(cart, 'labelRemove');
+  remove.setAttribute('aria-label', label(cart, 'labelRemoveNamed', line.name));
+  details.appendChild(remove);
 
-  item.append(link, details);
+  item.appendChild(link);
+  item.appendChild(details);
+  if (product) {
+    const quantity = document.createElement('input');
+    quantity.className = 'header-cart-quantity w-input';
+    quantity.type = 'number';
+    quantity.min = '1';
+    quantity.max = '99';
+    quantity.value = String(product.quantity);
+    quantity.dataset.cartQuantity = product.id;
+    quantity.setAttribute('aria-label', label(cart, 'labelQty', product.name));
+    item.appendChild(quantity);
+  }
   return item;
+}
+
+function heading(text: string): HTMLElement {
+  const h = document.createElement('h5');
+  h.className = 'header-cart-group';
+  h.textContent = text;
+  return h;
+}
+
+/** The request form address that names every tailor and item in the cart (slugs and quantities only). */
+function sendHref(base: string): string {
+  const parts = [
+    ...tailors.map((t) => `tailor=${encodeURIComponent(t.id)}`),
+    ...products.flatMap((p) => [`product=${encodeURIComponent(p.id)}`, `qty_${encodeURIComponent(p.id)}=${p.quantity}`]),
+  ];
+  return `${base}?${parts.join('&')}`;
+}
+
+/** Draws the cart into every panel, the count beside every button and the link that opens the request form. */
+function render(): void {
+  const count = tailors.length + products.reduce((sum, p) => sum + p.quantity, 0);
+  for (const badge of document.querySelectorAll<HTMLElement>('[data-cart-count]')) badge.textContent = String(count);
+  const total = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
+
+  for (const cart of document.querySelectorAll<HTMLElement>('[data-cart]')) {
+    const list = cart.querySelector<HTMLElement>('[data-cart-items]');
+    const filled = cart.querySelector<HTMLElement>('[data-cart-lines]');
+    const empty = cart.querySelector<HTMLElement>('[data-cart-empty]');
+    const send = cart.querySelector<HTMLAnchorElement>('[data-cart-send]');
+    const subtotal = cart.querySelector<HTMLElement>('[data-cart-subtotal]');
+    const totalText = cart.querySelector<HTMLElement>('[data-cart-total]');
+    if (!list || !filled || !empty) continue;
+
+    const nothing = tailors.length === 0 && products.length === 0;
+    filled.hidden = nothing;
+    empty.hidden = !nothing;
+    const nodes: HTMLElement[] = [];
+    if (products.length > 0) {
+      if (tailors.length > 0) nodes.push(heading(label(cart, 'labelItems')));
+      nodes.push(...products.map((p) => row(p, cart, 'product')));
+    }
+    if (tailors.length > 0) {
+      if (products.length > 0) nodes.push(heading(label(cart, 'labelTailors')));
+      nodes.push(...tailors.map((t) => row(t, cart, 'tailor')));
+    }
+    list.replaceChildren(...nodes);
+    if (subtotal && totalText) {
+      subtotal.hidden = products.length === 0;
+      totalText.textContent = products.length ? money(total) : '—';
+    }
+    if (send) send.href = sendHref(cart.dataset.requestHref ?? '/request');
+  }
 }
 
 function say(message: string): void {
   for (const status of document.querySelectorAll<HTMLElement>('[data-cart-status]')) status.textContent = message;
 }
 
-function add(line: Line, max: number, full: string): boolean {
-  if (lines.some((entry) => entry.id === line.id)) return true;
-  if (lines.length >= max) {
-    say(full);
-    return false;
-  }
-  lines.push(line);
-  write(lines);
-  say('');
-  render();
-  return true;
-}
-
 export function initCart(): void {
   const carts = document.querySelectorAll<HTMLElement>('[data-cart]');
   if (!carts.length) return;
 
-  lines = read();
+  tailors = readTailors();
+  products = readProducts();
   render();
 
   /** A close removes the panel after its fade; an open in the meantime must cancel that. */
@@ -169,6 +218,7 @@ export function initCart(): void {
       if (!open) setOpen(cart, true);
     });
     cart.querySelector('[data-cart-close]')?.addEventListener('click', () => setOpen(cart, false));
+    // The panel is a full-screen scrim; a click on the scrim itself dismisses it.
     panel.addEventListener('click', (event) => {
       if (event.target === panel) setOpen(cart, false);
     });
@@ -178,35 +228,81 @@ export function initCart(): void {
     if (event.key === 'Escape') closeAll();
   });
 
-  // "Add to request list", on a card or a profile.
+  const openFirst = (cart: HTMLElement) => {
+    const toggle = cart.querySelector<HTMLButtonElement>('[data-cart-toggle]');
+    if (toggle && toggle.getAttribute('aria-expanded') !== 'true') toggle.click();
+  };
+
+  // "Add to Cart" on a card or a product page (a form with a price), and "Add to request list" on a tailor card (a form with a tailor).
+  // Listening on the document keeps it working for cards that arrive later, as when the shop changes page.
   document.addEventListener('submit', (event) => {
     const form = event.target;
     if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-add-to-cart')) return;
     event.preventDefault();
 
-    const id = String(new FormData(form).get('tailor') ?? '');
-    if (!id) return;
+    const data = new FormData(form);
+    const text = (key: string) => String(data.get(key) ?? '');
     const cart = [...carts].find((c) => c.getClientRects().length > 0) ?? carts[0]!;
-    const max = Number(cart.dataset.max) || 3;
-    add({ id, name: form.dataset.name ?? '', url: form.dataset.url ?? '', image: form.dataset.image ?? '' }, max, labelOf(cart, 'labelFull'));
+    const base = { name: form.dataset.name ?? text('name'), url: form.dataset.url ?? text('url'), image: form.dataset.image ?? text('image') };
 
-    const toggle = cart.querySelector<HTMLButtonElement>('[data-cart-toggle]');
-    if (toggle && toggle.getAttribute('aria-expanded') !== 'true') toggle.click();
+    if (data.has('price')) {
+      const id = text('id');
+      const price = Number(text('price'));
+      const quantity = Math.min(99, Math.max(1, Math.floor(Number(text('quantity')) || 1)));
+      if (!SLUG.test(id) || !Number.isFinite(price) || price < 0) return;
+      const existing = products.find((p) => p.id === id);
+      if (existing) existing.quantity = Math.min(99, existing.quantity + quantity);
+      else if (products.length >= MAX_PRODUCTS) {
+        say(label(cart, 'labelFullItems'));
+        return;
+      } else products.push({ id, price, quantity, ...base });
+      write(PRODUCTS_KEY, products);
+    } else {
+      const id = text('tailor');
+      if (!id || tailors.some((t) => t.id === id)) return;
+      if (tailors.length >= MAX_TAILORS) {
+        say(label(cart, 'labelFull'));
+        return;
+      }
+      tailors.push({ id, ...base });
+      write(TAILORS_KEY, tailors);
+    }
+    say('');
+    render();
+    openFirst(cart);
   });
 
   document.addEventListener('click', (event) => {
     const button = (event.target as Element).closest<HTMLElement>('[data-cart-remove]');
     if (!button) return;
-    lines = lines.filter((entry) => entry.id !== button.dataset.cartRemove);
-    write(lines);
+    const [kind, id] = (button.dataset.cartRemove ?? '').split(':');
+    if (kind === 'product') {
+      products = products.filter((p) => p.id !== id);
+      write(PRODUCTS_KEY, products);
+    } else {
+      tailors = tailors.filter((t) => t.id !== id);
+      write(TAILORS_KEY, tailors);
+    }
     say('');
     render();
   });
 
-  // Another tab changed the list.
+  // A changed quantity box updates the line, the count and the subtotal.
+  document.addEventListener('change', (event) => {
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement) || !input.dataset.cartQuantity) return;
+    const line = products.find((p) => p.id === input.dataset.cartQuantity);
+    if (!line) return;
+    line.quantity = Math.min(99, Math.max(1, Math.floor(Number(input.value) || 1)));
+    write(PRODUCTS_KEY, products);
+    render();
+  });
+
+  // Another tab changed the cart.
   window.addEventListener('storage', (event) => {
-    if (event.key !== STORAGE_KEY) return;
-    lines = read();
+    if (event.key !== TAILORS_KEY && event.key !== PRODUCTS_KEY) return;
+    tailors = readTailors();
+    products = readProducts();
     render();
   });
 }

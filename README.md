@@ -19,7 +19,7 @@ npm run dev                      # http://localhost:4321, admin at /admin
 
 Note: `npm run dev` inlines CSS, which the strict CSP blocks, so pages look unstyled in dev (they still work). To see the real, styled site locally, run `npm run preview` (builds, then serves the built Worker at http://localhost:4322 with the same local database). It serves the build it just made: after any command that rebuilds (`npm run check`, `npm run test:e2e`, `npm run build`) stop it (Ctrl+C) and run `npm run preview` again, otherwise the page loses its styles. If `npm run dev` says another server is already running, stop it with `npx astro dev stop`.
 
-To see the site and admin filled in, load invented but realistic demo data into the **local** database only (nine tailors in every state, join requests, enquiries in every status with referrals and fees; all phone numbers are in the made-up +670 7000 range, no photos). The demo tailor sign-ins have an unusable password: use "Make a new sign-in link" in the admin to try the tailor portal:
+To see the site and admin filled in, load invented but realistic demo data into the **local** database only (nine tailors in every state, join requests, enquiries in every status with referrals and fees; all phone numbers are in the made-up +670 7000 range, no tailor photos; plus 15 demo shop products with credited stock photos, local database and storage only). The demo tailor sign-ins have an unusable password: use "Make a new sign-in link" in the admin to try the tailor portal:
 
 ```bash
 npm run db:demo                  # adds it (safe to repeat: earlier demo rows are cleared first)
