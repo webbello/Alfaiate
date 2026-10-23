@@ -1,5 +1,5 @@
 ---
-import PublicLayout from '../layouts/PublicLayout.astro';
+import ThemePage from '../layouts/ThemePage.astro';
 import { dictionary } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 import { isIndexable, staticPage, type StaticSlug } from '../modules/seo/pages';
@@ -23,7 +23,7 @@ const sections = (['s1', 's2', 's3', 's4', 's5', 's6'] as const).flatMap(
 );
 ---
 
-<PublicLayout
+<ThemePage
   lang={lang}
   title={`${page.title} · ${t.siteName}`}
   description={page.intro}
@@ -50,4 +50,4 @@ const sections = (['s1', 's2', 's3', 's4', 's5', 's6'] as const).flatMap(
       </a>
     </p>
   )}
-</PublicLayout>
+</ThemePage>

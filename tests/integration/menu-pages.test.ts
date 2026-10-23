@@ -4,14 +4,14 @@ import { get } from './helpers';
 // Every item in the main menu opens its own page, in both languages (no home-page anchors).
 const menuHrefs = (html: string) =>
   [
-    ...(/<nav class="site-nav"[\s\S]*?<\/nav>/.exec(html)?.[0] ?? '').matchAll(
+    ...(/<header[\s\S]*?<\/header>/.exec(html)?.[0] ?? '').matchAll(
       /href="([^"]+)"/g,
     ),
   ].map((m) => m[1]);
 
 describe('the main menu', () => {
   it.each([
-    ['/about', ''], // pages still on the old frame; the home page has the theme menu (tested in home-design.test.ts)
+    ['/about', ''], // the theme menu, in the header
     ['/tet/about', '/tet'],
   ])('links only to separate pages on %s', async (path, prefix) => {
     const html = await (await get(path)).text();

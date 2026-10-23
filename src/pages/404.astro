@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 import { env } from 'cloudflare:workers';
-import PublicLayout from '../layouts/PublicLayout.astro';
+import ThemePage from '../layouts/ThemePage.astro';
 import { dictionary } from '../i18n/public';
 import { isEnabled, parsePath, pathFor } from '../i18n/lang';
 import { siteConfig } from '../modules/config';
@@ -15,7 +15,7 @@ const t = dictionary(lang);
 Astro.response.status = 404;
 ---
 
-<PublicLayout
+<ThemePage
   lang={lang}
   title={`${t.notFound.title} · ${t.siteName}`}
   description={t.notFound.body}
@@ -31,4 +31,4 @@ Astro.response.status = 404;
       {t.notFound.home}
     </a>
   </p>
-</PublicLayout>
+</ThemePage>

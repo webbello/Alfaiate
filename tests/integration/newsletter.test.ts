@@ -31,7 +31,7 @@ describe('footer newsletter', () => {
     )![0];
     expect(footer).toContain('Stay Updated');
     expect(footer).toContain('action="/newsletter"');
-    expect(footer).toMatch(/<label for="footer-email">/);
+    expect(footer).toMatch(/<label for="footer-email"/);
     expect(footer).toMatch(/<input[^>]*name="consent"(?![^>]*checked)/);
     expect(footer).toContain('name="form_token"');
   });

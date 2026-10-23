@@ -1,6 +1,6 @@
 # Spec: Handspark theme as the public face of Alfaiate TL
 
-Status: **Decisions approved 2026-10-23. Steps 1 to 4 done; step 5 (request, join, contact, FAQ, about, privacy and terms pages) next.** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
+Status: **Decisions approved 2026-10-23. Steps 1 to 5 done (every public page is in the theme frame); step 6 (journal, gallery, categories, RSS) next, then the shop (SPEC-shop.md).** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
 
 ## Objective
 
@@ -40,7 +40,16 @@ Signature features the owner named: the **hero image trail** (pictures appear an
 - **Request flow:** the form accepts up to three `tailor` values (valid slugs, no repeats, published ones only). The first is the preferred tailor and the source (`profile:slug`, unchanged); the others are named in the notes ("Also asked about: ..."), because the data model has one preferred tailor. No migration. The form shows who is being asked and carries each as a hidden field.
 - Fixed on the way: the theme's own name no longer leaks into the page title or `og:site_name`.
 - Tests: directory, profile, visuals, search and frontend-fix tests rewritten for the new markup (same facts asserted), new `request-list` integration tests (panel, add buttons, several tailors in the form, stored notes and preferred tailor) and e2e (add, send, remove, no script), schema tests for the list, shell tests for contrast and font read the old frame (`/about`) until it goes. Budgets: directory and profile now use the theme's CSS and JS budgets (they load the same sheet as the home); HTML 38000 and 34000 (measured 35.2 and 28.9 kB), home HTML 50000 (48.2 kB, the request list panel is in the header twice). `npm run check` 773 and 681, e2e 150.
-- **Not done / for the owner:** the Tetun request list labels and the "You are asking these tailors" line are my wording (OQ-07). Not looked at in a browser by me for this step: screenshots at phone and desktop widths are the owner's check. Category pages, the request form, and the other pages still use the old frame (steps 5 and 6).
+- **Not done / for the owner:** the Tetun request list labels and the "You are asking these tailors" line are my wording (OQ-07). Not looked at in a browser by me for this step: screenshots at phone and desktop widths are the owner's check. Step 5 moved the category pages, the request form and the other pages; the journal and gallery are step 6.
+
+## Step 5: done (every remaining public page is inside the theme frame)
+
+- Request, request thanks, join (and thanks), business, contact, about, how it works, privacy, terms, services, craft, categories, areas, newsletter (and thanks) and the 404 page now render in `ThemeLayout` through `src/layouts/ThemePage.astro`. Their bodies keep the site's own markup, which is what carries the form behaviour (labels, error summary, pills, honeypot, fill-time token, no-script form); only the frame changed, so every protection and field is untouched.
+- Their old classes are scoped under `.legacy` in `src/theme/styles/legacy.css` (generated once from `site.css` for the classes these views use, plus the tokens), so they cannot restyle the theme. `.button` there resets the theme's button first. The theme's own About, Contact, FAQ and Privacy designs are **not** used yet: these pages keep our text and layout inside the theme frame. Re-laying them out with the theme's sections (and the FAQ accordion on `/how-it-works`) is a design pass for step 7.
+- Every page now carries the disclaimer in the footer (`ThemeLayout` passes it to the footer), as the old footer did (FR-PUB-02).
+- `PublicLayout`, `site.css` and the old Home, Directory and Profile views are no longer used by any public page; `home.css` is still imported by the Services and Craft pages for their service grid and craft section (checked in a screenshot of `/services`). All are cleaned up in step 8.
+- Tests: shell tests (404, menu, static pages, newsletter, font) retargeted to the theme's header, footer and fonts; budgets: all public pages use the theme's CSS and JS budgets (home CSS 295000; HTML request 30000, how it works 29000, join 28000, category 30000). `npm run check` 773 and 681, e2e 150, axe, CSP, reflow and no-script request tests all pass unchanged.
+- **Not done / for the owner:** I looked at the request, about, contact, join, privacy and profile pages in a browser at 1280 and 375 px only in screenshots; the rest, and the exact look of the form pills and the footer, are for your check. The header logo still says "HandSpark" (step 7 replaces logo and name).
 
 ## What the theme contains (all of it is to be kept)
 

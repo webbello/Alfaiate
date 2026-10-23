@@ -1,6 +1,6 @@
 ---
 import { env } from 'cloudflare:workers';
-import PublicLayout from '../layouts/PublicLayout.astro';
+import ThemePage from '../layouts/ThemePage.astro';
 import TailorCard from '../components/TailorCard.astro';
 import FaqBlock from '../components/FaqBlock.astro';
 import { dictionary, fill } from '../i18n/public';
@@ -24,7 +24,7 @@ const { tailors } = await listPublished(DB, {
 const name = area.name;
 ---
 
-<PublicLayout
+<ThemePage
   lang={lang}
   title={`${fill(t.area.title, { name })} · ${t.siteName}`}
   description={fill(t.area.intro, { name })}
@@ -62,4 +62,4 @@ const name = area.name;
     </ul>
   )}
   <FaqBlock t={t} />
-</PublicLayout>
+</ThemePage>

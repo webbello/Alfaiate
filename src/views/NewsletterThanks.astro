@@ -1,5 +1,5 @@
 ---
-import PublicLayout from '../layouts/PublicLayout.astro';
+import ThemePage from '../layouts/ThemePage.astro';
 import { dictionary } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 
@@ -11,7 +11,7 @@ const t = dictionary(lang);
 const n = t.newsletter;
 ---
 
-<PublicLayout
+<ThemePage
   lang={lang}
   title={`${n.thanksTitle} · ${t.siteName}`}
   description={n.thanksBody}
@@ -27,4 +27,4 @@ const n = t.newsletter;
       </a>
     </p>
   </div>
-</PublicLayout>
+</ThemePage>

@@ -19,11 +19,13 @@ interface Props {
   tagline: string;
   closing: string;
   rights: string;
+  /** The disclaimer every page carries (FR-PUB-02): we introduce tailors, they agree price and dates. */
+  note?: string;
   siteName: string;
   /** Our own social links (set in the environment, platform hosts only), not the theme's demo profiles. */
   social: { label: string; href: string; icon: string }[];
 }
-const { groups, homeHref, tagline, closing, rights, siteName, social } = Astro.props;
+const { groups, homeHref, tagline, closing, rights, siteName, social, note } = Astro.props;
 const path = Astro.url.pathname;
 const current = (href: string) => (path === href ? 'page' : undefined);
 const year = new Date().getFullYear();
@@ -97,6 +99,7 @@ const year = new Date().getFullYear();
         </ul>
         <ul class="footer-copy-text" role="list">
           <li>{closing}</li>
+          {note && <li>{note}</li>}
         </ul>
       </div>
     </div>

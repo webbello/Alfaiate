@@ -1,5 +1,5 @@
 ---
-import PublicLayout from '../layouts/PublicLayout.astro';
+import ThemePage from '../layouts/ThemePage.astro';
 import { dictionary } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 import type { Outcome } from '../modules/interest/submit';
@@ -64,7 +64,7 @@ const text = [
 ] as const;
 ---
 
-<PublicLayout
+<ThemePage
   lang={lang}
   title={`${outcome.kind === 'message' ? messageHeading : j.title} · ${t.siteName}`}
   description={j.intro}
@@ -223,4 +223,4 @@ const text = [
       </>
     )
   )}
-</PublicLayout>
+</ThemePage>

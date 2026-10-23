@@ -56,23 +56,31 @@ const BUDGET = {
   html: {
     home: 50000, // Handspark theme home: menus and the request list panel twice, four layouts of stories when samples are on (48.2 kB with the request list, step 4); was 27700 for the old home
     directory: 38000, // theme frame (menus and request list panel twice, hero, FAQ) with one card (35.2 kB, step 4); was 11000 on the old frame
-    category: 10400,
+    category: 30000, // theme frame (step 5, measured 25.0 kB); was old-frame size
     profile: 34000, // theme frame with a profile that has contact, categories, prices and a gallery (28.9 kB measured, step 4); was 9600 on the old frame
-    request: 13200,
-    howItWorks: 9400,
-    join: 9500,
+    request: 30000, // theme frame (step 5, measured 24.5 kB); was old-frame size
+    howItWorks: 29000, // theme frame (step 5, measured 23.8 kB); was old-frame size
+    join: 28000, // theme frame (step 5, measured 22.6 kB); was old-frame size
   },
   css: 23500, // 2026-10-23: initials badge, card WhatsApp button, lighter inputs, language switch (measured 22525); was 21000 (2026-10-21, compact directory)
   // The Handspark theme home (step 3, 2026-10-23): the whole theme sheet (267 kB raw, 31 kB compressed) and the motion script (165 kB raw, 59 kB compressed: GSAP, Lenis).
   // This is about ten times the old home and is the price of the theme; step 7 of docs/SPEC-handspark-theme.md trims it (per-page CSS, motion only on wide pointer devices).
-  homeCss: 280000,
+  homeCss: 295000, // 292 kB with the scoped styles of the form and reading pages (step 5); was 280000
   homeJs: 175000,
   adminCss: 28500, // admin redesign 2026-10-23: sidebar, top bar, dark theme, worklist, cards, portal; was 8200 (about 25 kB measured)
   js: 1500, // raised 2026-10-21: the directory page adds the filter script (measured 1195 with the header menu)
 } as const;
 
-// Pages in the Handspark theme load its stylesheet and motion script; the rest still use the old frame until their step (docs/SPEC-handspark-theme.md).
-const THEMED: string[] = ['home', 'directory', 'profile'];
+// Every public page is in the Handspark theme (step 5) and loads its stylesheet and motion script; step 7 of docs/SPEC-handspark-theme.md trims them.
+const THEMED: string[] = [
+  'home',
+  'directory',
+  'profile',
+  'request',
+  'howItWorks',
+  'join',
+  'category',
+];
 
 describe('page weight budgets (NFR-PERF-01)', () => {
   it('keeps each page, its stylesheet and its script within budget', async () => {

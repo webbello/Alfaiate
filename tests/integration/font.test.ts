@@ -29,12 +29,13 @@ describe('the display font', () => {
     expect(text).toContain('SIL OPEN FONT LICENSE');
     expect(text).toContain('Playfair Display');
   });
-  it('is declared with font-display swap, loaded from our origin only, and used by the display token', async () => {
+  it("the theme's own fonts are declared with font-display swap and loaded from our origin only", async () => {
     const sheet = await css();
-    expect(sheet).toMatch(/@font-face\s*{[^}]*Alfaiate Display[^}]*}/);
-    expect(sheet).toContain(`url(${FONT})`);
+    expect(sheet).toMatch(/@font-face\s*{[^}]*Libre Baskerville[^}]*}/);
+    expect(sheet).toMatch(/@font-face\s*{[^}]*Manrope[^}]*}/);
     expect(sheet).toMatch(/font-display:\s*swap/);
-    expect(sheet).not.toMatch(/https?:\/\//);
-    expect(sheet).toMatch(/--font-display:\s*["']?Alfaiate Display/);
+    expect(sheet).toContain('url(/fonts/theme/Manrope-latin.woff2)');
+    expect(sheet).not.toMatch(/url\(["']?https?:\/\//);
+    expect(sheet).not.toMatch(/fonts\.googleapis/);
   });
 });

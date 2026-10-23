@@ -347,3 +347,6 @@ html { scroll-padding-bottom: 5rem; }
 @media (min-width: 48rem) {
   .sticky-bar { display: none; }
 }
+
+.profile.shop-section { padding-top: 1.5rem; }
+.prof-contact h2, .prof-section h2 { color: #1d1914; }

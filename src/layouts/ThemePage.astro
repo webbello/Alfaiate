@@ -1,0 +1,33 @@
+---
+// A page whose body is still written in the site's own classes (forms, reading pages), shown inside the Handspark frame.
+// The old classes are scoped under `.legacy` (src/theme/styles/legacy.css) so they cannot touch the theme.
+import ThemeLayout from './ThemeLayout.astro';
+import type { Lang } from '../i18n/lang';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  rest: string;
+  noindex?: boolean;
+  canonicalRest?: string;
+  realPage?: boolean;
+  jsonLd?: object[];
+  ogImage?: string;
+  /** Kept so views written for the old frame need no change; the theme has no full-bleed variant. */
+  bare?: boolean;
+  tailorBar?: { slug: string; whatsapp: string | null; phone: string | null; requestHref: string };
+  preloadImage?: unknown;
+}
+const pass = { ...Astro.props } as Partial<Props>;
+delete pass.bare;
+delete pass.preloadImage;
+---
+
+<ThemeLayout {...(pass as Props)}>
+  <div class="legacy-band">
+    <div class="w-layout-blockcontainer main-container w-container legacy">
+      <slot />
+    </div>
+  </div>
+</ThemeLayout>

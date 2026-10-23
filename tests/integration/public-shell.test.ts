@@ -31,15 +31,15 @@ describe('public shell: 404 page in both languages', () => {
     expect(html.indexOf('class="skip-link"')).toBeLessThan(
       html.indexOf('<header'),
     );
-    expect(html).toContain('<nav class="site-nav" aria-label="Main menu">');
-    expect(html).toContain('<main id="main">');
+    expect(html).toContain('aria-label="Main menu"');
+    expect(html).toContain('<main class="main-wrapper" id="main">');
     expect(html).toContain('href="#main"');
   });
 
   it('lists each header link once', async () => {
     for (const url of ['/no-such-page', '/tet/no-such-page']) {
       const nav = (await page(url)).html.match(
-        /<nav class="site-nav"[\s\S]*?<\/nav>/,
+        /<nav[^>]*data-nav-menu[\s\S]*?<\/nav>/,
       )![0];
       const hrefs = [...nav.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
       expect(new Set(hrefs).size, url).toBe(hrefs.length);

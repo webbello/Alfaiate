@@ -51,7 +51,7 @@ const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') => `/media/$
   jsonLd={[localBusinessJsonLd(tailor, siteConfig(env).siteUrl, lang)]}
   ogImage={tailor.profilePhoto ? `${siteConfig(env).siteUrl}${imageSrc(tailor.profilePhoto.base, 'large')}` : undefined}
 >
-  <Hero parent={{ label: t.directory.heading, href: pathFor(lang, '/tailors') }} variant="show" tag={t.directory.heading} title={tailor.name} />
+  <Hero parent={{ label: t.directory.heading, href: pathFor(lang, '/tailors') }} variant="show" tag={shop[0]?.name ?? t.profile.contact} title={tailor.name} />
 
   <article class="profile shop-section">
     <div class="w-layout-blockcontainer main-container w-container">

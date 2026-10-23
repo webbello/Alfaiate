@@ -1,5 +1,5 @@
 ---
-import PublicLayout from '../layouts/PublicLayout.astro';
+import ThemePage from '../layouts/ThemePage.astro';
 import '../styles/home.css';
 import CraftsmanshipSection from '../components/home/CraftsmanshipSection.astro';
 import { dictionary } from '../i18n/public';
@@ -13,7 +13,7 @@ const t = dictionary(lang);
 const p = t.craftPage;
 ---
 
-<PublicLayout
+<ThemePage
   lang={lang}
   title={`${p.title} · ${t.siteName}`}
   description={p.intro}
@@ -36,7 +36,7 @@ const p = t.craftPage;
       </a>
     </p>
   </div>
-</PublicLayout>
+</ThemePage>
 
 <style is:global>
   /* The scroll reveal is for the long home page; here the section is already on screen. */

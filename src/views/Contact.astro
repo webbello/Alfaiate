@@ -1,6 +1,6 @@
 ---
 import { env } from 'cloudflare:workers';
-import PublicLayout from '../layouts/PublicLayout.astro';
+import ThemePage from '../layouts/ThemePage.astro';
 import { dictionary } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 import { joinEnabled, siteWhatsapp } from '../modules/config';
@@ -16,7 +16,7 @@ const settings = env as { SITE_WHATSAPP?: string; JOIN_ENABLED?: string };
 const whatsapp = siteWhatsapp(settings);
 ---
 
-<PublicLayout
+<ThemePage
   lang={lang}
   title={`${c.title} · ${t.siteName}`}
   description={c.intro}
@@ -56,4 +56,4 @@ const whatsapp = siteWhatsapp(settings);
       </section>
     )}
   </div>
-</PublicLayout>
+</ThemePage>

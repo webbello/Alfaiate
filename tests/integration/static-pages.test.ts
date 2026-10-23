@@ -92,7 +92,6 @@ describe('static pages (FR-PUB-06)', () => {
       expect(html, prefix).toContain(`href="${prefix}/terms"`);
       for (const word of [how, about, privacy, terms])
         expect(html, `${prefix} ${word}`).toContain(word);
-      expect(html).toMatch(/class="footer-nav[ "]/);
     }
   });
 
@@ -101,8 +100,7 @@ describe('static pages (FR-PUB-06)', () => {
     expect(html.match(/<header/g)).toHaveLength(1);
     expect(html.match(/<main/g)).toHaveLength(1);
     expect(html.match(/<footer/g)).toHaveLength(1);
-    expect(html.match(/class="site-nav"/g)).toHaveLength(1);
-    expect(html.match(/class="footer-nav[ "]/g)).toHaveLength(1);
+    expect(html.match(/<nav[^>]*data-nav-menu/g)).toHaveLength(1); // the phone menu; the wide menu is a different element
     expect(html.match(/<h1/g)).toHaveLength(1);
   });
 

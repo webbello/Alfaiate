@@ -1,5 +1,5 @@
 ---
-import PublicLayout from '../layouts/PublicLayout.astro';
+import ThemePage from '../layouts/ThemePage.astro';
 import '../styles/home.css';
 import ServiceCategories from '../components/home/ServiceCategories.astro';
 import { env } from 'cloudflare:workers';
@@ -19,7 +19,7 @@ const categories = await listActiveCategories(requireBindings(env).DB, {
 });
 ---
 
-<PublicLayout
+<ThemePage
   lang={lang}
   title={`${p.title} · ${t.siteName}`}
   description={p.intro}
@@ -44,4 +44,4 @@ const categories = await listActiveCategories(requireBindings(env).DB, {
       </a>
     </p>
   </div>
-</PublicLayout>
+</ThemePage>

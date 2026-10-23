@@ -1,5 +1,5 @@
 ---
-import PublicLayout from '../layouts/PublicLayout.astro';
+import ThemePage from '../layouts/ThemePage.astro';
 import { dictionary, fill } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 import type { Outcome } from '../modules/enquiry/submit';
@@ -71,7 +71,7 @@ const describedBy = (field: Field, hint?: string) =>
 const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
 ---
 
-<PublicLayout
+<ThemePage
   lang={lang}
   title={`${outcome.kind === 'message' ? messageHeading : title} · ${t.siteName}`}
   description={intro}
@@ -460,4 +460,4 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
       </>
     )
   )}
-</PublicLayout>
+</ThemePage>
