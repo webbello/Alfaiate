@@ -163,11 +163,11 @@ describe('the medium-priority polish', () => {
     const en = await (await get('/')).text();
     expect(en).toContain('role="group" aria-label="Language"');
     expect(en).toMatch(
-      /<span aria-current="true" lang="en">EN<\/span><a href="\/tet\/"[^>]*aria-label="Tetun">TET<\/a>/,
+      /<span aria-current="true" lang="en">EN<\/span><a href="\/tet\/"[^>]*aria-label="TET \(Tetun\)">TET<\/a>/,
     );
     const tet = await (await get('/tet/')).text();
     expect(tet).toMatch(
-      /<span aria-current="true" lang="tet">TET<\/span><a href="\/"[^>]*aria-label="English">EN<\/a>/,
+      /<span aria-current="true" lang="tet">TET<\/span><a href="\/"[^>]*aria-label="EN \(English\)">EN<\/a>/,
     );
   });
 

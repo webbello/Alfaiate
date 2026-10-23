@@ -86,14 +86,14 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
       'hreflang="x-default" href="https://alfaiate-tl.example/"',
     );
     expect(en).toMatch(
-      /<span class="lang-switch" role="group" aria-label="Language"><span aria-current="true" lang="en">EN<\/span><a href="\/tet\/" lang="tet" hreflang="tet" aria-label="Tetun">TET<\/a>/,
+      /<span class="lang-switch" role="group" aria-label="Language"><span aria-current="true" lang="en">EN<\/span><a href="\/tet\/" lang="tet" hreflang="tet" aria-label="TET \(Tetun\)">TET<\/a>/,
     );
     const tet = (await text('/tet/')).html;
     expect(tet).toContain(
       '<link rel="canonical" href="https://alfaiate-tl.example/tet/"',
     );
     expect(tet).toMatch(
-      /<span class="lang-switch" role="group"[^>]*><span aria-current="true" lang="tet">TET<\/span><a href="\/" lang="en" hreflang="en" aria-label="English">EN<\/a>/,
+      /<span class="lang-switch" role="group"[^>]*><span aria-current="true" lang="tet">TET<\/span><a href="\/" lang="en" hreflang="en" aria-label="EN \(English\)">EN<\/a>/,
     );
   });
 

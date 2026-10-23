@@ -360,3 +360,31 @@ html { scroll-padding-bottom: 5rem; }
 .brand-mark--footer { color: #8fb07f; }
 .brand-mark--footer .brand-name { font-size: clamp(3rem, 9vw, 6.5rem); border-bottom-width: 3px; }
 .brand-mark--footer .brand-tl { font-size: clamp(0.9rem, 2vw, 1.4rem); background: #8fb07f; color: #1d1914; }
+
+/* ---- Services section without the motion script: a plain list and stacked photos (reduced motion, or no JavaScript), instead of one pinned slide ---- */
+@media (prefers-reduced-motion: reduce) {
+  .works-height { height: auto; }
+  .works-sticky { position: static; height: auto; overflow: visible; padding: 4rem 0; }
+  .works-details-block { flex-direction: column; align-items: flex-start; gap: 1.5rem; height: auto; }
+  .works-text-block { height: auto; max-width: none; }
+  .works-title-block { height: auto; overflow: visible; }
+  .works-title-wrap { display: grid; gap: 0.5rem; }
+  .works-num-block { display: none; }
+  .works-thumb-block { position: static; display: grid; gap: 1rem; height: auto; margin: 1.5rem 0; }
+  .works-thumb-wrap { position: relative; inset: auto; height: 40vh; overflow: hidden; }
+  .works-button-block { position: static; display: inline-flex; margin-top: 1rem; }
+  .works-title, .our-works-section .section-info-item { color: #1d1914; }
+  .works-button { background: #3d5a33; }
+}
+html:not(.js) .works-height { height: auto; }
+html:not(.js) .works-sticky { position: static; height: auto; overflow: visible; padding: 4rem 0; }
+html:not(.js) .works-details-block { flex-direction: column; align-items: flex-start; gap: 1.5rem; height: auto; }
+html:not(.js) .works-text-block { height: auto; max-width: none; }
+html:not(.js) .works-title-block { height: auto; overflow: visible; }
+html:not(.js) .works-title-wrap { display: grid; gap: 0.5rem; }
+html:not(.js) .works-num-block { display: none; }
+html:not(.js) .works-thumb-block { position: static; display: grid; gap: 1rem; height: auto; margin: 1.5rem 0; }
+html:not(.js) .works-thumb-wrap { position: relative; inset: auto; height: 40vh; overflow: hidden; }
+html:not(.js) .works-button-block { position: static; display: inline-flex; margin-top: 1rem; }
+html:not(.js) .works-title, html:not(.js) .our-works-section .section-info-item { color: #1d1914; }
+html:not(.js) .works-button { background: #3d5a33; }

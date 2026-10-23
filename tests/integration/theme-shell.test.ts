@@ -76,12 +76,12 @@ describe('the Handspark page frame (ThemeLayout)', () => {
   it('has the EN | TET switch in both directions and a Tetun page', async () => {
     const en = (await page('/theme-preview')).html;
     expect(en).toMatch(
-      /<span aria-current="true" lang="en">\s*EN\s*<\/span><a href="\/tet\/theme-preview"[^>]*aria-label="Tetun">\s*TET\s*<\/a>/,
+      /<span aria-current="true" lang="en">\s*EN\s*<\/span><a href="\/tet\/theme-preview"[^>]*aria-label="TET \(Tetun\)">\s*TET\s*<\/a>/,
     );
     const tet = (await page('/tet/theme-preview')).html;
     expect(tet).toContain('<html lang="tet"');
     expect(tet).toMatch(
-      /<span aria-current="true" lang="tet">\s*TET\s*<\/span><a href="\/theme-preview"[^>]*aria-label="English">\s*EN\s*<\/a>/,
+      /<span aria-current="true" lang="tet">\s*TET\s*<\/span><a href="\/theme-preview"[^>]*aria-label="EN \(English\)">\s*EN\s*<\/a>/,
     );
     expect(tet).toContain('Alfaiate ba Ita-nia Estilu');
   });

@@ -46,3 +46,21 @@ for (const prefix of ['', '/tet']) {
     });
   }
 }
+
+// The theme's wide layout (header menu row, language switch) has its own markup: check it too.
+test.describe('wide screen', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+  for (const url of [
+    '/',
+    '/tailors',
+    '/about',
+    '/tet/',
+    '/tailors/e2e-fake-tailor',
+  ]) {
+    test(`axe at 1280px: ${url}`, async ({ page }) => {
+      await page.goto(url);
+      await page.waitForTimeout(2500);
+      expect(await violationsOf(page)).toEqual([]);
+    });
+  }
+});
