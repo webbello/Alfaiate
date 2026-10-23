@@ -1,0 +1,23 @@
+---
+// One customer story in the theme's review-card style. No stars: Alfaiate TL has no rating system (PRD §7.3); only owner-approved quotes are shown (FR-PUB-07).
+import { initials } from '../../../components/story/variant';
+
+interface Props {
+  quote: string;
+  name: string;
+  place: string;
+  anim?: string | undefined;
+}
+const { quote, name, place, anim = 'card' } = Astro.props;
+---
+
+<div class="review-card" data-anim={anim}>
+  <div class="review-except">&ldquo;{quote}&rdquo;</div>
+  <div class="review-author">
+    <div class="review-author-thumb review-author-thumb--initials" data-initials={initials(name)} aria-hidden="true"></div>
+    <div class="review-author-wrapp">
+      <div class="review-author-name">{name}</div>
+      <div class="review-author-role">{place}</div>
+    </div>
+  </div>
+</div>

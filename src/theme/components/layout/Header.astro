@@ -2,7 +2,8 @@
 import CartDrawer from './CartDrawer.astro';
 import Icon from '../ui/Icon.astro';
 import logo from '../../assets/images/primary-logo.svg';
-import { MEGA_MENU, NAV, ROUTES, SITE } from '../../config/site';
+import { SITE } from '../../config/site';
+import type { Link } from '../../config/nav';
 
 /**
  * The bar across the top of every page.
@@ -17,15 +18,20 @@ interface Props {
   overlay?: boolean;
   /** The same page in the other language (Alfaiate TL addition): a small EN | TET switch in the menu. */
   twin?: { path: string; lang: 'en' | 'tet' } | null;
+  /** Menus in the page's language (src/theme/config/nav.ts). */
+  nav: Link[];
+  mega: Link[];
+  homeHref: string;
+  labels: { main: string; pages: string; menu: string };
 }
 
-const { overlay = false, twin = null } = Astro.props;
+const { overlay = false, twin = null, nav, mega, homeHref, labels } = Astro.props;
 const here = twin?.lang === 'tet' ? 'en' : 'tet';
 const code = (lang: string) => (lang === 'tet' ? 'TET' : 'EN');
 
 const path = Astro.url.pathname;
 /** The overlay menu spells two links out in full; the top row keeps them short. */
-const MOBILE_LABEL: Record<string, string> = { About: 'About Us', Contact: 'Contact Us' };
+const MOBILE_LABEL: Record<string, string> = {};
 const isCurrent = (href: string) => path === href;
 ---
 
@@ -35,16 +41,16 @@ const isCurrent = (href: string) => path === href;
 >
   <div class="header-block">
     <div class="header-brand-block">
-      <a aria-label={SITE.name} href={ROUTES.home} class="header-brand w-inline-block">
+      <a aria-label={SITE.name} href={homeHref} class="header-brand w-inline-block">
         <img src={logo.src} alt={SITE.name} class="header-logo" loading="eager" />
       </a>
     </div>
 
     {/* The overlay menu, shown below 992px. */}
-    <nav class="header-menu-block is-display-show-for-mobile w-nav-menu" data-nav-menu aria-label="Main">
+    <nav class="header-menu-block is-display-show-for-mobile w-nav-menu" data-nav-menu aria-label={labels.main}>
       <div class="header-menu">
         {
-          NAV.map((item) => (
+          nav.map((item) => (
             <a
               href={item.href}
               aria-current={isCurrent(item.href) ? 'page' : undefined}
@@ -63,14 +69,14 @@ const isCurrent = (href: string) => path === href;
             aria-controls="mega-menu-mobile"
             data-dropdown-toggle
           >
-            <span class="header-dropdown-text">Pages</span>
+            <span class="header-dropdown-text">{labels.pages}</span>
             <Icon name="chevron-down" class="header-dropdown-icon" />
           </button>
 
           <div class="header-wrapp w-dropdown-list" id="mega-menu-mobile" data-dropdown-list>
             <div class="w-layout-grid header-megamenu">
               {
-                MEGA_MENU.map((item) => (
+                mega.map((item) => (
                   <a
                     href={item.href}
                     aria-current={isCurrent(item.href) ? 'page' : undefined}
@@ -108,7 +114,7 @@ const isCurrent = (href: string) => path === href;
     <div class="header-menu-block is-display-show-for-desktop">
       <div class="header-menu header-menu-wrap">
         {
-          NAV.map((item) => (
+          nav.map((item) => (
             <a
               href={item.href}
               aria-current={isCurrent(item.href) ? 'page' : undefined}
@@ -127,14 +133,14 @@ const isCurrent = (href: string) => path === href;
             aria-controls="mega-menu-desktop"
             data-dropdown-toggle
           >
-            <span class="header-dropdown-text">Pages</span>
+            <span class="header-dropdown-text">{labels.pages}</span>
             <Icon name="chevron-down" class="header-dropdown-icon" />
           </button>
 
           <div class="header-wrapp w-dropdown-list" id="mega-menu-desktop" data-dropdown-list>
             <div class="w-layout-grid header-megamenu">
               {
-                MEGA_MENU.map((item) => (
+                mega.map((item) => (
                   <a
                     href={item.href}
                     aria-current={isCurrent(item.href) ? 'page' : undefined}
@@ -177,7 +183,7 @@ const isCurrent = (href: string) => path === href;
         type="button"
         class="header-line-block w-nav-button"
         aria-expanded="false"
-        aria-label="Open menu"
+        aria-label={labels.menu}
         data-nav-toggle
       >
         <span class="header-menu-line">

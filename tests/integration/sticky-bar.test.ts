@@ -8,9 +8,9 @@ const bar = (html: string) =>
 describe('the quick-action bar', () => {
   it('offers "Request a Tailor" (the same words as the header and the hero) on content pages in both languages, with a labelled landmark', async () => {
     for (const [path, label] of [
-      ['/', 'Request a Tailor'],
+      ['/about', 'Request a Tailor'], // content pages still on the old frame; the home page uses the theme frame (step 3)
       ['/tailors', 'Request a Tailor'],
-      ['/tet/', 'Husu Alfaiate'],
+      ['/tet/about', 'Husu Alfaiate'],
     ] as const) {
       const b = bar(await (await get(path)).text());
       expect(b, path).toContain('aria-label=');
@@ -29,10 +29,10 @@ describe('the quick-action bar', () => {
       expect(bar(await (await get(path)).text()), path).toBe('');
   });
   it('has no WhatsApp link while the owner number is not set', async () => {
-    expect(bar(await (await get('/')).text())).not.toContain('wa.me');
+    expect(bar(await (await get('/about')).text())).not.toContain('wa.me');
   });
   it('is not inside the header or the main landmark, so the page order is unchanged', async () => {
-    const html = await (await get('/')).text();
+    const html = await (await get('/about')).text();
     expect(html.indexOf('class="sticky-bar"')).toBeGreaterThan(
       html.indexOf('</main>'),
     );

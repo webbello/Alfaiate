@@ -1,7 +1,8 @@
 ---
 import Icon from '../ui/Icon.astro';
 import logo from '../../assets/images/secondary-logo.svg';
-import { FOOTER_NAV, ROUTES, SITE } from '../../config/site';
+import { SITE } from '../../config/site';
+import type { FooterGroup } from '../../config/nav';
 
 /**
  * The footer, on every page.
@@ -12,6 +13,17 @@ import { FOOTER_NAV, ROUTES, SITE } from '../../config/site';
  * generated element ids rather than to a class. The bottom row is a second
  * grid reading left, center, right.
  */
+interface Props {
+  groups: FooterGroup[];
+  homeHref: string;
+  tagline: string;
+  closing: string;
+  rights: string;
+  siteName: string;
+  /** Our own social links (set in the environment, platform hosts only), not the theme's demo profiles. */
+  social: { label: string; href: string; icon: string }[];
+}
+const { groups, homeHref, tagline, closing, rights, siteName, social } = Astro.props;
 const path = Astro.url.pathname;
 const current = (href: string) => (path === href ? 'page' : undefined);
 const year = new Date().getFullYear();
@@ -22,19 +34,17 @@ const year = new Date().getFullYear();
     <div class="footer-block">
       <div class="footer-menu-block">
         <div class="footer-text-block">
-          <a aria-label={SITE.name} href={ROUTES.home} class="footer-brand w-inline-block">
+          <a aria-label={SITE.name} href={homeHref} class="footer-brand w-inline-block">
             <img src={logo.src} alt={SITE.name} class="footer-logo" loading="lazy" />
           </a>
 
           <div class="footer-except">
-            <div class="footer-except-text">Bringing a handmade touch to life&rsquo;s simplest</div>
-            <Icon name="smiley" class="footer-except-icon" />
-            <div class="footer-except-text">joys :)</div>
+            <div class="footer-except-text">{tagline}</div>
           </div>
 
           <div class="footer-social">
             {
-              SITE.social.map((profile) => (
+              social.map((profile) => (
                 <a
                   aria-label={profile.label}
                   href={profile.href}
@@ -55,7 +65,7 @@ const year = new Date().getFullYear();
 
         <div class="footer-nav-block">
           {
-            FOOTER_NAV.map((group) => (
+            groups.map((group) => (
               <div class="footer-nav">
                 <div class="footer-nav-title">{group.title}</div>
                 <div class="footer-nav-wrap">
@@ -73,35 +83,7 @@ const year = new Date().getFullYear();
             ))
           }
 
-          <div class="footer-cta">
-            <div class="footer-title">Subscribe to our Newsletter*</div>
-            <div class="footer-form w-form">
-              {/*
-                No endpoint is configured, so the shared form handler validates
-                the address and shows the thank-you in place. Point `action` at
-                a list provider to make it real — see docs/forms.md.
-              */}
-              <form class="footer-form-block" name="newsletter" data-newsletter>
-                <label for="footer-email" class="sr-only">Email address</label>
-                <input
-                  class="footer-field w-input"
-                  maxlength="256"
-                  name="email"
-                  placeholder="Enter Your e-mail"
-                  type="email"
-                  id="footer-email"
-                  required
-                />
-                <button type="submit" class="footer-link w-button" aria-label="Subscribe"></button>
-              </form>
-              <div class="footer-done-block w-form-done" role="status" data-newsletter-success hidden>
-                <div class="footer-message">Thank you for your submission!</div>
-              </div>
-              <div class="footer-error-block w-form-fail" role="alert" data-newsletter-error hidden>
-                <div class="footer-message">Oops! Something went wrong.</div>
-              </div>
-            </div>
-          </div>
+          <slot name="newsletter" />
         </div>
       </div>
 
@@ -111,37 +93,10 @@ const year = new Date().getFullYear();
 
       <div class="footer-copy-block">
         <ul class="footer-copy-text" role="list">
-          <li>Copyright &copy; {year} {SITE.name}</li>
+          <li>&copy; {year} {siteName}. {rights}</li>
         </ul>
         <ul class="footer-copy-text" role="list">
-          {
-            SITE.credit && (
-              <li>
-                {SITE.credit.prefix}{' '}
-                <a
-                  class="footer-copy-link"
-                  href={SITE.credit.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {SITE.credit.label}
-                </a>
-              </li>
-            )
-          }
-        </ul>
-        <ul class="footer-copy-text" role="list">
-          <li>
-            Powered by{' '}
-            <a
-              class="footer-copy-link"
-              href="https://astro.build"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Astro
-            </a>
-          </li>
+          <li>{closing}</li>
         </ul>
       </div>
     </div>

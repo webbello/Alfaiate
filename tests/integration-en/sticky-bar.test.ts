@@ -8,7 +8,7 @@ describe('the quick-action bar with a WhatsApp number', () => {
     expect((env as { SITE_WHATSAPP?: string }).SITE_WHATSAPP).toBe(
       '+67077000000',
     );
-    const html = await (await get('/')).text();
+    const html = await (await get('/about')).text();
     const bar = /<nav class="sticky-bar"[\s\S]*?<\/nav>/.exec(html)![0];
     expect(bar.match(/https:\/\/wa\.me\/67077000000\?text=/g)).toHaveLength(1);
   });

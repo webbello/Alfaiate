@@ -54,7 +54,7 @@ const seed = async () => {
 // they are lazy except the hero, and `npm run perf` reports them.
 const BUDGET = {
   html: {
-    home: 27700,
+    home: 46000, // Handspark theme home (step 3): menus and cart drawer twice, four layouts of stories when samples are on; was 27700 for the old home
     directory: 11000, // +1000 for the WhatsApp button on each card and the initials badge (2026-10-23); was 10000 (+200 the day before for the View Profile button)
     category: 10400,
     profile: 9600,
@@ -63,7 +63,10 @@ const BUDGET = {
     join: 9500,
   },
   css: 23500, // 2026-10-23: initials badge, card WhatsApp button, lighter inputs, language switch (measured 22525); was 21000 (2026-10-21, compact directory)
-  homeCss: 38500, // raised 2026-10-23 for the initials badge, card WhatsApp button, lighter inputs and the language switch; was 36000, // raised 2026-10-21 for the compact directory and request form (site sheet grew); measured 33601
+  // The Handspark theme home (step 3, 2026-10-23): the whole theme sheet (267 kB raw, 31 kB compressed) and the motion script (165 kB raw, 59 kB compressed: GSAP, Lenis).
+  // This is about ten times the old home and is the price of the theme; step 7 of docs/SPEC-handspark-theme.md trims it (per-page CSS, motion only on wide pointer devices).
+  homeCss: 280000,
+  homeJs: 175000,
   adminCss: 28500, // admin redesign 2026-10-23: sidebar, top bar, dark theme, worklist, cards, portal; was 8200 (about 25 kB measured)
   js: 1500, // raised 2026-10-21: the directory page adds the filter script (measured 1195 with the header menu)
 } as const;
@@ -96,7 +99,7 @@ describe('page weight budgets (NFR-PERF-01)', () => {
       expect(
         await assetsOf(html, /<script[^>]*src="([^"]+)"/g),
         `${name} js`,
-      ).toBeLessThanOrEqual(BUDGET.js);
+      ).toBeLessThanOrEqual(name === 'home' ? BUDGET.homeJs : BUDGET.js);
     }
   });
 

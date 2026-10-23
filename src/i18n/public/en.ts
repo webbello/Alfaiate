@@ -14,6 +14,7 @@ export const en = {
     search: 'Search tailors',
     request: 'Request a Tailor',
     menu: 'Menu',
+    more: 'More',
     tagline: 'Local Tailors. Closer to You.',
   },
   footer: {

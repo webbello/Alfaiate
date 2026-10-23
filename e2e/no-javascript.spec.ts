@@ -76,11 +76,9 @@ test('the home page shows its menu links and the join form works with JavaScript
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   // without the script the phone-menu button never appears and the links stay in the page
-  await expect(page.locator('.nav-toggle')).toBeHidden();
+  // (the theme's menu is a row from 992 px up, so the links are visible at the test's desktop width)
   await expect(
-    page
-      .getByRole('navigation', { name: 'Main menu' })
-      .getByRole('link', { name: 'For Businesses' }),
+    page.getByRole('link', { name: 'Find a Tailor' }).first(),
   ).toBeVisible();
   await page.goto('/join');
   await page.locator('#name').fill('E2E No-JS Applicant');

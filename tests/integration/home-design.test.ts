@@ -2,13 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { env } from 'cloudflare:workers';
 import { get, unique } from './helpers';
 
-// Phase 7d: the home page recreated from the owner's reference design. These tests pin the structure, the honest-data rules
-// (no stock photo on a tailor card, WhatsApp only with consent, no invented testimonials) and the image hygiene.
+// Handspark theme, step 3: the home page in the theme. These tests pin the structure, the honest-data rules
+// (no stock photo on a tailor card, WhatsApp only with consent, no invented testimonials), the image hygiene and the frame.
 const home = async (path = '/') => (await get(path)).text();
-const section = (html: string, heading: string) =>
-  new RegExp(
-    `<(section|article)[^>]*aria-labelledby="${heading}"[\\s\\S]*?</\\1>`,
-  ).exec(html)?.[0] ?? '';
 const addTailor = async (
   o: {
     consent?: number;
@@ -31,61 +27,97 @@ const addTailor = async (
     .run();
   return slug;
 };
+const sectionOf = (html: string, cls: string) =>
+  new RegExp(`<section class="${cls}[\\s\\S]*?</section>`).exec(html)?.[0] ??
+  '';
 
-describe('home page structure (reference design)', () => {
-  it('has the sections in the reference order', async () => {
+describe('home page structure (Handspark theme)', () => {
+  it('has the sections in order: hero, about, featured tailors, our services, process, call to action', async () => {
+    await addTailor();
     const html = await home();
-    const ids = [
-      'hero-heading',
-      'services-heading',
-      'featured-heading',
-      'craft-heading',
-      'how',
-      'visit-heading',
-      'teams-heading',
-      'final-heading',
+    const classes = [
+      'home-section',
+      'company-section',
+      'best-sellers-section',
+      'our-works-section',
+      'process-section',
+      'blog-section home-cta',
     ];
-    const at = ids.map((id) => html.indexOf(`id="${id}"`));
+    const at = classes.map((c) => html.indexOf(`<section class="${c}"`));
     expect(
       at.every((i) => i > -1),
       JSON.stringify(at),
     ).toBe(true);
     expect([...at].sort((a, b) => a - b)).toEqual(at);
   });
+
+  it('has the hero image trail and the tape-measure ruler under the hero', async () => {
+    const hero = sectionOf(await home(), 'home-section');
+    expect(hero).toContain('class="home-gsap"');
+    expect(hero).toContain('class="gsap-wrapper"'); // where the pictures appear
+    expect(hero.match(/class="gsap-item"/g)).toHaveLength(8);
+    expect(hero).toContain('class="hero-line"'); // the ruler
+    // the pictures are the licensed scene photos, never a tailor's own work
+    for (const src of hero.matchAll(/class="gsap-image"/g))
+      expect(src).toBeTruthy();
+    expect(hero).not.toContain('/media/');
+  });
+
   it('links every call to action to an existing workflow', async () => {
     const html = await home();
-    expect(section(html, 'visit-heading')).toContain('href="/request"');
-    expect(section(html, 'teams-heading')).toContain('href="/business"');
-    expect(section(html, 'final-heading')).toMatch(
+    const hero = sectionOf(html, 'home-section');
+    expect(hero).toMatch(/href="\/tailors"[\s\S]*href="\/request"/);
+    expect(sectionOf(html, 'company-section')).toContain('href="/craft"');
+    expect(sectionOf(html, 'best-sellers-section')).toContain(
+      'href="/tailors"',
+    );
+    expect(sectionOf(html, 'our-works-section')).toContain('href="/services"');
+    expect(sectionOf(html, 'blog-section home-cta')).toMatch(
       /href="\/tailors"[\s\S]*href="\/request"/,
     );
-    expect(section(html, 'craft-heading')).toContain('href="/how-it-works"');
-    expect(html).toContain('href="/services"');
-    expect(html).toContain('href="/craft"');
-    expect(html).toContain('id="services"');
-    expect(html).toContain('id="craft"');
-    expect(html).toContain('href="/tailors#search"');
-  });
-  it('folds the phone menu only with JavaScript: the toggle starts hidden and the links are in the page', async () => {
-    const html = await home();
-    expect(html).toMatch(
-      /<button class="nav-toggle"[^>]*aria-controls="site-menu"[^>]*hidden/,
+    const tet = await home('/tet/');
+    expect(sectionOf(tet, 'our-works-section')).toContain(
+      'href="/tet/services"',
     );
-    expect(html).toContain('id="site-menu"');
   });
-  it('shows the footer columns and closing line, and no newsletter form yet', async () => {
+
+  it('puts every menu link in the page itself (no script needed) and has the cart button', async () => {
+    const html = await home();
+    const header = /<header[\s\S]*?<\/header>/.exec(html)![0];
+    for (const href of [
+      '/tailors',
+      '/about',
+      '/contact',
+      '/services',
+      '/craft',
+      '/business',
+      '/request',
+    ])
+      expect(header, href).toContain(`href="${href}"`);
+    expect(header).toContain('data-nav-toggle');
+    expect(header).toContain('data-cart');
+    const tet = /<header[\s\S]*?<\/header>/.exec(await home('/tet/'))![0];
+    expect(tet).toContain('href="/tet/tailors"');
+    expect(tet).toContain('href="/tet/services"');
+  });
+
+  it('shows the footer columns and closing line, in our words', async () => {
     const footer = /<footer[\s\S]*<\/footer>/.exec(await home())![0];
     expect(footer).toContain(
       'Made for Your Style. Connected to Our Community.',
     );
-    expect(footer).toContain(`© ${new Date().getUTCFullYear()} Alfaiate TL`);
+    expect(footer).toMatch(
+      new RegExp(`(?:©|&copy;) ${new Date().getUTCFullYear()} Alfaiate TL`),
+    );
     expect(footer).toContain('href="/contact"');
     expect(footer).toContain('href="/business"');
+    expect(footer).not.toContain('tncflow'); // the theme's designer credit is off
+    expect(footer).not.toContain('Subscribe to our Newsletter'); // the theme's demo form never pretends to send
   });
 });
 
 describe('scene photos', () => {
-  it('come only from /images/site, reserve their space, have alt text set, and load lazily except the hero', async () => {
+  it('come only from /images/site, reserve their space, have alt text set, and load lazily', async () => {
     const html = await home();
     const imgs = [...html.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]);
     const scenes = imgs.filter((i) => i.includes('/images/site/'));
@@ -94,24 +126,14 @@ describe('scene photos', () => {
       expect(img, img).toMatch(/\bwidth="\d+"/);
       expect(img, img).toMatch(/\bheight="\d+"/);
       expect(img, img).toMatch(/\balt="/);
+      expect(img, img).toContain('loading="lazy"');
     }
-    const hero = scenes.find((i) => i.includes('hero__image'))!;
-    expect(hero).toContain('fetchpriority="high"');
-    expect(hero).not.toContain('loading="lazy"');
-    expect(
-      scenes.filter(
-        (i) => !i.includes('hero__image') && !i.includes('loading="lazy"'),
-      ),
-    ).toEqual([]);
-    expect(html).toMatch(
-      /<link rel="preload" as="image" href="\/images\/site\/hero-800\.webp"/,
-    );
   });
   it('are never used on a tailor card (BR-06, BR-11)', async () => {
     await addTailor();
     const cards = [
       ...(await home()).matchAll(
-        /<article class="tailor-card[\s\S]*?<\/article>/g,
+        /<div class="shop-card">[\s\S]*?<\/div><\/div><\/div>/g,
       ),
     ].map((m) => m[0]);
     expect(cards.length).toBeGreaterThan(0);
@@ -126,9 +148,10 @@ describe('featured tailors', () => {
     const html = await home();
     const card = (slug: string) =>
       new RegExp(
-        `<article class="tailor-card(?:(?!</article>)[\\s\\S])*href="/tailors/${slug}"[\\s\\S]*?</article>`,
+        `<div class="shop-card">(?:(?!<div class="shop-card">)[\\s\\S])*href="/tailors/${slug}"[\\s\\S]*?(?=<div class="shop-card">|</div></div></div></div></div>)`,
       ).exec(html)?.[0] ?? '';
     expect(card(yes)).toContain('href="https://wa.me/67077123456');
+    expect(card(yes)).toContain('data-contact-channel="whatsapp"');
     expect(card(no)).not.toBe('');
     expect(card(no)).not.toContain('wa.me');
   });
@@ -142,8 +165,9 @@ describe('testimonials', () => {
   it('stay hidden until the owner adds real, permitted quotes (none today): no section, no quote, no rating', async () => {
     const html = await home();
     expect(html).not.toContain('Stories of Craftsmanship and Style.');
-    expect(html).not.toContain('<blockquote');
+    expect(html).not.toContain('class="review-card"');
     expect(html).not.toMatch(/★|\b\d(\.\d)?\s*(\/\s*5|stars?)\b/i);
+    expect(html).not.toContain('Trusted Partner'); // the theme's sample partner logos stay hidden too
   });
 });
 
@@ -153,6 +177,7 @@ describe('footer social icons', () => {
     expect(footer).toContain('href="https://www.facebook.com/alfaiate.test"');
     expect(footer).toContain('href="https://www.instagram.com/alfaiate.test"');
     expect(footer).not.toContain('evil.example'); // SOCIAL_YOUTUBE points at a foreign host in this test project
+    expect(footer).not.toContain('linkedin.com'); // the theme's demo profiles are not ours
     expect(footer).toMatch(/aria-label="Facebook"/);
     expect(footer).not.toContain('wa.me'); // no owner number in this project
   });

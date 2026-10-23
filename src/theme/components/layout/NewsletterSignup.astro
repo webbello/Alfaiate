@@ -1,0 +1,37 @@
+---
+// The footer sign-up in the theme's look, posting to our real endpoint (consent, spam token, rate limit). The theme's own demo form only pretended to send.
+import { env } from 'cloudflare:workers';
+import { pathFor, type Lang } from '../../../i18n/lang';
+import { formSecret } from '../../../modules/config';
+import { issueToken } from '../../../modules/enquiry/spam';
+import type { Dictionary } from '../../../i18n/public/en';
+
+interface Props {
+  lang: Lang;
+  t: Dictionary;
+}
+const { lang, t } = Astro.props;
+const n = t.newsletter;
+const token = await issueToken(formSecret(env as { FORM_TOKEN_SECRET?: string }));
+---
+
+<div class="footer-cta">
+  <div class="footer-title">{n.heading}</div>
+  <p class="footer-lead">{n.body}</p>
+  <div class="footer-form">
+    <form class="footer-form-block" method="post" action={pathFor(lang, '/newsletter')}>
+      <input type="hidden" name="form_token" value={token} />
+      <div class="hp" aria-hidden="true">
+        <label for="footer-extra">Leave this empty</label>
+        <input type="text" id="footer-extra" name="extra_info" tabindex="-1" autocomplete="off" />
+      </div>
+      <label for="footer-email" class="sr-only">{n.email}</label>
+      <input class="footer-field w-input" maxlength="254" name="email" placeholder={n.email} type="email" id="footer-email" autocomplete="email" required />
+      <button type="submit" class="footer-link w-button" aria-label={n.submit}></button>
+      <label class="footer-consent" for="footer-consent">
+        <input type="checkbox" id="footer-consent" name="consent" value="yes" required />
+        {n.consent}
+      </label>
+    </form>
+  </div>
+</div>

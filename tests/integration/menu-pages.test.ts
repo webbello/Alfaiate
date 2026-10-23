@@ -11,8 +11,8 @@ const menuHrefs = (html: string) =>
 
 describe('the main menu', () => {
   it.each([
-    ['/', ''],
-    ['/tet/', '/tet'],
+    ['/about', ''], // pages still on the old frame; the home page has the theme menu (tested in home-design.test.ts)
+    ['/tet/about', '/tet'],
   ])('links only to separate pages on %s', async (path, prefix) => {
     const html = await (await get(path)).text();
     const hrefs = menuHrefs(html).filter(

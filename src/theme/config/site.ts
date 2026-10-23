@@ -23,11 +23,7 @@ export const SITE = {
    * Attribution in the footer's bottom row. Set `credit` to null to drop the
    * line entirely.
    */
-  credit: {
-    prefix: 'Designed by',
-    label: 'TNCFlow',
-    href: 'https://www.tncflow.com',
-  },
+  credit: null,
   /** Shown in the footer and on the contact page. */
   contact: {
     phone: '(704) 555-0148',

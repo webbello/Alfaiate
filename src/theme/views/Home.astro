@@ -1,0 +1,447 @@
+---
+// The home page in the Handspark theme (docs/SPEC-handspark-theme.md, step 3). Sections: hero (image trail and ruler), about, featured tailors,
+// our work (pinned scroll), process, partners (hidden until real), stories (owner-approved quotes only), final call to action.
+// The journal section arrives with the journal in step 6.
+import { env } from 'cloudflare:workers';
+import ThemeLayout from '../../layouts/ThemeLayout.astro';
+import Icon from '../components/ui/Icon.astro';
+import TailorCard from '../components/shop/TailorCard.astro';
+import StoryCard from '../components/sections/StoryCard.astro';
+import placeholder from '../assets/images/placeholder.svg';
+import logo01 from '../assets/images/featured-logo-01.svg';
+import logo02 from '../assets/images/featured-logo-02.svg';
+import logo03 from '../assets/images/featured-logo-03.svg';
+import logo04 from '../assets/images/featured-logo-04.svg';
+import logo05 from '../assets/images/featured-logo-05.svg';
+import { scene, type Scene } from '../../components/home/images';
+import { PLACEHOLDER_TESTIMONIALS, TESTIMONIALS } from '../../components/home/testimonials';
+import { dictionary } from '../../i18n/public';
+import { pathFor, type Lang } from '../../i18n/lang';
+import { requireBindings, siteConfig, socialLinks, testimonialPlaceholders } from '../../modules/config';
+import { listPublished } from '../../modules/directory/queries';
+import { websiteJsonLd } from '../../modules/seo/jsonld';
+
+type SocialEnv = Parameters<typeof socialLinks>[0];
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dictionary(lang);
+const h = t.home;
+const { DB } = requireBindings(env);
+const { tailors } = await listPublished(DB, { category: undefined, area: undefined, homeVisit: false });
+const featured = tailors.slice(0, 8);
+const showSamples = testimonialPlaceholders(env as { SHOW_TESTIMONIAL_PLACEHOLDERS?: string });
+const stories = TESTIMONIALS.length > 0 ? TESTIMONIALS : showSamples ? PLACEHOLDER_TESTIMONIALS : [];
+const isSample = TESTIMONIALS.length === 0 && showSamples;
+const to = (path: string) => pathFor(lang, path);
+
+// The pictures that follow the pointer: licensed scene photos (public/images/site, credits in CREDITS.md), never a tailor's own work (BR-06).
+const trail: Scene[] = ['hero', 'craft', 'rack', 'home-visit', 'business', 'final-cta', 'suits', 'dresses'];
+const trailImages = trail.map((name) => scene(name));
+const works: { title: string; image: Scene }[] = [
+  { title: h.services.suits, image: 'suits' },
+  { title: h.services.dresses, image: 'dresses' },
+  { title: h.services.alterations, image: 'alterations' },
+  { title: h.services.traditional, image: 'traditional' },
+];
+const steps = [
+  { name: h.how.step1Title, text: h.how.step1 },
+  { name: h.how.step2Title, text: h.how.step2 },
+  { name: h.how.step3Title, text: h.how.step3 },
+  { name: h.how.step4Title, text: h.how.step4 },
+];
+const craft = scene('craft');
+const rack = scene('rack');
+const visit = scene('home-visit');
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<ThemeLayout
+  lang={lang}
+  title={`${h.title} · ${t.siteName}`}
+  description={h.description}
+  rest="/"
+  jsonLd={websiteJsonLd(
+    siteConfig(env).siteUrl,
+    t.siteName,
+    lang,
+    socialLinks(env as SocialEnv)
+      .filter((s) => s.name !== 'whatsapp')
+      .map((s) => s.href),
+  )}
+>
+  <section class="home-section">
+    <div class="w-layout-blockcontainer main-container w-container">
+      <div class="home-block">
+        <div class="home-gsap">
+          <div class="home-text-block">
+            <div class="home-title-block">
+              <h1 class="home-title" data-anim="hero">{h.hero.headingStart} {h.hero.headingAccent}</h1>
+            </div>
+            <div class="home-except-block">
+              <div class="home-except" data-anim="hero">{h.hero.intro}</div>
+            </div>
+            <div class="home-button-block">
+              <div class="home-button" data-anim="hero">
+                <a class="button w-inline-block" href={to('/tailors')}>
+                  <div class="button-bg"></div>
+                  <div class="button-text">{h.hero.find}</div>
+                  <div class="button-wrap">
+                    <Icon name="arrow-up-right" class="button-icon" />
+                    <Icon name="arrow-up-right" class="button-icon" />
+                  </div>
+                </a>
+              </div>
+              <div class="home-button" data-anim="hero">
+                <a class="button is-coffee w-inline-block" href={to('/request')}>
+                  <div class="button-bg is-coffee"></div>
+                  <div class="button-text">{h.hero.request}</div>
+                  <div class="button-wrap">
+                    <Icon name="arrow-up-right" class="button-icon" />
+                    <Icon name="arrow-up-right" class="button-icon" />
+                  </div>
+                </a>
+              </div>
+            </div>
+            <p class="home-reassure" data-anim="hero">{h.hero.reassure}</p>
+            <p class="home-note" data-anim="hero"><strong>{h.noteLabel}:</strong> {t.disclaimer.short}</p>
+          </div>
+          <div class="home-line-block">
+            <Icon name="hero-line" class="hero-line" />
+          </div>
+          <div class="gsap-component">
+            <div class="gsap-wrapper">
+              <div class="gsap-block">
+                <div class="gsap-wrap">
+                  <img src={placeholder.src} alt="" class="gsap-place" loading="lazy" />
+                </div>
+              </div>
+            </div>
+            <div class="gsap-container">
+              <div class="gsap-list">
+                {
+                  trailImages.map((image) => (
+                    <div class="gsap-item">
+                      <img src={image.src} alt="" class="gsap-image" width={image.width} height={image.height} loading="lazy" />
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="company-section">
+    <div class="section-space">
+      <div class="w-layout-blockcontainer main-container w-container">
+        <div class="company-block">
+          <div class="company-text-block">
+            <div class="company-info-block">
+              <div class="company-info" data-anim="fade">
+                <ul class="section-info" role="list">
+                  <li class="section-info-item">{h.craft.eyebrow}</li>
+                </ul>
+              </div>
+            </div>
+            <div class="company-title-block">
+              <h2 class="company-title is-display-show-for-desktop" data-anim="text-lines">{h.craft.heading}</h2>
+              <h3 class="company-title is-display-show-for-mobile" data-anim="text-lines">{h.craft.heading}</h3>
+            </div>
+          </div>
+          <div class="company-wrap-block">
+            <div class="company-thumb-block is-display-show-for-desktop">
+              <div class="company-thumb-wrap">
+                <img src={craft.src} srcset={craft.srcset} sizes="(min-width: 992px) 40vw, 90vw" width={craft.width} height={craft.height} alt={h.craft.imageAlt} class="company-thumb" loading="lazy" data-anim="image-zoom" />
+              </div>
+            </div>
+            <div class="company-details-block">
+              <div class="company-thumb-block">
+                <div class="company-thumb-wrap">
+                  <img src={rack.src} srcset={rack.srcset} sizes="(min-width: 992px) 30vw, 90vw" width={rack.width} height={rack.height} alt={h.how.imageAlt} class="company-thumb" loading="lazy" data-anim="image-zoom" />
+                </div>
+              </div>
+              <div class="company-except-block">
+                <div class="company-except" data-anim="fade">{h.craft.body}</div>
+                <div class="company-except" data-anim="fade">{h.visit.body}</div>
+              </div>
+              <div class="company-button-block">
+                <div class="company-button" data-anim="card">
+                  <a class="button w-inline-block" href={to('/craft')}>
+                    <div class="button-bg"></div>
+                    <div class="button-text">{h.craft.button}</div>
+                    <div class="button-wrap">
+                      <Icon name="arrow-up-right" class="button-icon" />
+                      <Icon name="arrow-up-right" class="button-icon" />
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="best-sellers-section">
+    <div class="section-space">
+      <div class="w-layout-blockcontainer main-container w-container">
+        <div class="more-block">
+          <div class="more-title-block">
+            <h2 class="more-title is-display-show-for-desktop" data-anim="text-lines">{h.featured.heading}</h2>
+            <h3 class="more-title is-display-show-for-mobile" data-anim="text-lines">{h.featured.heading}</h3>
+            <div class="more-link is-more-space" data-anim="fade">
+              <a class="button is-link w-inline-block" href={to('/tailors')}>
+                <div class="button-bg is-link"></div>
+                <div class="button-text">{h.featured.all}</div>
+                <div class="button-wrap is-link">
+                  <Icon name="arrow-up-right" class="button-icon" />
+                  <Icon name="arrow-up-right" class="button-icon" />
+                </div>
+              </a>
+            </div>
+          </div>
+          {
+            featured.length === 0 ? (
+              <p class="home-empty">{h.featured.empty}</p>
+            ) : (
+              <div class="more-card-block">
+                <div class="more-slider w-slider" data-slider data-slider-infinite>
+                  <div class="more-mask w-slider-mask" data-slider-mask tabindex="0" role="group" aria-label={h.featured.heading}>
+                    {featured.map((tailor) => (
+                      <div class="more-slide w-slide" data-slide data-anim="card">
+                        <TailorCard {lang} {t} {tailor} />
+                      </div>
+                    ))}
+                  </div>
+                  <button type="button" class="more-arrow is-left w-slider-arrow-left" data-slider-prev aria-label={h.featured.previous}>
+                    <Icon name="arrow-left" class="more-icon" />
+                  </button>
+                  <button type="button" class="more-arrow is-right w-slider-arrow-right" data-slider-next aria-label={h.featured.next}>
+                    <Icon name="arrow-right" class="more-icon" />
+                  </button>
+                  <div class="more-navbar w-slider-nav w-round w-num">
+                    {featured.map((tailor, i) => (
+                      <button type="button" class="w-slider-dot" data-slider-dot aria-label={`${i + 1}: ${tailor.name}`} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="our-works-section">
+    <div class="works-height" data-anim="fade">
+      <div class="works-sticky">
+        <div class="w-layout-blockcontainer main-container w-container">
+          <div class="works-block">
+            <div class="works-details-block">
+              <div class="works-text-block">
+                <div class="works-info-block">
+                  <div class="works-info">
+                    <ul class="section-info is-white" role="list">
+                      <li class="section-info-item">{h.services.eyebrow}</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="works-title-block">
+                  <div class="works-title-wrap">
+                    {works.map((work) => <h2 class="works-title">{work.title}</h2>)}
+                  </div>
+                </div>
+              </div>
+              <div class="works-num-block">
+                <div class="values-num-wrap">
+                  <div class="values-num">
+                    {works.map((_, i) => <div class="values-text">{pad(i + 1)}</div>)}
+                  </div>
+                  <div class="values-text">-{pad(works.length)}</div>
+                </div>
+              </div>
+            </div>
+            <div class="works-thumb-block">
+              {
+                works.map((work, i) => {
+                  const image = scene(work.image);
+                  return (
+                    <div class:list={['works-thumb-wrap', `is-${['one', 'two', 'three', 'four'][i]}`]}>
+                      <img src={image.src} srcset={image.srcset} sizes="(min-width: 992px) 40vw, 90vw" width={image.width} height={image.height} alt="" class="works-thumb" loading="lazy" />
+                    </div>
+                  );
+                })
+              }
+            </div>
+            <a class="works-button-block w-inline-block" href={to('/services')}>
+              <div class="works-button">
+                <div class="works-button-text">{h.services.all}</div>
+                <Icon name="works-arrow" class="works-button-icon" />
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="process-section">
+    <div class="w-layout-blockcontainer main-container w-container">
+      <div class="process-block">
+        <div class="process-text-block">
+          <div class="process-info-block">
+            <div class="process-info" data-anim="fade">
+              <ul class="section-info" role="list">
+                <li class="section-info-item">{h.how.eyebrow}</li>
+              </ul>
+            </div>
+          </div>
+          <div class="process-title-block">
+            <h2 class="process-title is-display-show-for-desktop" data-anim="text-lines">{h.how.heading}</h2>
+            <h3 class="process-title is-display-show-for-mobile" data-anim="text-lines">{h.how.heading}</h3>
+          </div>
+        </div>
+        <div class="process-card-block is-home">
+          {
+            steps.map((step, i) => (
+              <div class:list={['process-card', `is-${['one', 'two', 'three', 'four'][i]}`]}>
+                <div class="process-num">{pad(i + 1)}</div>
+                <div class="process-wrap">
+                  <div class="process-name">{step.name}</div>
+                  <div class="process-except">{step.text}</div>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {
+    showSamples && (
+      <section class="featured-section" id="scroll-down">
+        <div class="section-space">
+          <div class="w-layout-blockcontainer main-container w-container">
+            <div class="featured-block">
+              <div class="featured-title" data-anim="fade">Sample partner logos (layout only, not real partners)</div>
+              <div class="featured-wrap" data-anim="fade">
+                {[0, 1].map(() => (
+                  <div class="featured-loop">
+                    {[logo01, logo02, logo03, logo04, logo05].map((logo) => (
+                      <img src={logo.src} alt="" class="featured-logo" loading="lazy" />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    stories.length > 0 && (
+      <section class="review-section">
+        <div class="review-height">
+          <div class="review-sticky">
+            <div class="section-space">
+              <div class="w-layout-blockcontainer main-container w-container">
+                <div class="review-block">
+                  <div class="review-text-block">
+                    <div class="review-info-block">
+                      <div class="review-info" data-anim="fade">
+                        <ul class="section-info" role="list">
+                          <li class="section-info-item">{h.stories.eyebrow}</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div class="review-title-block">
+                      <h2 class="review-title is-display-show-for-desktop" data-anim="text-lines">{h.stories.heading}</h2>
+                      <h3 class="review-title is-display-show-for-mobile" data-anim="text-lines">{h.stories.heading}</h3>
+                    </div>
+                    {isSample && <p class="home-note">{h.stories.sample}</p>}
+                  </div>
+                  {['large', 'medium', 'laptop'].map((size) => (
+                    <div class:list={['review-card-block', `is-display-show-for-${size}`]}>
+                      {stories.map((s) => (
+                        <StoryCard quote={s.quote} name={s.name} place={s.place} />
+                      ))}
+                    </div>
+                  ))}
+                  <div class="global-slider-block">
+                    <div class="global-slider w-slider" data-slider data-slider-infinite>
+                      <div class="global-mask is-review w-slider-mask" data-slider-mask tabindex="0" role="group" aria-label={h.stories.heading}>
+                        {stories.map((s) => (
+                          <div class="global-slide w-slide" data-slide data-anim="card">
+                            <StoryCard quote={s.quote} name={s.name} place={s.place} anim={undefined} />
+                          </div>
+                        ))}
+                      </div>
+                      <button type="button" class="global-arrow w-slider-arrow-left" data-slider-prev aria-label={h.stories.previous}>
+                        <Icon name="arrow-left" />
+                      </button>
+                      <button type="button" class="global-arrow w-slider-arrow-right" data-slider-next aria-label={h.stories.next}>
+                        <Icon name="arrow-right" />
+                      </button>
+                      <div class="global-nav w-slider-nav w-round w-num">
+                        {stories.map((_, i) => (
+                          <button type="button" class="w-slider-dot" data-slider-dot aria-label={`${i + 1}`} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="blog-section home-cta">
+    <div class="section-space">
+      <div class="w-layout-blockcontainer main-container w-container">
+        <div class="home-cta__block">
+          <h2 class="company-title" data-anim="text-lines">{h.final.heading}</h2>
+          <p class="company-except" data-anim="fade">{h.final.body}</p>
+          <div class="home-button-block">
+            <div class="home-button">
+              <a class="button w-inline-block" href={to('/tailors')}>
+                <div class="button-bg"></div>
+                <div class="button-text">{h.final.find}</div>
+                <div class="button-wrap">
+                  <Icon name="arrow-up-right" class="button-icon" />
+                  <Icon name="arrow-up-right" class="button-icon" />
+                </div>
+              </a>
+            </div>
+            <div class="home-button">
+              <a class="button is-coffee w-inline-block" href={to('/request')}>
+                <div class="button-bg is-coffee"></div>
+                <div class="button-text">{h.final.request}</div>
+                <div class="button-wrap">
+                  <Icon name="arrow-up-right" class="button-icon" />
+                  <Icon name="arrow-up-right" class="button-icon" />
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</ThemeLayout>
+
+<script>
+  // WhatsApp taps on the featured cards are counted like the ones on profiles.
+  import '../../scripts/contact-click';
+</script>

@@ -5,8 +5,16 @@ import '../theme/styles/global.css';
 import Header from '../theme/components/layout/Header.astro';
 import Footer from '../theme/components/layout/Footer.astro';
 import { SITE } from '../theme/config/site';
+import { shellNav } from '../theme/config/nav';
+import NewsletterSignup from '../theme/components/layout/NewsletterSignup.astro';
+import { newsletterEnabled } from '../modules/newsletter';
+import { dictionary } from '../i18n/public';
 import { isEnabled, pathFor, twinPath, type Lang } from '../i18n/lang';
-import { googleSiteVerification, siteConfig } from '../modules/config';
+import {
+  googleSiteVerification,
+  siteConfig,
+  socialLinks,
+} from '../modules/config';
 import { buildHead } from '../modules/seo/head';
 import { serialiseJsonLd } from '../modules/seo/jsonld';
 import { metaText } from '../modules/seo/meta';
@@ -60,6 +68,27 @@ const twin =
 const verification = googleSiteVerification(
   env as { GOOGLE_SITE_VERIFICATION?: string },
 );
+const t = dictionary(lang);
+const shell = shellNav(t, lang);
+const showNewsletter =
+  newsletterEnabled(env as { NEWSLETTER_ENABLED?: string }) &&
+  !['/newsletter', '/request', '/business', '/join'].some((p) =>
+    rest.startsWith(p),
+  );
+const social = [
+  ...socialLinks(
+    env as {
+      SOCIAL_FACEBOOK?: string;
+      SOCIAL_INSTAGRAM?: string;
+      SOCIAL_YOUTUBE?: string;
+      SITE_WHATSAPP?: string;
+    },
+  ).map((s) => ({
+    label: t.footer.social[s.name],
+    href: s.href,
+    icon: s.name,
+  })),
+];
 const pageTitle = title.includes(SITE.name) ? title : `${title} · ${SITE.name}`;
 ---
 
@@ -109,14 +138,33 @@ const pageTitle = title.includes(SITE.name) ? title : `${title} · ${SITE.name}`
   </head>
   <body>
     <a href="#main" class="skip-link">
-      Skip to content
+      {t.skipToContent}
     </a>
     <div class:list={['page-wrapper', className]} id="top">
-      <Header overlay={overlayHeader} twin={twin} />
+      <Header
+        overlay={overlayHeader}
+        twin={twin}
+        nav={shell.nav}
+        mega={shell.mega}
+        homeHref={shell.home}
+        labels={{ main: t.nav.label, pages: t.nav.more, menu: t.nav.menu }}
+      />
       <main class="main-wrapper" id="main">
         <slot />
       </main>
-      <Footer />
+      <Footer
+        groups={shell.footer}
+        homeHref={shell.home}
+        tagline={t.nav.tagline}
+        closing={t.footer.closing}
+        rights={t.footer.rights}
+        siteName={t.siteName}
+        social={social}
+      >
+        {showNewsletter && (
+          <NewsletterSignup slot="newsletter" lang={lang} t={t} />
+        )}
+      </Footer>
     </div>
     <script>
       import '../theme/scripts/index.ts';

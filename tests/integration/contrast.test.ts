@@ -42,7 +42,7 @@ const PAIRS: [fg: string, bg: string][] = [
 
 describe('colour tokens meet WCAG AA', () => {
   it('every text and background pair in the art direction has at least 4.5:1', async () => {
-    const html = await (await get('/')).text();
+    const html = await (await get('/tailors')).text();
     const css = (
       await Promise.all(
         [

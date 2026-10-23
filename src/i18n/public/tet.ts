@@ -19,6 +19,7 @@ export const tet: Dictionary = {
     search: 'Buka alfaiate',
     request: 'Husu Alfaiate',
     menu: 'Menu',
+    more: 'Liu tan',
     tagline: 'Alfaiate Lokál. Besik Liu ba Ita.',
   },
   footer: {

@@ -21,20 +21,23 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
     const { status, html } = await text('/');
     expect(status).toBe(200);
     expect(html).toContain('<html lang="en">');
-    // Phase 7d: the owner's reference copy replaced "Find a tailor in Dili" and "Request a tailor at home" (FR-PUB-03 label, decision logged).
+    // Handspark theme (step 3): one heading, the request button and the disclaimer all come before the second section.
     const h1 = index(
       html,
-      '<h1 id="hero-heading">Find the Tailor Who Gets <span class="accent">Your Style.</span>',
+      '<h1 class="home-title" data-anim="hero">Find the Tailor Who Gets Your Style.</h1>',
     );
     const disclaimer = index(html, 'introduces you to independent tailors');
-    const cta = index(html, 'class="button button--accent" href="/request"');
-    const how = index(html, '<h2 id="how">');
-    // The first content block: heading, disclaimer and request button all come before "How it works" and the rest.
+    const cta = index(
+      html,
+      'class="button is-coffee w-inline-block" href="/request"',
+    );
+    const company = index(html, 'class="company-section"');
     expect(h1).toBeLessThan(disclaimer);
-    expect(disclaimer).toBeLessThan(how);
-    expect(cta).toBeLessThan(how);
+    expect(disclaimer).toBeLessThan(company);
+    expect(cta).toBeLessThan(company);
     expect(html).toContain('href="/request"');
     expect(html).toContain('href="/tailors"');
+    expect(html.match(/<h1\b/g)).toHaveLength(1);
   });
 
   it('does the same in Tetum, with Tetum links', async () => {
@@ -43,17 +46,17 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
     expect(html).toContain('<html lang="tet">');
     const h1 = index(
       html,
-      '<h1 id="hero-heading">Buka Alfaiate ne’ebé Komprende',
+      '<h1 class="home-title" data-anim="hero">Buka Alfaiate ne’ebé Komprende Ita-nia Estilu.</h1>',
     );
     const disclaimer = index(html, 'aprezenta ita ba alfaiate independente');
     const cta = index(
       html,
-      'class="button button--accent" href="/tet/request"',
+      'class="button is-coffee w-inline-block" href="/tet/request"',
     );
-    const how = index(html, '<h2 id="how">');
+    const company = index(html, 'class="company-section"');
     expect(h1).toBeLessThan(disclaimer);
-    expect(disclaimer).toBeLessThan(how);
-    expect(cta).toBeLessThan(how);
+    expect(disclaimer).toBeLessThan(company);
+    expect(cta).toBeLessThan(company);
     expect(html).toContain('href="/tet/request"');
     expect(html).toContain('href="/tet/tailors"');
   });
@@ -94,7 +97,7 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
     );
   });
 
-  it('links a service card to its category page once a published tailor offers it, and to the directory before that', async () => {
+  it('links a service card (on the services page) to its category page once a published tailor offers it, and to the directory before that', async () => {
     const custom =
       (
         await env.DB.prepare(
@@ -119,7 +122,7 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
     )
       .bind(live, custom)
       .run();
-    const { html } = await text('/');
+    const { html } = await text('/services');
     const card = (label: string) =>
       new RegExp(
         `<a class="service-card reveal" href="([^"]+)">(?:(?!</a>)[\\s\\S])*?${label}`,
@@ -127,7 +130,7 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
     expect(card('Custom Clothing')).toBe('/categories/custom-clothing');
     expect(card('Wedding and Special Occasions')).toBe('/tailors');
     expect(html.match(/class="service-card reveal"/g)).toHaveLength(8);
-    const tet = (await text('/tet/')).html;
+    const tet = (await text('/tet/services')).html;
     expect(tet).toContain('href="/tet/categories/custom-clothing"');
   });
 

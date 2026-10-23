@@ -1,6 +1,6 @@
 # Spec: Handspark theme as the public face of Alfaiate TL
 
-Status: **Decisions approved 2026-10-23. Steps 1 and 2 done; step 3 (home) next.** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
+Status: **Decisions approved 2026-10-23. Steps 1 to 3 done; step 4 (directory, profile, request list) next.** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
 
 ## Objective
 
@@ -24,6 +24,14 @@ Signature features the owner named: the **hero image trail** (pictures appear an
 - Test page `/theme-preview` and `/tet/theme-preview` (noindex, not in the sitemap, removed in step 8) prove the frame: security headers, no inline style or script, same-origin assets, head, language switch, axe clean, no text clipped, no CSP violation, reflow.
 - Vendor rules: `src/theme/` is skipped by lint and the formatter, `src/theme/scripts` by the Workers typecheck (they are browser code); the one console call was made constant (SEC-05).
 - Checks: `npm run check` 771 and 676 tests, e2e 146.
+
+## Step 3: done (the home page is the theme's)
+
+- `/` and `/tet/` now render `src/theme/views/Home.astro` in `ThemeLayout`. Sections: hero with the **image trail** (pictures follow the pointer, from the licensed scene photos, never tailors' work) and the **tape-measure ruler**; about (our craft copy); featured tailors in the theme's slider (photo or initials badge, place, one named price, consent-gated WhatsApp); our services (the pinned scroll section, scene photos); process (our four steps); call to action. Sample partner logos and the stories section stay hidden unless the development sample flag is on (BR-11); no ratings anywhere. The journal section arrives with step 6.
+- The theme's menus and footer now use our pages and words in both languages (`src/theme/config/nav.ts`); the footer sign-up is our real, consent-gated form (the theme's demo form only pretended to send); social links come from our settings, not the theme's demo profiles; the designer credit line is off.
+- Accessibility: where the theme's text-splitting animation would hide a link or label a plain block (axe), the block uses a fade instead.
+- Tests: home and design tests rewritten for the new markup (nothing dropped: the service-card test moved to `/services`), shell tests retargeted to `/about` while it keeps the old frame, an e2e test for the image trail, budgets re-set from measurements. `npm run check` 771 and 677, e2e 147.
+- **Weight (measured at 375 px, 4x CPU, 1.6 Mbps):** home CSS 30 kB and JS 60 kB compressed (the whole theme sheet; GSAP and Lenis), fonts 188 kB (TTF), images 376 kB; load 5.5 s, first content 2.3 s, largest paint 2.3 s. The old home was far lighter. Step 7 trims it: woff2 fonts, per-page CSS, motion only on wide pointer devices.
 
 ## What the theme contains (all of it is to be kept)
 

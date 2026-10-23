@@ -5,7 +5,7 @@ import { worker } from './worker';
 // Phase 7c T1: the display serif is self-hosted, small, licensed and swaps in without blocking text.
 const FONT = '/fonts/alfaiate-display.woff2';
 const css = async () => {
-  const html = await (await get('/')).text();
+  const html = await (await get('/tailors')).text();
   return (
     await Promise.all(
       [...html.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(
