@@ -22,6 +22,10 @@ import {
   productFromForm,
   updateProduct,
 } from '../../../modules/shop/products';
+import {
+  listProductImages,
+  MAX_PRODUCT_IMAGES,
+} from '../../../modules/shop/images';
 import { productMessage } from '../../../modules/shop/messages';
 
 const auth = await requirePermission(Astro, 'product.edit');
@@ -62,6 +66,9 @@ if (!product) return new Response('Not found', { status: 404 });
 const { message, kind, fields } = productMessage(Astro.url);
 const categories = await listProductCategories(DB);
 const mayPublish = can(auth.role, 'product.publish');
+const images = await listProductImages(DB, id);
+// Editing a live product needs publish rights, so photos follow the same rule.
+const mayEditPhotos = !product.is_published || mayPublish;
 ---
 
 <AdminLayout title={product.name} description={product.name} auth={auth}>
@@ -91,6 +98,84 @@ const mayPublish = can(auth.role, 'product.publish');
       <button type="submit">Save changes</button>
     </StickyBar>
   </form>
+  <Card title="Photos" id="photos">
+    <p>
+      Photos are private while the product is a draft. They appear on the shop
+      when you publish it.
+    </p>
+    {images.length === 0 && <p>No photos yet.</p>}
+    <ul class="photo-list">
+      {images.map((image) => (
+        <li>
+          <img
+            src={`/admin/media/product/${product.id}/${image.file_key}/thumb.jpg`}
+            alt={image.alt_text}
+            width="160"
+            loading="lazy"
+          />
+          <p>{image.alt_text}</p>
+          {mayEditPhotos && (
+            <form
+              method="post"
+              action={`/admin/products/${product.id}/images/actions`}
+            >
+              <input type="hidden" name="csrf" value={auth.csrfToken} />
+              <input type="hidden" name="action" value="delete" />
+              <input type="hidden" name="image_id" value={image.id} />
+              <button type="submit">Remove photo</button>
+            </form>
+          )}
+        </li>
+      ))}
+    </ul>
+    {mayEditPhotos && images.length < MAX_PRODUCT_IMAGES && (
+      <>
+        <h3>Add a photo</h3>
+        <form
+          method="post"
+          action={`/admin/products/${product.id}/images`}
+          enctype="multipart/form-data"
+          data-photo-upload
+          data-msg-choose={en.photosChoose}
+          data-msg-type={en.photosBadType}
+          data-msg-empty={en.photosEmpty}
+          data-msg-size={en.photosTooBig}
+          data-msg-working={en.photosWorking}
+          data-msg-failed={en.photosFailed}
+        >
+          <input type="hidden" name="csrf" value={auth.csrfToken} />
+          <p>
+            <label for="photo-file">{en.photosFile}</label>
+            <br />
+            <input
+              id="photo-file"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              required
+            />
+          </p>
+          <p>
+            <label for="photo-alt">
+              Describe the photo (for people who cannot see it)
+            </label>
+            <br />
+            <input id="photo-alt" name="alt_text" maxlength="200" required />
+          </p>
+          <p role="status" data-upload-status></p>
+          <button type="submit">{en.photosUpload}</button>
+        </form>
+        <script>
+          import '../../../scripts/image-upload';
+        </script>
+      </>
+    )}
+    {mayEditPhotos && images.length >= MAX_PRODUCT_IMAGES && (
+      <p>A product can have up to {MAX_PRODUCT_IMAGES} photos.</p>
+    )}
+    {!mayEditPhotos && (
+      <p>This product is published. A manager or owner changes its photos.</p>
+    )}
+  </Card>
   <Card title="Visibility" id="visibility">
     {mayPublish ? (
       <form method="post" action={`/admin/products/${product.id}/publish`}>

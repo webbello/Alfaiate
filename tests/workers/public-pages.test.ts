@@ -40,6 +40,7 @@ describe('public routes (scope guard)', () => {
     'journal/category/[slug].astro',
     'journal/index.astro',
     'media/[...key].ts',
+    'media/shop/[...key].ts',
     'newsletter.astro',
     'newsletter/thanks.astro',
     'privacy.astro',

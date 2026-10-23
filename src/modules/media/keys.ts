@@ -32,3 +32,27 @@ export function parseVariantKey(
       }
     : null;
 }
+
+const PRODUCT_KEY =
+  /^product\/(\d{1,9})\/([0-9a-f]{32})\/(thumb|medium|large)\.jpg$/;
+export const productImagePrefix = (productId: number) =>
+  `product/${productId}/`;
+export const productVariantKey = (
+  productId: number,
+  imageKey: string,
+  variant: Variant,
+) => `${productImagePrefix(productId)}${imageKey}/${variant}.jpg`;
+
+/** Strict parse of a product photo key; anything else is null. */
+export function parseProductKey(
+  key: string,
+): { productId: number; imageKey: string; variant: Variant } | null {
+  const match = PRODUCT_KEY.exec(key);
+  return match
+    ? {
+        productId: Number(match[1]),
+        imageKey: match[2],
+        variant: match[3] as Variant,
+      }
+    : null;
+}

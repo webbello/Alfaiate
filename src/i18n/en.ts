@@ -287,6 +287,7 @@ export const en = {
       'The photo could not be saved. Nothing was stored; please try again.',
     not_permitted:
       'Only a photo with recorded permission that is not hidden can be the profile photo.',
+    photos_sync: 'Saved, but the photos could not be updated on the shop. Press Publish or Unpublish again.',
     needs_description: 'A product needs a description before it can be published.',
     published: 'Published.',
     unpublished: 'Unpublished.',

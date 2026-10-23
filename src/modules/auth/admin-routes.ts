@@ -156,6 +156,18 @@ export const ADMIN_ROUTES: readonly {
     methods: ['GET', 'POST'],
   },
   {
+    file: 'products/[id]/images.ts',
+    path: '/admin/products/[id]/images',
+    permission: 'product.edit',
+    methods: ['POST'],
+  },
+  {
+    file: 'products/[id]/images/actions.ts',
+    path: '/admin/products/[id]/images/actions',
+    permission: 'product.edit',
+    methods: ['POST'],
+  },
+  {
     file: 'products/[id]/publish.ts',
     path: '/admin/products/[id]/publish',
     permission: 'product.publish',
