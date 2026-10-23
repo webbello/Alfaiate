@@ -391,7 +391,8 @@ html:not(.js) .works-button { background: #3d5a33; }
 
 /* ---- One-row header on wide screens: logo on the left, menu on the right (saves about 85px of height) ---- */
 @media (min-width: 992px) {
-  .header-section { top: 0; padding: 0.9rem clamp(1.5rem, 4vw, 3.5rem); border-bottom: 1px dashed var(--color-line, #8a8a8a4d); }
+  /* the header row uses the same container as every section, so the logo and the menu line up with the page content */
+  .header-section { top: 0; padding: 0.9rem 0; border-bottom: 1px dashed var(--color-line, #8a8a8a4d); }
   .header-block { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; }
   .header-brand-block { margin: 0; flex: none; align-items: flex-start; }
   .header-brand { max-width: none; width: auto; }
@@ -404,3 +405,19 @@ html:not(.js) .works-button { background: #3d5a33; }
   .shop-section:not(.profile) { padding-top: max(4rem, calc(var(--global-variables--shop-space) - 85px)); }
   .legacy-band { padding-top: 7.5rem; }
 }
+/* below 992px the header section has its own padding; the shared container must not add more */
+@media (max-width: 991px) {
+  .header-block.main-container { max-width: none; padding-inline: 0; }
+}
+.header-block.main-container { display: flex; }
+
+@media (max-width: 767px) {
+  .header-block .brand-mark { gap: 0.35rem; }
+  .header-block .brand-name { font-size: 1.35rem; }
+  .header-block .brand-tl { font-size: 0.65rem; padding: 0.2rem 0.4rem; }
+}
+/* very narrow phones: the cart button keeps only its icon and count, the words stay for screen readers */
+@media (max-width: 419px) {
+  .header-cart-text { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+}
+.header-cart-text { white-space: nowrap; }
