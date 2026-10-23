@@ -35,15 +35,16 @@ const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
   auth={auth}
 >
   <h1>{en.tailorListHeading}</h1>
-  <p>
-    <a href="/admin">{en.adminDashboardHeading}</a> ·{' '}
-    <a href="/admin/tailors/new">{en.tailorNew}</a>
-  </p>
-  <p>
-    <a href="/admin/tailors">{en.tailorFilterAll}</a> ·{' '}
-    <a href="/admin/tailors?published=1">{en.tailorPublished}</a> ·{' '}
-    <a href="/admin/tailors?published=0">{en.tailorNotPublished}</a>
-  </p>
+  <div class="toolbar">
+    <nav class="tabs" aria-label={en.tailorFilterAll}>
+      <a href="/admin/tailors">{en.tailorFilterAll}</a>
+      <a href="/admin/tailors?published=1">{en.tailorPublished}</a>
+      <a href="/admin/tailors?published=0">{en.tailorNotPublished}</a>
+    </nav>
+    <a class="button-link button-link--primary" href="/admin/tailors/new">
+      {en.tailorNew}
+    </a>
+  </div>
   {tailors.length === 0 && (
     <EmptyState title="No tailors yet">
       <p>

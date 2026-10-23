@@ -638,3 +638,114 @@ details[open] > summary {
 tbody tr:hover {
   background: #f8fafc;
 }
+
+/* Lists (T3): a toolbar above the table, a search bar in one row, tables as cards */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin: 0 0 1rem;
+}
+.toolbar .tabs {
+  margin: 0;
+}
+.button-link--primary {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.button-link--primary:hover {
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+.searchbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0 1.25rem;
+  max-width: none;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.searchbar p {
+  margin: 0 0 0.75rem;
+}
+.searchbar p {
+  min-width: 0;
+  max-width: 100%;
+}
+.searchbar input[type='search'] {
+  width: min(20rem, 100%);
+}
+table {
+  box-shadow: var(--shadow);
+  font-size: 0.95rem;
+}
+th {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* Tick lists (T4): work types and areas as a wrapping grid of checkboxes */
+fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0.5rem 0.75rem 0.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+legend {
+  padding: 0 0.25rem;
+  font-weight: 600;
+}
+.checkgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0 1rem;
+}
+details > .form-grid {
+  padding-bottom: 1rem;
+}
+
+/* Tailor page (T5): forms on the left, status and publishing on the right; one column on a phone and a tablet */
+.split {
+  display: grid;
+  gap: 0 1.5rem;
+}
+.split__main,
+.split__side {
+  min-width: 0;
+}
+.split__side > :first-child,
+.split__main > :first-child {
+  margin-top: 0;
+}
+.split form:has(> fieldset),
+.split__main form:has(> p input[type='checkbox']) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.75rem 1rem;
+  align-items: start;
+}
+.split__main form:has(> p input[type='checkbox']) > p {
+  margin: 0;
+}
+.split form:has(> fieldset) > button,
+.split__main form:has(> p input[type='checkbox']) > button {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+.split__side form {
+  margin: 0 0 0.75rem;
+}
+@media (min-width: 90rem) {
+  .split {
+    grid-template-columns: minmax(0, 1fr) 24rem;
+  }
+}

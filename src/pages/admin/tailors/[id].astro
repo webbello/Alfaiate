@@ -23,6 +23,7 @@ import { MAX_IMAGES } from '../../../modules/media/store';
 import { messageFrom } from '../../../modules/tailors/messages';
 import { publishBlockers } from '../../../modules/tailors/publish';
 import Card from '../../../components/admin/Card.astro';
+import FormGrid from '../../../components/admin/FormGrid.astro';
 import { publishChecklist } from '../../../modules/admin-ui/checklist';
 import { VERIFIABLE_FIELDS } from '../../../modules/tailors/verification';
 
@@ -94,503 +95,530 @@ const action = `/admin/tailors/${id}/actions`;
   )}
   {!editable && <p role="note">{en.tailorLocked}</p>}
 
-  {tailor.is_published ? (
-    <Card title="Published" level={2} id="live">
-      <p>
-        This tailor is live.{' '}
-        <a href={`/tailors/${tailor.slug}`}>View the public page</a>
-      </p>
-    </Card>
-  ) : (
-    <Card
-      title="Ready to publish?"
-      level={2}
-      id="checklist"
-      warning={missingCount > 0}
-    >
-      <p>
-        {missingCount === 0
-          ? 'Ready to publish'
-          : `Not ready to publish: ${missingCount} ${missingCount === 1 ? 'thing is' : 'things are'} still missing`}
-      </p>
-      <ul class="checks">
-        {checklist.map((i) => (
-          <li class={`check check--${i.done ? 'done' : 'missing'}`}>
-            <strong>{i.done ? 'Done' : 'Missing'}:</strong> {i.label}
-            {!i.done && (
-              <>
-                {' '}
-                · <a href={i.fixHref}>Fix this</a>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-    </Card>
-  )}
-
-  {mayVerify && (
-    <>
-      <h2 id="publish">{en.publishHeading}</h2>
-      {tailor.is_published ? (
-        <p>{en.tailorPublished}</p>
-      ) : currentBlockers.length > 0 ? (
+  <div class="split">
+    <div class="split__main">
+      {editable && (
         <>
-          <p>{en.publishBlockedIntro}</p>
-          <ul>
-            {currentBlockers.map((b) => (
-              <li>{b}</li>
-            ))}
-          </ul>
-        </>
-      ) : (
-        <p>{en.publishReady}</p>
-      )}
-      <form method="post" action={publishAction}>
-        <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <input type="hidden" name="action" value="approve" />
-        <button type="submit" disabled={tailor.status === 'approved'}>
-          {en.publishApprove}
-        </button>
-      </form>
-      <form method="post" action={publishAction}>
-        <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <input type="hidden" name="action" value="record_permission" />
-        <p>
-          <label for="permission_note">{en.publishPermissionNote}</label>
-          <br />
-          <input
-            id="permission_note"
-            name="permission_note"
-            value={tailor.permission_note ?? ''}
-            maxlength="500"
-            required
-          />
-        </p>
-        <p>
-          <label for="permission_date">{en.publishPermissionDate}</label>
-          <br />
-          <input
-            id="permission_date"
-            name="permission_date"
-            type="date"
-            value={tailor.permission_date ?? ''}
-            required
-          />
-        </p>
-        <p>
-          <label>
-            <input
-              type="checkbox"
-              name="contact_publish_consent"
-              checked={!!tailor.contact_publish_consent}
-            />{' '}
-            {en.publishConsent}
-          </label>
-        </p>
-        <button type="submit">{en.publishRecord}</button>
-      </form>
-      {tailor.permission_recorded ? (
-        <form method="post" action={publishAction}>
-          <input type="hidden" name="csrf" value={auth.csrfToken} />
-          <input type="hidden" name="action" value="withdraw_permission" />
-          <button type="submit" class="danger">
-            {en.publishWithdraw}
-          </button>
-        </form>
-      ) : null}
-      <form method="post" action={publishAction}>
-        <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <input type="hidden" name="action" value="set_verified" />
-        <fieldset>
-          <legend>{en.publishVerifiedHeading}</legend>
-          {VERIFIABLE_FIELDS.map((f) => (
-            <label>
-              <input
-                type="checkbox"
-                name={`verified_${f}`}
-                checked={verified.has(f)}
-              />{' '}
-              {en.verifiableLabels[f]}
-            </label>
-          ))}
-        </fieldset>
-        <button type="submit">{en.publishSaveVerified}</button>
-      </form>
-      <form method="post" action={publishAction}>
-        <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <input
-          type="hidden"
-          name="action"
-          value={tailor.is_published ? 'unpublish' : 'publish'}
-        />
-        <button
-          type="submit"
-          class={tailor.is_published ? 'danger' : undefined}
-        >
-          {tailor.is_published ? en.publishUnpublish : en.publishNow}
-        </button>
-      </form>
-    </>
-  )}
+          <h2 id="profile">{en.tailorProfileHeading}</h2>
+          <form method="post" action={action}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <input type="hidden" name="action" value="save_profile" />
+            <FormGrid>
+              <ProfileFields
+                values={tailor}
+                withSlug={!tailor.published_at && !tailor.is_published}
+              />
+            </FormGrid>
+            <button type="submit">{en.tailorSave}</button>
+          </form>
 
-  {editable && (
-    <>
-      <h2 id="profile">{en.tailorProfileHeading}</h2>
-      <form method="post" action={action}>
-        <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <input type="hidden" name="action" value="save_profile" />
-        <ProfileFields
-          values={tailor}
-          withSlug={!tailor.published_at && !tailor.is_published}
-        />
-        <button type="submit">{en.tailorSave}</button>
-      </form>
+          <h2>{en.tailorCategoriesHeading}</h2>
+          {categories.length === 0 && <p>{en.tailorNoCategories}</p>}
+          <form method="post" action={action}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <input type="hidden" name="action" value="save_categories" />
+            {categories
+              .filter((c) => c.is_active || linkFor.has(c.id))
+              .map((c) => {
+                const link = linkFor.get(c.id);
+                return (
+                  <fieldset>
+                    <legend>
+                      <label>
+                        <input
+                          type="checkbox"
+                          name={`cat_${c.id}`}
+                          checked={!!link}
+                        />{' '}
+                        {c.name}
+                        {!c.is_active && ` ${en.tailorInactiveMark}`}
+                      </label>
+                    </legend>
+                    <label>
+                      {en.tailorPriceFrom}{' '}
+                      <input
+                        name={`from_${c.id}`}
+                        value={centsToDollars(link?.price_from ?? null)}
+                        inputmode="decimal"
+                      />
+                    </label>
+                    <label>
+                      {en.tailorPriceTo}{' '}
+                      <input
+                        name={`to_${c.id}`}
+                        value={centsToDollars(link?.price_to ?? null)}
+                        inputmode="decimal"
+                      />
+                    </label>
+                    <label>
+                      {en.tailorPriceUnit}{' '}
+                      <input
+                        name={`unit_${c.id}`}
+                        value={link?.price_unit_note ?? ''}
+                        maxlength="100"
+                      />
+                    </label>
+                    <label>
+                      {en.tailorPriceConfirmed}{' '}
+                      <input
+                        type="date"
+                        name={`confirmed_${c.id}`}
+                        value={link?.price_confirmed_on ?? ''}
+                      />
+                    </label>
+                    {mayVerify && (
+                      <label>
+                        {en.tailorPriceSource}
+                        <select name={`source_${c.id}`}>
+                          <option
+                            value="tailor_supplied"
+                            selected={link?.price_source !== 'verified'}
+                          >
+                            {en.tailorSourceSupplied}
+                          </option>
+                          <option
+                            value="verified"
+                            selected={link?.price_source === 'verified'}
+                          >
+                            {en.tailorSourceVerified}
+                          </option>
+                        </select>
+                      </label>
+                    )}
+                  </fieldset>
+                );
+              })}
+            <button type="submit">{en.tailorSave}</button>
+          </form>
 
-      <h2>{en.tailorCategoriesHeading}</h2>
-      {categories.length === 0 && <p>{en.tailorNoCategories}</p>}
-      <form method="post" action={action}>
-        <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <input type="hidden" name="action" value="save_categories" />
-        {categories
-          .filter((c) => c.is_active || linkFor.has(c.id))
-          .map((c) => {
-            const link = linkFor.get(c.id);
-            return (
-              <fieldset>
-                <legend>
+          <h2>{en.tailorAreasHeading}</h2>
+          {areas.length === 0 && <p>{en.tailorNoAreas}</p>}
+          <form method="post" action={action}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <input type="hidden" name="action" value="save_areas" />
+            {areas
+              .filter((a) => a.is_active || shop.has(a.id) || serves.has(a.id))
+              .map((a) => (
+                <p>
+                  {a.name}
+                  {!a.is_active && ` ${en.tailorInactiveMark}`}
                   <label>
                     <input
                       type="checkbox"
-                      name={`cat_${c.id}`}
-                      checked={!!link}
+                      name={`shop_${a.id}`}
+                      checked={shop.has(a.id)}
                     />{' '}
-                    {c.name}
-                    {!c.is_active && ` ${en.tailorInactiveMark}`}
+                    {en.tailorShopLocation}
                   </label>
-                </legend>
-                <label>
-                  {en.tailorPriceFrom}{' '}
-                  <input
-                    name={`from_${c.id}`}
-                    value={centsToDollars(link?.price_from ?? null)}
-                    inputmode="decimal"
-                  />
-                </label>
-                <label>
-                  {en.tailorPriceTo}{' '}
-                  <input
-                    name={`to_${c.id}`}
-                    value={centsToDollars(link?.price_to ?? null)}
-                    inputmode="decimal"
-                  />
-                </label>
-                <label>
-                  {en.tailorPriceUnit}{' '}
-                  <input
-                    name={`unit_${c.id}`}
-                    value={link?.price_unit_note ?? ''}
-                    maxlength="100"
-                  />
-                </label>
-                <label>
-                  {en.tailorPriceConfirmed}{' '}
-                  <input
-                    type="date"
-                    name={`confirmed_${c.id}`}
-                    value={link?.price_confirmed_on ?? ''}
-                  />
-                </label>
-                {mayVerify && (
                   <label>
-                    {en.tailorPriceSource}
-                    <select name={`source_${c.id}`}>
-                      <option
-                        value="tailor_supplied"
-                        selected={link?.price_source !== 'verified'}
-                      >
-                        {en.tailorSourceSupplied}
-                      </option>
-                      <option
-                        value="verified"
-                        selected={link?.price_source === 'verified'}
-                      >
-                        {en.tailorSourceVerified}
-                      </option>
-                    </select>
+                    <input
+                      type="checkbox"
+                      name={`serves_${a.id}`}
+                      checked={serves.has(a.id)}
+                    />{' '}
+                    {en.tailorServes}
                   </label>
-                )}
-              </fieldset>
-            );
-          })}
-        <button type="submit">{en.tailorSave}</button>
-      </form>
+                </p>
+              ))}
+            <button type="submit">{en.tailorSave}</button>
+          </form>
+        </>
+      )}
 
-      <h2>{en.tailorAreasHeading}</h2>
-      {areas.length === 0 && <p>{en.tailorNoAreas}</p>}
-      <form method="post" action={action}>
-        <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <input type="hidden" name="action" value="save_areas" />
-        {areas
-          .filter((a) => a.is_active || shop.has(a.id) || serves.has(a.id))
-          .map((a) => (
+      <h2>{en.photosHeading}</h2>
+      <p>{en.photosPrivateNote}</p>
+      {images.length === 0 && <p>{en.photosNone}</p>}
+      <ul>
+        {images.map((image) => {
+          const preview = `/admin/media/tailor/${id}/${image.file_key}/thumb.jpg`;
+          return (
+            <li>
+              <img
+                src={preview}
+                alt={image.alt_text}
+                width="160"
+                loading="lazy"
+              />
+              <p>
+                {image.is_visible ? en.photosVisible : en.photosHidden} ·
+                {image.permission_granted
+                  ? ` ${en.photosPermitted} ${image.permission_date}`
+                  : ` ${en.photosNotPermitted}`}
+                {tailor.profile_photo_id === image.id &&
+                  ` · ${en.photosIsProfile}`}
+              </p>
+              {editable && (
+                <>
+                  <form method="post" action={imageAction}>
+                    <input type="hidden" name="csrf" value={auth.csrfToken} />
+                    <input type="hidden" name="action" value="details" />
+                    <input type="hidden" name="image_id" value={image.id} />
+                    <input
+                      name="alt_text"
+                      value={image.alt_text}
+                      maxlength="200"
+                      required
+                      aria-label={en.photosAlt}
+                    />
+                    <input
+                      name="caption"
+                      value={image.caption ?? ''}
+                      maxlength="200"
+                      aria-label={en.photosCaption}
+                    />
+                    <button type="submit">{en.photosSave}</button>
+                  </form>
+                  <form method="post" action={imageAction}>
+                    <input type="hidden" name="csrf" value={auth.csrfToken} />
+                    <input type="hidden" name="action" value="order" />
+                    <input type="hidden" name="image_id" value={image.id} />
+                    <input
+                      name="sort_order"
+                      type="number"
+                      value={image.sort_order}
+                      required
+                      aria-label={en.photosOrder}
+                    />
+                    <button type="submit">{en.photosSave}</button>
+                  </form>
+                  <form method="post" action={imageAction}>
+                    <input type="hidden" name="csrf" value={auth.csrfToken} />
+                    <input type="hidden" name="action" value="visibility" />
+                    <input type="hidden" name="image_id" value={image.id} />
+                    <input
+                      type="hidden"
+                      name="visible"
+                      value={image.is_visible ? '0' : '1'}
+                    />
+                    <button type="submit">
+                      {image.is_visible ? en.photosHide : en.photosShow}
+                    </button>
+                  </form>
+                  {image.permission_granted &&
+                  image.is_visible &&
+                  tailor.profile_photo_id !== image.id ? (
+                    <form method="post" action={imageAction}>
+                      <input type="hidden" name="csrf" value={auth.csrfToken} />
+                      <input
+                        type="hidden"
+                        name="action"
+                        value="profile_photo"
+                      />
+                      <input type="hidden" name="image_id" value={image.id} />
+                      <button type="submit">{en.photosProfile}</button>
+                    </form>
+                  ) : null}
+                  <form method="post" action={imageAction}>
+                    <input type="hidden" name="csrf" value={auth.csrfToken} />
+                    <input type="hidden" name="action" value="delete" />
+                    <input type="hidden" name="image_id" value={image.id} />
+                    <button type="submit">{en.photosDelete}</button>
+                  </form>
+                </>
+              )}
+              {mayVerify && (
+                <form method="post" action={publishAction}>
+                  <input type="hidden" name="csrf" value={auth.csrfToken} />
+                  <input type="hidden" name="action" value="image_permission" />
+                  <input type="hidden" name="image_id" value={image.id} />
+                  {image.permission_granted ? (
+                    <>
+                      <input type="hidden" name="granted" value="0" />
+                      <button type="submit">{en.photosWithdraw}</button>
+                    </>
+                  ) : (
+                    <>
+                      <input type="hidden" name="granted" value="1" />
+                      <label>
+                        {en.photosPermissionDate}{' '}
+                        <input type="date" name="permission_date" required />
+                      </label>
+                      <button type="submit">{en.photosGrant}</button>
+                    </>
+                  )}
+                </form>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      {editable && images.length < MAX_IMAGES && (
+        <>
+          <h3>{en.photosUploadHeading}</h3>
+          <form
+            method="post"
+            action={`/admin/tailors/${id}/images`}
+            enctype="multipart/form-data"
+            data-photo-upload
+            data-msg-choose={en.photosChoose}
+            data-msg-type={en.photosBadType}
+            data-msg-empty={en.photosEmpty}
+            data-msg-size={en.photosTooBig}
+            data-msg-working={en.photosWorking}
+            data-msg-failed={en.photosFailed}
+          >
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
             <p>
-              {a.name}
-              {!a.is_active && ` ${en.tailorInactiveMark}`}
+              <label for="photo-file">{en.photosFile}</label>
+              <br />
+              <input
+                id="photo-file"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                required
+              />
+            </p>
+            <p>
+              <label for="photo-alt">{en.photosAlt}</label>
+              <br />
+              <input id="photo-alt" name="alt_text" maxlength="200" required />
+            </p>
+            <p>
+              <label for="photo-caption">{en.photosCaption}</label>
+              <br />
+              <input id="photo-caption" name="caption" maxlength="200" />
+            </p>
+            <p role="status" data-upload-status></p>
+            <button type="submit">{en.photosUpload}</button>
+          </form>
+          <script>
+            import '../../../scripts/image-upload';
+          </script>
+        </>
+      )}
+      {editable && images.length >= MAX_IMAGES && <p>{en.photosLimit}</p>}
+
+      {can(auth.role, 'fee.view') && (
+        <>
+          <h2>{en.feeHeading}</h2>
+          <form method="post" action={`/admin/tailors/${id}/fees`}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <p>
+              <label for="fee_terms_text">{en.feeTerms}</label>
+              <br />
+              <textarea
+                id="fee_terms_text"
+                name="fee_terms_text"
+                maxlength="2000"
+                rows="3"
+              >{tailor.fee_terms_text ?? ''}</textarea>
+            </p>
+            <p>
+              <label for="fee_terms_agreed_on">{en.feeAgreedOn}</label>
+              <br />
+              <input
+                id="fee_terms_agreed_on"
+                name="fee_terms_agreed_on"
+                type="date"
+                value={tailor.fee_terms_agreed_on ?? ''}
+              />
+            </p>
+            <button type="submit">{en.feeSave}</button>
+          </form>
+        </>
+      )}
+    </div>
+    <aside class="split__side" aria-label="Status and publishing">
+      {tailor.is_published ? (
+        <Card title="Published" level={2} id="live">
+          <p>
+            This tailor is live.{' '}
+            <a href={`/tailors/${tailor.slug}`}>View the public page</a>
+          </p>
+        </Card>
+      ) : (
+        <Card
+          title="Ready to publish?"
+          level={2}
+          id="checklist"
+          warning={missingCount > 0}
+        >
+          <p>
+            {missingCount === 0
+              ? 'Ready to publish'
+              : `Not ready to publish: ${missingCount} ${missingCount === 1 ? 'thing is' : 'things are'} still missing`}
+          </p>
+          <ul class="checks">
+            {checklist.map((i) => (
+              <li class={`check check--${i.done ? 'done' : 'missing'}`}>
+                <strong>{i.done ? 'Done' : 'Missing'}:</strong> {i.label}
+                {!i.done && (
+                  <>
+                    {' '}
+                    · <a href={i.fixHref}>Fix this</a>
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      {mayVerify && (
+        <>
+          <h2 id="publish">{en.publishHeading}</h2>
+          {tailor.is_published ? (
+            <p>{en.tailorPublished}</p>
+          ) : currentBlockers.length > 0 ? (
+            <>
+              <p>{en.publishBlockedIntro}</p>
+              <ul>
+                {currentBlockers.map((b) => (
+                  <li>{b}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p>{en.publishReady}</p>
+          )}
+          <form method="post" action={publishAction}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <input type="hidden" name="action" value="approve" />
+            <button type="submit" disabled={tailor.status === 'approved'}>
+              {en.publishApprove}
+            </button>
+          </form>
+          <form method="post" action={publishAction}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <input type="hidden" name="action" value="record_permission" />
+            <p>
+              <label for="permission_note">{en.publishPermissionNote}</label>
+              <br />
+              <input
+                id="permission_note"
+                name="permission_note"
+                value={tailor.permission_note ?? ''}
+                maxlength="500"
+                required
+              />
+            </p>
+            <p>
+              <label for="permission_date">{en.publishPermissionDate}</label>
+              <br />
+              <input
+                id="permission_date"
+                name="permission_date"
+                type="date"
+                value={tailor.permission_date ?? ''}
+                required
+              />
+            </p>
+            <p>
               <label>
                 <input
                   type="checkbox"
-                  name={`shop_${a.id}`}
-                  checked={shop.has(a.id)}
+                  name="contact_publish_consent"
+                  checked={!!tailor.contact_publish_consent}
                 />{' '}
-                {en.tailorShopLocation}
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  name={`serves_${a.id}`}
-                  checked={serves.has(a.id)}
-                />{' '}
-                {en.tailorServes}
+                {en.publishConsent}
               </label>
             </p>
-          ))}
-        <button type="submit">{en.tailorSave}</button>
-      </form>
-    </>
-  )}
+            <button type="submit">{en.publishRecord}</button>
+          </form>
+          {tailor.permission_recorded ? (
+            <form method="post" action={publishAction}>
+              <input type="hidden" name="csrf" value={auth.csrfToken} />
+              <input type="hidden" name="action" value="withdraw_permission" />
+              <button type="submit" class="danger">
+                {en.publishWithdraw}
+              </button>
+            </form>
+          ) : null}
+          <form method="post" action={publishAction}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <input type="hidden" name="action" value="set_verified" />
+            <fieldset>
+              <legend>{en.publishVerifiedHeading}</legend>
+              {VERIFIABLE_FIELDS.map((f) => (
+                <label>
+                  <input
+                    type="checkbox"
+                    name={`verified_${f}`}
+                    checked={verified.has(f)}
+                  />{' '}
+                  {en.verifiableLabels[f]}
+                </label>
+              ))}
+            </fieldset>
+            <button type="submit">{en.publishSaveVerified}</button>
+          </form>
+          <form method="post" action={publishAction}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <input
+              type="hidden"
+              name="action"
+              value={tailor.is_published ? 'unpublish' : 'publish'}
+            />
+            <button
+              type="submit"
+              class={tailor.is_published ? 'danger' : undefined}
+            >
+              {tailor.is_published ? en.publishUnpublish : en.publishNow}
+            </button>
+          </form>
+        </>
+      )}
 
-  <h2>{en.photosHeading}</h2>
-  <p>{en.photosPrivateNote}</p>
-  {images.length === 0 && <p>{en.photosNone}</p>}
-  <ul>
-    {images.map((image) => {
-      const preview = `/admin/media/tailor/${id}/${image.file_key}/thumb.jpg`;
-      return (
-        <li>
-          <img src={preview} alt={image.alt_text} width="160" loading="lazy" />
+      {mayVerify && (
+        <>
+          <h2 id="signin">Tailor sign-in</h2>
           <p>
-            {image.is_visible ? en.photosVisible : en.photosHidden} ·
-            {image.permission_granted
-              ? ` ${en.photosPermitted} ${image.permission_date}`
-              : ` ${en.photosNotPermitted}`}
-            {tailor.profile_photo_id === image.id && ` · ${en.photosIsProfile}`}
+            {account
+              ? account.email
+                ? `Active: ${account.email}${account.lastLoginAt ? `, last signed in ${account.lastLoginAt.slice(0, 10)}` : ', not signed in yet'}.`
+                : 'Invited, waiting for the tailor to open the link and choose a password.'
+              : 'No sign-in yet. A sign-in is made when you approve a join request.'}
+            {account?.reviewRequestedAt &&
+              ` The tailor said the page is ready on ${account.reviewRequestedAt.slice(0, 10)}: please check it and publish.`}
           </p>
-          {editable && (
+          {account && (
             <>
-              <form method="post" action={imageAction}>
+              <form method="post" action={`/admin/tailors/${id}/invite`}>
                 <input type="hidden" name="csrf" value={auth.csrfToken} />
-                <input type="hidden" name="action" value="details" />
-                <input type="hidden" name="image_id" value={image.id} />
-                <input
-                  name="alt_text"
-                  value={image.alt_text}
-                  maxlength="200"
-                  required
-                  aria-label={en.photosAlt}
-                />
-                <input
-                  name="caption"
-                  value={image.caption ?? ''}
-                  maxlength="200"
-                  aria-label={en.photosCaption}
-                />
-                <button type="submit">{en.photosSave}</button>
+                <button type="submit">Make a new sign-in link</button>
               </form>
-              <form method="post" action={imageAction}>
+              <form method="post" action={`/admin/tailors/${id}/signin`}>
                 <input type="hidden" name="csrf" value={auth.csrfToken} />
-                <input type="hidden" name="action" value="order" />
-                <input type="hidden" name="image_id" value={image.id} />
-                <input
-                  name="sort_order"
-                  type="number"
-                  value={image.sort_order}
-                  required
-                  aria-label={en.photosOrder}
-                />
-                <button type="submit">{en.photosSave}</button>
-              </form>
-              <form method="post" action={imageAction}>
-                <input type="hidden" name="csrf" value={auth.csrfToken} />
-                <input type="hidden" name="action" value="visibility" />
-                <input type="hidden" name="image_id" value={image.id} />
                 <input
                   type="hidden"
-                  name="visible"
-                  value={image.is_visible ? '0' : '1'}
+                  name="action"
+                  value={account.isActive ? 'deactivate' : 'activate'}
                 />
                 <button type="submit">
-                  {image.is_visible ? en.photosHide : en.photosShow}
+                  {account.isActive
+                    ? 'Switch the sign-in off (ends their sessions)'
+                    : 'Switch the sign-in back on'}
                 </button>
-              </form>
-              {image.permission_granted &&
-              image.is_visible &&
-              tailor.profile_photo_id !== image.id ? (
-                <form method="post" action={imageAction}>
-                  <input type="hidden" name="csrf" value={auth.csrfToken} />
-                  <input type="hidden" name="action" value="profile_photo" />
-                  <input type="hidden" name="image_id" value={image.id} />
-                  <button type="submit">{en.photosProfile}</button>
-                </form>
-              ) : null}
-              <form method="post" action={imageAction}>
-                <input type="hidden" name="csrf" value={auth.csrfToken} />
-                <input type="hidden" name="action" value="delete" />
-                <input type="hidden" name="image_id" value={image.id} />
-                <button type="submit">{en.photosDelete}</button>
               </form>
             </>
           )}
-          {mayVerify && (
-            <form method="post" action={publishAction}>
-              <input type="hidden" name="csrf" value={auth.csrfToken} />
-              <input type="hidden" name="action" value="image_permission" />
-              <input type="hidden" name="image_id" value={image.id} />
-              {image.permission_granted ? (
-                <>
-                  <input type="hidden" name="granted" value="0" />
-                  <button type="submit">{en.photosWithdraw}</button>
-                </>
-              ) : (
-                <>
-                  <input type="hidden" name="granted" value="1" />
-                  <label>
-                    {en.photosPermissionDate}{' '}
-                    <input type="date" name="permission_date" required />
-                  </label>
-                  <button type="submit">{en.photosGrant}</button>
-                </>
-              )}
-            </form>
-          )}
-        </li>
-      );
-    })}
-  </ul>
-  {editable && images.length < MAX_IMAGES && (
-    <>
-      <h3>{en.photosUploadHeading}</h3>
-      <form
-        method="post"
-        action={`/admin/tailors/${id}/images`}
-        enctype="multipart/form-data"
-        data-photo-upload
-        data-msg-choose={en.photosChoose}
-        data-msg-type={en.photosBadType}
-        data-msg-empty={en.photosEmpty}
-        data-msg-size={en.photosTooBig}
-        data-msg-working={en.photosWorking}
-        data-msg-failed={en.photosFailed}
-      >
-        <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <p>
-          <label for="photo-file">{en.photosFile}</label>
-          <br />
-          <input
-            id="photo-file"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            required
-          />
-        </p>
-        <p>
-          <label for="photo-alt">{en.photosAlt}</label>
-          <br />
-          <input id="photo-alt" name="alt_text" maxlength="200" required />
-        </p>
-        <p>
-          <label for="photo-caption">{en.photosCaption}</label>
-          <br />
-          <input id="photo-caption" name="caption" maxlength="200" />
-        </p>
-        <p role="status" data-upload-status></p>
-        <button type="submit">{en.photosUpload}</button>
-      </form>
-      <script>
-        import '../../../scripts/image-upload';
-      </script>
-    </>
-  )}
-  {editable && images.length >= MAX_IMAGES && <p>{en.photosLimit}</p>}
+        </>
+      )}
 
-  {can(auth.role, 'fee.view') && (
-    <>
-      <h2>{en.feeHeading}</h2>
-      <form method="post" action={`/admin/tailors/${id}/fees`}>
+      <h2>{en.tailorNotesHeading}</h2>
+      <form method="post" action={action}>
         <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <input type="hidden" name="action" value="add_note" />
         <p>
-          <label for="fee_terms_text">{en.feeTerms}</label>
+          <label for="note-body">{en.tailorNoteAdd}</label>
           <br />
           <textarea
-            id="fee_terms_text"
-            name="fee_terms_text"
+            id="note-body"
+            name="body"
             maxlength="2000"
             rows="3"
-          >{tailor.fee_terms_text ?? ''}</textarea>
+            required
+          ></textarea>
         </p>
-        <p>
-          <label for="fee_terms_agreed_on">{en.feeAgreedOn}</label>
-          <br />
-          <input
-            id="fee_terms_agreed_on"
-            name="fee_terms_agreed_on"
-            type="date"
-            value={tailor.fee_terms_agreed_on ?? ''}
-          />
-        </p>
-        <button type="submit">{en.feeSave}</button>
+        <button type="submit">{en.tailorNoteButton}</button>
       </form>
-    </>
-  )}
-
-  {mayVerify && (
-    <>
-      <h2 id="signin">Tailor sign-in</h2>
-      <p>
-        {account
-          ? account.email
-            ? `Active: ${account.email}${account.lastLoginAt ? `, last signed in ${account.lastLoginAt.slice(0, 10)}` : ', not signed in yet'}.`
-            : 'Invited, waiting for the tailor to open the link and choose a password.'
-          : 'No sign-in yet. A sign-in is made when you approve a join request.'}
-        {account?.reviewRequestedAt &&
-          ` The tailor said the page is ready on ${account.reviewRequestedAt.slice(0, 10)}: please check it and publish.`}
-      </p>
-      {account && (
-        <form method="post" action={`/admin/tailors/${id}/invite`}>
-          <input type="hidden" name="csrf" value={auth.csrfToken} />
-          <button type="submit">Make a new sign-in link</button>
-        </form>
-        <form method="post" action={`/admin/tailors/${id}/signin`}>
-          <input type="hidden" name="csrf" value={auth.csrfToken} />
-          <input type="hidden" name="action" value={account.isActive ? 'deactivate' : 'activate'} />
-          <button type="submit">{account.isActive ? 'Switch the sign-in off (ends their sessions)' : 'Switch the sign-in back on'}</button>
-        </form>
-      )}
-    </>
-  )}
-
-  <h2>{en.tailorNotesHeading}</h2>
-  <form method="post" action={action}>
-    <input type="hidden" name="csrf" value={auth.csrfToken} />
-    <input type="hidden" name="action" value="add_note" />
-    <p>
-      <label for="note-body">{en.tailorNoteAdd}</label>
-      <br />
-      <textarea
-        id="note-body"
-        name="body"
-        maxlength="2000"
-        rows="3"
-        required
-      ></textarea>
-    </p>
-    <button type="submit">{en.tailorNoteButton}</button>
-  </form>
-  <ul>
-    {notes.map((n) => (
-      <li>
-        {n.created_at.slice(0, 10)} · {n.author_email}: {n.body}
-      </li>
-    ))}
-  </ul>
+      <ul>
+        {notes.map((n) => (
+          <li>
+            {n.created_at.slice(0, 10)} · {n.author_email}: {n.body}
+          </li>
+        ))}
+      </ul>
+    </aside>
+  </div>
 </AdminLayout>

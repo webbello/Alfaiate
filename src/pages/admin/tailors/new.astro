@@ -13,8 +13,14 @@ import { requireBindings } from '../../../modules/config';
 import { requirePermission } from '../../../modules/auth/require';
 import { verifyCsrf } from '../../../modules/auth/csrf';
 import { SESSION_COOKIE } from '../../../modules/auth/session';
+import { listEntries } from '../../../modules/catalog';
 import { createDraft } from '../../../modules/tailors/repo';
-import { profileFromForm } from '../../../modules/tailors/form';
+import { setAreas, setCategories } from '../../../modules/tailors/links';
+import {
+  areasFromForm,
+  categoriesFromForm,
+  profileFromForm,
+} from '../../../modules/tailors/form';
 import { messageFrom } from '../../../modules/tailors/messages';
 
 const auth = await requirePermission(Astro, 'tailor.edit');
@@ -30,19 +36,50 @@ if (Astro.request.method === 'POST') {
   ) {
     return new Response('Forbidden', { status: 403 });
   }
-  const created = await createDraft(
-    requireBindings(env).DB,
-    auth.userId,
-    profileFromForm(form),
-  );
+  const { DB } = requireBindings(env);
+  const created = await createDraft(DB, auth.userId, profileFromForm(form));
+  if (!created.ok)
+    return Astro.redirect(
+      `/admin/tailors/new?msg=invalid&fields=${created.fields.join(',')}`,
+      303,
+    );
+  // Work types and areas ticked on the first form are saved with the draft, through the same checks as the draft page.
+  const [cats, areas] = await Promise.all([
+    listEntries(DB, 'category'),
+    listEntries(DB, 'area'),
+  ]);
+  const linked = [
+    await setCategories(
+      DB,
+      auth.userId,
+      auth.role,
+      created.id,
+      categoriesFromForm(
+        form,
+        cats.map((c) => c.id),
+      ),
+    ),
+    await setAreas(
+      DB,
+      auth.userId,
+      auth.role,
+      created.id,
+      areasFromForm(
+        form,
+        areas.map((a) => a.id),
+      ),
+    ),
+  ].find((r) => !r.ok);
   return Astro.redirect(
-    created.ok
-      ? `/admin/tailors/${created.id}`
-      : `/admin/tailors/new?msg=invalid&fields=${created.fields.join(',')}`,
+    `/admin/tailors/${created.id}${linked && !linked.ok ? `?msg=${linked.error}` : ''}`,
     303,
   );
 }
 const { message, kind, fields } = messageFrom(Astro.url);
+const [categories, areas] = await Promise.all([
+  listEntries(requireBindings(env).DB, 'category'),
+  listEntries(requireBindings(env).DB, 'area'),
+]);
 ---
 
 <AdminLayout
@@ -65,11 +102,43 @@ const { message, kind, fields } = messageFrom(Astro.url);
   )}
   <form method="post">
     <input type="hidden" name="csrf" value={auth.csrfToken} />
-    <Card>
+    <Card title="Essentials" id="essentials">
       <FormGrid>
-        <ProfileFields />
+        <ProfileFields part="essentials" />
+        <fieldset class="wide">
+          <legend>{en.tailorCategoriesHeading}</legend>
+          {categories.length === 0 && <p>{en.tailorNoCategories}</p>}
+          <div class="checkgrid">
+            {categories
+              .filter((c) => c.is_active)
+              .map((c) => (
+                <label>
+                  <input type="checkbox" name={`cat_${c.id}`} /> {c.name}
+                </label>
+              ))}
+          </div>
+        </fieldset>
+        <fieldset class="wide">
+          <legend>{en.tailorShopLocation}</legend>
+          {areas.length === 0 && <p>{en.tailorNoAreas}</p>}
+          <div class="checkgrid">
+            {areas
+              .filter((a) => a.is_active)
+              .map((a) => (
+                <label>
+                  <input type="checkbox" name={`shop_${a.id}`} /> {a.name}
+                </label>
+              ))}
+          </div>
+        </fieldset>
       </FormGrid>
     </Card>
+    <details>
+      <summary>More detail (optional, can be added later)</summary>
+      <FormGrid>
+        <ProfileFields part="more" />
+      </FormGrid>
+    </details>
     <StickyBar>
       <button type="submit">{en.tailorCreate}</button>
     </StickyBar>

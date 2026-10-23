@@ -56,6 +56,48 @@ describe('tailor list and create', () => {
     expect(list).toContain('Atelier Fake');
   });
 
+  it('saves the work types and shop areas ticked on the first form with the draft, in one submit (admin redesign T4)', async () => {
+    const cat = await addCategory('Tick Suits');
+    const area = await addArea('Tick Area');
+    const cookie = await signIn('editor');
+    const csrf = await csrfOf(cookie);
+    const created = await post('/admin/tailors/new', cookie, {
+      csrf,
+      display_name: 'Atelier Ticks',
+      [`cat_${cat}`]: 'on',
+      [`shop_${area}`]: 'on',
+    });
+    expect(created.status).toBe(303);
+    const id = Number(created.headers.get('location')?.split('/').pop());
+    const cats = await env.DB.prepare(
+      'SELECT category_id FROM tailor_category WHERE tailor_id = ?',
+    )
+      .bind(id)
+      .all();
+    const areas = await env.DB.prepare(
+      'SELECT area_id, kind FROM tailor_area WHERE tailor_id = ?',
+    )
+      .bind(id)
+      .all();
+    expect(cats.results).toEqual([{ category_id: cat }]);
+    expect(areas.results).toEqual([{ area_id: area, kind: 'shop_location' }]);
+  });
+
+  it('shows the essentials first and folds the rest into "More detail"; a viewer cannot open the form', async () => {
+    const html = await (
+      await get('/admin/tailors/new', await signIn('editor'))
+    ).text();
+    const [essentials, more] = html.split('<summary>');
+    expect(essentials).toContain('id="display_name"');
+    expect(essentials).toContain('id="whatsapp"');
+    expect(essentials).not.toContain('id="description"');
+    expect(more).toContain('id="description"');
+    expect(more).not.toContain('id="display_name"');
+    expect(
+      (await get('/admin/tailors/new', await signIn('viewer'))).status,
+    ).toBe(403);
+  });
+
   it('shows field-level errors and creates nothing when the form is wrong', async () => {
     const cookie = await signIn('editor');
     const csrf = await csrfOf(cookie);

@@ -8,15 +8,15 @@
   - Acceptance: used on one page as proof; 44 px targets and visible focus kept
   - Verify: axe on that page; unit/integration markup test
   - Files: src/components/admin/*, admin.css
-- [ ] T3 Dashboard and lists (enquiries, tailors, interest, users): stat grid, two-column below, filter bar, chips, row actions
+- [x] T3 Dashboard and lists (enquiries, tailors, interest, users): stat grid, two-column below, filter bar, chips, row actions
   - Acceptance: same data and links as before; no empty right-hand third at 1280 px
   - Verify: `admin-*` integration tests; axe; reflow
   - Files: index, enquiries, tailors, interest, users (.astro), tests
-- [ ] T4 Create tailor: essentials card plus folded "more detail" card, one submit, land on the draft with checklist
+- [x] T4 Create tailor: essentials card plus folded "more detail" card, one submit, land on the draft with checklist
   - Acceptance: dashboard to saved draft in at most 3 clicks and one submit; same fields saved; `tailor.edit` still required
   - Verify: create journey e2e with click count; permission tests unchanged
   - Files: new.astro, ProfileFields.astro, form tests (about 4). Needs owner OK on the essentials list
-- [ ] T5 Edit tailor: two columns (forms left, sticky status card right with checklist, publish, sign-in, notes), anchored side links, sticky Save
+- [x] T5 Edit tailor: two columns (forms left, sticky status card right with checklist, publish, sign-in, notes), anchored side links, sticky Save
   - Acceptance: every section and permission gate still present (fees owner-only, publish needs `tailor.publish`); page height reduced
   - Verify: `admin-tailor-checklist`, publish, fees, photos tests; axe; reflow
   - Files: [id].astro and its components (split if over 5 files)
