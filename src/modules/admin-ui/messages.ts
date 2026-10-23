@@ -27,6 +27,9 @@ export const SUCCESS_CODES: readonly string[] = [
 ];
 
 export const PROBLEM_CODES: readonly string[] = [
+  'locked',
+  'not_confirmed',
+  'seller_not_published',
   'photos_sync',
   'needs_description',
   'conflict',

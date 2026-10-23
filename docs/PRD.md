@@ -148,9 +148,9 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 | FR-SHP-03 | (Built in S2) Public shop pages (`/shop`, `/shop/[slug]`, categories, both languages) list only published products, with a seller label; they are noindex until the owner approves them. | Must |
 | FR-SHP-04 | (Built in S3) A visitor keeps a separate product list in the browser and sends a product enquiry through the request form (same consent and spam controls) with the items named; nothing is paid or ordered on the site. | Must |
 | FR-SHP-05 | (Built in S3) Product enquiries appear in the staff inbox marked Shop (`source = 'shop'`), with the items in the notes, and are passed on manually. | Must |
-| FR-SHP-06 | (Built in S1b for the platform's own products) Product photos are stored in R2, private until the product is published; a photo of a tailor's product needs the same recorded permission as other tailor photos (S4, not yet built). | Must |
-| FR-SHP-07 | An approved tailor drafts their own products and photos in the portal; staff publish; the tailor never sees enquiries or customers (S4, not yet built). | Should |
-| FR-SHP-08 | (Built in S2 for the platform) The seller is shown on every product (the platform or the tailor), and BR-13 is stated on product pages (BR-14 matters once tailors sell, S4). | Must |
+| FR-SHP-06 | (Built in S1b for the platform's own products and in S4 for tailors' products) Product photos are stored in R2, private until the product is published; a photo of a tailor's product needs the tailor's recorded confirmation (`permission_granted`, `permission_date`) like other tailor photos. | Must |
+| FR-SHP-07 | (Built in S4) An approved tailor drafts their own products and photos in the portal and confirms each photo may be shown; staff publish; a tailor's product is public only while the tailor is published with recorded permission; the tailor never sees enquiries or customers. | Should |
+| FR-SHP-08 | (Built in S2 for the platform) The seller is shown on every product (the platform or the tailor), and BR-13 is stated on product pages (BR-14 applies to tailors' products, S4). | Must |
 
 #### Administration
 

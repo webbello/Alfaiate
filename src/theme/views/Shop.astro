@@ -75,7 +75,7 @@ const title = current ? current.name : s.heading;
                       <div class="shop-info-card">
                         <a class="shop-name" {href}>{p.name}</a>
                         <div class="shop-price">{p.price_cents !== null ? formatMoney(p.price_cents) : s.noPrice}</div>
-                        <div class="shop-price shop-price--small">{fill(s.sold, { name: s.platform })}</div>
+                        <div class="shop-price shop-price--small">{p.seller_name ? fill(s.soldByTailor, { name: p.seller_name }) : fill(s.sold, { name: s.platform })}</div>
                         {p.availability === 'unavailable' && <div class="shop-price shop-price--small">{s.unavailable}</div>}
                       </div>
                     </div>

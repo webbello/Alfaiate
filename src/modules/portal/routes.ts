@@ -64,6 +64,30 @@ export const PORTAL_ROUTES: readonly {
     methods: ['POST'],
   },
   {
+    file: 'products.astro',
+    path: '/portal/products',
+    access: 'tailor',
+    methods: ['GET', 'POST'],
+  },
+  {
+    file: 'products/[id].astro',
+    path: '/portal/products/[id]',
+    access: 'tailor',
+    methods: ['GET', 'POST'],
+  },
+  {
+    file: 'products/[id]/photo.ts',
+    path: '/portal/products/[id]/photo',
+    access: 'tailor',
+    methods: ['POST'],
+  },
+  {
+    file: 'products/[id]/photo-remove.ts',
+    path: '/portal/products/[id]/photo-remove',
+    access: 'tailor',
+    methods: ['POST'],
+  },
+  {
     file: 'media/[...key].ts',
     path: '/portal/media/[...key]',
     access: 'tailor',

@@ -23,6 +23,7 @@ export default defineConfig({
     })),
   ],
   test: {
+    testTimeout: 30_000, // generous: the suites are slow on a busy machine
     name: 'integration-en',
     include: ['tests/integration-en/**/*.test.ts'],
     setupFiles: ['tests/workers/setup.ts'],

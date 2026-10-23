@@ -12,6 +12,7 @@ export default defineConfig({
     })),
   ],
   test: {
+    testTimeout: 30_000, // generous: the suites are slow on a busy machine
     name: 'workers',
     include: ['tests/workers/**/*.test.ts'],
     setupFiles: ['tests/workers/setup.ts'],

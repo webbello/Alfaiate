@@ -43,6 +43,7 @@ const products = await listProducts(requireBindings(env).DB);
         <tr>
           <th scope="col">Product</th>
           <th scope="col">Type</th>
+          <th scope="col">Seller</th>
           <th scope="col">Price (USD)</th>
           <th scope="col">Status</th>
         </tr>
@@ -54,6 +55,7 @@ const products = await listProducts(requireBindings(env).DB);
               <a href={`/admin/products/${p.id}`}>{p.name}</a>
             </td>
             <td>{p.category_name ?? '–'}</td>
+            <td>{p.seller_name ?? 'Alfaiate TL'}</td>
             <td>{priceInput(p) || '–'}</td>
             <td>
               <StatusChip

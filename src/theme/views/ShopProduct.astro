@@ -25,6 +25,7 @@ const owner = siteWhatsapp(env as { SITE_WHATSAPP?: string });
 // The enquiry goes through the request form (consent, spam checks, staff inbox) with this product named; the owner's WhatsApp is a second way when it is set.
 const askForm = `${pathFor(lang, '/request')}?product=${product.slug}`;
 const askWhatsapp = owner ? whatsappLink(owner, fill(s.askMessage, { name: product.name })) : null;
+const seller = product.seller_slug && product.seller_name ? { slug: product.seller_slug, name: product.seller_name } : null;
 const description = metaText(product.description ?? '', 155) || s.intro;
 const { siteUrl } = siteConfig(env);
 const jsonLd = {
@@ -70,9 +71,10 @@ const jsonLd = {
         <section class="prof-contact" aria-labelledby="buy">
           <h2 id="buy">{product.price_cents !== null ? formatMoney(product.price_cents) : s.noPrice}</h2>
           {product.price_note && <p>{product.price_note}</p>}
-          <p class="meta">{product.price_cents !== null && `${s.priceNote}. `}{fill(s.sold, { name: s.platform })}.</p>
+          <p class="meta">{product.price_cents !== null && `${s.priceNote}. `}{seller ? fill(s.soldByTailor, { name: seller.name }) : fill(s.sold, { name: s.platform })}.</p>
+          {seller && <p class="meta">{s.supplied}. <a href={pathFor(lang, `/tailors/${seller.slug}`)}>{s.seeTailor}</a></p>}
           {product.availability === 'unavailable' && <p><strong>{s.unavailable}</strong></p>}
-          <p class="dir-note" role="note">{s.notice}</p>
+          <p class="dir-note" role="note">{seller ? s.noticeTailor : s.notice}</p>
           <div class="prof-actions">
             <a class="button w-inline-block" href={askForm} data-shop-ask>
               <div class="button-bg"></div>

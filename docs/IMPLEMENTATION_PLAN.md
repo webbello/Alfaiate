@@ -138,7 +138,7 @@ Spec [SPEC-tailor-portal.md](SPEC-tailor-portal.md), tasks `tasks/todo-tailor-po
 |---|---|
 | FR-ADM-01, SEC-01/02/03/06/08/09 | 2 |
 | FR-TPO-01..08, AC-18..20 | 7e |
-| FR-SHP-01..06, 08 (built for the platform, S1 to S3); FR-SHP-07 (planned, S4) | Shop S1 to S4 ([SPEC-shop.md](SPEC-shop.md), migration 0009) |
+| FR-SHP-01..08 (built, S1 to S4) | Shop ([SPEC-shop.md](SPEC-shop.md), migrations 0009 to 0011) |
 | FR-ADM-02/03/04/05/08, FR-REF-08 | 3 |
 | FR-PUB-*, FR-DIR-*, FR-PRO-*, ANA-01/02 | 4 (ANA-01 page-view counts added in launch preparation) |
 | FR-ENQ-*, FR-ADM-06/07, SEC-05/07, PRV-01/02/03 | 5 |

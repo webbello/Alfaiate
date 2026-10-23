@@ -74,7 +74,11 @@ const mayEditPhotos = !product.is_published || mayPublish;
 <AdminLayout title={product.name} description={product.name} auth={auth}>
   <PageHeader
     title={product.name}
-    sub="Edit the product. Publishing makes it visible on the shop."
+    sub={
+      product.seller_tailor_id
+        ? 'This product belongs to a tailor (seller). Check it, then publish. It goes live only while the tailor is published.'
+        : 'Edit the product. Publishing makes it visible on the shop.'
+    }
     back={{ href: '/admin/products', label: en.adminNavProducts }}
   >
     <StatusChip

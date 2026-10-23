@@ -288,6 +288,9 @@ export const en = {
     not_permitted:
       'Only a photo with recorded permission that is not hidden can be the profile photo.',
     photos_sync: 'Saved, but the photos could not be updated on the shop. Press Publish or Unpublish again.',
+    locked: 'This product is published or your page is locked, so it cannot be changed here. Ask Alfaiate TL.',
+    not_confirmed: 'Please tick the box to confirm the photo may be shown.',
+    seller_not_published: 'This product belongs to a tailor whose page is not published yet, so it cannot go live.',
     needs_description: 'A product needs a description before it can be published.',
     published: 'Published.',
     unpublished: 'Unpublished.',

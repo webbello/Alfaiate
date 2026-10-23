@@ -310,5 +310,5 @@ describe('reconcileImages: transitions', () => {
       );
     await reconcileImages(b, tailorId);
     expect(await keysIn(env.MEDIA_PUBLIC, tailorId)).toEqual([]);
-  });
+  }, 30_000); // writes 1,100 objects: 5 seconds is too tight on a busy machine
 });

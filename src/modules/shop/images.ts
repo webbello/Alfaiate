@@ -16,6 +16,8 @@ import type { MediaBindings } from '../media/store';
  */
 export const MAX_PRODUCT_IMAGES = 6;
 export type ProductImageRow = {
+  permission_granted: number;
+  permission_date: string | null;
   id: number;
   file_key: string;
   alt_text: string;
@@ -34,9 +36,19 @@ export type ImageResult =
 
 const productState = (db: D1Database, id: number) =>
   db
-    .prepare('SELECT is_published FROM product WHERE id = ?')
+    .prepare('SELECT is_published, seller_tailor_id FROM product WHERE id = ?')
     .bind(id)
-    .first<{ is_published: number }>();
+    .first<{ is_published: number; seller_tailor_id: number | null }>();
+
+/** True while the product may be shown: published, and for a tailor's product that tailor is published with recorded permission (BR-14). */
+const isPublicProduct = async (db: D1Database, id: number) =>
+  (await db
+    .prepare(
+      `SELECT 1 AS ok FROM product p LEFT JOIN tailor st ON st.id = p.seller_tailor_id
+       WHERE p.id = ? AND p.is_published = 1 AND (p.seller_tailor_id IS NULL OR (st.is_published = 1 AND st.permission_recorded = 1))`,
+    )
+    .bind(id)
+    .first()) !== null;
 
 /** Editing a live product needs publish rights, as for its text (SEC-09). */
 const mayChange = (role: string, live: boolean) =>
@@ -48,26 +60,26 @@ export async function listProductImages(
 ): Promise<ProductImageRow[]> {
   const { results } = await db
     .prepare(
-      'SELECT id, file_key, alt_text, sort_order FROM product_image WHERE product_id = ? ORDER BY sort_order, id',
+      'SELECT id, file_key, alt_text, sort_order, permission_granted, permission_date FROM product_image WHERE product_id = ? ORDER BY sort_order, id',
     )
     .bind(productId)
     .all<ProductImageRow>();
   return results;
 }
 
-export async function addProductImage(
+/**
+ * Validates the three variants, writes them to the private bucket, inserts the row (cap enforced in the same statement) and audits.
+ * `permissionDate` is the day a tailor confirmed the photo may be shown (a tailor's own product); null for the platform's own photos.
+ */
+export async function storeProductImage(
   b: MediaBindings,
   actor: Actor,
-  role: string,
   productId: number,
   input: { alt_text: string; variants: Record<Variant, Uint8Array> },
+  permissionDate: string | null,
 ): Promise<ImageResult> {
   const alt = input.alt_text.trim();
   if (!alt || alt.length > 200) return { ok: false, error: 'invalid' };
-  const state = await productState(b.DB, productId);
-  if (!state) return { ok: false, error: 'not_found' };
-  if (!mayChange(role, state.is_published === 1))
-    return { ok: false, error: 'forbidden' };
   for (const variant of VARIANTS) {
     const bytes = input.variants?.[variant];
     if (!bytes) return { ok: false, error: 'missing_variant' };
@@ -89,10 +101,10 @@ export async function addProductImage(
     }
     // One statement checks the cap and inserts, so parallel uploads cannot pass the limit.
     const row = await b.DB.prepare(
-      `INSERT INTO product_image (product_id, file_key, alt_text, sort_order)
-       SELECT ?1, ?2, ?3, coalesce(max(sort_order), 0) + 1 FROM product_image WHERE product_id = ?1 HAVING count(*) < ?4`,
+      `INSERT INTO product_image (product_id, file_key, alt_text, sort_order, permission_granted, permission_date)
+       SELECT ?1, ?2, ?3, coalesce(max(sort_order), 0) + 1, 1, ?5 FROM product_image WHERE product_id = ?1 HAVING count(*) < ?4`,
     )
-      .bind(productId, key, alt, MAX_PRODUCT_IMAGES)
+      .bind(productId, key, alt, MAX_PRODUCT_IMAGES, permissionDate)
       .run();
     if (row.meta.changes === 0) {
       await cleanUp();
@@ -111,6 +123,21 @@ export async function addProductImage(
   });
   await syncProductImages(b, productId);
   return { ok: true, id };
+}
+
+/** Staff upload (the platform's own photos, or any product's). */
+export async function addProductImage(
+  b: MediaBindings,
+  actor: Actor,
+  role: string,
+  productId: number,
+  input: { alt_text: string; variants: Record<Variant, Uint8Array> },
+): Promise<ImageResult> {
+  const state = await productState(b.DB, productId);
+  if (!state) return { ok: false, error: 'not_found' };
+  if (!mayChange(role, state.is_published === 1))
+    return { ok: false, error: 'forbidden' };
+  return storeProductImage(b, actor, productId, input, null);
 }
 
 export async function removeProductImage(
@@ -155,8 +182,10 @@ export async function syncProductImages(
 ): Promise<{ added: number; removed: number; missing: string[] }> {
   const state = await productState(b.DB, productId);
   const desired = new Set<string>();
-  if (state?.is_published === 1)
-    for (const image of await listProductImages(b.DB, productId))
+  if (state && (await isPublicProduct(b.DB, productId)))
+    for (const image of (await listProductImages(b.DB, productId)).filter(
+      (i) => i.permission_granted === 1,
+    ))
       for (const v of VARIANTS)
         desired.add(productVariantKey(productId, image.file_key, v));
   const present = new Set<string>();

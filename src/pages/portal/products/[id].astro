@@ -1,0 +1,152 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Flash from '../../../components/admin/Flash.astro';
+import ProductFields from '../../../components/admin/ProductFields.astro';
+import PortalLayout from '../../../layouts/PortalLayout.astro';
+import { en } from '../../../i18n/en';
+import { requireBindings } from '../../../modules/config';
+import { parseId, readForm } from '../../../modules/http/body';
+import { verifyCsrf } from '../../../modules/auth/csrf';
+import { TAILOR_COOKIE } from '../../../modules/portal/session';
+import { requireTailor } from '../../../modules/portal/require';
+import {
+  listProductCategories,
+  productFromForm,
+} from '../../../modules/shop/products';
+import {
+  listProductImages,
+  MAX_PRODUCT_IMAGES,
+} from '../../../modules/shop/images';
+import {
+  getOwnProduct,
+  updateOwnProduct,
+} from '../../../modules/shop/portal-products';
+import { productMessage } from '../../../modules/shop/messages';
+
+const auth = await requireTailor(Astro);
+if (auth instanceof Response) return auth;
+const { DB } = requireBindings(env);
+const id = parseId(Astro.params.id);
+if (!Number.isInteger(id)) return new Response('Not found', { status: 404 });
+// Another tailor's product and the platform's own look exactly like a product that does not exist.
+const product = await getOwnProduct(DB, auth.tailorId, id);
+if (!product) return new Response('Not found', { status: 404 });
+
+if (Astro.request.method === 'POST') {
+  const { form, tooLarge } = await readForm(Astro.request);
+  if (tooLarge) return new Response('Payload too large', { status: 413 });
+  if (
+    !(await verifyCsrf(
+      Astro.cookies.get(TAILOR_COOKIE)?.value ?? '',
+      form.get('csrf')?.toString(),
+    ))
+  )
+    return new Response('Forbidden', { status: 403 });
+  const saved = await updateOwnProduct(DB, auth, id, productFromForm(form));
+  return Astro.redirect(
+    saved.ok
+      ? `/portal/products/${id}?msg=saved`
+      : `/portal/products/${id}?msg=${saved.error === 'invalid' ? 'invalid' : 'locked'}${saved.error === 'invalid' ? `&fields=${(saved.fields ?? []).join(',')}` : ''}`,
+    303,
+  );
+}
+const { message, kind, fields } = productMessage(Astro.url);
+const categories = await listProductCategories(DB);
+const images = await listProductImages(DB, id);
+const live = product.is_published === 1;
+const p = en.portal;
+---
+
+<PortalLayout title={product.name} auth={auth}>
+  <p>
+    <a href="/portal/products">Your products</a>
+  </p>
+  <h1>{product.name}</h1>
+  <p>
+    {live
+      ? 'This product is published on the shop. To change it, ask Alfaiate TL to unpublish it first.'
+      : 'This product is a draft. Alfaiate TL checks it and publishes it.'}
+  </p>
+  {message && (
+    <Flash message={message} kind={kind}>
+      {fields.length > 0 && <>Check: {fields.join(', ')}</>}
+    </Flash>
+  )}
+  {!live && (
+    <form method="post">
+      <input type="hidden" name="csrf" value={auth.csrfToken} />
+      <ProductFields categories={categories} values={product} />
+      <button type="submit">Save changes</button>
+    </form>
+  )}
+  {live && <p>{product.description}</p>}
+  <h2>Photos</h2>
+  <p>Photos stay private until the product is published.</p>
+  {images.length === 0 && <p>No photos yet.</p>}
+  <ul>
+    {images.map((image) => (
+      <li>
+        <img
+          src={`/portal/media/product/${id}/${image.file_key}/thumb.jpg`}
+          alt={image.alt_text}
+          width="160"
+          loading="lazy"
+        />
+        <p>{image.alt_text}</p>
+        {!live && (
+          <form method="post" action={`/portal/products/${id}/photo-remove`}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <input type="hidden" name="image_id" value={image.id} />
+            <button type="submit">Remove photo</button>
+          </form>
+        )}
+      </li>
+    ))}
+  </ul>
+  {!live && images.length < MAX_PRODUCT_IMAGES && (
+    <>
+      <h3>Add a photo</h3>
+      <form
+        method="post"
+        action={`/portal/products/${id}/photo`}
+        enctype="multipart/form-data"
+        data-photo-upload
+        data-msg-choose={en.photosChoose}
+        data-msg-type={en.photosBadType}
+        data-msg-empty={en.photosEmpty}
+        data-msg-size={en.photosTooBig}
+        data-msg-working={en.photosWorking}
+        data-msg-failed={en.photosFailed}
+      >
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <p>
+          <label for="photo-file">{p.photoFile}</label>
+          <br />
+          <input
+            id="photo-file"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            required
+          />
+        </p>
+        <p>
+          <label for="photo-alt">{p.photoAlt}</label>
+          <br />
+          <input id="photo-alt" name="alt_text" maxlength="200" required />
+        </p>
+        <p>
+          <label>
+            <input type="checkbox" name="confirm" value="yes" required />{' '}
+            {p.photoConfirm}
+          </label>
+        </p>
+        <p role="status" data-upload-status></p>
+        <button type="submit">{p.photoUpload}</button>
+      </form>
+      <script>
+        import '../../../scripts/image-upload';
+      </script>
+    </>
+  )}
+</PortalLayout>

@@ -96,6 +96,21 @@ test('a tailor joins, is approved, fills in their page, adds a photo and asks fo
   await expect(page.getByText('Waiting for the team')).toBeVisible();
   expect(await violationsOf(page)).toEqual([]);
 
+  // Shop S4: the tailor drafts a product of their own; Alfaiate TL publishes it.
+  await page.getByRole('link', { name: 'Products', exact: true }).click();
+  expect(await violationsOf(page)).toEqual([]);
+  await page.getByLabel('Product name').fill('E2E Portal Scarf');
+  await page
+    .getByLabel(/Description/)
+    .fill('A made-up scarf from the browser test.');
+  await page.getByRole('button', { name: 'Save product' }).click();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'E2E Portal Scarf' }),
+  ).toBeVisible();
+  await expect(page.getByText('This product is a draft.')).toBeVisible();
+  expect(await violationsOf(page)).toEqual([]);
+  await page.goto('/portal');
+
   await page.getByRole('link', { name: 'Overview', exact: true }).click();
   await page.getByRole('button', { name: /My page is ready/ }).click();
   await expect(page.getByText('Thank you. We have been told')).toBeVisible();

@@ -1,0 +1,88 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Flash from '../../components/admin/Flash.astro';
+import ProductFields from '../../components/admin/ProductFields.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import { requireBindings } from '../../modules/config';
+import { readForm } from '../../modules/http/body';
+import { verifyCsrf } from '../../modules/auth/csrf';
+import { TAILOR_COOKIE } from '../../modules/portal/session';
+import { requireTailor } from '../../modules/portal/require';
+import {
+  listProductCategories,
+  productFromForm,
+} from '../../modules/shop/products';
+import {
+  createOwnProduct,
+  listOwnProducts,
+  MAX_OWN_PRODUCTS,
+} from '../../modules/shop/portal-products';
+import { productMessage } from '../../modules/shop/messages';
+
+const auth = await requireTailor(Astro);
+if (auth instanceof Response) return auth;
+const { DB } = requireBindings(env);
+
+if (Astro.request.method === 'POST') {
+  const { form, tooLarge } = await readForm(Astro.request);
+  if (tooLarge) return new Response('Payload too large', { status: 413 });
+  if (
+    !(await verifyCsrf(
+      Astro.cookies.get(TAILOR_COOKIE)?.value ?? '',
+      form.get('csrf')?.toString(),
+    ))
+  )
+    return new Response('Forbidden', { status: 403 });
+  const created = await createOwnProduct(DB, auth, productFromForm(form));
+  if (created.ok)
+    return Astro.redirect(`/portal/products/${created.id}?msg=created`, 303);
+  const code = created.error === 'invalid' ? 'invalid' : created.error === 'limit' ? 'limit' : 'locked';
+  return Astro.redirect(
+    `/portal/products?msg=${code}${created.error === 'invalid' ? `&fields=${(created.fields ?? []).join(',')}` : ''}`,
+    303,
+  );
+}
+const { message, kind, fields } = productMessage(Astro.url);
+const products = await listOwnProducts(DB, auth.tailorId);
+const categories = await listProductCategories(DB);
+---
+
+<PortalLayout title="Your products" auth={auth}>
+  <h1>Your products</h1>
+  <p>
+    Add items you want to sell through Alfaiate TL. A customer asks about an
+    item, and you agree the price, delivery and returns directly with them.
+    Alfaiate TL does not take payment. We check each product and publish it; you
+    cannot change it while it is published.
+  </p>
+  {message && (
+    <Flash message={message} kind={kind}>
+      {fields.length > 0 && <>Check: {fields.join(', ')}</>}
+    </Flash>
+  )}
+  {products.length === 0 && <p>You have no products yet.</p>}
+  {products.length > 0 && (
+    <ul>
+      {products.map((p) => (
+        <li>
+          <a href={`/portal/products/${p.id}`}>{p.name}</a> ·{' '}
+          {p.is_published
+            ? 'Published on the shop'
+            : 'Draft, waiting for Alfaiate TL'}{' '}
+          · {p.photos} {p.photos === 1 ? 'photo' : 'photos'}
+        </li>
+      ))}
+    </ul>
+  )}
+  {products.length < MAX_OWN_PRODUCTS ? (
+    <form method="post">
+      <h2>Add a product</h2>
+      <input type="hidden" name="csrf" value={auth.csrfToken} />
+      <ProductFields categories={categories} />
+      <button type="submit">Save product</button>
+    </form>
+  ) : (
+    <p>You can have up to {MAX_OWN_PRODUCTS} products.</p>
+  )}
+</PortalLayout>

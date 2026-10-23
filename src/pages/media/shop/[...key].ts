@@ -12,7 +12,7 @@ export const GET: APIRoute = async ({ params }) => {
   if (!parsed) return notFound();
   const { DB, MEDIA_PUBLIC } = requireBindings(env);
   const allowed = await DB.prepare(
-    'SELECT 1 FROM product_image i JOIN product p ON p.id = i.product_id WHERE i.product_id = ? AND i.file_key = ? AND p.is_published = 1',
+    'SELECT 1 FROM product_image i JOIN product p ON p.id = i.product_id LEFT JOIN tailor st ON st.id = p.seller_tailor_id WHERE i.product_id = ? AND i.file_key = ? AND i.permission_granted = 1 AND p.is_published = 1 AND (p.seller_tailor_id IS NULL OR (st.is_published = 1 AND st.permission_recorded = 1))',
   )
     .bind(parsed.productId, parsed.imageKey)
     .first();

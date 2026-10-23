@@ -35,7 +35,11 @@ export type ProductInput = {
   availability: 'available' | 'unavailable';
 };
 export type Failure =
-  'forbidden' | 'not_found' | 'invalid' | 'needs_description';
+  | 'forbidden'
+  | 'not_found'
+  | 'invalid'
+  | 'needs_description'
+  | 'seller_not_published';
 export type Result =
   { ok: true; id?: number } | { ok: false; error: Failure; fields?: string[] };
 
@@ -70,10 +74,13 @@ export function invalidFields(input: ProductInput): string[] {
   return bad;
 }
 
-const NOW = `strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`;
-const cents = (price: string) => dollarsToCents(price);
+export const NOW = `strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`;
+export const cents = (price: string) => dollarsToCents(price);
 
-async function categoryOk(db: D1Database, id: number | null): Promise<boolean> {
+export async function categoryOk(
+  db: D1Database,
+  id: number | null,
+): Promise<boolean> {
   if (id === null) return true;
   return (
     (await db
@@ -85,13 +92,13 @@ async function categoryOk(db: D1Database, id: number | null): Promise<boolean> {
   );
 }
 
-export async function createProduct(
+/** Inserts a draft after validating. `sellerTailorId` is null for the platform's own product. No permission check here: callers decide who may. */
+export async function insertProduct(
   db: D1Database,
   actor: Actor,
-  role: string,
   input: ProductInput,
+  sellerTailorId: number | null,
 ): Promise<Result> {
-  if (!can(role, 'product.edit')) return { ok: false, error: 'forbidden' };
   const fields = invalidFields(input);
   if (fields.length > 0 || !(await categoryOk(db, input.category_id)))
     return {
@@ -102,7 +109,7 @@ export async function createProduct(
   const slug = await uniqueSlug(db, 'product', input.name);
   const created = await db
     .prepare(
-      'INSERT INTO product (slug, name, description, price_cents, price_note, category_id, availability) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO product (slug, name, description, price_cents, price_note, category_id, seller_tailor_id, availability) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
     )
     .bind(
       slug,
@@ -111,6 +118,7 @@ export async function createProduct(
       cents(input.price),
       input.price_note || null,
       input.category_id,
+      sellerTailorId,
       input.availability,
     )
     .run();
@@ -122,6 +130,16 @@ export async function createProduct(
     entityId: id,
   });
   return { ok: true, id };
+}
+
+export async function createProduct(
+  db: D1Database,
+  actor: Actor,
+  role: string,
+  input: ProductInput,
+): Promise<Result> {
+  if (!can(role, 'product.edit')) return { ok: false, error: 'forbidden' };
+  return insertProduct(db, actor, input, null);
 }
 
 export async function updateProduct(
@@ -183,6 +201,16 @@ export async function setPublished(
   if (!current) return { ok: false, error: 'not_found' };
   if (publish && !(current.description ?? '').trim())
     return { ok: false, error: 'needs_description' };
+  // A tailor's product can go live only while its seller is published with recorded permission (BR-05, BR-06, BR-14).
+  if (publish && current.seller_tailor_id !== null) {
+    const seller = await db
+      .prepare(
+        'SELECT 1 AS ok FROM tailor WHERE id = ? AND is_published = 1 AND permission_recorded = 1',
+      )
+      .bind(current.seller_tailor_id)
+      .first();
+    if (!seller) return { ok: false, error: 'seller_not_published' };
+  }
   await db
     .prepare(
       `UPDATE product SET is_published = ?, published_at = ${publish ? NOW : 'NULL'}, updated_at = ${NOW} WHERE id = ?`,
@@ -210,13 +238,18 @@ export async function getProduct(
 
 export async function listProducts(
   db: D1Database,
-): Promise<(ProductRow & { category_name: string | null })[]> {
+): Promise<
+  (ProductRow & { category_name: string | null; seller_name: string | null })[]
+> {
   const { results } = await db
     .prepare(
-      `SELECT p.*, c.name AS category_name FROM product p LEFT JOIN product_category c ON c.id = p.category_id
+      `SELECT p.*, c.name AS category_name, st.display_name AS seller_name FROM product p LEFT JOIN product_category c ON c.id = p.category_id
+       LEFT JOIN tailor st ON st.id = p.seller_tailor_id
        ORDER BY p.is_published DESC, p.name COLLATE NOCASE LIMIT 500`,
     )
-    .all<ProductRow & { category_name: string | null }>();
+    .all<
+      ProductRow & { category_name: string | null; seller_name: string | null }
+    >();
   return results;
 }
 
@@ -244,16 +277,21 @@ export type PublicProduct = {
   availability: 'available' | 'unavailable';
   category_slug: string | null;
   category_name: string | null;
+  /** The tailor who sells it, or null for the platform's own product. */
+  seller_slug: string | null;
+  seller_name: string | null;
   /** The first photo, if any (public only because the product is published). */
   photo: { base: string; alt: string } | null;
 };
 
 type PublicRow = Omit<PublicProduct, 'photo'> & { id: number };
 
+// Public means published, and for a tailor's product also: that tailor is published with recorded permission (BR-05, BR-06, BR-14).
 const PUBLIC_SELECT = `SELECT p.id, p.slug, p.name, p.description, p.price_cents, p.price_note, p.availability,
-  c.slug AS category_slug, c.name AS category_name
+  c.slug AS category_slug, c.name AS category_name, st.slug AS seller_slug, st.display_name AS seller_name
   FROM product p LEFT JOIN product_category c ON c.id = p.category_id AND c.is_active = 1
-  WHERE p.is_published = 1`;
+  LEFT JOIN tailor st ON st.id = p.seller_tailor_id
+  WHERE p.is_published = 1 AND (p.seller_tailor_id IS NULL OR (st.is_published = 1 AND st.permission_recorded = 1))`;
 
 async function withPhotos(
   db: D1Database,
@@ -263,7 +301,7 @@ async function withPhotos(
   const { results } = await db
     .prepare(
       `SELECT i.product_id, i.file_key, i.alt_text FROM product_image i
-       WHERE i.product_id IN (SELECT value FROM json_each(?)) ORDER BY i.sort_order, i.id`,
+       WHERE i.permission_granted = 1 AND i.product_id IN (SELECT value FROM json_each(?)) ORDER BY i.sort_order, i.id`,
     )
     .bind(JSON.stringify(rows.map((r) => r.id)))
     .all<{ product_id: number; file_key: string; alt_text: string }>();
@@ -311,7 +349,7 @@ export async function getPublishedProduct(
   if (!row) return null;
   const { results } = await db
     .prepare(
-      'SELECT file_key, alt_text FROM product_image WHERE product_id = ? ORDER BY sort_order, id',
+      'SELECT file_key, alt_text FROM product_image WHERE permission_granted = 1 AND product_id = ? ORDER BY sort_order, id',
     )
     .bind(row.id)
     .all<{ file_key: string; alt_text: string }>();
@@ -328,6 +366,8 @@ export async function getPublishedProduct(
     availability: row.availability,
     category_slug: row.category_slug,
     category_name: row.category_name,
+    seller_slug: row.seller_slug,
+    seller_name: row.seller_name,
     photo: photos[0] ?? null,
     photos,
   };
@@ -340,7 +380,8 @@ export async function listShopCategories(
   const { results } = await db
     .prepare(
       `SELECT DISTINCT c.slug, c.name, c.sort_order FROM product_category c JOIN product p ON p.category_id = c.id
-       WHERE c.is_active = 1 AND p.is_published = 1 ORDER BY c.sort_order, c.name`,
+       LEFT JOIN tailor st ON st.id = p.seller_tailor_id
+       WHERE c.is_active = 1 AND p.is_published = 1 AND (p.seller_tailor_id IS NULL OR (st.is_published = 1 AND st.permission_recorded = 1)) ORDER BY c.sort_order, c.name`,
     )
     .all<{ slug: string; name: string }>();
   return results.map(({ slug, name }) => ({ slug, name }));
@@ -351,7 +392,7 @@ export async function listPublishedProductSlugs(
 ): Promise<string[]> {
   const { results } = await db
     .prepare(
-      'SELECT slug FROM product WHERE is_published = 1 ORDER BY slug LIMIT 5000',
+      'SELECT p.slug FROM product p LEFT JOIN tailor st ON st.id = p.seller_tailor_id WHERE p.is_published = 1 AND (p.seller_tailor_id IS NULL OR (st.is_published = 1 AND st.permission_recorded = 1)) ORDER BY p.slug LIMIT 5000',
     )
     .all<{ slug: string }>();
   return results.map((r) => r.slug);
@@ -365,7 +406,7 @@ export async function publishedProductNames(
   if (slugs.length === 0) return [];
   const { results } = await db
     .prepare(
-      'SELECT slug, name FROM product WHERE is_published = 1 AND slug IN (SELECT value FROM json_each(?))',
+      'SELECT p.slug, p.name FROM product p LEFT JOIN tailor st ON st.id = p.seller_tailor_id WHERE p.is_published = 1 AND (p.seller_tailor_id IS NULL OR (st.is_published = 1 AND st.permission_recorded = 1)) AND p.slug IN (SELECT value FROM json_each(?))',
     )
     .bind(JSON.stringify(slugs))
     .all<{ slug: string; name: string }>();
