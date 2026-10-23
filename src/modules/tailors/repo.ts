@@ -34,6 +34,9 @@ export type TailorRow = {
   fee_terms_agreed_on: string | null;
   private_contact_name: string | null;
   private_phone: string | null;
+  /** Where shop orders for this tailor's products go (S6). Set by staff only. */
+  order_route: 'admin' | 'tailor' | 'number';
+  order_number_e164: string | null;
 };
 
 export type ListRow = Pick<

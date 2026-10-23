@@ -16,7 +16,7 @@ test('a tailor joins, is approved, fills in their page, adds a photo and asks fo
   await page.locator('#phone').fill('7712 3499');
   await page.locator('#consent').check();
   await page.waitForTimeout(FILL_DELAY);
-  await page.locator('button[type="submit"]').click();
+  await page.locator('#main button[type="submit"]').click();
   await expect(page).toHaveURL(/\/join\/thanks\?ref=JN-/);
 
   await signIn(page);

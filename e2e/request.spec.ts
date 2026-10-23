@@ -80,7 +80,7 @@ test('the Tetum form submits to the Tetum acknowledgement', async ({
   await page.locator('#channel-phone').check();
   await page.locator('#consent').check();
   await page.waitForTimeout(FILL_DELAY);
-  await page.locator('button[type="submit"]').click();
+  await page.locator('#main button[type="submit"]').click();
   await expect(page).toHaveURL(/\/tet\/request\/thanks\?ref=AT-/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'tet');
 });
@@ -99,7 +99,7 @@ test('a customer taps a category, picks an area from the list, fills step 2 and 
   await page.locator('#channel-whatsapp').check();
   await page.locator('#consent').check();
   await page.waitForTimeout(FILL_DELAY);
-  await page.locator('button[type="submit"]').click();
+  await page.locator('#main button[type="submit"]').click();
   await expect(page).toHaveURL(/\/request\/thanks\?ref=AT-/);
 });
 
@@ -111,7 +111,7 @@ test('a tailor sends their details on the join page and sees a reference (Phase 
   await page.locator('#phone').fill('7712 3456');
   await page.locator('#consent').check();
   await page.waitForTimeout(FILL_DELAY);
-  await page.locator('button[type="submit"]').click();
+  await page.locator('#main button[type="submit"]').click();
   await expect(page).toHaveURL(/\/join\/thanks\?ref=JN-/);
   await expect(page.locator('.reference')).toHaveText(/^JN-/);
 });

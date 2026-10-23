@@ -132,3 +132,24 @@ Status: **not reviewed.** The Tetun below was written by the assistant during th
     quantityNamed: 'Kuantidade husi {name}',
     fullItems: 'Ita bele husu kona-ba item loja to’o 10 iha tempu ida.',
 ```
+
+## Orders (S6) — `order`
+
+```ts
+    title: 'Ita-nia enkomenda',
+    heading: 'Ita-nia enkomenda prontu',
+    intro: 'WhatsApp loke ho ita-nia enkomenda ne’ebé hakerek tiha ona. Tau ita-nia naran no fatin entrega, depois taka haruka. La iha pagamentu iha sítiu ne’e.',
+    reference: 'Referénsia enkomenda',
+    sendTo: 'Haruka ba {name}',
+    open: 'Loke WhatsApp',
+    preview: 'Mensajen',
+    several: 'Ita-nia item sira mai husi ema na’in-fa’an lubuk, entaun iha mensajen ida ba ida-idak.',
+    opening: 'Loke WhatsApp…',
+    skipped: 'La inklui, la disponivel tan: {names}',
+    back: 'Fila ba loja',
+    notSetUpTitle: 'Enkomenda seidauk prontu',
+    notSetUp: 'Enkomenda liuhusi WhatsApp seidauk prontu. Ita bele haruka pedidu no ami sei fila fali ba ita.',
+    sendRequest: 'Haruka pedidu',
+    limited: 'Enkomenda barak liu husi koneksaun ida ne’e. Favór koko fila fali tuir mai.',
+```
+

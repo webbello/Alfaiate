@@ -66,6 +66,18 @@ export const ADMIN_ROUTES: readonly {
     methods: ['POST'],
   },
   {
+    file: 'tailors/[id]/orders.ts',
+    path: '/admin/tailors/[id]/orders',
+    permission: 'tailor.publish',
+    methods: ['POST'],
+  },
+  {
+    file: 'orders.astro',
+    path: '/admin/orders',
+    permission: 'enquiry.view',
+    methods: ['GET'],
+  },
+  {
     file: 'tailors/[id]/invite.astro',
     path: '/admin/tailors/[id]/invite',
     permission: 'tailor.publish',

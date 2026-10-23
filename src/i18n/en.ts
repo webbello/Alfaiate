@@ -235,6 +235,7 @@ export const en = {
   adminNavCategories: 'Garment types',
   adminNavAreas: 'Areas',
   adminNavProducts: 'Products',
+  adminNavOrders: 'Shop orders',
   catalogName: 'Name',
   catalogDescription: 'Description',
   catalogOrder: 'Order',

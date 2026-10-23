@@ -1,0 +1,51 @@
+---
+export const prerender = false;
+import Order from '../theme/views/Order.astro';
+import { env } from 'cloudflare:workers';
+import { requireBindings, siteConfig } from '../modules/config';
+import { orderService } from '../modules/orders';
+import { productParams, productQuantities } from '../modules/enquiry/schema';
+import { ipBucket } from '../modules/auth/rate-limit';
+import { dictionary } from '../i18n/public';
+
+// A cart becomes an order: a page that opens WhatsApp with the message ready. Only slugs and quantities come from the browser; prices, sellers and the
+// destination are read on the server (docs/SPEC-shop.md, S6). A visit without a cart goes back to the shop.
+if (Astro.request.method !== 'POST') return Astro.redirect('/shop', 303);
+const form = await Astro.request.formData();
+const params = new URLSearchParams(
+  [...form.entries()].filter(
+    (e): e is [string, string] => typeof e[1] === 'string',
+  ),
+);
+const slugs = productParams(params.getAll('product'));
+const qty = productQuantities(slugs, (k) => params.get(k));
+const ip = Astro.request.headers.get('cf-connecting-ip');
+const bindings = requireBindings(env);
+const result = await orderService(
+  {
+    ...bindings,
+    ORDER_WHATSAPP: (env as { ORDER_WHATSAPP?: string }).ORDER_WHATSAPP,
+    SITE_WHATSAPP: (env as { SITE_WHATSAPP?: string }).SITE_WHATSAPP,
+  },
+  dictionary('en').siteName,
+).place({
+  lines: slugs.map((slug) => ({ slug, quantity: qty[slug] ?? 1 })),
+  lang: 'en',
+  siteUrl: siteConfig(env).siteUrl,
+  clientKey: ip ? ipBucket(ip) : 'unknown',
+});
+if (!result.ok && (result.error === 'empty' || result.error === 'invalid'))
+  return Astro.redirect('/shop', 303);
+Astro.response.status = result.ok
+  ? 200
+  : result.error === 'limited'
+    ? 429
+    : 200;
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<Order
+  lang="en"
+  order={result.ok ? result.order : undefined}
+  failure={result.ok ? undefined : result.error}
+/>

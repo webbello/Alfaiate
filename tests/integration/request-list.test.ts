@@ -22,8 +22,8 @@ const addTailor = async (name: string, published = 1) => {
 describe('the request list panel', () => {
   it('is the theme cart (items, quantity, subtotal) with no checkout or payment, and a link to the request form', async () => {
     for (const [path, send] of [
-      ['/', 'Send request'],
-      ['/tailors', 'Send request'],
+      ['/', 'Request these tailors'],
+      ['/tailors', 'Request these tailors'],
     ] as const) {
       const html = await (await get(path)).text();
       const panel = /<div class="header-cart"[\s\S]*?data-cart-empty/.exec(
@@ -38,6 +38,8 @@ describe('the request list panel', () => {
       for (const word of ['Checkout', 'Pay now', 'Card number'])
         expect(panel, `${path} ${word}`).not.toContain(word);
       expect(panel, path).toContain('No payment is taken on this site');
+      expect(panel, path).toContain('data-cart-order'); // shop items are ordered on WhatsApp
+      expect(panel, path).toContain('Order on WhatsApp');
     }
     expect(await (await get('/tet/tailors')).text()).toContain(
       'data-request-href="/tet/request"',

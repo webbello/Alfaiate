@@ -62,6 +62,23 @@ export function siteWhatsapp(env: { SITE_WHATSAPP?: string }): string | null {
   return env.SITE_WHATSAPP ? normalisePhone(env.SITE_WHATSAPP) : null;
 }
 
+const E164_ANY = /^\+[1-9][0-9]{7,14}$/;
+/** Any valid international number (spaces and dashes allowed) as +<digits>, or null. Used for order numbers, which may be outside Timor-Leste. */
+export function internationalNumber(
+  raw: string | undefined | null,
+): string | null {
+  const compact = (raw ?? '').replace(/[\s().-]/g, '');
+  return E164_ANY.test(compact) ? compact : null;
+}
+
+/** The admin's WhatsApp number that receives shop orders (S6): ORDER_WHATSAPP, else the site number. Null when neither is set, and ordering then says so. */
+export function orderWhatsapp(env: {
+  ORDER_WHATSAPP?: string;
+  SITE_WHATSAPP?: string;
+}): string | null {
+  return internationalNumber(env.ORDER_WHATSAPP) ?? siteWhatsapp(env);
+}
+
 /** The tailor interest form stays off until the owner has approved its consent wording and the Privacy text (OQ-08). Exactly "true" turns it on; anything else is off. */
 export const joinEnabled = (env: { JOIN_ENABLED?: string }): boolean =>
   env.JOIN_ENABLED === 'true';

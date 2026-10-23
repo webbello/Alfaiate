@@ -108,6 +108,7 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     action: 'delete',
     image_id: '999999',
   }),
+  '/admin/tailors/[id]/orders': (csrf) => ({ csrf, order_route: 'admin' }),
   '/admin/tailors/[id]/publish': (csrf) => ({ csrf, action: 'approve' }),
   '/admin/tailors/[id]/fees': (csrf) => ({
     csrf,

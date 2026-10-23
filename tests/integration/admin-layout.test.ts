@@ -29,6 +29,7 @@ describe('the admin header bar', () => {
         '/admin',
         '/admin',
         '/admin/enquiries',
+        '/admin/orders',
         '/admin/tailors',
         '/admin/categories',
         '/admin/areas',
@@ -38,7 +39,7 @@ describe('the admin header bar', () => {
         '/admin/newsletter',
         '/admin/users',
         '/admin/account',
-      ]); // brand + 11 links
+      ]); // brand + 12 links
       // the account menu in the top bar holds who is signed in and Sign out
       expect(html, label).toContain('action="/admin/logout"');
       expect(html, label).toContain('name="csrf"');
@@ -86,6 +87,7 @@ describe('the admin header bar', () => {
     expect(await hrefs('manager')).toEqual([
       '/admin',
       '/admin/enquiries',
+      '/admin/orders',
       '/admin/tailors',
       '/admin/categories',
       '/admin/areas',

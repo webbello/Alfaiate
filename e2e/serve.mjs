@@ -89,6 +89,8 @@ export async function startWorker() {
         '--var',
         'SHOW_TESTIMONIAL_PLACEHOLDERS:true', // labelled sample quotes, so axe and reflow cover the section
         '--var',
+        'ORDER_WHATSAPP:+67077000001', // the admin number that shop orders go to (a made-up number)
+        '--var',
         'SOCIAL_FACEBOOK:https://www.facebook.com/alfaiate.test',
         '--var',
         `FORM_TOKEN_SECRET:${randomUUID()}${randomUUID()}`,

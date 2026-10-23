@@ -104,7 +104,9 @@ describe('product page', () => {
     expect(html).toMatch(/data-shop-ask/);
     expect(html).toContain(`href="/request?product=${p.slug}"`); // the enquiry goes through the request form
     expect(html).not.toContain('data-shop-whatsapp'); // no owner WhatsApp in this test project
-    expect(html).not.toMatch(/<form[^>]*(checkout|payment|order)/i);
+    // no checkout or payment form in the page itself (the header cart has its own order-by-WhatsApp form)
+    const main = /<main[\s\S]*<\/main>/.exec(html)![0];
+    expect(main).not.toMatch(/<form[^>]*(checkout|payment)/i);
     // structured data is written only on indexable pages, so none until the owner approves the shop; it never carries a rating, review or price
     expect(html).not.toMatch(/ratingValue|"offers":|"price":/);
   });

@@ -430,3 +430,9 @@ html:not(.js) .works-button { background: #3d5a33; }
 /* Photos of different shapes sit in one even grid: the same frame for every card */
 .shop-card img.shop-thumb { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
 .header-cart-note, .header-cart-status { padding: 0 1rem; }
+
+/* ---- Order page ---- */
+.order-group { margin: 1.5rem 0; padding: 1rem 1.25rem; border: 1px solid var(--color-stroke, #8a8a8a4d); background: #fff; }
+.order-group h2 { margin: 0 0 0.5rem; font-size: 1.25rem; }
+.order-lines { margin: 0 0 0.75rem; padding-left: 1.25rem; }
+.order-message { white-space: pre-wrap; word-break: break-word; font-family: inherit; font-size: 0.9rem; background: var(--color-light-lite, #f1ede2); padding: 0.75rem; margin: 0.5rem 0; }

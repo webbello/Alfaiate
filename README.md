@@ -24,6 +24,11 @@ To see the site and admin filled in, load invented but realistic demo data into 
 ```bash
 npm run db:demo                  # adds it (safe to repeat: earlier demo rows are cleared first)
 npm run db:demo:remove           # deletes exactly those rows (each rule needs two markers: source "demo data" or a demo slug, plus a +670 7000 number); run before launch
+```
+
+**Shop orders and the demo tailor.** Shop orders open WhatsApp for the number in `ORDER_WHATSAPP` (see `.dev.vars.example`; it is set to +918864812200 in the local `.dev.vars`). Staff choose per tailor, on the admin tailor page, whether their orders go to the admin first, to the tailor, or to another number. `npm run db:demo` also creates a demo tailor you can sign in as at `/portal/login`: **tailor.demo@example.test / Tailor-Demo-2026** (local demo database only; it is removed with the demo data). They have three published products and one draft waiting for approval; approve or unpublish them from `/admin/products`.
+
+```bash
 npm run db:seed:launch           # local only: starting categories and areas (OQ-10); owner edits them in the admin. See docs/LAUNCH_CHECKLIST.md
 ```
 

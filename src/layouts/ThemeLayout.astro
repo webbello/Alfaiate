@@ -160,6 +160,7 @@ const pageTitle = title.includes(t.siteName) ? title : `${title} · ${t.siteName
         labels={{ main: t.nav.label, pages: t.nav.more, menu: t.nav.menu }}
         list={t.requestList}
         requestHref={pathFor(lang, '/request')}
+        orderHref={pathFor(lang, '/order')}
       />
       <main class="main-wrapper" id="main">
         <slot />

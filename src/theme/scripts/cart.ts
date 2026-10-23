@@ -4,8 +4,8 @@
  * One panel holds two kinds of line, both kept in this browser's local storage (no personal data):
  * shop items (name, price, quantity, link, small photo, like the theme's cart) and tailors to ask (slug, name, link, small photo).
  * The panel shows the quantity box, a remove button, the count and the subtotal of the shop items, as the theme does. Nothing is bought here:
- * "Send request" opens the request form with the tailors and items named, and nothing is sent until the visitor fills in and sends that form.
- * The seller agrees price and delivery with the visitor directly (no payment, PRD 7.3).
+ * Shop items are sent as an order: the order form posts only slugs and quantities, the server reads the prices, and the order page opens WhatsApp with the message ready.
+ * Tailors are asked through the request form (consent, spam checks). The seller agrees price and delivery with the visitor directly (no payment, PRD 7.3).
  */
 
 interface Item {
@@ -126,13 +126,9 @@ function heading(text: string): HTMLElement {
   return h;
 }
 
-/** The request form address that names every tailor and item in the cart (slugs and quantities only). */
+/** The request form address for the tailors in the cart (slugs only). Shop items are ordered separately, through the order form. */
 function sendHref(base: string): string {
-  const parts = [
-    ...tailors.map((t) => `tailor=${encodeURIComponent(t.id)}`),
-    ...products.flatMap((p) => [`product=${encodeURIComponent(p.id)}`, `qty_${encodeURIComponent(p.id)}=${p.quantity}`]),
-  ];
-  return `${base}?${parts.join('&')}`;
+  return `${base}?${tailors.map((t) => `tailor=${encodeURIComponent(t.id)}`).join('&')}`;
 }
 
 /** Draws the cart into every panel, the count beside every button and the link that opens the request form. */
@@ -167,7 +163,25 @@ function render(): void {
       subtotal.hidden = products.length === 0;
       totalText.textContent = products.length ? money(total) : '—';
     }
-    if (send) send.href = sendHref(cart.dataset.requestHref ?? '/request');
+    // Shop items go to the order page (one form: slugs and quantities only); tailors go to the request form.
+    const order = cart.querySelector<HTMLFormElement>('[data-cart-order]');
+    if (order) {
+      order.hidden = products.length === 0;
+      for (const old of order.querySelectorAll('input[type="hidden"]')) old.remove();
+      for (const p of products) {
+        for (const [name, value] of [['product', p.id], [`qty_${p.id}`, String(p.quantity)]] as const) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = name;
+          input.value = value;
+          order.appendChild(input);
+        }
+      }
+    }
+    if (send) {
+      send.hidden = tailors.length === 0;
+      send.href = sendHref(cart.dataset.requestHref ?? '/request');
+    }
   }
 }
 

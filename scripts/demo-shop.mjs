@@ -1,6 +1,8 @@
+/* global Buffer, crypto, TextEncoder */
 // `node scripts/demo-shop.mjs add|remove`: fill or empty the LOCAL shop with 15 realistic demo products and the credited stock photos
 // in public/images/site (CREDITS.md). Local only: it uses wrangler's local bindings (the same local database and storage as `npm run dev`),
 // never a remote one. Demo products are recognised by two markers together: a `demo-` slug and the fixed published_at below.
+// It also creates one demo TAILOR you can sign in as (see TAILOR_LOGIN below) with three published products and one draft waiting for approval, and three demo orders.
 // Run by `npm run db:demo` / `npm run db:demo:remove`.
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
@@ -60,6 +62,23 @@ const PRODUCTS = [
     ['Fits one suit or dress', 'Full-length zip', 'Hanger hook through the top'], ['Dust and water resistant', 'Reinforced handles', 'Folds flat']],
 ];
 
+// A made-up tailor sign-in for trying the portal locally. The password is public in this file on purpose: it exists only in a local demo database and is removed with the demo data.
+const TAILOR_LOGIN = { email: 'tailor.demo@example.test', password: 'Tailor-Demo-2026', slug: 'demo-sewing-studio' };
+const TAILOR_PRODUCTS = [
+  // [slug, name, type, cents, photos, description, details, features, published]
+  ['tailor-hemmed-trousers', 'Hand-Hemmed Trousers', 'ready-made', 3600, ['rack-800', 'business-900'], 'Smart trousers, hemmed by hand to your length before they leave the workshop.', ['Waists 28 to 40', 'Hemmed to order', 'Navy and charcoal'], ['Hand-finished hem', 'Hidden waist adjuster', 'Two side pockets'], 1],
+  ['tailor-patchwork-cushion', 'Patchwork Cushion Cover', 'accessories', 1600, ['traditional-800', 'craft-1200'], 'A cushion cover made from offcuts of woven cloth, each one a little different.', ['45 cm square', 'Zip closure', 'Cover only'], ['Made from offcuts', 'Washable', 'One of a kind'], 1],
+  ['tailor-school-bag', 'Canvas School Bag', 'accessories', 2200, ['uniforms-800', 'rack-800'], 'A strong canvas bag with a padded back and two deep pockets for school books.', ['Fits A4 books', 'Padded straps', 'Navy canvas'], ['Double-stitched seams', 'Padded back', 'Water-resistant canvas'], 1],
+  ['tailor-embroidered-tote', 'Hand-Embroidered Tote', 'accessories', 1800, ['custom-800'], 'A cotton tote with a hand-embroidered flower. Waiting for Alfaiate TL to check it before it goes on the shop.', ['Cotton canvas', 'Embroidered by hand', 'Long handles'], ['Reusable', 'Washable', 'Roomy'], 0],
+];
+const b64url = (bytes) => Buffer.from(bytes).toString('base64').replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
+async function hashPassword(password, iterations = 100000) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations }, key, 256);
+  return `pbkdf2-sha256$${iterations}$${b64url(salt)}$${b64url(new Uint8Array(bits))}`;
+}
+
 const key = (slug, i) => createHash('sha256').update(`${slug}:${i}`).digest('hex').slice(0, 32);
 const variants = async (name) => {
   const file = await readFile(join(SCENES, `${name}.webp`));
@@ -75,14 +94,21 @@ if (!['add', 'remove'].includes(mode)) {
 const { env, dispose } = await getPlatformProxy();
 try {
   // Remove first, so running `add` twice never duplicates: both markers must match.
+  const oldTailor = await env.DB
+    .prepare('SELECT t.id FROM tailor t JOIN tailor_account a ON a.tailor_id = t.id WHERE t.slug = ? AND a.email = ?')
+    .bind(TAILOR_LOGIN.slug, TAILOR_LOGIN.email)
+    .first();
+  const theirs = oldTailor ? (await env.DB.prepare('SELECT id FROM product WHERE seller_tailor_id = ?').bind(oldTailor.id).all()).results : [];
   const old = await env.DB.prepare("SELECT id FROM product WHERE slug LIKE 'demo-%' AND published_at = ?").bind(MARK).all();
-  for (const { id } of old.results) {
+  await env.DB.prepare("DELETE FROM shop_order WHERE reference_code LIKE 'OR-DEMO%'").run();
+  for (const { id } of [...old.results, ...theirs]) {
     for (const bucket of [env.MEDIA_PRIVATE, env.MEDIA_PUBLIC]) {
       const listed = await bucket.list({ prefix: `product/${id}/` });
       if (listed.objects.length) await bucket.delete(listed.objects.map((o) => o.key));
     }
     await env.DB.prepare('DELETE FROM product WHERE id = ?').bind(id).run();
   }
+  if (oldTailor) await env.DB.prepare('DELETE FROM tailor WHERE id = ?').bind(oldTailor.id).run();
   if (mode === 'add') {
     const cats = Object.fromEntries((await env.DB.prepare('SELECT slug, id FROM product_category').all()).results.map((c) => [c.slug, c.id]));
     for (const [slug, name, type, cents, note, availability, featured, photos, description, details, features] of PRODUCTS) {
@@ -105,7 +131,53 @@ try {
           .run();
       }
     }
+    // The demo tailor: approved and published, so their approved products are on the shop; one product is still a draft for staff to approve.
+    const t = await env.DB
+      .prepare(
+        `INSERT INTO tailor (slug, display_name, description, status, is_published, published_at, permission_recorded, permission_date, contact_publish_consent, whatsapp_e164, phone_e164, home_visits, languages)
+         VALUES (?, 'Demo Sewing Studio', 'A small made-up workshop that makes bags, cushion covers and trousers to order. Used to try the tailor sign-in and shop.', 'approved', 1, ?, 1, '2026-01-01', 1, '+67077000111', '+67077000112', 'yes', 'Tetum, English')`,
+      )
+      .bind(TAILOR_LOGIN.slug, MARK)
+      .run();
+    const tailorId = t.meta.last_row_id;
+    await env.DB
+      .prepare("INSERT INTO tailor_account (tailor_id, email, password_hash, is_active, consent_version, consent_at) VALUES (?, ?, ?, 1, 'tailor-consent-2026-10-v1', ?)")
+      .bind(tailorId, TAILOR_LOGIN.email, await hashPassword(TAILOR_LOGIN.password), MARK)
+      .run();
+    for (const [slug, name, type, cents, photos, description, details, features, published] of TAILOR_PRODUCTS) {
+      const row = await env.DB
+        .prepare(
+          `INSERT INTO product (slug, name, description, price_cents, category_id, seller_tailor_id, details, features, is_published, published_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .bind(`demo-${slug}`, name, description, cents, cats[type] ?? null, tailorId, details.join('\n'), features.join('\n'), published, published ? MARK : null)
+        .run();
+      const id = row.meta.last_row_id;
+      for (const [i, scene] of photos.entries()) {
+        const fileKey = key(slug, i);
+        for (const [size, bytes] of Object.entries(await variants(scene))) {
+          await env.MEDIA_PRIVATE.put(`product/${id}/${fileKey}/${size}.jpg`, bytes, { httpMetadata: { contentType: 'image/jpeg' } });
+          if (published) await env.MEDIA_PUBLIC.put(`product/${id}/${fileKey}/${size}.jpg`, bytes, { httpMetadata: { contentType: 'image/jpeg' } });
+        }
+        await env.DB
+          .prepare('INSERT INTO product_image (product_id, file_key, alt_text, sort_order, permission_granted, permission_date) VALUES (?, ?, ?, ?, 1, ?)')
+          .bind(id, fileKey, `${name}, photo ${i + 1}`, i + 1, '2026-01-01')
+          .run();
+      }
+    }
+    // Three demo orders so the staff Orders page has something to show (no customer details are ever stored).
+    const orders = [
+      ['OR-DEMO2345', 'demo-linen-work-shirt', 'Linen Work Shirt', 2, 3200, 'admin', 'Alfaiate TL'],
+      ['OR-DEMO3456', 'demo-tailor-school-bag', 'Canvas School Bag', 1, 2200, 'admin', 'Alfaiate TL'],
+      ['OR-DEMO4567', 'demo-cream-wrap-dress', 'Cream Wrap Dress', 1, 8500, 'admin', 'Alfaiate TL'],
+    ];
+    for (const [ref, slug, name, quantity, priceCents, kind, label] of orders)
+      await env.DB
+        .prepare('INSERT INTO shop_order (reference_code, total_cents, items_json, routes_json) VALUES (?, ?, ?, ?)')
+        .bind(ref, quantity * priceCents, JSON.stringify([{ slug, name, quantity, priceCents }]), JSON.stringify([{ kind, label, items: 1, subtotalCents: quantity * priceCents }]))
+        .run();
     console.log(`Loaded ${PRODUCTS.length} demo products with photos (local only). Remove them with: npm run db:demo:remove`);
+    console.log(`\nTAILOR SIGN-IN (local demo): ${TAILOR_LOGIN.email} / ${TAILOR_LOGIN.password}  at /portal/login`);
   } else console.log('Demo products removed (local only).');
 } finally {
   await dispose();

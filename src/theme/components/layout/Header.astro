@@ -37,11 +37,14 @@ interface Props {
     tailorsHeading: string;
     quantityNamed: string;
     fullItems: string;
+    orderButton: string;
+    requestTailors: string;
   };
   requestHref: string;
+  orderHref: string;
 }
 
-const { overlay = false, twin = null, nav, mega, homeHref, labels, list, requestHref } = Astro.props;
+const { overlay = false, twin = null, nav, mega, homeHref, labels, list, requestHref, orderHref } = Astro.props;
 const here = twin?.lang === 'tet' ? 'en' : 'tet';
 const code = (lang: string) => (lang === 'tet' ? 'TET' : 'EN');
 
@@ -188,12 +191,12 @@ const isCurrent = (href: string) => path === href;
           )
         }
 
-        <CartDrawer id="cart-desktop" {list} {requestHref} />
+        <CartDrawer id="cart-desktop" {list} {requestHref} {orderHref} />
       </div>
     </div>
 
     <div class="header-wrap-block">
-      <CartDrawer id="cart-mobile" {list} {requestHref} />
+      <CartDrawer id="cart-mobile" {list} {requestHref} {orderHref} />
 
       <button
         type="button"

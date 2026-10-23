@@ -28,6 +28,7 @@ export type AuditAction =
   | 'enquiry_anonymised'
   | 'interest_approved'
   | 'interest_declined'
+  | 'tailor_order_route_changed'
   | 'product_created'
   | 'product_updated'
   | 'product_published'

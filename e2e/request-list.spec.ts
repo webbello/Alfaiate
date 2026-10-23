@@ -15,7 +15,7 @@ test('adds a tailor to the request list and sends the list to the request form',
     panel.getByRole('link', { name: 'E2E Fake Tailor' }).first(),
   ).toBeVisible();
   await expect(page.locator('[data-cart-count]').first()).toHaveText('1');
-  await panel.getByRole('link', { name: 'Send request' }).click();
+  await panel.getByRole('link', { name: 'Request these tailors' }).click();
   await expect(page).toHaveURL(/\/request\?tailor=e2e-fake-tailor$/);
   await expect(page.locator('input[name="tailor"]')).toHaveValue(
     'e2e-fake-tailor',

@@ -1,0 +1,98 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import PageHeader from '../../components/admin/PageHeader.astro';
+import EmptyState from '../../components/admin/EmptyState.astro';
+import { en } from '../../i18n/en';
+import { requireBindings } from '../../modules/config';
+import { requirePermission } from '../../modules/auth/require';
+import { formatMoney } from '../../modules/directory/format';
+
+const auth = await requirePermission(Astro, 'enquiry.view');
+if (auth instanceof Response) return auth;
+type Item = { name: string; quantity: number };
+type Route = {
+  kind: 'admin' | 'tailor' | 'number';
+  label: string;
+  items: number;
+};
+const { results } = await requireBindings(env)
+  .DB.prepare(
+    'SELECT reference_code, total_cents, items_json, routes_json, created_at FROM shop_order ORDER BY id DESC LIMIT 200',
+  )
+  .all<{
+    reference_code: string;
+    total_cents: number;
+    items_json: string;
+    routes_json: string;
+    created_at: string;
+  }>();
+const safe = <T,>(json: string): T[] => {
+  try {
+    const parsed = JSON.parse(json);
+    return Array.isArray(parsed) ? (parsed as T[]) : [];
+  } catch {
+    return [];
+  }
+};
+const where = {
+  admin: 'the admin',
+  tailor: 'the tailor',
+  number: 'another number',
+} as const;
+---
+
+<AdminLayout
+  title={en.adminNavOrders}
+  description={en.adminNavOrders}
+  auth={auth}
+>
+  <PageHeader
+    title={en.adminNavOrders}
+    sub="Orders that customers prepared from the shop cart. Each one was opened in the customer's own WhatsApp: you will receive the message there, with the same reference. No customer details are stored here."
+  />
+  {results.length === 0 && (
+    <EmptyState title="No orders yet">
+      <p>
+        When a customer presses "Order on WhatsApp" in the cart, the order
+        appears here.
+      </p>
+    </EmptyState>
+  )}
+  {results.length > 0 && (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Reference</th>
+          <th scope="col">Date</th>
+          <th scope="col">Items</th>
+          <th scope="col">Sent to</th>
+          <th scope="col">Total (USD)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {results.map((o) => (
+          <tr>
+            <td>{o.reference_code}</td>
+            <td>{o.created_at.slice(0, 16).replace('T', ' ')}</td>
+            <td>
+              {safe<Item>(o.items_json)
+                .map((i) => `${i.name} × ${i.quantity}`)
+                .join(', ')}
+            </td>
+            <td>
+              {safe<Route>(o.routes_json)
+                .map(
+                  (r) =>
+                    `${where[r.kind] ?? r.kind}${r.kind === 'admin' ? '' : ` (${r.label})`}`,
+                )
+                .join('; ')}
+            </td>
+            <td>{formatMoney(o.total_cents)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</AdminLayout>

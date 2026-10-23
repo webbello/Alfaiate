@@ -8,6 +8,7 @@ export type NavKey =
   | 'categories'
   | 'areas'
   | 'products'
+  | 'orders'
   | 'interest'
   | 'traffic'
   | 'newsletter'
@@ -34,6 +35,13 @@ const ALL: NavLink[] = [
     key: 'enquiries',
     href: '/admin/enquiries',
     label: en.adminNavEnquiries,
+    permission: 'enquiry.view',
+    group: 'Overview',
+  },
+  {
+    key: 'orders',
+    href: '/admin/orders',
+    label: en.adminNavOrders,
     permission: 'enquiry.view',
     group: 'Overview',
   },

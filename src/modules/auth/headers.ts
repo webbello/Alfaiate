@@ -18,7 +18,9 @@ function isPrivatePath(pathname: string): boolean {
     // an undecodable path cannot match a route; fall through with the raw value
   }
   path = path.toLowerCase();
-  return ['/admin', '/portal'].some((p) => path === p || path.startsWith(`${p}/`));
+  return ['/admin', '/portal'].some(
+    (p) => path === p || path.startsWith(`${p}/`),
+  );
 }
 
 /** Returns a copy with the headers applied (the original may have immutable headers, e.g. a redirect). */

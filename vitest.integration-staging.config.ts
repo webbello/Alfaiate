@@ -19,6 +19,7 @@ export default defineConfig({
           RESPONSE_WINDOW_EN: 'within one working day',
           RESPONSE_WINDOW_TET: 'iha loron serbisu ida laran', // pinned: a developer's .dev.vars must not change what the tests see
           SITE_WHATSAPP: '',
+          ORDER_WHATSAPP: '+67077000001',
           SITE_URL: 'https://alfaiate-tl.example',
         },
       },

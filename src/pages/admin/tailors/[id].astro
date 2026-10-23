@@ -287,6 +287,31 @@ const action = `/admin/tailors/${id}/actions`;
         </>
       )}
 
+      <section class="card" id="orders">
+        <h2>Shop orders</h2>
+        <p>
+          When someone orders this tailor's products from the shop, the order message opens in WhatsApp for the person you choose here. Only staff
+          can change this; the tailor cannot see or change it. If the chosen number is missing, the order goes to the admin number.
+        </p>
+        {mayVerify ? (
+          <form method="post" action={`/admin/tailors/${id}/orders`}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <p>
+              <label><input type="radio" name="order_route" value="admin" checked={tailor.order_route === 'admin'} /> The admin first (recommended): I pass it on</label><br />
+              <label><input type="radio" name="order_route" value="tailor" checked={tailor.order_route === 'tailor'} /> The tailor's own WhatsApp ({tailor.whatsapp_e164 ?? 'no number set'}{tailor.contact_publish_consent ? '' : ', not shown publicly yet'})</label><br />
+              <label><input type="radio" name="order_route" value="number" checked={tailor.order_route === 'number'} /> Another number (for example the shop owner)</label>
+            </p>
+            <p>
+              <label for="order_number">Number for "another number" (with country code, for example +670 77000000)</label><br />
+              <input id="order_number" name="order_number" value={tailor.order_number_e164 ?? ''} maxlength="20" inputmode="tel" />
+            </p>
+            <button type="submit">Save order route</button>
+          </form>
+        ) : (
+          <p>Orders go to: {tailor.order_route === 'admin' ? 'the admin first' : tailor.order_route === 'tailor' ? "the tailor's WhatsApp" : tailor.order_number_e164}. A manager or owner can change this.</p>
+        )}
+      </section>
+
       <section class="card">
         <h2>{en.photosHeading}</h2>
         <p>{en.photosPrivateNote}</p>

@@ -20,6 +20,7 @@ export default defineConfig({
           SOCIAL_INSTAGRAM: 'https://www.instagram.com/alfaiate.test',
           SOCIAL_YOUTUBE: 'https://evil.example/not-youtube',
           SITE_WHATSAPP: '', // pinned: a developer's .dev.vars must not change what the tests see
+          ORDER_WHATSAPP: '+67077000001', // the admin number in order tests (fake)
           SITE_URL: 'https://alfaiate-tl.example',
         },
       },

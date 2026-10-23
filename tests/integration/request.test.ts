@@ -79,7 +79,7 @@ describe('GET /request (FR-ENQ-01/02/03, AC-06)', () => {
     expect(html).toMatch(/<input[^>]*name="consent"(?![^>]*checked)[^>]*>/);
     expect(html).toContain('not a confirmed appointment');
     expect(html.indexOf('not a confirmed appointment')).toBeLessThan(
-      html.indexOf('type="submit"'),
+      html.indexOf('type="submit"', html.indexOf('<main')),
     );
     expect(html).toContain('href="/privacy"');
     expect(html).not.toMatch(
@@ -388,9 +388,9 @@ describe('two-step layout', () => {
       expect(one, name).toContain(`name="${name}"`);
     for (const name of ['name', 'phone', 'channel', 'consent'])
       expect(two, name).toContain(`name="${name}"`);
-    expect(html.indexOf('type="submit"')).toBeGreaterThan(
-      html.indexOf('How can we reach you?'),
-    );
+    expect(
+      html.indexOf('type="submit"', html.indexOf('<main')),
+    ).toBeGreaterThan(html.indexOf('How can we reach you?'));
   });
   it('offers categories as radio choices and areas as one drop-down list, both with "not sure yet"', async () => {
     const { c, a } = await seed();

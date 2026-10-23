@@ -23,11 +23,14 @@ interface Props {
     tailorsHeading: string;
     quantityNamed: string;
     fullItems: string;
+    orderButton: string;
+    requestTailors: string;
   };
   requestHref: string;
+  orderHref: string;
 }
 
-const { id, list, requestHref } = Astro.props;
+const { id, list, requestHref, orderHref } = Astro.props;
 ---
 
 <div class="header-cart-block">
@@ -70,9 +73,19 @@ const { id, list, requestHref } = Astro.props;
             </div>
             <p class="header-cart-note">{list.note}</p>
             <p class="header-cart-status" role="status" data-cart-status></p>
-            <a class="button w-inline-block header-cart-send" href={requestHref} data-cart-send>
+            <form class="header-cart-order" method="post" action={orderHref} data-cart-order hidden>
+              <button type="submit" class="button w-inline-block header-cart-send">
+                <div class="button-bg"></div>
+                <div class="button-text">{list.orderButton}</div>
+                <div class="button-wrap">
+                  <Icon name="arrow-up-right" class="button-icon" />
+                  <Icon name="arrow-up-right" class="button-icon" />
+                </div>
+              </button>
+            </form>
+            <a class="button w-inline-block header-cart-send is-shop" href={requestHref} data-cart-send hidden>
               <div class="button-bg"></div>
-              <div class="button-text">{list.send}</div>
+              <div class="button-text">{list.requestTailors}</div>
               <div class="button-wrap">
                 <Icon name="arrow-up-right" class="button-icon" />
                 <Icon name="arrow-up-right" class="button-icon" />

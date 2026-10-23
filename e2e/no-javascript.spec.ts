@@ -50,7 +50,7 @@ test('the whole request can be sent with JavaScript off, in English and Tetum', 
     await page.locator('#channel-phone').check();
     await page.locator('#consent').check();
     await page.waitForTimeout(3200); // the form refuses a send under three seconds
-    await page.locator('button[type="submit"]').click();
+    await page.locator('#main button[type="submit"]').click();
     await expect(page).toHaveURL(thanks);
     await expect(page.locator('.reference')).toHaveText(/^AT-/);
   }
@@ -65,7 +65,7 @@ test('mistakes are explained next to the field with JavaScript off', async ({
     .evaluate((form: HTMLFormElement) => (form.noValidate = true))
     .catch(() => undefined);
   await page.waitForTimeout(3200);
-  await page.locator('button[type="submit"]').click();
+  await page.locator('#main button[type="submit"]').click();
   // without JavaScript the browser's own required-field check may stop the send first; either way the page stays on the form
   await expect(page).toHaveURL(/\/request/);
 });
@@ -85,6 +85,6 @@ test('the home page shows its menu links and the join form works with JavaScript
   await page.locator('#phone').fill('7712 3456');
   await page.locator('#consent').check();
   await page.waitForTimeout(3200);
-  await page.locator('button[type="submit"]').click();
+  await page.locator('#main button[type="submit"]').click();
   await expect(page).toHaveURL(/\/join\/thanks\?ref=JN-/);
 });

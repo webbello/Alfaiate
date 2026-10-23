@@ -16,19 +16,16 @@ test('adds a product to the cart, changes the quantity, sees the subtotal, sends
   await panel.getByLabel('Quantity of E2E Fake Shirt').press('Tab');
   await expect(panel.locator('[data-cart-total]')).toHaveText('$ 50.00 USD');
   await expect(page.locator('[data-cart-count]').first()).toHaveText('2');
-  await panel.getByRole('link', { name: 'Send request' }).click();
-  await expect(page).toHaveURL(
-    /\/request\?product=e2e-fake-shirt&qty_e2e-fake-shirt=2$/,
-  );
+  // Shop items are ordered on WhatsApp: the order page shows the order and the WhatsApp button (it opens by itself after a moment).
+  await panel.getByRole('button', { name: 'Order on WhatsApp' }).click();
+  await expect(page).toHaveURL(/\/order$/);
   await expect(
-    page.getByText(/You are asking about these shop items: E2E Fake Shirt × 2/),
+    page.getByRole('heading', { level: 1, name: 'Your order is ready' }),
   ).toBeVisible();
-  await expect(page.locator('input[name="product"]')).toHaveValue(
-    'e2e-fake-shirt',
-  );
-  await expect(page.locator('input[name="qty_e2e-fake-shirt"]')).toHaveValue(
-    '2',
-  );
+  await expect(
+    page.getByRole('link', { name: 'Open WhatsApp' }),
+  ).toHaveAttribute('href', /^https:\/\/wa\.me\/67077000001\?text=/);
+  await expect(page.getByText(/E2E Fake Shirt/).first()).toBeVisible();
   await page.goto('/shop/e2e-fake-shirt');
   await page.locator('[data-cart-toggle]:visible').first().click();
   await page

@@ -1,0 +1,74 @@
+---
+// The order page (docs/SPEC-shop.md, S6): shows the order that was prepared, one WhatsApp button for each destination, and the message so the customer can read it first.
+// With a single destination WhatsApp opens by itself after a moment (src/scripts/order-open.ts). Nothing here takes payment.
+import ThemeLayout from '../../layouts/ThemeLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import { dictionary, fill } from '../../i18n/public';
+import { pathFor, type Lang } from '../../i18n/lang';
+import type { PlacedOrder, PlaceFailure } from '../../modules/orders';
+
+interface Props {
+  lang: Lang;
+  order?: PlacedOrder;
+  failure?: PlaceFailure;
+}
+const { lang, order, failure } = Astro.props;
+const t = dictionary(lang);
+const o = t.order;
+const single = order?.groups.length === 1;
+---
+
+<ThemeLayout {lang} title={`${failure === 'not_set_up' ? o.notSetUpTitle : o.title} · ${t.siteName}`} description={o.intro} rest="/order" noindex>
+  <Hero tag={t.shop.heading} title={failure ? o.notSetUpTitle : o.heading} />
+  <section class="global-section">
+    <div class="w-layout-blockcontainer main-container w-container">
+      {
+        failure ? (
+          <div class="global-block">
+            <p class="dir-intro">{failure === 'limited' ? o.limited : o.notSetUp}</p>
+            <p class="actions-row">
+              <a class="button w-inline-block" href={pathFor(lang, '/request')}>
+                <div class="button-bg"></div>
+                <div class="button-text">{o.sendRequest}</div>
+              </a>
+            </p>
+          </div>
+        ) : (
+          order && (
+            <div class="global-block">
+              <p class="dir-intro">{o.intro}</p>
+              <p class="meta"><strong>{o.reference}:</strong> {order.reference}</p>
+              {order.groups.length > 1 && <p class="dir-note" role="note">{o.several}</p>}
+              {order.skipped.length > 0 && <p class="dir-note" role="note">{fill(o.skipped, { names: order.skipped.join(', ') })}</p>}
+              {order.groups.map((group) => (
+                <section class="order-group" aria-labelledby={`order-${group.destination.number}`}>
+                  <h2 id={`order-${group.destination.number}`}>{fill(o.sendTo, { name: group.destination.label })}</h2>
+                  <ul class="order-lines" role="list">
+                    {group.lines.map((line) => (
+                      <li>
+                        {line.quantity} × <a href={pathFor(lang, `/shop/${line.slug}`)}>{line.name}</a>
+                      </li>
+                    ))}
+                  </ul>
+                  <details>
+                    <summary>{o.preview}</summary>
+                    <pre class="order-message">{group.message}</pre>
+                  </details>
+                  <p>
+                    <a class="button w-inline-block" href={group.whatsappUrl} {...(single ? { 'data-order-open': '' } : {})}>
+                      <div class="button-bg"></div>
+                      <div class="button-text">{o.open}</div>
+                    </a>
+                  </p>
+                </section>
+              ))}
+              {single && <p role="status" data-order-opening hidden>{o.opening}</p>}
+              <p><a href={pathFor(lang, '/shop')}>{o.back}</a></p>
+            </div>
+          )
+        )
+      }
+    </div>
+  </section>
+  {single && <script>import '../../scripts/order-open';</script>}
+</ThemeLayout>
