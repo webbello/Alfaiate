@@ -108,6 +108,32 @@ describe('tailor list and create', () => {
     ).toBe(1);
   });
 
+  it('lists categories as a tick list: only a ticked category is checked, each keeps its price fields (admin redesign)', async () => {
+    const on = await addCategory('Row On');
+    const off = await addCategory('Row Off');
+    const id = await addTailor();
+    await env.DB.prepare(
+      'INSERT INTO tailor_category (tailor_id, category_id, price_from, price_to) VALUES (?, ?, 2000, 5000)',
+    )
+      .bind(id, on)
+      .run();
+    const html = await (
+      await get(`/admin/tailors/${id}`, await signIn('manager'))
+    ).text();
+    const row = (cat: number) =>
+      html.match(
+        new RegExp(
+          `<div class="cat-row">(?:(?!<div class="cat-row">)[\\s\\S])*?name="cat_${cat}"[\\s\\S]*?name="source_${cat}"`,
+        ),
+      )?.[0] ?? '';
+    expect(row(on)).toMatch(/name="cat_\d+"[^>]*checked/);
+    expect(row(on)).toContain(`name="from_${on}"`);
+    expect(row(on)).toContain('value="20"');
+    expect(row(off)).not.toMatch(/name="cat_\d+"[^>]*checked/);
+    expect(row(off)).toContain(`name="to_${off}"`);
+    expect(html).toContain('class="cat-count"');
+  });
+
   it('shows the essentials first and folds the rest into "More detail"; a viewer cannot open the form', async () => {
     const html = await (
       await get('/admin/tailors/new', await signIn('editor'))

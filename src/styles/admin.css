@@ -1106,15 +1106,6 @@ label + br,
 .split__side .card form > button {
   margin-top: 0.25rem;
 }
-.split__main fieldset:has(input[name^='from_']) {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.4rem 0.75rem;
-  align-content: start;
-}
-.split__main fieldset:has(input[name^='from_']) > label:has(select) {
-  grid-column: 1 / -1;
-}
 
 /* ---- Top bar: search, theme, new enquiries, account ---- */
 .admin-topbar {
@@ -1341,4 +1332,95 @@ a.icon-button:hover {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* ---- Categories and prices: a tick list; only ticked rows open their price line (pure CSS, no script) ---- */
+.cat-list {
+  display: grid;
+  gap: 0.5rem;
+  counter-reset: picked;
+}
+.cat-row {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.cat-row:has(> .cat-row__head input:checked) {
+  counter-increment: picked;
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+.cat-row__head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 2.75rem;
+  margin: 0;
+  padding: 0 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+.cat-row__name {
+  flex: 1;
+}
+.cat-row__fields {
+  display: none;
+  padding: 0 0.9rem 0.9rem 2.5rem;
+}
+.cat-row:has(> .cat-row__head input:checked) > .cat-row__fields {
+  display: block;
+}
+.price-line {
+  display: grid;
+  grid-template-columns: minmax(6rem, 8rem) minmax(6rem, 8rem) minmax(8rem, 1fr);
+  gap: 0.5rem 0.75rem;
+  align-items: end;
+}
+.price-line label {
+  margin: 0;
+}
+.price-line input,
+.price-line select {
+  max-width: none;
+}
+.cat-row__more .price-line {
+  grid-template-columns: minmax(9rem, 11rem) minmax(12rem, 1fr);
+}
+.cat-row__more {
+  margin: 0.6rem 0 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.cat-row__more > summary {
+  min-height: 2rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--link);
+}
+.cat-row__more[open] > summary {
+  margin-bottom: 0.5rem;
+  border: 0;
+}
+.cat-count {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.cat-count::before {
+  content: counter(picked) ' selected';
+}
+@media (max-width: 40rem) {
+  .price-line {
+    grid-template-columns: 1fr 1fr;
+  }
+  .price-line__unit {
+    grid-column: 1 / -1;
+  }
+  .cat-row__fields {
+    padding-left: 0.9rem;
+  }
 }

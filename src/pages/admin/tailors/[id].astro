@@ -131,77 +131,101 @@ const action = `/admin/tailors/${id}/actions`;
             <form method="post" action={action}>
               <input type="hidden" name="csrf" value={auth.csrfToken} />
               <input type="hidden" name="action" value="save_categories" />
-              {categories
-                .filter((c) => c.is_active || linkFor.has(c.id))
-                .map((c) => {
-                  const link = linkFor.get(c.id);
-                  return (
-                    <fieldset>
-                      <legend>
-                        <label>
+              <div class="cat-list">
+                {categories
+                  .filter((c) => c.is_active || linkFor.has(c.id))
+                  .map((c) => {
+                    const link = linkFor.get(c.id);
+                    return (
+                      <div class="cat-row">
+                        <label class="cat-row__head">
                           <input
                             type="checkbox"
                             name={`cat_${c.id}`}
                             checked={!!link}
-                          />{' '}
-                          {c.name}
-                          {!c.is_active && ` ${en.tailorInactiveMark}`}
-                        </label>
-                      </legend>
-                      <label>
-                        {en.tailorPriceFrom}{' '}
-                        <input
-                          name={`from_${c.id}`}
-                          value={centsToDollars(link?.price_from ?? null)}
-                          inputmode="decimal"
-                        />
-                      </label>
-                      <label>
-                        {en.tailorPriceTo}{' '}
-                        <input
-                          name={`to_${c.id}`}
-                          value={centsToDollars(link?.price_to ?? null)}
-                          inputmode="decimal"
-                        />
-                      </label>
-                      <label>
-                        {en.tailorPriceUnit}{' '}
-                        <input
-                          name={`unit_${c.id}`}
-                          value={link?.price_unit_note ?? ''}
-                          maxlength="100"
-                        />
-                      </label>
-                      <label>
-                        {en.tailorPriceConfirmed}{' '}
-                        <input
-                          type="date"
-                          name={`confirmed_${c.id}`}
-                          value={link?.price_confirmed_on ?? ''}
-                        />
-                      </label>
-                      {mayVerify && (
-                        <label>
-                          {en.tailorPriceSource}
-                          <select name={`source_${c.id}`}>
-                            <option
-                              value="tailor_supplied"
-                              selected={link?.price_source !== 'verified'}
-                            >
-                              {en.tailorSourceSupplied}
-                            </option>
-                            <option
-                              value="verified"
-                              selected={link?.price_source === 'verified'}
-                            >
+                          />
+                          <span class="cat-row__name">
+                            {c.name}
+                            {!c.is_active && ` ${en.tailorInactiveMark}`}
+                          </span>
+                          {link?.price_source === 'verified' && (
+                            <span class="chip chip--success">
                               {en.tailorSourceVerified}
-                            </option>
-                          </select>
+                            </span>
+                          )}
                         </label>
-                      )}
-                    </fieldset>
-                  );
-                })}
+                        <div class="cat-row__fields">
+                          <div class="price-line">
+                            <label>
+                              {en.tailorPriceFrom}
+                              <input
+                                name={`from_${c.id}`}
+                                value={centsToDollars(link?.price_from ?? null)}
+                                inputmode="decimal"
+                              />
+                            </label>
+                            <label>
+                              {en.tailorPriceTo}
+                              <input
+                                name={`to_${c.id}`}
+                                value={centsToDollars(link?.price_to ?? null)}
+                                inputmode="decimal"
+                              />
+                            </label>
+                            <label class="price-line__unit">
+                              {en.tailorPriceUnit}
+                              <input
+                                name={`unit_${c.id}`}
+                                value={link?.price_unit_note ?? ''}
+                                maxlength="100"
+                              />
+                            </label>
+                          </div>
+                          <details class="cat-row__more">
+                            <summary>
+                              {en.tailorPriceConfirmed}
+                              {mayVerify ? ` · ${en.tailorPriceSource}` : ''}
+                            </summary>
+                            <div class="price-line">
+                              <label>
+                                {en.tailorPriceConfirmed}
+                                <input
+                                  type="date"
+                                  name={`confirmed_${c.id}`}
+                                  value={link?.price_confirmed_on ?? ''}
+                                />
+                              </label>
+                              {mayVerify && (
+                                <label>
+                                  {en.tailorPriceSource}
+                                  <select name={`source_${c.id}`}>
+                                    <option
+                                      value="tailor_supplied"
+                                      selected={
+                                        link?.price_source !== 'verified'
+                                      }
+                                    >
+                                      {en.tailorSourceSupplied}
+                                    </option>
+                                    <option
+                                      value="verified"
+                                      selected={
+                                        link?.price_source === 'verified'
+                                      }
+                                    >
+                                      {en.tailorSourceVerified}
+                                    </option>
+                                  </select>
+                                </label>
+                              )}
+                            </div>
+                          </details>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+              <p class="cat-count" aria-live="polite"></p>
               <button type="submit">{en.tailorSave}</button>
             </form>
           </section>
