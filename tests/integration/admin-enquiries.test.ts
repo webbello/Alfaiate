@@ -476,7 +476,7 @@ describe('the enquiry page in cards (Phase 7b T5)', () => {
       at('id="notes-card"'), // the wide column first, then the side column (status, referrals, anonymise)
       at('id="status-card"'),
       at('id="referrals"'),
-      at('<details'),
+      at('<details>'),
       at('class="card card--warning"'),
     ];
     expect(order).toEqual([...order].sort((a, b) => a - b));

@@ -24,6 +24,12 @@ export const ADMIN_ROUTES: readonly {
     methods: ['POST'],
   },
   {
+    file: 'theme.ts',
+    path: '/admin/theme',
+    permission: 'dashboard.view',
+    methods: ['POST'],
+  },
+  {
     file: 'index.astro',
     path: '/admin',
     permission: 'dashboard.view',

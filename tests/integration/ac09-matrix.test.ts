@@ -51,6 +51,7 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     current_password: 'wrong-but-well-formed',
     new_password: 'another-long-passphrase',
   }),
+  '/admin/theme': (csrf) => ({ csrf, theme: 'dark', next: '/admin' }),
   '/admin/categories': (csrf) => ({
     csrf,
     action: 'create',

@@ -38,9 +38,11 @@ describe('the admin header bar', () => {
         '/admin/users',
         '/admin/account',
       ]); // brand + 10 links
-      expect(header, label).toContain('action="/admin/logout"');
-      expect(header, label).toContain('name="csrf"');
-      expect(header, label).toMatch(/\(owner\)/);
+      // the account menu in the top bar holds who is signed in and Sign out
+      expect(html, label).toContain('action="/admin/logout"');
+      expect(html, label).toContain('name="csrf"');
+      expect(html, label).toMatch(/\(owner\)/);
+      expect(html, label).toContain('class="admin-topbar"');
       expect(html, label).toContain('<main id="main" class="admin-main">');
       expect(html, label).toContain('class="skip-link" href="#main"');
       expect(html, label).toContain('name="robots" content="noindex,nofollow"');

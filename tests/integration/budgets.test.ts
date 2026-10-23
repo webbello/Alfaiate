@@ -64,7 +64,7 @@ const BUDGET = {
   },
   css: 21000, // raised 2026-10-21 for the compact directory (filter bar, chips, phone rows): measured 18084 plus margin
   homeCss: 36000, // raised 2026-10-21 for the compact directory and request form (site sheet grew); measured 33601
-  adminCss: 17000, // measured about 16.4k after the visual redesign: icons, cards, chips, login (2026-10-23); was 8200
+  adminCss: 21500, // dark theme and top bar added (2026-10-23); was 17000, measured 20207; // measured about 16.4k after the visual redesign: icons, cards, chips, login (2026-10-23); was 8200
   js: 1500, // raised 2026-10-21: the directory page adds the filter script (measured 1195 with the header menu)
 } as const;
 

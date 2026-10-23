@@ -182,7 +182,8 @@ describe('the dashboard as cards (Phase 7b T3)', () => {
           `<a class="chip chip--[a-z]+" href="/admin/enquiries\\?status=${status}">[^<]*${n}[^<]*</a>`,
         ),
       );
-    expect(count(html, 'href="/admin/enquiries?status=')).toBe(7);
+    // seven chips, plus the bell in the top bar that opens the New ones
+    expect(count(html, 'href="/admin/enquiries?status=')).toBe(8);
   });
 
   it('shows every figure as a card: ten for a manager, and the owner gets the fee figures as four more in their own block', async () => {

@@ -1,6 +1,10 @@
 ---
 import '../styles/admin.css';
 import AdminIcon from '../components/admin/AdminIcon.astro';
+import { env } from 'cloudflare:workers';
+import { requireBindings } from '../modules/config';
+import { can } from '../modules/auth/permissions';
+import { countByStatus } from '../modules/enquiry/queries';
 import { en } from '../i18n/en';
 import { currentKey, navLinks } from '../modules/admin-ui/nav';
 
@@ -13,10 +17,16 @@ interface Props {
 const { title, description = title, auth } = Astro.props;
 const current = currentKey(Astro.url.pathname);
 const links = auth ? navLinks(auth.role) : [];
+const dark = Astro.cookies.get('admin_theme')?.value === 'dark';
+const canSearch = auth ? can(auth.role, 'enquiry.view') : false;
+// The bell counts enquiries still marked New (spam left out), for roles that may read enquiries.
+const newCount = canSearch
+  ? (await countByStatus(requireBindings(env).DB)).byStatus.new
+  : 0;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme={dark ? 'dark' : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -33,7 +43,9 @@ const links = auth ? navLinks(auth.role) : [];
         <header class="admin-header">
           <div class="admin-header__inner">
             <a class="admin-brand" href="/admin">
-              <span class="admin-brand__mark"><AdminIcon name="logo" /></span>
+              <span class="admin-brand__mark">
+                <AdminIcon name="logo" />
+              </span>
               Alfaiate TL admin
             </a>
             <input
@@ -66,18 +78,92 @@ const links = auth ? navLinks(auth.role) : [];
                   </>
                 ))}
               </nav>
-              <div class="admin-user">
-                <span>
-                  {auth.email} ({auth.role})
-                </span>
-                <form method="post" action="/admin/logout">
-                  <input type="hidden" name="csrf" value={auth.csrfToken} />
-                  <button type="submit">{en.adminSignOut}</button>
-                </form>
-              </div>
             </div>
           </div>
         </header>
+        <div class="admin-topbar">
+          {canSearch && (
+            <form
+              class="admin-search"
+              method="get"
+              action="/admin/enquiries"
+              role="search"
+            >
+              <AdminIcon name="search" />
+              <input
+                type="search"
+                name="q"
+                maxlength="100"
+                aria-label="Search enquiries"
+                placeholder="Search enquiries by reference, name or phone"
+              />
+            </form>
+          )}
+          <div class="admin-topbar__tools">
+            <form method="post" action="/admin/theme">
+              <input type="hidden" name="csrf" value={auth.csrfToken} />
+              <input
+                type="hidden"
+                name="theme"
+                value={dark ? 'light' : 'dark'}
+              />
+              <input type="hidden" name="next" value={Astro.url.pathname} />
+              <button
+                class="icon-button"
+                type="submit"
+                aria-label={
+                  dark
+                    ? 'Switch to the light theme'
+                    : 'Switch to the dark theme'
+                }
+              >
+                <AdminIcon name={dark ? 'sun' : 'moon'} />
+              </button>
+            </form>
+            {canSearch && (
+              <a
+                class="icon-button"
+                href="/admin/enquiries?status=new"
+                aria-label={`New enquiries: ${newCount}`}
+              >
+                <AdminIcon name="bell" />
+                {newCount > 0 && (
+                  <span class="icon-button__badge" aria-hidden="true">
+                    {newCount > 99 ? '99+' : newCount}
+                  </span>
+                )}
+              </a>
+            )}
+            <details class="user-menu">
+              <summary>
+                <span class="avatar" aria-hidden="true">
+                  {auth.email.slice(0, 2).toUpperCase()}
+                </span>
+                <span class="sr-only">Account menu</span>
+                <span class="user-menu__name" aria-hidden="true">
+                  {auth.email}
+                </span>
+                <AdminIcon name="chevron" />
+              </summary>
+              <div class="user-menu__panel">
+                <p class="user-menu__who">
+                  <strong>{auth.email}</strong>({auth.role})
+                </p>
+                <a class="button-link" href="/admin/account">
+                  <AdminIcon name="account" />
+                  {en.adminNavAccount}
+                </a>
+                <form method="post" action="/admin/logout">
+                  <input type="hidden" name="csrf" value={auth.csrfToken} />
+                  <button type="submit" class="secondary">
+                    <AdminIcon name="logout" />
+                    {en.adminSignOut}
+                  </button>
+                </form>
+              </div>
+            </details>
+          </div>
+        </div>
         <main id="main" class="admin-main">
           <slot />
         </main>

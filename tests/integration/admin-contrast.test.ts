@@ -25,7 +25,8 @@ const PAIRS: [fg: string, bg: string][] = [
   ['side-ink', 'side-bg'],
   ['side-group', 'side-bg'],
   ['side-ink', 'side-active'],
-  ['accent-ink', 'side-active'],
+  ['link', 'side-bg'],
+  ['link', 'accent-soft'],
 ];
 
 describe('admin colour tokens meet WCAG AA', () => {

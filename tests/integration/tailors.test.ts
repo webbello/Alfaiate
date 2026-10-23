@@ -112,7 +112,7 @@ describe('tailor list and create', () => {
     const html = await (
       await get('/admin/tailors/new', await signIn('editor'))
     ).text();
-    const [essentials, more] = html.split('<summary>');
+    const [essentials, more] = html.split('<summary>More detail');
     expect(essentials).toContain('id="display_name"');
     expect(essentials).toContain('id="whatsapp"');
     expect(essentials).not.toContain('id="description"');
