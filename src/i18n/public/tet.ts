@@ -76,7 +76,8 @@ export const tet: Dictionary = {
       intro:
         'Hetan alfaiate lokál ho talentu iha Timor-Leste tomak. Haree sira-nia serbisu, hili serbisu ne’ebé loos, no halo ita-nia ideia roupa foun sai realidade.',
       find: 'Buka Alfaiate',
-      request: 'Husu Alfaiate',
+      request: 'Husu Alfaiate ba Uma',
+      reassure: 'La presiza konta. Haruka mensajen ba alfaiate liu WhatsApp, ka husu vizita ba uma.',
       script: 'Alfaiate ba Timor-Leste di’ak liu',
       badge: 'Apoia kbiit lokál',
       imageAlt:

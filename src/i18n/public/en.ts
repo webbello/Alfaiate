@@ -71,7 +71,8 @@ export const en = {
       intro:
         'Discover talented local tailors across Timor-Leste. Explore their work, find the right service, and bring your next clothing idea to life.',
       find: 'Find a Tailor',
-      request: 'Request a Tailor',
+      request: 'Request a Tailor at Home',
+      reassure: 'No account needed. Message a tailor on WhatsApp, or ask for a home visit.',
       script: 'Tailoring a better Timor-Leste',
       badge: 'Support local craftsmanship',
       imageAlt: 'A tailor’s workroom: a half-made blue jacket on a dress form',

@@ -1262,3 +1262,109 @@ a:focus-visible > .icon--arrow {
 .chip-choice span {
   padding: 0 0.85rem;
 }
+
+/* Visual hierarchy pass (2026-10-23): one dominant action per screen. Directory: bigger heading, quieter notice, cards that invite a click. Profile: contact beside the content on wide screens, straight after the photo on phones. */
+.card {
+  display: flex;
+  flex-direction: column;
+  transition:
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+.card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+.card__action {
+  width: 100%;
+  min-height: 2.75rem;
+  margin-top: auto;
+}
+.card__line + .card__action,
+.card__body > :nth-last-child(2) {
+  margin-bottom: 0.75rem;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgb(36 38 34 / 14%);
+  }
+}
+.card .tag {
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+main h1 {
+  letter-spacing: -0.01em;
+}
+.notice--compact {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.profile {
+  display: flex;
+  flex-direction: column;
+}
+.profile > * {
+  order: 2;
+}
+.profile > p:first-child,
+.profile > h1,
+.profile__photo,
+.profile__swatch {
+  order: 0;
+}
+.profile > h1 {
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  line-height: 1.05;
+}
+.profile__contact {
+  order: 1;
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+  background: var(--color-white, #fff);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgb(36 38 34 / 10%);
+}
+.profile__contact h2 {
+  margin-top: 0;
+}
+.profile__contact .actions {
+  flex-direction: column;
+  align-items: stretch;
+}
+.profile__contact .button {
+  min-height: 3.25rem;
+}
+@media (min-width: 64rem) {
+  .profile {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    column-gap: 2.5rem;
+  }
+  .profile > * {
+    grid-column: 1;
+    order: 0;
+  }
+  .profile__contact {
+    grid-column: 2;
+    grid-row: 1 / span 12;
+    align-self: start;
+    position: sticky;
+    top: 5.5rem;
+  }
+}
+.card {
+  position: relative;
+}
+.card__title a::after {
+  /* the whole card opens the profile; the title stays the one real link */
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.card__action {
+  pointer-events: none;
+}

@@ -29,7 +29,7 @@ test.describe('phone menu', () => {
   }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toBeInViewport();
-    await expect(page.locator('.hero .button--ghost')).toBeInViewport();
+    await expect(page.locator('.hero .button--accent')).toBeInViewport();
     await expect(page.locator('.hero__note')).toBeInViewport();
   });
 });

@@ -55,7 +55,7 @@ const seed = async () => {
 const BUDGET = {
   html: {
     home: 27700,
-    directory: 9800,
+    directory: 10000, // +200: visible "View Profile" button on each card (2026-10-23)
     category: 10400,
     profile: 9600,
     request: 13200,

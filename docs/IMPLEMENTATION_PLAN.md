@@ -111,7 +111,7 @@ No web fonts, no third-party requests; JavaScript only on a profile with contact
 - **Objective:** match the owner's reference home page (layout, palette, type, imagery, motion) and add the workflows it implies.
 - **Deliverables:** tokens, fonts, credited scene photos; header, footer, ten home sections as components; directory search; Contact; business enquiries (FR-ENQ-09); gated newsletter (FR-PUB-08).
 - **Status (2026-10-19):** built in five commits; reviews and owner sign-off pending. No separate spec (owner chose to build straight away); decisions in DECISIONS.md.
-- **Measured budgets:** see `tests/integration/budgets.test.ts` (home HTML 27700 incl. the footer form, CSS 17900, home CSS 33000, JS 900).
+- **Measured budgets:** see `tests/integration/budgets.test.ts` (home HTML 27700 incl. the footer form, CSS 17900, home CSS 33000, JS 900; directory HTML 10000, raised from 9800 on 2026-10-23 for the visible View Profile button on each card).
 
 ## Phase 7e — Tailor portal (added 2026-10-21, owner request)
 

@@ -85,7 +85,7 @@ const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') =>
       <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
     </p>
 
-    <section aria-labelledby="contact">
+    <section class="profile__contact" aria-labelledby="contact">
       <h2 id="contact">{t.profile.contact}</h2>
       <p class="actions">
         {whatsapp && (
@@ -108,7 +108,7 @@ const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') =>
             {t.contact.call}
           </a>
         )}
-        <a class="button button--secondary" href={requestHref}>
+        <a class="button button--outline" href={requestHref}>
           {t.profile.requestThis}
         </a>
       </p>

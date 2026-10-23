@@ -11,7 +11,6 @@ interface Props {
 const { lang, t } = Astro.props;
 const h = t.home.hero;
 const hero = scene('hero');
-const badge = scene('craft');
 const trust = [
   { icon: 'pin', a: h.trust1, b: h.trust1b },
   { icon: 'scissors', a: h.trust2, b: h.trust2b },
@@ -33,11 +32,12 @@ const trust = [
           {h.find}
           <Icon name="arrow" class="icon icon--arrow" />
         </a>
-        <a class="button button--ghost" href={pathFor(lang, '/request')}>
+        <a class="button button--accent" href={pathFor(lang, '/request')}>
           {h.request}
           <Icon name="arrow" class="icon icon--arrow" />
         </a>
       </p>
+      <p class="hero__reassure">{h.reassure}</p>
       <ul class="trust" aria-label={h.trustLabel}>
         {trust.map((item) => (
           <li>
@@ -68,19 +68,5 @@ const trust = [
       fetchpriority="high"
       decoding="async"
     />
-    <p class="hero__script" aria-hidden="true">
-      {h.script}
-    </p>
-    <p class="hero__badge">
-      <img
-        src={badge.src}
-        width="48"
-        height="48"
-        alt=""
-        loading="lazy"
-        decoding="async"
-      />
-      <span>{h.badge}</span>
-    </p>
   </div>
 </section>

@@ -27,7 +27,7 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
       '<h1 id="hero-heading">Find the Tailor Who Gets <span class="accent">Your Style.</span>',
     );
     const disclaimer = index(html, 'introduces you to independent tailors');
-    const cta = index(html, 'class="button button--ghost" href="/request"');
+    const cta = index(html, 'class="button button--accent" href="/request"');
     const how = index(html, '<h2 id="how">');
     // The first content block: heading, disclaimer and request button all come before "How it works" and the rest.
     expect(h1).toBeLessThan(disclaimer);
@@ -46,7 +46,7 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
       '<h1 id="hero-heading">Buka Alfaiate ne’ebé Komprende',
     );
     const disclaimer = index(html, 'aprezenta ita ba alfaiate independente');
-    const cta = index(html, 'class="button button--ghost" href="/tet/request"');
+    const cta = index(html, 'class="button button--accent" href="/tet/request"');
     const how = index(html, '<h2 id="how">');
     expect(h1).toBeLessThan(disclaimer);
     expect(disclaimer).toBeLessThan(how);
