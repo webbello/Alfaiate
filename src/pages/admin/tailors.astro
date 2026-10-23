@@ -6,6 +6,7 @@ import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { requirePermission } from '../../modules/auth/require';
 import { listTailors } from '../../modules/tailors/repo';
+import PageHeader from '../../components/admin/PageHeader.astro';
 import EmptyState from '../../components/admin/EmptyState.astro';
 import StatusChip from '../../components/admin/StatusChip.astro';
 import {
@@ -34,16 +35,20 @@ const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
   description={en.tailorListHeading}
   auth={auth}
 >
-  <h1>{en.tailorListHeading}</h1>
+  <PageHeader
+    title={en.tailorListHeading}
+    sub="Every tailor, published or not. Open one to edit it and follow its publish checklist."
+  >
+    <a class="button-link button-link--primary" href="/admin/tailors/new">
+      {en.tailorNew}
+    </a>
+  </PageHeader>
   <div class="toolbar">
     <nav class="tabs" aria-label={en.tailorFilterAll}>
       <a href="/admin/tailors">{en.tailorFilterAll}</a>
       <a href="/admin/tailors?published=1">{en.tailorPublished}</a>
       <a href="/admin/tailors?published=0">{en.tailorNotPublished}</a>
     </nav>
-    <a class="button-link button-link--primary" href="/admin/tailors/new">
-      {en.tailorNew}
-    </a>
   </div>
   {tailors.length === 0 && (
     <EmptyState title="No tailors yet">

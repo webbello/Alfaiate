@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 import { env } from 'cloudflare:workers';
+import PageHeader from '../../../components/admin/PageHeader.astro';
 import Flash from '../../../components/admin/Flash.astro';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { messageKind } from '../../../modules/admin-ui/messages';
@@ -68,15 +69,15 @@ const action = `/admin/enquiries/${id}/actions`;
   description={text.heading}
   auth={auth}
 >
-  <h1>{e.reference_code}</h1>
+  <PageHeader
+    title={e.reference_code}
+    back={{ href: '/admin/enquiries', label: text.back }}
+  />
   <p class="meta">
     <StatusChip state={e.status} label={text.statuses[e.status]} />
     {e.is_spam ? <StatusChip state="cancelled" label={text.spamMark} /> : null}
     {text.received} {e.created_at.slice(0, 10)}
     {e.source ? ` · ${text.source}: ${e.source}` : ''}
-  </p>
-  <p>
-    <a href="/admin/enquiries">{text.back}</a>
   </p>
   {message && <Flash message={message} kind={messageKind(code)} />}
   <p class="next-step" role="note">

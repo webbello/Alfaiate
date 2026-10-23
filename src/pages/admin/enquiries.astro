@@ -10,6 +10,7 @@ import {
   countByStatus,
   listEnquiries,
 } from '../../modules/enquiry/queries';
+import PageHeader from '../../components/admin/PageHeader.astro';
 import EmptyState from '../../components/admin/EmptyState.astro';
 import StatusChip from '../../components/admin/StatusChip.astro';
 import { toneFor } from '../../modules/admin-ui/tone';
@@ -40,7 +41,10 @@ const text = en.enquiry;
 ---
 
 <AdminLayout title={text.heading} description={text.heading} auth={auth}>
-  <h1>{text.heading}</h1>
+  <PageHeader
+    title={text.heading}
+    sub="Requests from customers. Open one to contact them, pass it to a tailor and record what happened."
+  />
 
   <nav class="chips" aria-label={text.statusFilter}>
     <a

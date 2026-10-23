@@ -1,5 +1,6 @@
 ---
 import '../styles/admin.css';
+import AdminIcon from '../components/admin/AdminIcon.astro';
 import { en } from '../i18n/en';
 import { currentKey, navLinks } from '../modules/admin-ui/nav';
 
@@ -32,6 +33,7 @@ const links = auth ? navLinks(auth.role) : [];
         <header class="admin-header">
           <div class="admin-header__inner">
             <a class="admin-brand" href="/admin">
+              <span class="admin-brand__mark"><AdminIcon name="logo" /></span>
               Alfaiate TL admin
             </a>
             <input
@@ -58,6 +60,7 @@ const links = auth ? navLinks(auth.role) : [];
                       href={link.href}
                       aria-current={link.key === current ? 'page' : undefined}
                     >
+                      <AdminIcon name={link.key} />
                       {link.label}
                     </a>
                   </>

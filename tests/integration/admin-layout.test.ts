@@ -8,10 +8,10 @@ import { ORIGIN } from './helpers';
 const headerOf = (html: string) =>
   html.match(/<header class="admin-header">[\s\S]*?<\/header>/)?.[0] ?? '';
 const linksIn = (html: string) =>
-  [...html.matchAll(/<a\b([^>]*)\bhref="([^"]+)"([^>]*)>([^<]*)<\/a>/g)].map(
+  [...html.matchAll(/<a\b([^>]*)\bhref="([^"]+)"([^>]*)>([\s\S]*?)<\/a>/g)].map(
     (m) => ({
       href: m[2],
-      text: m[4].trim(),
+      text: m[4].replace(/<[^>]*>/g, '').trim(),
       current: /aria-current="page"/.test(m[1] + m[3]),
     }),
   );
@@ -168,8 +168,20 @@ describe('the shipped admin stylesheet keeps chips and banners readable (WCAG 1.
         css.match(
           new RegExp(`${selector.replace(/\./g, '\\.')}\\s*\\{([^}]*)\\}`),
         )?.[1] ?? '';
-      const bg = body.match(/background:\s*(#[0-9a-f]{6})/i)?.[1];
-      const fg = body.match(/(?:^|;|\s)color:\s*(#[0-9a-f]{6})/i)?.[1];
+      // a colour is a hex value or a var(--token) defined in :root; the minifier writes #fff for #ffffff
+      const colour = (value?: string) => {
+        const v = value?.trim();
+        const token = v?.match(/^var\(--([a-z-]+)\)$/)?.[1];
+        const hex = token
+          ? css.match(new RegExp(`--${token}:\\s*(#[0-9a-f]{3,6})`, 'i'))?.[1]
+          : v?.match(/^#[0-9a-f]{3,6}$/i)?.[0];
+        if (!hex) return undefined;
+        return hex.length === 4
+          ? `#${[...hex.slice(1)].map((c) => c + c).join('')}`
+          : hex;
+      };
+      const bg = colour(body.match(/background:\s*([^;}]+)/i)?.[1]);
+      const fg = colour(body.match(/(?:^|;|\s)color:\s*([^;}]+)/i)?.[1]);
       expect(bg && fg, `${selector} colours in the shipped CSS`).toBeTruthy();
       expect(ratio(bg!, fg!), selector).toBeGreaterThanOrEqual(4.5);
     }

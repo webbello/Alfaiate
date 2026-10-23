@@ -1,0 +1,16 @@
+---
+import { ICONS, type IconName } from '../../modules/admin-ui/icons';
+
+interface Props {
+  name: IconName;
+}
+const { name } = Astro.props;
+---
+
+<svg
+  class="icon"
+  viewBox="0 0 24 24"
+  aria-hidden="true"
+  focusable="false"
+  set:html={ICONS[name]}
+/>

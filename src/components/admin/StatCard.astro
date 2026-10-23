@@ -1,14 +1,25 @@
 ---
+import AdminIcon from './AdminIcon.astro';
+import type { IconName } from '../../modules/admin-ui/icons';
+
 interface Props {
   label: string;
   value: string;
   help?: string;
+  icon?: IconName;
+  /** A larger number, for the figures the owner reads first. */
+  hero?: boolean;
 }
-const { label, value, help } = Astro.props;
+const { label, value, help, icon, hero = false } = Astro.props;
 ---
 
-<div class="stat">
+<div class={hero ? 'stat stat--hero' : 'stat'}>
   <h3 class="stat__label">{label}</h3>
+  {icon && (
+    <span class="stat__icon">
+      <AdminIcon name={icon} />
+    </span>
+  )}
   <p class="stat__value">{value}</p>
   {help && <p class="stat__help">{help}</p>}
 </div>

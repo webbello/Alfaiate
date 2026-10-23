@@ -1,11 +1,18 @@
 ---
+import AdminIcon from './AdminIcon.astro';
+import type { IconName } from '../../modules/admin-ui/icons';
+
 interface Props {
   title: string;
+  icon?: IconName;
 }
-const { title } = Astro.props;
+const { title, icon = 'inbox' } = Astro.props;
 ---
 
 <div class="empty">
+  <span class="empty__icon">
+    <AdminIcon name={icon} />
+  </span>
   <strong>{title}</strong>
   <slot />
 </div>

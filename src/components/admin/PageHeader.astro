@@ -1,0 +1,25 @@
+---
+// Title, one line of context and the page's main actions, in one row. The title is the page's only h1.
+interface Props {
+  title: string;
+  sub?: string;
+  /** A small link back to the parent list, shown above the title. */
+  back?: { href: string; label: string };
+}
+const { title, sub, back } = Astro.props;
+---
+
+<div class="page-head">
+  <div class="page-head__text">
+    {back && (
+      <p class="page-head__crumb">
+        <a href={back.href}>{back.label}</a>
+      </p>
+    )}
+    <h1>{title}</h1>
+    {sub && <p class="page-head__sub">{sub}</p>}
+  </div>
+  <div class="page-head__actions">
+    <slot />
+  </div>
+</div>

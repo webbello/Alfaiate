@@ -158,6 +158,8 @@ describe('the /admin dashboard figures (FR-RPT-01/02, ANA-04/05, AC-14)', () => 
 
 describe('the dashboard as cards (Phase 7b T3)', () => {
   const count = (html: string, needle: string) => html.split(needle).length - 1;
+  const stats = (html: string) =>
+    (html.match(/<div class="stat( stat--hero)?">/g) ?? []).length;
 
   it('shows the period as tabs, with the current one marked', async () => {
     const html = await page('manager', '?period=30d');
@@ -185,10 +187,10 @@ describe('the dashboard as cards (Phase 7b T3)', () => {
 
   it('shows every figure as a card: ten for a manager, and the owner gets the fee figures as four more in their own block', async () => {
     const manager = await page('manager', '?period=all');
-    expect(count(manager, '<div class="stat">')).toBe(10);
+    expect(stats(manager)).toBe(10);
     expect(manager).not.toContain('Fees (owner only)');
     const owner = await page('owner', '?period=all');
-    expect(count(owner, '<div class="stat">')).toBe(14);
+    expect(stats(owner)).toBe(14);
     expect(owner).toMatch(/<h2[^>]*>Fees \(owner only\)<\/h2>/);
   });
 

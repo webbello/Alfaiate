@@ -1,4 +1,6 @@
 ---
+import AdminIcon from './AdminIcon.astro';
+
 interface Props {
   message: string;
   kind: 'success' | 'problem';
@@ -10,7 +12,10 @@ const { message, kind } = Astro.props;
   class={`flash flash--${kind}`}
   role={kind === 'problem' ? 'alert' : 'status'}
 >
-  <strong>{kind === 'problem' ? 'Problem.' : 'Done.'}</strong>
-  {message}
-  <slot />
+  <AdminIcon name={kind === 'problem' ? 'alert' : 'check'} />
+  <div>
+    <strong>{kind === 'problem' ? 'Problem.' : 'Done.'}</strong>
+    {message}
+    <slot />
+  </div>
 </div>

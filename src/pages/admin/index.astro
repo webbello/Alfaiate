@@ -11,6 +11,7 @@ import { formatMoney } from '../../modules/directory/format';
 import { metrics, type Ratio } from '../../modules/reporting/metrics';
 import { PERIODS, parsePeriod } from '../../modules/reporting/period';
 import { isSystemEmpty } from '../../modules/admin-ui/system';
+import PageHeader from '../../components/admin/PageHeader.astro';
 import EmptyState from '../../components/admin/EmptyState.astro';
 import Card from '../../components/admin/Card.astro';
 import StatCard from '../../components/admin/StatCard.astro';
@@ -40,6 +41,21 @@ const gettingStarted =
   can(auth.role, 'tailor.edit') &&
   (await isSystemEmpty(requireBindings(env).DB));
 const hours = (h: number, count: number) => fill(d.hours, { hours: h, count });
+// The status bar: one rectangle per status, widths in percent of all enquiries in the period.
+const total = figures
+  ? STATUSES.reduce((sum, st) => sum + figures.byStatus[st], 0)
+  : 0;
+const segments = (() => {
+  let x = 0;
+  return STATUSES.filter((st) => figures && figures.byStatus[st] > 0).map(
+    (st) => {
+      const width = (figures!.byStatus[st] / total) * 100;
+      const seg = { x, width, tone: toneFor(st) };
+      x += width;
+      return seg;
+    },
+  );
+})();
 ---
 
 <AdminLayout
@@ -47,7 +63,10 @@ const hours = (h: number, count: number) => fill(d.hours, { hours: h, count });
   description={en.adminDashboardHeading}
   auth={auth}
 >
-  <h1>{en.adminDashboardHeading}</h1>
+  <PageHeader
+    title={en.adminDashboardHeading}
+    sub="What needs attention and how enquiries are going."
+  />
   {gettingStarted && (
     <Card title={d.gettingStartedHeading} id="getting-started">
       <p>{d.gettingStartedIntro}</p>
@@ -75,73 +94,118 @@ const hours = (h: number, count: number) => fill(d.hours, { hours: h, count });
   )}
   {figures && (
     <section aria-labelledby="figures">
-      <h2 id="figures">{d.heading}</h2>
-      <nav class="tabs" aria-label={d.periodLabel}>
-        {PERIODS.map((p) => (
-          <a
-            href={`/admin?period=${p}`}
-            aria-current={p === period ? 'page' : undefined}
-          >
-            {d.periods[p]}
-          </a>
-        ))}
-      </nav>
-      <p>{d.note}</p>
+      <div class="page-head">
+        <div class="page-head__text">
+          <h2 id="figures">{d.heading}</h2>
+        </div>
+        <nav class="tabs" aria-label={d.periodLabel}>
+          {PERIODS.map((p) => (
+            <a
+              href={`/admin?period=${p}`}
+              aria-current={p === period ? 'page' : undefined}
+            >
+              {d.periods[p]}
+            </a>
+          ))}
+        </nav>
+      </div>
+      <p class="page-head__sub">{d.note}</p>
 
-      <h3>{d.byStatus}</h3>
-      <p class="chips">
-        {STATUSES.map((s) => (
-          <a
-            class={`chip chip--${toneFor(s)}`}
-            href={`/admin/enquiries?status=${s}`}
-          >
-            {en.enquiry.statuses[s]}: {figures.byStatus[s]}
-          </a>
-        ))}
-      </p>
+      <div class="card pipeline">
+        <h3>{d.byStatus}</h3>
+        <svg
+          viewBox="0 0 100 1"
+          preserveAspectRatio="none"
+          role="img"
+          aria-label={d.byStatus}
+        >
+          {total === 0 ? (
+            <rect x="0" y="0" width="100" height="1" class="bar-0" />
+          ) : (
+            segments.map((seg) => (
+              <rect
+                x={seg.x}
+                y="0"
+                width={seg.width}
+                height="1"
+                class={`bar-${seg.tone}`}
+              />
+            ))
+          )}
+        </svg>
+        <p class="chips">
+          {STATUSES.map((s) => (
+            <a
+              class={`chip chip--${toneFor(s)}`}
+              href={`/admin/enquiries?status=${s}`}
+            >
+              {en.enquiry.statuses[s]}: {figures.byStatus[s]}
+            </a>
+          ))}
+        </p>
+      </div>
 
-      <div class="stat-grid">
+      <div class="stat-grid stat-grid--hero">
         <StatCard
+          hero
+          icon="inbox"
           label={d.received}
           value={String(figures.enquiries)}
           help={d.receivedHelp}
         />
         <StatCard
+          hero
+          icon="send"
           label={d.forwarded}
           value={String(figures.referralsForwarded)}
           help={d.forwardedHelp}
         />
         <StatCard
+          hero
+          icon="check"
+          label={d.completions}
+          value={String(figures.completions)}
+        />
+        <StatCard
+          hero
+          icon="percent"
+          label={d.conversion}
+          value={ratio(figures.m4)}
+          help={d.conversionHelp}
+        />
+      </div>
+      <div class="stat-grid">
+        <StatCard
+          icon="check"
           label={d.accepted}
           value={String(figures.referralsAccepted)}
         />
         <StatCard
+          icon="trend"
           label={d.acceptance}
           value={ratio(figures.m3)}
           help={d.acceptanceHelp}
         />
         <StatCard
+          icon="percent"
           label={d.referralRate}
           value={ratio(figures.m2)}
           help={d.referralRateHelp}
         />
-        <StatCard label={d.completions} value={String(figures.completions)} />
         <StatCard
-          label={d.conversion}
-          value={ratio(figures.m4)}
-          help={d.conversionHelp}
-        />
-        <StatCard
+          icon="tailors"
           label={d.tailors}
           value={String(figures.activeTailors)}
           help={d.tailorsHelp}
         />
         <StatCard
+          icon="pointer"
           label={d.clicks}
           value={String(figures.contactClicks)}
           help={d.clicksHelp}
         />
         <StatCard
+          icon="clock"
           label={d.firstContact}
           value={
             figures.timeToFirstContact.averageHours === null
@@ -160,20 +224,24 @@ const hours = (h: number, count: number) => fill(d.hours, { hours: h, count });
           <h2>{d.feesHeading}</h2>
           <div class="stat-grid">
             <StatCard
+              icon="money"
               label={d.feesDue}
               value={formatMoney(figures.fees.due)}
               help={d.feesHelp}
             />
             <StatCard
+              icon="alert"
               label={d.feesDisputed}
               value={formatMoney(figures.fees.disputed)}
             />
             <StatCard
+              icon="trend"
               label={d.revenue}
               value={formatMoney(figures.fees.m7)}
               help={d.revenueHelp}
             />
             <StatCard
+              icon="money"
               label={d.collection}
               value={
                 figures.fees.m9.value === null

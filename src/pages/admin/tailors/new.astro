@@ -3,6 +3,7 @@ export const prerender = false;
 import { readForm } from '../../../modules/http/body';
 import { env } from 'cloudflare:workers';
 import Card from '../../../components/admin/Card.astro';
+import PageHeader from '../../../components/admin/PageHeader.astro';
 import Flash from '../../../components/admin/Flash.astro';
 import FormGrid from '../../../components/admin/FormGrid.astro';
 import StickyBar from '../../../components/admin/StickyBar.astro';
@@ -87,10 +88,11 @@ const [categories, areas] = await Promise.all([
   description={en.tailorNewHeading}
   auth={auth}
 >
-  <h1>{en.tailorNewHeading}</h1>
-  <p>
-    <a href="/admin/tailors">{en.tailorListHeading}</a>
-  </p>
+  <PageHeader
+    title={en.tailorNewHeading}
+    sub="Start with the essentials. Everything else can be added on the draft page."
+    back={{ href: '/admin/tailors', label: en.tailorListHeading }}
+  />
   {message && (
     <Flash message={message} kind={kind}>
       {fields.length > 0 && (
@@ -106,7 +108,7 @@ const [categories, areas] = await Promise.all([
       <FormGrid>
         <ProfileFields part="essentials" />
         <fieldset class="wide">
-          <legend>{en.tailorCategoriesHeading}</legend>
+          <legend>Work types</legend>
           {categories.length === 0 && <p>{en.tailorNoCategories}</p>}
           <div class="checkgrid">
             {categories
@@ -119,7 +121,7 @@ const [categories, areas] = await Promise.all([
           </div>
         </fieldset>
         <fieldset class="wide">
-          <legend>{en.tailorShopLocation}</legend>
+          <legend>Shop area</legend>
           {areas.length === 0 && <p>{en.tailorNoAreas}</p>}
           <div class="checkgrid">
             {areas
