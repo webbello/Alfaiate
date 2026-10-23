@@ -7,6 +7,8 @@ export type AuditAction =
   | 'user_deactivated'
   | 'user_reactivated'
   | 'password_changed'
+  | 'user_password_reset'
+  | 'user_signed_out'
   | 'tailor_created'
   | 'tailor_updated'
   | 'tailor_published'

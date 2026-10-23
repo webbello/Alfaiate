@@ -252,8 +252,6 @@ export const en = {
   adminUsersDeactivate: 'Deactivate',
   adminUsersReactivate: 'Reactivate',
   adminUsersCreateHeading: 'Add a user',
-  adminUsersInitialPassword:
-    'Initial password (at least 12 characters; tell them in person)',
   adminUsersCreate: 'Create user',
   adminAccountHeading: 'My account',
   adminCurrentPassword: 'Current password',
@@ -305,6 +303,7 @@ export const en = {
     role_changed: 'Role updated.',
     deactivated: 'User deactivated.',
     reactivated: 'User reactivated.',
+    signed_out: 'Signed out everywhere. They will have to sign in again.',
     invalid: 'Please check the details and try again.',
     email_taken: 'That email is already in use.',
     last_owner: 'The last active owner cannot be demoted or deactivated.',

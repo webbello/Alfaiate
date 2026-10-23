@@ -1,0 +1,153 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import Flash from '../../../components/admin/Flash.astro';
+import PageHeader from '../../../components/admin/PageHeader.astro';
+import StatusChip from '../../../components/admin/StatusChip.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { messageKind } from '../../../modules/admin-ui/messages';
+import { ROLE_INFO, ago } from '../../../modules/admin-ui/roles';
+import { en } from '../../../i18n/en';
+import { requireBindings } from '../../../modules/config';
+import { requirePermission } from '../../../modules/auth/require';
+import { ROLES } from '../../../modules/auth/permissions';
+import { getUser, recentActivity } from '../../../modules/auth/user-directory';
+import { parseId } from '../../../modules/http/body';
+
+const auth = await requirePermission(Astro, 'user.manage');
+if (auth instanceof Response) return auth;
+
+const id = parseId(Astro.params.id);
+const { DB } = requireBindings(env);
+const user = Number.isInteger(id) ? await getUser(DB, id) : null;
+if (!user) return new Response('Not found', { status: 404 });
+const activity = await recentActivity(DB, user.id);
+const self = user.id === auth.userId;
+const code = Astro.url.searchParams.get('msg') ?? '';
+const message = Object.hasOwn(en.adminMessages, code)
+  ? en.adminMessages[code as keyof typeof en.adminMessages]
+  : '';
+const act = '/admin/users/actions';
+const words = (action: string) => action.replaceAll('_', ' ');
+---
+
+<AdminLayout title={user.email} description={user.email} auth={auth}>
+  <PageHeader
+    title={user.email}
+    back={{ href: '/admin/users', label: en.adminUsersHeading }}
+  >
+    {self && <span class="chip chip--neutral">This is you</span>}
+    <span class={`chip chip--${user.role === 'owner' ? 'info' : 'neutral'}`}>
+      {ROLE_INFO[user.role as keyof typeof ROLE_INFO]?.label ?? user.role}
+    </span>
+    <StatusChip
+      state={user.is_active ? 'published' : 'archived'}
+      label={user.is_active ? 'Can sign in' : 'Switched off'}
+    />
+  </PageHeader>
+  {message && <Flash message={message} kind={messageKind(code)} />}
+
+  <div class="split">
+    <div class="split__main">
+      <section class="card">
+        <h2>Role</h2>
+        {self ? (
+          <p>
+            You cannot change your own role. Ask another owner. Change your own
+            password under <a href="/admin/account">My account</a>.
+          </p>
+        ) : (
+          <form method="post" action={act}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <input type="hidden" name="action" value="set_role" />
+            <input type="hidden" name="user_id" value={user.id} />
+            <p>
+              <label for="role">{en.adminUsersRole}</label>
+              <select id="role" name="role">
+                {ROLES.map((r) => (
+                  <option value={r} selected={r === user.role}>
+                    {ROLE_INFO[r].label}: {ROLE_INFO[r].summary}
+                  </option>
+                ))}
+              </select>
+            </p>
+            <button type="submit">{en.adminUsersSave}</button>
+          </form>
+        )}
+      </section>
+
+      {!self && (
+        <section class="card">
+          <h2>Access</h2>
+          <p>
+            {user.is_active
+              ? 'This person can sign in. Switching them off ends their sessions at once. You can switch them back on later.'
+              : 'This person cannot sign in. Switch them back on to let them in again.'}
+          </p>
+          <form method="post" action={act}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <input
+              type="hidden"
+              name="action"
+              value={user.is_active ? 'deactivate' : 'reactivate'}
+            />
+            <input type="hidden" name="user_id" value={user.id} />
+            <button type="submit" class={user.is_active ? 'danger' : undefined}>
+              {user.is_active ? 'Switch off' : 'Switch back on'}
+            </button>
+          </form>
+        </section>
+      )}
+
+      {!self && (
+        <section class="card">
+          <h2>Sign-in</h2>
+          <p>
+            Forgot their password, or lost a laptop? Make a new password (shown
+            once) or end every session they have open.
+          </p>
+          <div class="request__actions">
+            <form method="post" action={`/admin/users/${user.id}/reset`}>
+              <input type="hidden" name="csrf" value={auth.csrfToken} />
+              <button type="submit">Make a new password</button>
+            </form>
+            <form method="post" action={act}>
+              <input type="hidden" name="csrf" value={auth.csrfToken} />
+              <input type="hidden" name="action" value="sign_out" />
+              <input type="hidden" name="user_id" value={user.id} />
+              <button type="submit" class="secondary">
+                Sign out everywhere
+              </button>
+            </form>
+          </div>
+        </section>
+      )}
+    </div>
+    <aside class="split__side" aria-label="About this person">
+      <section class="card">
+        <h2>Details</h2>
+        <dl>
+          <dt>Last signed in</dt>
+          <dd>{ago(user.last_login_at)}</dd>
+          <dt>Added</dt>
+          <dd>{user.created_at.slice(0, 10)}</dd>
+        </dl>
+      </section>
+      <section class="card">
+        <h2>Recent activity</h2>
+        {activity.length === 0 ? (
+          <p>Nothing yet.</p>
+        ) : (
+          <ul class="activity">
+            {activity.map((a) => (
+              <li>
+                <span>{words(a.action)}</span>
+                <small>{a.at.slice(0, 16).replace('T', ' ')}</small>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </aside>
+  </div>
+</AdminLayout>

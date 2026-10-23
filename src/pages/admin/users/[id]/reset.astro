@@ -1,0 +1,47 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import CredentialsCard from '../../../../components/admin/CredentialsCard.astro';
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { requireBindings } from '../../../../modules/config';
+import { requirePermission } from '../../../../modules/auth/require';
+import { verifyCsrf } from '../../../../modules/auth/csrf';
+import { SESSION_COOKIE } from '../../../../modules/auth/session';
+import { resetPassword } from '../../../../modules/auth/admin-users';
+import { parseId, readForm } from '../../../../modules/http/body';
+
+// A new password for someone else. It is made here, shown once on this page and never stored in the clear.
+const auth = await requirePermission(Astro, 'user.manage');
+if (auth instanceof Response) return auth;
+const id = parseId(Astro.params.id);
+if (Astro.request.method !== 'POST')
+  return Astro.redirect(`/admin/users/${id}`, 303);
+const form = (await readForm(Astro.request)).form;
+if (
+  !(await verifyCsrf(
+    Astro.cookies.get(SESSION_COOKIE)?.value ?? '',
+    form.get('csrf')?.toString(),
+  ))
+)
+  return new Response('Forbidden', { status: 403 });
+if (!Number.isInteger(id) || id < 1)
+  return new Response('Not found', { status: 404 });
+const result = await resetPassword(requireBindings(env).DB, auth.userId, id);
+if (!result.ok) {
+  if (result.error === 'not_found')
+    return new Response('Not found', { status: 404 });
+  return Astro.redirect(`/admin/users/${id}?msg=invalid`, 303);
+}
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<AdminLayout title="New password" description="New password" auth={auth}>
+  <CredentialsCard
+    title="New password made"
+    email={result.email}
+    password={result.password}
+    note="Their old password no longer works and they were signed out everywhere."
+    back={`/admin/users/${id}`}
+    backLabel="Back to this person"
+  />
+</AdminLayout>

@@ -1,0 +1,211 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import AdminIcon from '../../../components/admin/AdminIcon.astro';
+import EmptyState from '../../../components/admin/EmptyState.astro';
+import Flash from '../../../components/admin/Flash.astro';
+import PageHeader from '../../../components/admin/PageHeader.astro';
+import StatCard from '../../../components/admin/StatCard.astro';
+import StatusChip from '../../../components/admin/StatusChip.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { messageKind } from '../../../modules/admin-ui/messages';
+import { ABILITIES, ROLE_INFO, ago } from '../../../modules/admin-ui/roles';
+import { en } from '../../../i18n/en';
+import { requireBindings } from '../../../modules/config';
+import { requirePermission } from '../../../modules/auth/require';
+import { grantsFor, ROLES } from '../../../modules/auth/permissions';
+import { listUsers, userCounts } from '../../../modules/auth/user-directory';
+
+const auth = await requirePermission(Astro, 'user.manage');
+if (auth instanceof Response) return auth;
+
+const { DB } = requireBindings(env);
+const params = Astro.url.searchParams;
+const tab = params.get('tab') === 'roles' ? 'roles' : 'people';
+const q = (params.get('q') ?? '').slice(0, 60);
+const role = ROLES.find((r) => r === params.get('role')) ?? '';
+const status =
+  params.get('status') === 'active' || params.get('status') === 'inactive'
+    ? (params.get('status') as 'active' | 'inactive')
+    : undefined;
+const users = tab === 'people' ? await listUsers(DB, { q, role, status }) : [];
+const counts = await userCounts(DB);
+const code = params.get('msg') ?? '';
+const message = Object.hasOwn(en.adminMessages, code)
+  ? en.adminMessages[code as keyof typeof en.adminMessages]
+  : '';
+const initials = (email: string) => email.slice(0, 2).toUpperCase();
+const filtered = Boolean(q || role || status);
+---
+
+<AdminLayout
+  title={en.adminUsersHeading}
+  description={en.adminUsersHeading}
+  auth={auth}
+>
+  <PageHeader
+    title={en.adminUsersHeading}
+    sub="Who can sign in to this admin, and what each person may do."
+  >
+    <a class="button-link button-link--primary" href="/admin/users/new">
+      <AdminIcon name="interest" /> Add a user
+    </a>
+  </PageHeader>
+  {message && <Flash message={message} kind={messageKind(code)} />}
+
+  <nav class="tabs tabs--page" aria-label="Users sections">
+    <a href="/admin/users" aria-current={tab === 'people' ? 'page' : undefined}>
+      People
+    </a>
+    <a
+      href="/admin/users?tab=roles"
+      aria-current={tab === 'roles' ? 'page' : undefined}
+    >
+      Roles and permissions
+    </a>
+  </nav>
+
+  {tab === 'people' && (
+    <>
+      <div class="stat-grid stat-grid--hero">
+        <StatCard icon="users" label="People" value={String(counts.total)} />
+        <StatCard
+          icon="check"
+          label="Can sign in"
+          value={String(counts.active)}
+        />
+        <StatCard
+          icon="alert"
+          label="Switched off"
+          value={String(counts.total - counts.active)}
+        />
+      </div>
+
+      <form class="searchbar" method="get" action="/admin/users" role="search">
+        <p>
+          <label for="user-q">Search by email</label>
+          <input id="user-q" type="search" name="q" value={q} maxlength="60" />
+        </p>
+        <p>
+          <label for="user-role">Role</label>
+          <select id="user-role" name="role">
+            <option value="">Any role</option>
+            {ROLES.map((r) => (
+              <option value={r} selected={r === role}>
+                {ROLE_INFO[r].label}
+              </option>
+            ))}
+          </select>
+        </p>
+        <p>
+          <label for="user-status">Status</label>
+          <select id="user-status" name="status">
+            <option value="">Any status</option>
+            <option value="active" selected={status === 'active'}>
+              Can sign in
+            </option>
+            <option value="inactive" selected={status === 'inactive'}>
+              Switched off
+            </option>
+          </select>
+        </p>
+        <p>
+          <button type="submit">Search</button>
+          {filtered && (
+            <a class="button-link" href="/admin/users">
+              Clear
+            </a>
+          )}
+        </p>
+      </form>
+
+      {users.length === 0 ? (
+        <EmptyState title="No one matches" icon="users">
+          <p>Try a different search, or clear the filters.</p>
+        </EmptyState>
+      ) : (
+        <div class="user-list">
+          {users.map((u) => (
+            <a class="user-row" href={`/admin/users/${u.id}`}>
+              <span class="avatar" aria-hidden="true">
+                {initials(u.email)}
+              </span>
+              <span class="user-row__who">
+                <strong>{u.email}</strong>
+                <small>
+                  Last signed in {ago(u.last_login_at).toLowerCase()}
+                </small>
+              </span>
+              {u.id === auth.userId && (
+                <span class="chip chip--neutral">You</span>
+              )}
+              <span
+                class={`chip chip--${u.role === 'owner' ? 'info' : 'neutral'}`}
+              >
+                {ROLE_INFO[u.role as keyof typeof ROLE_INFO]?.label ?? u.role}
+              </span>
+              <StatusChip
+                state={u.is_active ? 'published' : 'archived'}
+                label={u.is_active ? 'Can sign in' : 'Switched off'}
+              />
+            </a>
+          ))}
+        </div>
+      )}
+    </>
+  )}
+
+  {tab === 'roles' && (
+    <>
+      <p>
+        Each person has one role. Roles are fixed: this is what each one may do.
+        Change someone's role on their own page.
+      </p>
+      <div class="stat-grid">
+        {ROLES.map((r) => (
+          <div class="card role-card">
+            <h2>{ROLE_INFO[r].label}</h2>
+            <p>{ROLE_INFO[r].summary}</p>
+          </div>
+        ))}
+      </div>
+      <table class="matrix">
+        <caption class="sr-only">What each role may do</caption>
+        <thead>
+          <tr>
+            <th scope="col">Ability</th>
+            {ROLES.map((r) => (
+              <th scope="col">{ROLE_INFO[r].label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {ABILITIES.map((a) => (
+            <tr>
+              <th scope="row">{a.label}</th>
+              {ROLES.map((r) => (
+                <td data-role={ROLE_INFO[r].label}>
+                  {grantsFor(r).includes(a.permission) ? (
+                    <>
+                      <span class="matrix__yes" aria-hidden="true">
+                        <AdminIcon name="check" />
+                      </span>
+                      <span class="sr-only">Yes</span>
+                    </>
+                  ) : (
+                    <>
+                      <span class="matrix__no" aria-hidden="true">
+                        –
+                      </span>
+                      <span class="sr-only">No</span>
+                    </>
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  )}
+</AdminLayout>

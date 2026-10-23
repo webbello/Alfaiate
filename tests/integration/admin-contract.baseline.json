@@ -393,8 +393,13 @@
     ]
   },
   "owner users": {
-    "controls": ["action", "csrf", "email", "password", "role", "user_id"],
-    "forms": ["POST /admin/users/actions"],
-    "links": ["/admin"]
+    "controls": ["q", "role", "status"],
+    "forms": ["GET /admin/users"],
+    "links": []
+  },
+  "owner new user": {
+    "controls": ["csrf", "email", "password", "role"],
+    "forms": ["POST "],
+    "links": []
   }
 }

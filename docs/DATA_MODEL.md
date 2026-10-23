@@ -170,7 +170,7 @@ Append-only: `enquiry_id`, `from_status`, `to_status`, `changed_by` (admin_user)
 
 `admin_user`: `email` (unique), `password_hash` (plus KDF parameters/salt), `role` (`owner` | `manager` | `editor` | `viewer`; one role per user; the role-to-permission map is defined in code, see ARCHITECTURE §6), `is_active`, `last_login_at`. Constraint: at least one active `owner` must always exist.
 `session`: `token_hash` (the raw token lives only in the cookie), `admin_user_id`, `expires_at`, `created_at`.
-`audit_log`: append-only `admin_user_id`, `action` (e.g. `login`, `role_changed`, `tailor_published`, `enquiry_status_changed`), `entity_type`, `entity_id`, `at`; no customer data in the log text. `enquiry_status_log` (3.9) remains the detailed status history.
+`audit_log`: append-only `admin_user_id`, `action` (e.g. `login`, `role_changed`, `tailor_published`, `enquiry_status_changed`), `entity_type`, `entity_id`, `at`; no customer data in the log text. `enquiry_status_log` (3.9) remains the detailed status history. Users section (no schema change): audit actions `user_password_reset` and `user_signed_out` record the target user id only, never a password, hash or link.
 No customer identities exist. Tailors have their own sign-in tables (3.13). First owner is created by a seed script; further users by an owner.
 
 ### 3.13 Tailor portal (migrations 0007, 0008; FR-TPO-*)

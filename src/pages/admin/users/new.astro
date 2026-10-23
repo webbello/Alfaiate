@@ -1,0 +1,128 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import CredentialsCard from '../../../components/admin/CredentialsCard.astro';
+import Flash from '../../../components/admin/Flash.astro';
+import PageHeader from '../../../components/admin/PageHeader.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { messageKind } from '../../../modules/admin-ui/messages';
+import { ROLE_INFO } from '../../../modules/admin-ui/roles';
+import { en } from '../../../i18n/en';
+import { requireBindings } from '../../../modules/config';
+import { requirePermission } from '../../../modules/auth/require';
+import { verifyCsrf } from '../../../modules/auth/csrf';
+import { SESSION_COOKIE } from '../../../modules/auth/session';
+import { ROLES } from '../../../modules/auth/permissions';
+import {
+  createUser,
+  generatePassword,
+} from '../../../modules/auth/admin-users';
+import { readForm } from '../../../modules/http/body';
+
+const auth = await requirePermission(Astro, 'user.manage');
+if (auth instanceof Response) return auth;
+
+let created: { email: string; password: string } | null = null;
+if (Astro.request.method === 'POST') {
+  const form = (await readForm(Astro.request)).form;
+  if (
+    !(await verifyCsrf(
+      Astro.cookies.get(SESSION_COOKIE)?.value ?? '',
+      form.get('csrf')?.toString(),
+    ))
+  )
+    return new Response('Forbidden', { status: 403 });
+  const email = form.get('email')?.toString() ?? '';
+  const typed = form.get('password')?.toString() ?? '';
+  // Blank means "make one for me": it is shown once, below, and never stored in the clear.
+  const password = typed === '' ? generatePassword() : typed;
+  const result = await createUser(requireBindings(env).DB, auth.userId, {
+    email,
+    role: form.get('role')?.toString() ?? '',
+    password,
+  });
+  if (!result.ok)
+    return Astro.redirect(`/admin/users/new?msg=${result.error}`, 303);
+  if (typed !== '')
+    return Astro.redirect(`/admin/users/${result.id}?msg=created`, 303);
+  created = { email: email.trim().toLowerCase(), password };
+  Astro.response.headers.set('Cache-Control', 'no-store');
+}
+const code = Astro.url.searchParams.get('msg') ?? '';
+const message = Object.hasOwn(en.adminMessages, code)
+  ? en.adminMessages[code as keyof typeof en.adminMessages]
+  : '';
+---
+
+<AdminLayout title="Add a user" description="Add a user" auth={auth}>
+  {created ? (
+    <CredentialsCard
+      title="User created"
+      email={created.email}
+      password={created.password}
+      note="They can sign in now with this email and password."
+      back="/admin/users"
+      backLabel="Back to users"
+    />
+  ) : (
+    <>
+      <PageHeader
+        title="Add a user"
+        sub="Give someone access to this admin."
+        back={{ href: '/admin/users', label: en.adminUsersHeading }}
+      />
+      {message && <Flash message={message} kind={messageKind(code)} />}
+      <form method="post" class="card form-card">
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <div class="form-grid">
+          <p>
+            <label for="new-email">{en.adminUsersEmail}</label>
+            <input
+              id="new-email"
+              name="email"
+              type="email"
+              autocomplete="off"
+              required
+            />
+          </p>
+          <p>
+            <label for="new-role">{en.adminUsersRole}</label>
+            <select id="new-role" name="role">
+              {ROLES.filter((r) => r !== 'owner').map((r) => (
+                <option value={r}>{ROLE_INFO[r].label}</option>
+              ))}
+              <option value="owner">{ROLE_INFO.owner.label}</option>
+            </select>
+          </p>
+          <p class="wide">
+            <label for="new-password">Password (optional)</label>
+            <input
+              id="new-password"
+              name="password"
+              type="text"
+              autocomplete="off"
+              minlength="12"
+              placeholder="Leave empty to make one for me"
+            />
+            <small>
+              At least 12 characters. If you leave it empty, a password is made
+              and shown once after you save.
+            </small>
+          </p>
+        </div>
+        <details class="role-help">
+          <summary>What can each role do?</summary>
+          <dl>
+            {ROLES.map((r) => (
+              <>
+                <dt>{ROLE_INFO[r].label}</dt>
+                <dd>{ROLE_INFO[r].summary}</dd>
+              </>
+            ))}
+          </dl>
+        </details>
+        <button type="submit">Create user</button>
+      </form>
+    </>
+  )}
+</AdminLayout>

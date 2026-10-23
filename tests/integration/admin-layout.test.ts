@@ -56,6 +56,7 @@ describe('the admin header bar', () => {
       dashboard: '/admin',
       account: '/admin/account',
       users: '/admin/users',
+      'new user': '/admin/users',
       categories: '/admin/categories',
       areas: '/admin/areas',
       interest: '/admin/interest',

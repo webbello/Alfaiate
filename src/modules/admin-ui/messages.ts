@@ -10,6 +10,7 @@ export const SUCCESS_CODES: readonly string[] = [
   'role_changed',
   'deactivated',
   'reactivated',
+  'signed_out',
   'password_changed',
   'status_saved',
   'note_added',

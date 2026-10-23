@@ -80,6 +80,7 @@ export const PAGES = (ids: {
   ['dashboard', '/admin'],
   ['account', '/admin/account'],
   ['users', '/admin/users'],
+  ['new user', '/admin/users/new'],
   ['categories', '/admin/categories'],
   ['areas', '/admin/areas'],
   ['tailors', '/admin/tailors'],

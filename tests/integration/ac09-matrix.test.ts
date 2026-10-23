@@ -62,6 +62,13 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     action: 'create',
     name: `Matrix ${Date.now()}${n++}`,
   }),
+  '/admin/users/new': (csrf) => ({
+    csrf,
+    email: `matrix${Date.now()}${n++}@example.test`,
+    role: 'viewer',
+    password: '',
+  }),
+  '/admin/users/[id]/reset': (csrf) => ({ csrf }),
   '/admin/tailors/new': (csrf) => ({
     csrf,
     display_name: `Matrix Tailor ${Date.now()}${n++}`,
@@ -230,7 +237,7 @@ describe('user management through the real handlers', () => {
     ).toBeGreaterThan(0);
   });
 
-  it('refuses to demote the only active owner through the handler', async () => {
+  it('refuses to change your own role through the handler, so the only owner cannot demote themselves', async () => {
     await env.DB.prepare('DELETE FROM internal_note').run();
     await env.DB.prepare('DELETE FROM admin_user').run();
     const cookie = await signIn('owner');
@@ -251,8 +258,9 @@ describe('user management through the real handlers', () => {
         redirect: 'manual',
       }),
     );
+    // Changing your own role is refused before the last-owner guard is reached; that guard is tested on the module in tests/workers.
     expect(response.headers.get('location')).toBe(
-      '/admin/users?msg=last_owner',
+      `/admin/users/${owner!.id}?msg=invalid`,
     );
     expect(
       (

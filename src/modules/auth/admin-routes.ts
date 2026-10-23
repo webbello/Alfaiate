@@ -96,10 +96,28 @@ export const ADMIN_ROUTES: readonly {
     methods: ['POST'],
   },
   {
-    file: 'users.astro',
+    file: 'users/index.astro',
     path: '/admin/users',
     permission: 'user.manage',
     methods: ['GET'],
+  },
+  {
+    file: 'users/new.astro',
+    path: '/admin/users/new',
+    permission: 'user.manage',
+    methods: ['GET', 'POST'],
+  },
+  {
+    file: 'users/[id].astro',
+    path: '/admin/users/[id]',
+    permission: 'user.manage',
+    methods: ['GET'],
+  },
+  {
+    file: 'users/[id]/reset.astro',
+    path: '/admin/users/[id]/reset',
+    permission: 'user.manage',
+    methods: ['POST'],
   },
   {
     file: 'users/actions.ts',

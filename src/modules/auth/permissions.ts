@@ -30,6 +30,9 @@ const GRANTS: Record<Role, readonly Permission[]> = {
   viewer: ['dashboard.view'],
 };
 
+/** What a role may do, for the read-only roles table. Same data `can` uses. */
+export const grantsFor = (role: Role): readonly Permission[] => GRANTS[role];
+
 /** Deny by default: unknown roles and unmapped permissions are refused. */
 export function can(role: string, permission: string): boolean {
   const grants = (GRANTS as Record<string, readonly string[] | undefined>)[

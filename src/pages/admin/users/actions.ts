@@ -10,12 +10,23 @@ import {
   createUser,
   deactivateUser,
   reactivateUser,
+  signOutEverywhere,
   updateRole,
   type Outcome,
 } from '../../../modules/auth/admin-users';
 
-const done = (context: Parameters<APIRoute>[0], code: string) =>
-  context.redirect(`/admin/users?msg=${code}`, 303);
+// Back to the person's own page when the action was about one person, to the list otherwise.
+const done = (
+  context: Parameters<APIRoute>[0],
+  code: string,
+  userId?: number,
+) =>
+  context.redirect(
+    Number.isInteger(userId) && (userId as number) > 0
+      ? `/admin/users/${userId}?msg=${code}`
+      : `/admin/users?msg=${code}`,
+    303,
+  );
 
 export const POST: APIRoute = async (context) => {
   const auth = await requirePermission(context, 'user.manage');
@@ -34,6 +45,14 @@ export const POST: APIRoute = async (context) => {
   const field = (name: string) => form.get(name)?.toString() ?? '';
   const targetId = Number(field('user_id'));
   const outcome = async (): Promise<Outcome> => {
+    // Your own role and access are not changed here: another owner does that, so you cannot lock yourself out or promote yourself.
+    if (
+      targetId === auth.userId &&
+      ['set_role', 'deactivate', 'reactivate', 'sign_out'].includes(
+        field('action'),
+      )
+    )
+      return { ok: false, error: 'invalid' };
     switch (field('action')) {
       case 'create':
         return createUser(DB, auth.userId, {
@@ -53,6 +72,10 @@ export const POST: APIRoute = async (context) => {
         return Number.isInteger(targetId)
           ? reactivateUser(DB, auth.userId, targetId)
           : { ok: false, error: 'invalid' };
+      case 'sign_out':
+        return Number.isInteger(targetId)
+          ? signOutEverywhere(DB, auth.userId, targetId)
+          : { ok: false, error: 'invalid' };
       default:
         return { ok: false, error: 'invalid' };
     }
@@ -65,6 +88,11 @@ export const POST: APIRoute = async (context) => {
       set_role: 'role_changed',
       deactivate: 'deactivated',
       reactivate: 'reactivated',
+      sign_out: 'signed_out',
     }[field('action')] ?? 'invalid';
-  return done(context, result.ok ? success : result.error);
+  return done(
+    context,
+    result.ok ? success : result.error,
+    field('action') === 'create' ? undefined : targetId,
+  );
 };
