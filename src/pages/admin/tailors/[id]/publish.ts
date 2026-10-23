@@ -43,9 +43,10 @@ export const POST: APIRoute = async (context) => {
       return new Response('Forbidden', { status: 403 });
     if (r.error === 'not_found')
       return new Response('Not found', { status: 404 });
-    if (r.error === 'blocked')
-      return back(`msg=blocked&blockers=${r.blockers.join(',')}`);
-    return back(`msg=${r.error}`);
+    if (r.error === 'blocked') return back('msg=blocked');
+    const fields =
+      'fields' in r && r.fields?.length ? `&fields=${r.fields.join(',')}` : '';
+    return back(`msg=${r.error}${fields}`);
   };
 
   switch (field('action')) {

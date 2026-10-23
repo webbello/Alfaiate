@@ -81,10 +81,10 @@ describe('publishBlockers', () => {
       'no_permission_recorded',
     ]);
     expect(publishBlockers({ ...base, contact_publish_consent: 0 })).toEqual([
-      'no_consented_contact',
+      'no_contact_consent',
     ]);
     expect(publishBlockers({ ...base, phone_e164: null })).toEqual([
-      'no_consented_contact',
+      'no_contact_number',
     ]);
     expect(
       publishBlockers({
@@ -104,8 +104,21 @@ describe('publishBlockers', () => {
     ).toEqual([
       'not_approved',
       'no_permission_recorded',
-      'no_consented_contact',
+      'no_contact_number',
+      'no_contact_consent',
     ]);
+  });
+
+  it('does not blame the number when the number is there but consent is not', () => {
+    // The reported confusion: a saved WhatsApp number was read as "no number".
+    expect(
+      publishBlockers({
+        ...base,
+        whatsapp_e164: '+67070000123',
+        phone_e164: null,
+        contact_publish_consent: 0,
+      }),
+    ).toEqual(['no_contact_consent']);
   });
 });
 
@@ -127,14 +140,14 @@ describe('publishTailor (AC-10)', () => {
       blockers: [
         'not_approved',
         'no_permission_recorded',
-        'no_consented_contact',
+        'no_contact_consent',
       ],
     });
     expect((await getTailor(env.DB, id))?.is_published).toBe(0);
     await approveTailor(b, by, 'manager', id);
     expect(await publishTailor(b, by, 'manager', id)).toMatchObject({
       ok: false,
-      blockers: ['no_permission_recorded', 'no_consented_contact'],
+      blockers: ['no_permission_recorded', 'no_contact_consent'],
     });
   });
 
@@ -244,7 +257,7 @@ describe('publishing re-checks the requirements at the moment of writing (race)'
     expect(await publishTailor({ ...b, DB: db }, by, 'manager', id)).toEqual({
       ok: false,
       error: 'blocked',
-      blockers: ['no_consented_contact'],
+      blockers: ['no_contact_consent'],
     });
     expect((await getTailor(env.DB, id))?.is_published).toBe(0);
   });
@@ -313,14 +326,22 @@ describe('approveTailor and recordPermission', () => {
         date: '2026-10-02',
         contact_publish_consent: true,
       }),
-    ).toEqual({ ok: false, error: 'invalid' });
+    ).toEqual({
+      ok: false,
+      error: 'invalid',
+      fields: ['permission_note'],
+    });
     expect(
       await recordPermission(b, by, 'manager', id, {
         note: 'ok',
         date: '2026-02-30',
         contact_publish_consent: true,
       }),
-    ).toEqual({ ok: false, error: 'invalid' });
+    ).toEqual({
+      ok: false,
+      error: 'invalid',
+      fields: ['permission_date'],
+    });
     expect(
       await recordPermission(b, by, 'editor', id, {
         note: 'ok',

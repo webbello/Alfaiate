@@ -23,10 +23,12 @@ import { getAccountState } from '../../../modules/portal/account';
 import { listImages } from '../../../modules/media/list';
 import { MAX_IMAGES } from '../../../modules/media/store';
 import { messageFrom } from '../../../modules/tailors/messages';
-import { publishBlockers } from '../../../modules/tailors/publish';
 import Card from '../../../components/admin/Card.astro';
 import FormGrid from '../../../components/admin/FormGrid.astro';
-import { publishChecklist } from '../../../modules/admin-ui/checklist';
+import {
+  missingItems,
+  publishChecklist,
+} from '../../../modules/admin-ui/checklist';
 import { VERIFIABLE_FIELDS } from '../../../modules/tailors/verification';
 
 const auth = await requirePermission(Astro, 'tailor.edit');
@@ -56,13 +58,21 @@ const shop = new Set(
 const serves = new Set(
   areaLinks.filter((a) => a.kind === 'serves').map((a) => a.area_id),
 );
-const { message, kind, fields, blockers } = messageFrom(Astro.url);
-const currentBlockers = publishBlockers(tailor).map(
-  (b) => en.publishBlockers[b],
-);
+const { message, kind, code, fields, fieldKeys } = messageFrom(Astro.url);
 const checklist = publishChecklist(tailor);
-const missingCount = checklist.filter((i) => !i.done).length;
-const nextMissing = checklist.find((i) => !i.done);
+const missing = missingItems(tailor);
+const missingCount = missing.length;
+const nextMissing = missing[0];
+const needsNumber = missing.some((i) => i.key === 'no_contact_number');
+const needsConsent = missing.some((i) => i.key === 'no_contact_consent');
+const invalid = new Set(fieldKeys);
+/** Approval, permission and consent are recorded in forms only a manager can use. */
+const MANAGER_ONLY = new Set([
+  'not_approved',
+  'no_permission_recorded',
+  'no_contact_consent',
+]);
+const canFix = (key: string) => mayVerify || !MANAGER_ONLY.has(key);
 const verified = new Set<string>(
   JSON.parse(tailor.verified_fields) as string[],
 );
@@ -97,21 +107,33 @@ const action = `/admin/tailors/${id}/actions`;
           {en.tailorCheck}: {fields.join(', ')}
         </>
       )}
+      {code === 'blocked' && missing.length > 0 && (
+        <ul class="blockers">
+          {missing.map((item) => (
+            <li>
+              <strong>{item.label}.</strong> {item.detail}{' '}
+              {canFix(item.key) ? (
+                <a href={item.fixHref}>{item.fixLabel}</a>
+              ) : (
+                <span class="field-hint">A manager does this.</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </Flash>
-  )}
-  {blockers.length > 0 && (
-    <ul>
-      {blockers.map((b) => (
-        <li>{b}</li>
-      ))}
-    </ul>
   )}
   {!tailor.is_published && (
     <p class="next-step" role="note">
       <strong>Next step.</strong>
       {nextMissing ? (
         <>
-          {nextMissing.label}. <a href={nextMissing.fixHref}>Do this now</a>
+          {nextMissing.label}. {nextMissing.detail}{' '}
+          {canFix(nextMissing.key) ? (
+            <a href={nextMissing.fixHref}>{nextMissing.fixLabel}</a>
+          ) : (
+            <span class="field-hint">A manager does this.</span>
+          )}
         </>
       ) : mayVerify ? (
         <>
@@ -140,6 +162,8 @@ const action = `/admin/tailors/${id}/actions`;
                 <ProfileFields
                   values={tailor}
                   withSlug={!tailor.published_at && !tailor.is_published}
+                  invalid={fieldKeys}
+                  needed={needsNumber ? ['whatsapp'] : []}
                 />
               </FormGrid>
               <button type="submit">{en.tailorSave}</button>
@@ -290,25 +314,76 @@ const action = `/admin/tailors/${id}/actions`;
       <section class="card" id="orders">
         <h2>Shop orders</h2>
         <p>
-          When someone orders this tailor's products from the shop, the order message opens in WhatsApp for the person you choose here. Only staff
-          can change this; the tailor cannot see or change it. If the chosen number is missing, the order goes to the admin number.
+          When someone orders this tailor's products from the shop, the order
+          message opens in WhatsApp for the person you choose here. Only staff
+          can change this; the tailor cannot see or change it. If the chosen
+          number is missing, the order goes to the admin number.
         </p>
         {mayVerify ? (
           <form method="post" action={`/admin/tailors/${id}/orders`}>
             <input type="hidden" name="csrf" value={auth.csrfToken} />
             <p>
-              <label><input type="radio" name="order_route" value="admin" checked={tailor.order_route === 'admin'} /> The admin first (recommended): I pass it on</label><br />
-              <label><input type="radio" name="order_route" value="tailor" checked={tailor.order_route === 'tailor'} /> The tailor's own WhatsApp ({tailor.whatsapp_e164 ?? 'no number set'}{tailor.contact_publish_consent ? '' : ', not shown publicly yet'})</label><br />
-              <label><input type="radio" name="order_route" value="number" checked={tailor.order_route === 'number'} /> Another number (for example the shop owner)</label>
+              <label>
+                <input
+                  type="radio"
+                  name="order_route"
+                  value="admin"
+                  checked={tailor.order_route === 'admin'}
+                />{' '}
+                The admin first (recommended): I pass it on
+              </label>
+              <br />
+              <label>
+                <input
+                  type="radio"
+                  name="order_route"
+                  value="tailor"
+                  checked={tailor.order_route === 'tailor'}
+                />{' '}
+                The tailor's own WhatsApp (
+                {tailor.whatsapp_e164 ?? 'no number set'}
+                {tailor.contact_publish_consent
+                  ? ''
+                  : ', not shown publicly yet'}
+                )
+              </label>
+              <br />
+              <label>
+                <input
+                  type="radio"
+                  name="order_route"
+                  value="number"
+                  checked={tailor.order_route === 'number'}
+                />{' '}
+                Another number (for example the shop owner)
+              </label>
             </p>
             <p>
-              <label for="order_number">Number for "another number" (with country code, for example +670 77000000)</label><br />
-              <input id="order_number" name="order_number" value={tailor.order_number_e164 ?? ''} maxlength="20" inputmode="tel" />
+              <label for="order_number">
+                Number for "another number" (with country code, for example +670
+                77000000)
+              </label>
+              <br />
+              <input
+                id="order_number"
+                name="order_number"
+                value={tailor.order_number_e164 ?? ''}
+                maxlength="20"
+                inputmode="tel"
+              />
             </p>
             <button type="submit">Save order route</button>
           </form>
         ) : (
-          <p>Orders go to: {tailor.order_route === 'admin' ? 'the admin first' : tailor.order_route === 'tailor' ? "the tailor's WhatsApp" : tailor.order_number_e164}. A manager or owner can change this.</p>
+          <p>
+            Orders go to:{' '}
+            {tailor.order_route === 'admin'
+              ? 'the admin first'
+              : tailor.order_route === 'tailor'
+                ? "the tailor's WhatsApp"
+                : tailor.order_number_e164}
+            . A manager or owner can change this.
+          </p>
         )}
       </section>
 
@@ -545,13 +620,21 @@ const action = `/admin/tailors/${id}/actions`;
           <ul class="checks">
             {checklist.map((i) => (
               <li class={`check check--${i.done ? 'done' : 'missing'}`}>
-                <strong>{i.done ? 'Done' : 'Missing'}:</strong> {i.label}
-                {!i.done && (
-                  <>
-                    {' '}
-                    · <a href={i.fixHref}>Fix this</a>
-                  </>
-                )}
+                <div>
+                  <strong>{i.done ? 'Done' : 'Missing'}:</strong> {i.label}
+                  {!i.done && (
+                    <>
+                      <span class="check__detail">{i.detail}</span>
+                      {canFix(i.key) ? (
+                        <a class="check__fix" href={i.fixHref}>
+                          {i.fixLabel}
+                        </a>
+                      ) : (
+                        <span class="check__detail">A manager does this.</span>
+                      )}
+                    </>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
@@ -564,12 +647,14 @@ const action = `/admin/tailors/${id}/actions`;
             <h2 id="publish">{en.publishHeading}</h2>
             {tailor.is_published ? (
               <p>{en.tailorPublished}</p>
-            ) : currentBlockers.length > 0 ? (
+            ) : missing.length > 0 ? (
               <>
                 <p>{en.publishBlockedIntro}</p>
-                <ul>
-                  {currentBlockers.map((b) => (
-                    <li>{b}</li>
+                <ul class="blockers">
+                  {missing.map((item) => (
+                    <li>
+                      {item.label}. <a href={item.fixHref}>{item.fixLabel}</a>
+                    </li>
                   ))}
                 </ul>
               </>
@@ -587,36 +672,74 @@ const action = `/admin/tailors/${id}/actions`;
               <input type="hidden" name="csrf" value={auth.csrfToken} />
               <input type="hidden" name="action" value="record_permission" />
               <p>
-                <label for="permission_note">{en.publishPermissionNote}</label>
+                <label for="permission-note">{en.publishPermissionNote}</label>
                 <br />
                 <input
-                  id="permission_note"
+                  id="permission-note"
                   name="permission_note"
                   value={tailor.permission_note ?? ''}
                   maxlength="500"
                   required
+                  aria-invalid={
+                    invalid.has('permission_note') ? 'true' : undefined
+                  }
+                  aria-describedby={
+                    invalid.has('permission_note')
+                      ? 'permission-note-error'
+                      : undefined
+                  }
                 />
+                {invalid.has('permission_note') && (
+                  <span class="field-error" id="permission-note-error">
+                    {en.fieldErrors.permission_note}
+                  </span>
+                )}
               </p>
               <p>
-                <label for="permission_date">{en.publishPermissionDate}</label>
+                <label for="permission-date">{en.publishPermissionDate}</label>
                 <br />
                 <input
-                  id="permission_date"
+                  id="permission-date"
                   name="permission_date"
                   type="date"
                   value={tailor.permission_date ?? ''}
                   required
+                  aria-invalid={
+                    invalid.has('permission_date') ? 'true' : undefined
+                  }
+                  aria-describedby={
+                    invalid.has('permission_date')
+                      ? 'permission-date-error'
+                      : undefined
+                  }
                 />
+                {invalid.has('permission_date') && (
+                  <span class="field-error" id="permission-date-error">
+                    {en.fieldErrors.permission_date}
+                  </span>
+                )}
               </p>
-              <p>
+              <p
+                id="contact-consent"
+                class={needsConsent ? 'field-needed' : undefined}
+              >
                 <label>
                   <input
                     type="checkbox"
                     name="contact_publish_consent"
                     checked={!!tailor.contact_publish_consent}
+                    aria-describedby={
+                      needsConsent ? 'contact-consent-hint' : undefined
+                    }
                   />{' '}
                   {en.publishConsent}
                 </label>
+                {needsConsent && (
+                  <span class="field-hint" id="contact-consent-hint">
+                    Needed before publishing: tick this box and press Record
+                    permission.
+                  </span>
+                )}
               </p>
               <button type="submit">{en.publishRecord}</button>
             </form>
@@ -658,6 +781,15 @@ const action = `/admin/tailors/${id}/actions`;
                 name="action"
                 value={tailor.is_published ? 'unpublish' : 'publish'}
               />
+              {!tailor.is_published && missing.length > 0 && (
+                <p class="field-hint">
+                  Publishing is blocked until{' '}
+                  {missingCount === 1
+                    ? 'the missing item is done'
+                    : `all ${missingCount} missing items are done`}
+                  ; each one is listed in “Ready to publish?” above.
+                </p>
+              )}
               <button
                 type="submit"
                 class={tailor.is_published ? 'danger' : undefined}

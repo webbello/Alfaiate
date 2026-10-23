@@ -21,14 +21,14 @@ test('the checklist leads from a new draft to a published tailor', async ({
 
   const card = page.locator('#checklist');
   await expect(card).toContainText(
-    'Not ready to publish: 3 things are still missing',
+    'Not ready to publish: 4 things are still missing',
   );
-  await expect(card.locator('.check--missing')).toHaveCount(3);
+  await expect(card.locator('.check--missing')).toHaveCount(4);
   expect(await violationsOf(page)).toEqual([]);
 
   // Fix each item with the controls the checklist points at.
   await page.getByRole('button', { name: 'Approve' }).click();
-  await expect(card.locator('.check--missing')).toHaveCount(2);
+  await expect(card.locator('.check--missing')).toHaveCount(3);
   await page
     .getByLabel('How and when permission was given')
     .fill('Asked in person, made-up test note');
@@ -40,6 +40,7 @@ test('the checklist leads from a new draft to a published tailor', async ({
     .check();
   await page.getByRole('button', { name: 'Record permission' }).click();
   await expect(card.locator('.check--missing')).toHaveCount(1);
+  await expect(card).toContainText('A WhatsApp or phone number on the profile');
   await page.locator('#whatsapp').fill('+67070000099');
   await page
     .locator('form:has(#whatsapp)')

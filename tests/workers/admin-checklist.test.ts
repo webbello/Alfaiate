@@ -19,7 +19,7 @@ const tailor = (over: Record<string, unknown> = {}) =>
 describe('publishChecklist', () => {
   it('has every requirement done for a ready tailor', () => {
     const list = publishChecklist(tailor());
-    expect(list).toHaveLength(3);
+    expect(list).toHaveLength(4);
     expect(list.every((i) => i.done)).toBe(true);
     expect(publishBlockers(tailor())).toEqual([]);
   });
@@ -53,11 +53,12 @@ describe('publishChecklist', () => {
     }
   });
 
-  it('keeps the same three requirements in the same order every time', () => {
+  it('keeps the same four requirements in the same order every time', () => {
     expect(publishChecklist(tailor()).map((i) => i.key)).toEqual([
       'not_approved',
       'no_permission_recorded',
-      'no_consented_contact',
+      'no_contact_number',
+      'no_contact_consent',
     ]);
   });
 });
@@ -76,6 +77,44 @@ describe('missingSummary (for the tailors list)', () => {
           whatsapp_e164: null,
         }),
       ),
-    ).toBe('Missing: approval, permission, contact');
+    ).toBe('Missing: approval, permission, contact number');
+    expect(missingSummary(tailor({ contact_publish_consent: 0 }))).toBe(
+      'Missing: contact consent',
+    );
+  });
+
+  it('points each missing item at its own control', () => {
+    const hrefs = Object.fromEntries(
+      publishChecklist(
+        tailor({
+          status: 'draft',
+          permission_recorded: 0,
+          contact_publish_consent: 0,
+        }),
+      ).map((i) => [i.key, i.fixHref]),
+    );
+    expect(hrefs).toEqual({
+      not_approved: '#publish',
+      no_permission_recorded: '#permission-note',
+      no_contact_number: '#whatsapp',
+      no_contact_consent: '#contact-consent',
+    });
+  });
+
+  it('only says the number is saved when one is on the profile', () => {
+    const detail = (t: Parameters<typeof publishChecklist>[0]) =>
+      publishChecklist(t).find((i) => i.key === 'no_contact_consent')?.detail;
+    expect(detail(tailor({ contact_publish_consent: 0 }))).toContain(
+      'The number is saved',
+    );
+    const none = detail(
+      tailor({
+        whatsapp_e164: null,
+        phone_e164: null,
+        contact_publish_consent: 0,
+      }),
+    );
+    expect(none).not.toContain('The number is saved');
+    expect(none).toContain('Add a number first');
   });
 });

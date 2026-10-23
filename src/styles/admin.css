@@ -343,6 +343,47 @@ input[type='radio'] {
   accent-color: var(--accent);
   vertical-align: middle;
 }
+/* The control the server rejected, or one that must be filled before publishing. */
+input.input--invalid,
+textarea.input--invalid,
+select.input--invalid {
+  border-color: var(--bad);
+  background: var(--bad-soft);
+}
+input.input--needed,
+textarea.input--needed,
+select.input--needed {
+  border-color: var(--warn);
+  background: var(--warn-soft);
+}
+.field-error,
+.field-hint {
+  display: block;
+  max-width: 32rem;
+  margin-top: 0.3rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+.field-error {
+  color: var(--bad);
+  font-weight: 600;
+}
+.field-hint {
+  color: var(--muted);
+}
+.field-needed {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--bad-line);
+  border-radius: var(--radius);
+  background: var(--bad-surface);
+}
+.blockers {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+}
+.blockers li {
+  margin: 0.3rem 0;
+}
 label:has(> input[type='checkbox']),
 label:has(> input[type='radio']) {
   display: flex;
@@ -893,6 +934,18 @@ small {
 }
 .check--missing strong {
   color: var(--bad);
+}
+.check__detail {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.check__fix {
+  display: inline-block;
+  margin-top: 0.3rem;
+  font-weight: 600;
 }
 .progress {
   display: block;

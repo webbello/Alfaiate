@@ -76,7 +76,11 @@ if (Astro.request.method === 'POST') {
     303,
   );
 }
-const { message, kind, fields } = messageFrom(Astro.url);
+const { message, kind, fields, fieldKeys } = messageFrom(Astro.url);
+/** A rejected field in "More detail" must not stay hidden in a closed section. */
+const openMore = fieldKeys.some(
+  (f) => f !== 'display_name' && f !== 'whatsapp' && f !== 'slug',
+);
 const [categories, areas] = await Promise.all([
   listEntries(requireBindings(env).DB, 'category'),
   listEntries(requireBindings(env).DB, 'area'),
@@ -106,7 +110,7 @@ const [categories, areas] = await Promise.all([
     <input type="hidden" name="csrf" value={auth.csrfToken} />
     <Card title="Essentials" id="essentials">
       <FormGrid>
-        <ProfileFields part="essentials" />
+        <ProfileFields part="essentials" invalid={fieldKeys} />
         <fieldset class="wide">
           <legend>Work types</legend>
           {categories.length === 0 && <p>{en.tailorNoCategories}</p>}
@@ -135,10 +139,10 @@ const [categories, areas] = await Promise.all([
         </fieldset>
       </FormGrid>
     </Card>
-    <details>
+    <details open={openMore}>
       <summary>More detail (optional, can be added later)</summary>
       <FormGrid>
-        <ProfileFields part="more" />
+        <ProfileFields part="more" invalid={fieldKeys} />
       </FormGrid>
     </details>
     <StickyBar>

@@ -39,13 +39,15 @@ export const en = {
     photosNav: 'Photos',
     saved: 'Saved.',
     invalid: 'Please check the details and try again.',
-    locked: 'This page is managed by Alfaiate TL at the moment, so it cannot be changed here.',
+    locked:
+      'This page is managed by Alfaiate TL at the moment, so it cannot be changed here.',
     profileHeading: 'About you',
     profileIntro:
       'This is what customers will read once Alfaiate TL has published your page. Write it in your own words.',
     displayName: 'Business name',
     description: 'About your work',
-    descriptionHint: 'For example what you like to make and how long you have been sewing.',
+    descriptionHint:
+      'For example what you like to make and how long you have been sewing.',
     shopAddress: 'Where is your shop?',
     homeVisits: 'Can you visit customers at home?',
     homeYes: 'Yes',
@@ -53,11 +55,14 @@ export const en = {
     homeUnknown: 'Not sure',
     languages: 'Languages you speak',
     priceNote: 'A price guide',
-    priceNoteHint: 'Shown to customers as "supplied by the tailor". For example: shirts from $10.',
+    priceNoteHint:
+      'Shown to customers as "supplied by the tailor". For example: shirts from $10.',
     whatsapp: 'WhatsApp number',
     phone: 'Phone number',
-    numbersHint: 'Customers will see these only after the Alfaiate TL team has checked and published your page.',
-    numbersLocked: 'To change the numbers customers see, please ask Alfaiate TL.',
+    numbersHint:
+      'Customers will see these only after the Alfaiate TL team has checked and published your page.',
+    numbersLocked:
+      'To change the numbers customers see, please ask Alfaiate TL.',
     save: 'Save',
     workHeading: 'What you make and where you work',
     workIntro: 'Tick everything that fits. You can change this at any time.',
@@ -73,37 +78,45 @@ export const en = {
     photosHiddenNote: 'Waiting for the team',
     photosShownNote: 'Shown on your page',
     photoFile: 'Choose a photo',
-    photoAlt: 'Describe the photo in a few words (for people who cannot see it)',
+    photoAlt:
+      'Describe the photo in a few words (for people who cannot see it)',
     photoCaption: 'Caption (optional)',
-    photoConfirm: 'These are photos of my own work and I agree they may be shown on my page.',
+    photoConfirm:
+      'These are photos of my own work and I agree they may be shown on my page.',
     photoUpload: 'Add photo',
     photoRemove: 'Remove photo',
     photoSaveDetails: 'Save description',
     photoMessages: {
-      uploaded: 'Photo added. It will appear on your page after the team has looked at it.',
+      uploaded:
+        'Photo added. It will appear on your page after the team has looked at it.',
       removed: 'Photo removed.',
       saved: 'Saved.',
       not_confirmed: 'Please tick the box to say the photo is yours to show.',
       limit: 'You already have 10 photos. Remove one to add another.',
       limited: 'Too many photos in a short time. Please try again in an hour.',
-      locked: 'This page is managed by Alfaiate TL at the moment, so it cannot be changed here.',
+      locked:
+        'This page is managed by Alfaiate TL at the moment, so it cannot be changed here.',
       invalid: 'Please check the details and try again.',
       too_large: 'That photo is too large.',
-      metadata: 'That photo could not be used. Use the Add photo button, which cleans it first.',
+      metadata:
+        'That photo could not be used. Use the Add photo button, which cleans it first.',
       not_jpeg: 'That file is not a usable photo.',
-      missing_variant: 'The photo upload was incomplete. Please try again with JavaScript turned on.',
+      missing_variant:
+        'The photo upload was incomplete. Please try again with JavaScript turned on.',
       storage: 'The photo could not be saved. Please try again.',
       other: 'That photo could not be added. Please try a different one.',
     },
     welcome: 'Hello',
     checklistHeading: 'Getting your page ready',
-    checklistIntro: 'When these are done, tell us and the Alfaiate TL team will look at your page and publish it.',
+    checklistIntro:
+      'When these are done, tell us and the Alfaiate TL team will look at your page and publish it.',
     done: 'Done',
     todo: 'To do',
     submit: 'My page is ready: tell Alfaiate TL',
     waiting: 'Waiting for the team to look at your page.',
     overviewMessages: {
-      submitted: 'Thank you. We have been told your page is ready and will look at it soon.',
+      submitted:
+        'Thank you. We have been told your page is ready and will look at it soon.',
       incomplete: 'Please finish the items marked "To do" first.',
       locked: 'This page is managed by Alfaiate TL at the moment.',
       no_consent: 'Permission to show your page has not been recorded yet.',
@@ -170,7 +183,8 @@ export const en = {
   photosDelete: 'Delete',
   photosProfile: 'Use as profile photo',
   photosIsProfile: 'Profile photo',
-  photosPermitted: 'Permission recorded on (by the tailor when uploading, or by staff)',
+  photosPermitted:
+    'Permission recorded on (by the tailor when uploading, or by staff)',
   photosNotPermitted: 'No permission recorded: not public',
   photosGrant: 'Record permission',
   photosWithdraw: 'Withdraw permission',
@@ -194,14 +208,37 @@ export const en = {
   publishSaveVerified: 'Save verified facts',
   publishNow: 'Publish',
   publishUnpublish: 'Unpublish',
-  publishBlockedIntro: 'Cannot publish yet:',
+  publishBlockedIntro: 'Not published yet. These still need doing:',
   publishReady: 'Ready to publish.',
-  publishBlockers: {
-    not_approved: 'Not approved yet.',
-    no_permission_recorded: "The tailor's permission is not recorded.",
-    no_consented_contact:
-      'No WhatsApp or phone number with consent to publish.',
-  },
+  publishFields: {
+    permission_note: 'How and when permission was given',
+    permission_date: 'Date permission was given',
+    contact_publish_consent: 'Consent to show the contact number',
+    form: 'The form',
+  } as Record<string, string>,
+  /** Shown under the exact control when the server rejects a value. */
+  fieldErrors: {
+    form: 'Please check this value.',
+    display_name: 'Enter the shop or tailor name.',
+    slug: 'Use lowercase letters, numbers and single dashes, for example israfil-tailor.',
+    description: 'This is too long (maximum 2000 characters).',
+    shop_address_text: 'This is too long (maximum 300 characters).',
+    languages: 'This is too long (maximum 200 characters).',
+    price_note: 'This is too long (maximum 200 characters).',
+    price_confirmed_on: 'Enter a real date.',
+    whatsapp: 'Enter a Timor-Leste number, for example +670 77 123 456.',
+    phone: 'Enter a Timor-Leste number, for example +670 77 123 456.',
+    private_contact_name: 'This is too long (maximum 120 characters).',
+    private_phone: 'Enter a Timor-Leste number, for example +670 77 123 456.',
+    permission_note:
+      'Say how and when the tailor gave permission (up to 500 characters).',
+    permission_date: 'Enter a real date, for example 2026-10-24.',
+  } as Record<string, string>,
+  /** Shown next to a field that must be filled before the page can be published. */
+  fieldNeeded: {
+    whatsapp:
+      'Add a WhatsApp or phone number here. A public page needs one the tailor agrees to show.',
+  } as Record<string, string>,
   verifiableLabels: {
     description: 'Description',
     shop_address_text: 'Shop address',
@@ -288,14 +325,19 @@ export const en = {
       'The photo could not be saved. Nothing was stored; please try again.',
     not_permitted:
       'Only a photo with recorded permission that is not hidden can be the profile photo.',
-    photos_sync: 'Saved, but the photos could not be updated on the shop. Press Publish or Unpublish again.',
-    locked: 'This product is published or your page is locked, so it cannot be changed here. Ask Alfaiate TL.',
+    photos_sync:
+      'Saved, but the photos could not be updated on the shop. Press Publish or Unpublish again.',
+    locked:
+      'This product is published or your page is locked, so it cannot be changed here. Ask Alfaiate TL.',
     not_confirmed: 'Please tick the box to confirm the photo may be shown.',
-    seller_not_published: 'This product belongs to a tailor whose page is not published yet, so it cannot go live.',
-    needs_description: 'A product needs a description before it can be published.',
+    seller_not_published:
+      'This product belongs to a tailor whose page is not published yet, so it cannot go live.',
+    needs_description:
+      'A product needs a description before it can be published.',
     published: 'Published.',
     unpublished: 'Unpublished.',
-    blocked: 'This tailor cannot be published yet.',
+    blocked:
+      'This tailor cannot be published yet. Each missing piece is listed below, with where to fix it.',
     invalid_state:
       'This tailor is archived or suspended and cannot be approved.',
     needs_contact:

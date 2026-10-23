@@ -65,15 +65,36 @@ describe('publishing through the admin pages', () => {
     const id = await addTailor();
     const response = await post(url(id), cookie, { csrf, action: 'publish' });
     expect(response.headers.get('location')).toBe(
-      `/admin/tailors/${id}?msg=blocked&blockers=not_approved,no_permission_recorded,no_consented_contact`,
+      `/admin/tailors/${id}?msg=blocked`,
     );
     const html = await (
       await get(response.headers.get('location')!, cookie)
     ).text();
-    expect(html).toContain('Not approved yet');
-    expect(html).toContain('permission is not recorded');
-    expect(html).toContain('consent to publish');
+    expect(html).toContain('Approved by a manager or the owner');
+    expect(html).toContain('permission to be listed is recorded');
+    // The number is saved: the page must point at the consent box, not claim a number is missing.
+    expect(html).toContain('The tailor agrees their number may be shown');
+    expect(html).toMatch(
+      /check check--done"><div><strong>Done:<\/strong> A WhatsApp or phone number on the profile/,
+    );
+    expect(html).toContain('href="#contact-consent"');
+    expect(html).toContain('The number is saved');
     expect((await row(id))?.is_published).toBe(0);
+  });
+
+  it('marks the consent box when a saved number cannot be published without consent', async () => {
+    const cookie = await signIn('manager');
+    const id = await addTailor({
+      status: 'approved',
+      permission_recorded: 1,
+      contact_publish_consent: 0,
+      whatsapp_e164: '+67070000123',
+    });
+    const html = await (await get(`/admin/tailors/${id}`, cookie)).text();
+    expect(html).toContain('id="contact-consent"');
+    expect(html).toContain('field-needed');
+    expect(html).toContain('Needed before publishing');
+    expect(html).not.toContain('id="whatsapp-error"');
   });
 
   it('shows the publishing section to managers only', async () => {
@@ -172,7 +193,31 @@ describe('publishing through the admin pages', () => {
           permission_date: '2026-13-40',
         })
       ).headers.get('location'),
-    ).toBe(`/admin/tailors/${id}?msg=invalid`);
+    ).toBe(`/admin/tailors/${id}?msg=invalid&fields=permission_date`);
+    // The exact control is marked, not just the banner.
+    const page = await (
+      await get(
+        `/admin/tailors/${id}?msg=invalid&fields=permission_date`,
+        cookie,
+      )
+    ).text();
+    expect(page).toContain('id="permission-date-error"');
+    expect(page).toContain('aria-invalid="true"');
+    expect(page).toContain('Enter a real date');
+    // A rejected profile field is marked too, and a hint keeps its own id.
+    const profile = await (
+      await get(`/admin/tailors/${id}?msg=invalid&fields=whatsapp`, cookie)
+    ).text();
+    expect(profile).toContain('id="whatsapp-error"');
+    expect(profile).toContain('Enter a Timor-Leste number');
+    await env.DB.prepare(
+      'UPDATE tailor SET phone_e164 = NULL, whatsapp_e164 = NULL WHERE id = ?',
+    )
+      .bind(id)
+      .run();
+    const needed = await (await get(`/admin/tailors/${id}`, cookie)).text();
+    expect(needed).toContain('id="whatsapp-hint"');
+    expect(needed).not.toContain('id="whatsapp-error"');
     expect(
       (await post(url(id), cookie, { csrf, action: 'explode' })).headers.get(
         'location',

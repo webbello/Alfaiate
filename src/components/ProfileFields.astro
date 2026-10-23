@@ -7,13 +7,46 @@ interface Props {
   withSlug?: boolean;
   /** "essentials" is the short first form of a new draft, "more" the rest; "all" (the default) is the whole profile. */
   part?: 'all' | 'essentials' | 'more';
+  /** Field keys the server rejected, so each one can be marked where it is. */
+  invalid?: string[];
+  /** Field keys that must be filled before the page can be published (a hint, not an error). */
+  needed?: string[];
 }
-const { values = {}, withSlug = false, part = 'all' } = Astro.props;
+const {
+  values = {},
+  withSlug = false,
+  part = 'all',
+  invalid = [],
+  needed = [],
+} = Astro.props;
 const ESSENTIAL = new Set(['display_name', 'whatsapp']);
 const show = (id: string) =>
   part === 'all' || (part === 'essentials') === ESSENTIAL.has(id);
 const text = (v: string | null | undefined) => v ?? '';
 const f = en.tailorFields;
+const bad = new Set(invalid);
+const need = new Set(needed);
+const messageFor = (id: string) =>
+  bad.has(id)
+    ? (en.fieldErrors[id] ?? en.fieldErrors.form)
+    : need.has(id)
+      ? (en.fieldNeeded[id] ?? '')
+      : '';
+/** aria and class attributes that mark one control and point at its message. */
+const state = (id: string) => {
+  const message = messageFor(id);
+  return {
+    class: bad.has(id)
+      ? 'input--invalid'
+      : need.has(id)
+        ? 'input--needed'
+        : undefined,
+    'aria-invalid': bad.has(id) ? ('true' as const) : undefined,
+    'aria-describedby': message
+      ? `${id}-${bad.has(id) ? 'error' : 'hint'}`
+      : undefined,
+  };
+};
 ---
 
 {show('display_name') && (
@@ -26,7 +59,16 @@ const f = en.tailorFields;
       value={text(values.display_name)}
       maxlength="120"
       required
+      {...state('display_name')}
     />
+    {messageFor('display_name') && (
+      <span
+        class={bad.has('display_name') ? 'field-error' : 'field-hint'}
+        id={`display_name-${bad.has('display_name') ? 'error' : 'hint'}`}
+      >
+        {messageFor('display_name')}
+      </span>
+    )}
   </p>
 )}
 {withSlug && (
@@ -39,7 +81,16 @@ const f = en.tailorFields;
       value={text(values.slug)}
       maxlength="60"
       pattern="[a-z0-9]+(-[a-z0-9]+)*"
+      {...state('slug')}
     />
+    {messageFor('slug') && (
+      <span
+        class={bad.has('slug') ? 'field-error' : 'field-hint'}
+        id={`slug-${bad.has('slug') ? 'error' : 'hint'}`}
+      >
+        {messageFor('slug')}
+      </span>
+    )}
   </p>
 )}
 {show('description') && (
@@ -51,7 +102,16 @@ const f = en.tailorFields;
       name="description"
       maxlength="2000"
       rows="4"
+      {...state('description')}
     >{text(values.description)}</textarea>
+    {messageFor('description') && (
+      <span
+        class={bad.has('description') ? 'field-error' : 'field-hint'}
+        id={`description-${bad.has('description') ? 'error' : 'hint'}`}
+      >
+        {messageFor('description')}
+      </span>
+    )}
   </p>
 )}
 {show('shop_address_text') && (
@@ -63,7 +123,16 @@ const f = en.tailorFields;
       name="shop_address_text"
       value={text(values.shop_address_text)}
       maxlength="300"
+      {...state('shop_address_text')}
     />
+    {messageFor('shop_address_text') && (
+      <span
+        class={bad.has('shop_address_text') ? 'field-error' : 'field-hint'}
+        id={`shop_address_text-${bad.has('shop_address_text') ? 'error' : 'hint'}`}
+      >
+        {messageFor('shop_address_text')}
+      </span>
+    )}
   </p>
 )}
 {show('home_visits') && (
@@ -91,7 +160,16 @@ const f = en.tailorFields;
       name="languages"
       value={text(values.languages)}
       maxlength="200"
+      {...state('languages')}
     />
+    {messageFor('languages') && (
+      <span
+        class={bad.has('languages') ? 'field-error' : 'field-hint'}
+        id={`languages-${bad.has('languages') ? 'error' : 'hint'}`}
+      >
+        {messageFor('languages')}
+      </span>
+    )}
   </p>
 )}
 {show('price_note') && (
@@ -103,7 +181,16 @@ const f = en.tailorFields;
       name="price_note"
       value={text(values.price_note)}
       maxlength="200"
+      {...state('price_note')}
     />
+    {messageFor('price_note') && (
+      <span
+        class={bad.has('price_note') ? 'field-error' : 'field-hint'}
+        id={`price_note-${bad.has('price_note') ? 'error' : 'hint'}`}
+      >
+        {messageFor('price_note')}
+      </span>
+    )}
   </p>
 )}
 {show('price_confirmed_on') && (
@@ -115,7 +202,16 @@ const f = en.tailorFields;
       name="price_confirmed_on"
       type="date"
       value={text(values.price_confirmed_on)}
+      {...state('price_confirmed_on')}
     />
+    {messageFor('price_confirmed_on') && (
+      <span
+        class={bad.has('price_confirmed_on') ? 'field-error' : 'field-hint'}
+        id={`price_confirmed_on-${bad.has('price_confirmed_on') ? 'error' : 'hint'}`}
+      >
+        {messageFor('price_confirmed_on')}
+      </span>
+    )}
   </p>
 )}
 {show('whatsapp') && (
@@ -127,7 +223,18 @@ const f = en.tailorFields;
       name="whatsapp"
       value={text(values.whatsapp_e164)}
       inputmode="tel"
+      autocomplete="tel"
+      placeholder="+670 77 123 456"
+      {...state('whatsapp')}
     />
+    {messageFor('whatsapp') && (
+      <span
+        class={bad.has('whatsapp') ? 'field-error' : 'field-hint'}
+        id={`whatsapp-${bad.has('whatsapp') ? 'error' : 'hint'}`}
+      >
+        {messageFor('whatsapp')}
+      </span>
+    )}
   </p>
 )}
 {show('phone') && (
@@ -139,7 +246,24 @@ const f = en.tailorFields;
       name="phone"
       value={text(values.phone_e164)}
       inputmode="tel"
+      autocomplete="tel"
+      placeholder="+670 77 123 456"
+      {...state('phone')}
     />
+    {messageFor('phone') && (
+      <span
+        class={bad.has('phone') ? 'field-error' : 'field-hint'}
+        id={`phone-${bad.has('phone') ? 'error' : 'hint'}`}
+      >
+        {messageFor('phone')}
+      </span>
+    )}
+    {part === 'all' && (
+      <small class="field-hint">
+        At least one WhatsApp or phone number is needed before this page can be
+        published.
+      </small>
+    )}
   </p>
 )}
 {show('private_contact_name') && (
@@ -151,7 +275,16 @@ const f = en.tailorFields;
       name="private_contact_name"
       value={text(values.private_contact_name)}
       maxlength="120"
+      {...state('private_contact_name')}
     />
+    {messageFor('private_contact_name') && (
+      <span
+        class={bad.has('private_contact_name') ? 'field-error' : 'field-hint'}
+        id={`private_contact_name-${bad.has('private_contact_name') ? 'error' : 'hint'}`}
+      >
+        {messageFor('private_contact_name')}
+      </span>
+    )}
   </p>
 )}
 {show('private_phone') && (
@@ -163,6 +296,16 @@ const f = en.tailorFields;
       name="private_phone"
       value={text(values.private_phone)}
       inputmode="tel"
+      autocomplete="tel"
+      {...state('private_phone')}
     />
+    {messageFor('private_phone') && (
+      <span
+        class={bad.has('private_phone') ? 'field-error' : 'field-hint'}
+        id={`private_phone-${bad.has('private_phone') ? 'error' : 'hint'}`}
+      >
+        {messageFor('private_phone')}
+      </span>
+    )}
   </p>
 )}

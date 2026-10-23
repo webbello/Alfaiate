@@ -78,7 +78,7 @@ Same as Phases 1-2. The publish check returns reasons rather than throwing, so t
 
 ```ts
 // src/modules/tailors/publish.ts
-export type PublishBlocker = 'not_approved' | 'no_permission_recorded' | 'no_consented_contact';
+export type PublishBlocker = 'not_approved' | 'no_permission_recorded' | 'no_contact_number' | 'no_contact_consent';
 export function publishBlockers(t: TailorRow): PublishBlocker[] { /* [] means publishable */ }
 ```
 

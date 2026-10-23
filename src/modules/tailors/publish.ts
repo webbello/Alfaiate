@@ -8,14 +8,21 @@ import { isRealDate } from './schemas';
 import { isVerifiable, VERIFIABLE_FIELDS } from './verification';
 
 export type PublishBlocker =
-  'not_approved' | 'no_permission_recorded' | 'no_consented_contact';
+  | 'not_approved'
+  | 'no_permission_recorded'
+  | 'no_contact_number'
+  | 'no_contact_consent';
 type Failure =
   'forbidden' | 'not_found' | 'invalid' | 'invalid_state' | 'needs_contact';
-export type Result = { ok: true } | { ok: false; error: Failure };
+export type Result =
+  { ok: true } | { ok: false; error: Failure; fields?: string[] };
 export type PublishResult =
   Result | { ok: false; error: 'blocked'; blockers: PublishBlocker[] };
 
-/** One source of truth for "may this tailor be public": the UI shows these reasons, the handler enforces them, the database backs them up (BR-05, BR-06, AC-10). */
+/**
+ * One source of truth for "may this tailor be public": the UI shows these reasons, the handler enforces them, the database backs them up (BR-05, BR-06, AC-10).
+ * "No number" and "no consent to show it" are separate blockers on purpose: they are fixed in different places and used to read as one confusing message.
+ */
 export function publishBlockers(
   t: Pick<
     TailorRow,
@@ -29,8 +36,8 @@ export function publishBlockers(
   const blockers: PublishBlocker[] = [];
   if (t.status !== 'approved') blockers.push('not_approved');
   if (!t.permission_recorded) blockers.push('no_permission_recorded');
-  if (!t.contact_publish_consent || (!t.whatsapp_e164 && !t.phone_e164))
-    blockers.push('no_consented_contact');
+  if (!t.whatsapp_e164 && !t.phone_e164) blockers.push('no_contact_number');
+  if (!t.contact_publish_consent) blockers.push('no_contact_consent');
   return blockers;
 }
 
@@ -83,6 +90,13 @@ const permission = z.object({
   contact_publish_consent: z.boolean(),
 });
 
+/** Zod field -> the form control it came from, so the page can mark exactly that control. */
+const PERMISSION_FIELD: Record<string, string> = {
+  note: 'permission_note',
+  date: 'permission_date',
+  contact_publish_consent: 'contact_publish_consent',
+};
+
 /** Records who, when and how the tailor gave permission (BR-06), and whether their contact numbers may be shown (PRV-06). */
 export async function recordPermission(
   b: MediaBindings,
@@ -94,7 +108,16 @@ export async function recordPermission(
   const found = await load(b, role, id);
   if (!found.ok) return found;
   const parsed = permission.safeParse(input);
-  if (!parsed.success) return { ok: false, error: 'invalid' };
+  if (!parsed.success) {
+    const fields = [
+      ...new Set(
+        parsed.error.issues.map(
+          (issue) => PERMISSION_FIELD[String(issue.path[0] ?? '')] ?? 'form',
+        ),
+      ),
+    ];
+    return { ok: false, error: 'invalid', fields };
+  }
   if (found.tailor.is_published && !parsed.data.contact_publish_consent)
     return { ok: false, error: 'needs_contact' };
   await b.DB.prepare(

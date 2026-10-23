@@ -47,22 +47,24 @@ const items = (html: string) =>
   }));
 
 describe('the publish checklist on the tailor page', () => {
-  it('lists the three requirements, all missing for a new draft, each with a link to where it is fixed', async () => {
+  it('lists the four requirements, all missing for a new draft, each with a link to where it is fixed', async () => {
     const t = await tailor();
     const html = await (
       await get(`/admin/tailors/${t.id}`, await signIn('manager'))
     ).text();
     const list = items(html);
-    expect(list).toHaveLength(3);
+    expect(list).toHaveLength(4);
     expect(list.every((i) => i.state === 'missing')).toBe(true);
     expect(list[0].text).toContain('Missing');
     expect(list[0].text).toContain('Approved by a manager');
     expect(html).toContain('href="#publish"');
-    expect(html).toContain('href="#profile"');
+    expect(html).toContain('href="#contact-consent"');
+    expect(html).toContain('href="#whatsapp"');
     expect(html).toContain('id="publish"');
-    expect(html).toContain('id="profile"');
+    expect(html).toContain('id="contact-consent"');
+    expect(html).toContain('id="whatsapp"');
     expect(html).toMatch(
-      /3 things? (are|is) still missing|Not ready to publish/,
+      /4 things? (are|is) still missing|Not ready to publish/,
     );
   });
 
@@ -73,7 +75,12 @@ describe('the publish checklist on the tailor page', () => {
         await get(`/admin/tailors/${partly.id}`, await signIn('manager'))
       ).text(),
     );
-    expect(partial.map((i) => i.state)).toEqual(['done', 'missing', 'missing']);
+    expect(partial.map((i) => i.state)).toEqual([
+      'done',
+      'missing',
+      'missing',
+      'missing',
+    ]);
     const ready = await tailor({
       status: 'approved',
       permission: 1,
@@ -108,7 +115,13 @@ describe('the publish checklist on the tailor page', () => {
     const html = await (
       await get(`/admin/tailors/${t.id}`, await signIn('editor'))
     ).text();
-    expect(items(html)).toHaveLength(3);
+    expect(items(html)).toHaveLength(4);
+    // Approval, permission and consent are manager-only: no dead links for an editor.
+    expect(html).toContain('A manager does this');
+    expect(html).not.toContain('href="#publish"');
+    expect(html).not.toContain('href="#permission-note"');
+    expect(html).not.toContain('href="#contact-consent"');
+    expect(html).toContain('href="#whatsapp"');
   });
 });
 
@@ -137,7 +150,7 @@ describe('the tailors list', () => {
       html.slice(html.indexOf(name), html.indexOf('</tr>', html.indexOf(name)));
     expect(row('List Draft Fake')).toContain('Draft');
     expect(row('List Draft Fake')).toContain(
-      'Missing: approval, permission, contact',
+      'Missing: approval, permission, contact number, contact consent',
     );
     expect(row('List Ready Fake')).toContain('Ready to publish');
     expect(row('List Live Fake')).toContain('Published');
