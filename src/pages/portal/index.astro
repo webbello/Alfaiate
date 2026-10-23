@@ -22,6 +22,7 @@ const tailor = await requireBindings(env)
 if (!tailor) return new Response('Not found', { status: 404 });
 const items = await portalChecklist(requireBindings(env).DB, auth.tailorId);
 const account = await getAccountState(requireBindings(env).DB, auth.tailorId);
+const doneCount = items.filter((i) => i.done).length;
 const ready = items.every((i) => !i.required || i.done);
 const code = Astro.url.searchParams.get('msg') ?? '';
 const messages = p.overviewMessages as Record<string, string>;
@@ -42,24 +43,52 @@ const status =
   {note && (
     <Flash message={note} kind={code === 'submitted' ? 'success' : 'problem'} />
   )}
-  <h2>{p.checklistHeading}</h2>
+  <section class="portal-progress" aria-labelledby="steps-heading">
+    <h2 id="steps-heading">{p.checklistHeading}</h2>
+    <p>
+      {doneCount} of {items.length} steps done
+    </p>
+    <progress class="progress" max={items.length} value={doneCount}>
+      {doneCount} of {items.length}
+    </progress>
+  </section>
   <p>{p.checklistIntro}</p>
-  <ul>
+  <ol class="portal-steplist">
     {items.map((i) => (
-      <li>
-        <a href={i.href}>{i.label}</a>: {i.done ? p.done : p.todo}
+      <li class={i.done ? 'portal-step portal-step--done' : 'portal-step'}>
+        <span class="portal-step__text">
+          <strong>{i.label}</strong>
+          <small>
+            {i.done ? p.done : p.todo}
+            {!i.required && ' (optional)'}
+          </small>
+        </span>
+        <a class="button-link" href={i.href}>
+          {i.done ? 'Change' : 'Fill in'}
+        </a>
       </li>
     ))}
-  </ul>
+  </ol>
   {tailor.is_published !== 1 &&
     (account?.reviewRequestedAt ? (
-      <p>{p.waiting}</p>
+      <p class="card portal-submit">{p.waiting}</p>
     ) : (
-      <form method="post" action="/portal/submit">
+      <form class="card portal-submit" method="post" action="/portal/submit">
         <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <h2>When you are finished</h2>
+        <p>
+          Press the button below. The Alfaiate TL team will look at your page,
+          and publish it once everything is right. You do not need to do
+          anything else.
+        </p>
         <button type="submit" disabled={!ready}>
           {p.submit}
         </button>
+        {!ready && (
+          <p>
+            <small>Finish the steps marked "To do" first.</small>
+          </p>
+        )}
       </form>
     ))}
 </PortalLayout>

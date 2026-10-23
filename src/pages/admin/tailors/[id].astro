@@ -62,6 +62,7 @@ const currentBlockers = publishBlockers(tailor).map(
 );
 const checklist = publishChecklist(tailor);
 const missingCount = checklist.filter((i) => !i.done).length;
+const nextMissing = checklist.find((i) => !i.done);
 const verified = new Set<string>(
   JSON.parse(tailor.verified_fields) as string[],
 );
@@ -83,7 +84,7 @@ const action = `/admin/tailors/${id}/actions`;
       state={tailor.is_published ? 'published' : 'draft'}
       label={tailor.is_published ? en.tailorPublished : en.tailorNotPublished}
     />
-    {tailor.is_published && (
+    {tailor.is_published === 1 && (
       <a class="button-link" href={`/tailors/${tailor.slug}`}>
         View public page
       </a>
@@ -104,6 +105,25 @@ const action = `/admin/tailors/${id}/actions`;
         <li>{b}</li>
       ))}
     </ul>
+  )}
+  {!tailor.is_published && (
+    <p class="next-step" role="note">
+      <strong>Next step.</strong>
+      {nextMissing ? (
+        <>
+          {nextMissing.label}. <a href={nextMissing.fixHref}>Do this now</a>
+        </>
+      ) : mayVerify ? (
+        <>
+          Everything is filled in. Check the details, then press Publish below.
+        </>
+      ) : (
+        <>
+          Everything is filled in. A manager can now check the page and publish
+          it.
+        </>
+      )}
+    </p>
   )}
   {!editable && <p role="note">{en.tailorLocked}</p>}
 

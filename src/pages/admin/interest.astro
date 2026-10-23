@@ -3,6 +3,7 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Flash from '../../components/admin/Flash.astro';
 import EmptyState from '../../components/admin/EmptyState.astro';
+import StatusChip from '../../components/admin/StatusChip.astro';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { messageKind } from '../../modules/admin-ui/messages';
 import { en } from '../../i18n/en';
@@ -29,111 +30,113 @@ const message = Object.hasOwn(en.adminMessages, code)
   auth={auth}
 >
   <h1>{en.adminNavInterest}</h1>
+  <p>Tailors who want to be listed. How it works:</p>
+  <ol class="steps-inline">
+    <li>Call the tailor.</li>
+    <li>
+      Press <strong>Approve</strong>. This creates their draft page and a
+      one-time sign-in link. Send the link to them on WhatsApp.
+    </li>
+    <li>
+      They fill in their page. You check it under{' '}
+      <a href="/admin/tailors">Tailors</a> and publish it.
+    </li>
+  </ol>
   <p>
-    Tailors who left their details on the Join page. This is a call list only:
-    it creates no account and no listing. To onboard one, call them, agree terms
-    and permission, then create the tailor yourself.
+    Press <strong>Decline</strong> if you do not want to list them. Nothing is
+    public until you publish.
   </p>
   {message && <Flash message={message} kind={messageKind(code)} />}
   {rows.length === 0 ? (
-    <EmptyState title="No one yet">
+    <EmptyState title="No one yet" icon="interest">
       <p>
         When a tailor sends their details on the public Join page, they appear
         here with the newest first.
       </p>
     </EmptyState>
   ) : (
-    <table>
-      <thead>
-        <tr>
-          <th>Reference</th>
-          <th>Received</th>
-          <th>Name</th>
-          <th>Number</th>
-          <th>Business and area</th>
-          <th>Makes</th>
-          <th>Message</th>
-          <th>Decision</th>
-          {mayRemove && <th>Remove details</th>}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr>
-            <td>{r.reference_code}</td>
-            <td>{r.created_at.slice(0, 10)}</td>
-            <td>{r.contact_name ?? 'Details removed'}</td>
-            <td>{r.phone_e164 ?? 'Details removed'}</td>
-            <td>
-              {[r.business_name, r.area_text].filter(Boolean).join(' · ')}
-            </td>
-            <td>{r.craft_text}</td>
-            <td>{r.message}</td>
-            <td>
+    <div class="request-list">
+      {rows.map((r) => (
+        <article class="card request">
+          <header class="request__head">
+            <div>
+              <h2>{r.contact_name ?? 'Details removed'}</h2>
+              <p class="request__meta">
+                {[r.business_name, r.area_text].filter(Boolean).join(' · ')}
+                {' · '}
+                {r.phone_e164 ?? 'Details removed'}
+              </p>
+            </div>
+            <div class="request__status">
               {r.decision === 'approved' ? (
-                <>
-                  Approved
-                  {r.tailor_id && (
-                    <>
-                      {' '}
-                      <a href={`/admin/tailors/${r.tailor_id}`}>Open tailor</a>
-                    </>
-                  )}
-                </>
+                <StatusChip state="published" label="Approved" />
               ) : r.decision === 'declined' ? (
-                'Declined'
+                <StatusChip state="declined" label="Declined" />
               ) : r.anonymised_at ? (
-                'Details removed'
-              ) : mayDecide ? (
-                <>
-                  <form
-                    method="post"
-                    action={`/admin/interest/${r.id}/approve`}
-                  >
-                    <input type="hidden" name="csrf" value={auth.csrfToken} />
-                    <button type="submit">Approve and make sign-in link</button>
-                  </form>
-                  <form
-                    method="post"
-                    action={`/admin/interest/${r.id}/decline`}
-                  >
-                    <input type="hidden" name="csrf" value={auth.csrfToken} />
-                    <button type="submit" class="secondary">
-                      Decline
-                    </button>
-                  </form>
-                </>
+                <StatusChip state="archived" label="Details removed" />
               ) : (
-                'Waiting'
+                <StatusChip state="draft" label="Waiting for you" />
               )}
-            </td>
-            {mayRemove && (
-              <td>
-                {r.anonymised_at ? null : (
-                  <form
-                    method="post"
-                    action={`/admin/interest/${r.id}/anonymise`}
-                  >
-                    <input type="hidden" name="csrf" value={auth.csrfToken} />
-                    <label for={`confirm-${r.id}`}>
-                      Type {r.reference_code} to confirm
-                    </label>
-                    <input
-                      id={`confirm-${r.id}`}
-                      name="confirm_reference"
-                      autocomplete="off"
-                      required
-                    />
-                    <button type="submit" class="danger">
-                      Remove details
-                    </button>
-                  </form>
-                )}
-              </td>
+              <small>
+                {r.reference_code} · received {r.created_at.slice(0, 10)}
+              </small>
+            </div>
+          </header>
+          {r.craft_text && (
+            <p>
+              <strong>Makes:</strong> {r.craft_text}
+            </p>
+          )}
+          {r.message && (
+            <blockquote class="request__message">{r.message}</blockquote>
+          )}
+          <div class="request__actions">
+            {r.decision === 'approved' ? (
+              r.tailor_id && (
+                <a class="button-link" href={`/admin/tailors/${r.tailor_id}`}>
+                  Open tailor
+                </a>
+              )
+            ) : r.decision === 'declined' ||
+              r.anonymised_at ? null : mayDecide ? (
+              <>
+                <form method="post" action={`/admin/interest/${r.id}/approve`}>
+                  <input type="hidden" name="csrf" value={auth.csrfToken} />
+                  <button type="submit">Approve and make sign-in link</button>
+                </form>
+                <form method="post" action={`/admin/interest/${r.id}/decline`}>
+                  <input type="hidden" name="csrf" value={auth.csrfToken} />
+                  <button type="submit" class="secondary">
+                    Decline
+                  </button>
+                </form>
+              </>
+            ) : (
+              <small>Waiting for a manager to decide.</small>
             )}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+          </div>
+          {mayRemove && !r.anonymised_at && (
+            <details class="request__remove">
+              <summary>Remove this person's details</summary>
+              <form method="post" action={`/admin/interest/${r.id}/anonymise`}>
+                <input type="hidden" name="csrf" value={auth.csrfToken} />
+                <label for={`confirm-${r.id}`}>
+                  Type {r.reference_code} to confirm
+                </label>
+                <input
+                  id={`confirm-${r.id}`}
+                  name="confirm_reference"
+                  autocomplete="off"
+                  required
+                />
+                <button type="submit" class="danger">
+                  Remove details
+                </button>
+              </form>
+            </details>
+          )}
+        </article>
+      ))}
+    </div>
   )}
 </AdminLayout>

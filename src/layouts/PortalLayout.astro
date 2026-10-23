@@ -1,5 +1,6 @@
 ---
 import '../styles/admin.css';
+import AdminIcon from '../components/admin/AdminIcon.astro';
 import { en } from '../i18n/en';
 
 interface Props {
@@ -35,12 +36,15 @@ const links = [
         <a class="skip-link" href="#main">
           Skip to main content
         </a>
-        <header class="admin-header">
-          <div class="admin-header__inner">
+        <header class="portal-header">
+          <div class="portal-header__inner">
             <a class="admin-brand" href="/portal">
+              <span class="admin-brand__mark">
+                <AdminIcon name="logo" />
+              </span>
               {p.brand}
             </a>
-            <nav class="admin-nav" aria-label="Your page">
+            <nav class="portal-steps" aria-label="Your page">
               {links.map((l) => (
                 <a
                   href={l.href}
@@ -50,16 +54,16 @@ const links = [
                 </a>
               ))}
             </nav>
-            <div class="admin-user">
+            <form class="portal-user" method="post" action="/portal/logout">
+              <input type="hidden" name="csrf" value={auth.csrfToken} />
               <span>{auth.email}</span>
-              <form method="post" action="/portal/logout">
-                <input type="hidden" name="csrf" value={auth.csrfToken} />
-                <button type="submit">{p.signOut}</button>
-              </form>
-            </div>
+              <button type="submit" class="secondary">
+                {p.signOut}
+              </button>
+            </form>
           </div>
         </header>
-        <main id="main" class="admin-main">
+        <main id="main" class="portal-main">
           <slot />
         </main>
       </>

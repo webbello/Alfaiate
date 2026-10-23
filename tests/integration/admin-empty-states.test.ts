@@ -11,8 +11,8 @@ describe('empty states', () => {
     expect(tailors).toContain('href="/admin/tailors/new"');
     expect(tailors).not.toContain('<table');
     for (const [path, title] of [
-      ['/admin/categories', 'No garment categories yet'],
-      ['/admin/areas', 'No service areas yet'],
+      ['/admin/categories', 'No garment types yet'],
+      ['/admin/areas', 'No areas yet'],
     ] as const) {
       const html = await (await get(path, owner)).text();
       expect(html, path).toContain('class="empty"');

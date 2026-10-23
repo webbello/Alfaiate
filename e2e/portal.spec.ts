@@ -21,7 +21,7 @@ test('a tailor joins, is approved, fills in their page, adds a photo and asks fo
 
   await signIn(page);
   await page.goto('/admin/interest');
-  const row = page.getByRole('row', { name: /E2E Portal Applicant/ });
+  const row = page.locator('article', { hasText: 'E2E Portal Applicant' });
   await row
     .getByRole('button', { name: 'Approve and make sign-in link' })
     .click();

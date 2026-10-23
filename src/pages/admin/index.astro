@@ -11,6 +11,8 @@ import { formatMoney } from '../../modules/directory/format';
 import { metrics, type Ratio } from '../../modules/reporting/metrics';
 import { PERIODS, parsePeriod } from '../../modules/reporting/period';
 import { isSystemEmpty } from '../../modules/admin-ui/system';
+import AdminIcon from '../../components/admin/AdminIcon.astro';
+import { todoItems } from '../../modules/admin-ui/todo';
 import PageHeader from '../../components/admin/PageHeader.astro';
 import EmptyState from '../../components/admin/EmptyState.astro';
 import Card from '../../components/admin/Card.astro';
@@ -37,6 +39,7 @@ const ratio = (r: Ratio) =>
         d: r.denominator,
         pct: Math.round(r.value * 100),
       });
+const todo = await todoItems(requireBindings(env).DB, auth.role);
 const gettingStarted =
   can(auth.role, 'tailor.edit') &&
   (await isSystemEmpty(requireBindings(env).DB));
@@ -67,6 +70,82 @@ const segments = (() => {
     title={en.adminDashboardHeading}
     sub="What needs attention and how enquiries are going."
   />
+  <section class="card todo" aria-labelledby="todo-heading">
+    <h2 id="todo-heading">What needs you now</h2>
+    {todo.length === 0 ? (
+      <p class="todo__clear">
+        <AdminIcon name="check" /> You are all caught up. New enquiries and join
+        requests will appear here.
+      </p>
+    ) : (
+      <ul class="todo__list">
+        {todo.map((item) => (
+          <li class="todo__item">
+            <span class="todo__count">{item.count}</span>
+            <span class="todo__text">
+              <strong>{item.label}</strong>
+              <small>{item.help}</small>
+            </span>
+            <a class="button-link" href={item.href}>
+              {item.cta}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+  {can(auth.role, 'enquiry.view') && (
+    <details class="guide">
+      <summary>How this works, step by step</summary>
+      <div class="guide__cols">
+        <div>
+          <h3>A tailor joins</h3>
+          <ol>
+            <li>
+              The tailor sends their details on the public <strong>Join</strong>{' '}
+              page. It appears under <a href="/admin/interest">Join requests</a>
+              .
+            </li>
+            <li>
+              You call them, then press <strong>Approve</strong>. This creates
+              their draft page and a one-time sign-in link.
+            </li>
+            <li>
+              Send the link to the tailor by WhatsApp. They choose a password
+              and fill in their page, then press{' '}
+              <strong>Ready for review</strong>.
+            </li>
+            <li>
+              Open the page under <a href="/admin/tailors">Tailors</a>, record
+              their permission and press <strong>Publish</strong>.
+            </li>
+          </ol>
+        </div>
+        <div>
+          <h3>A customer asks for a tailor</h3>
+          <ol>
+            <li>
+              The customer sends the request form. It appears under{' '}
+              <a href="/admin/enquiries">Enquiries</a> as <em>New</em>.
+            </li>
+            <li>
+              Contact the customer if needed. Then open the enquiry and{' '}
+              <strong>pass it to a tailor</strong> (a referral). Copy the
+              details and send them yourself by WhatsApp.
+            </li>
+            <li>
+              When the tailor answers, record their reply. The status moves on
+              as you set it.
+            </li>
+            <li>
+              When the work is reported done, record the outcome and any fee.
+              The figures on this page update.
+            </li>
+          </ol>
+        </div>
+      </div>
+    </details>
+  )}
   {gettingStarted && (
     <Card title={d.gettingStartedHeading} id="getting-started">
       <p>{d.gettingStartedIntro}</p>

@@ -247,21 +247,21 @@ a {
   align-items: center;
   gap: 0.5rem;
 }
-.admin-main h2 {
+:is(.admin-main, .portal-main) h2 {
   margin: 1.75rem 0 0.6rem;
   font-size: 1.05rem;
   font-weight: 650;
   color: var(--ink);
 }
-.admin-main h3 {
+:is(.admin-main, .portal-main) h3 {
   margin: 1.1rem 0 0.25rem;
   font-size: 0.95rem;
   font-weight: 650;
   color: var(--ink);
 }
-.admin-main p,
-.admin-main ul,
-.admin-main ol {
+:is(.admin-main, .portal-main) p,
+:is(.admin-main, .portal-main) ul,
+:is(.admin-main, .portal-main) ol {
   max-width: 64rem;
 }
 @media (min-width: 64rem) {
@@ -974,7 +974,7 @@ legend {
 details > .form-grid {
   padding-bottom: 1.1rem;
 }
-.admin-main > form:has(> p):not(.searchbar) {
+:is(.admin-main, .portal-main) > form:has(> p):not(.searchbar) {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
   gap: 0.75rem 1.25rem;
@@ -987,18 +987,20 @@ details > .form-grid {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
 }
-.admin-main > form:has(> p):not(.searchbar) > p {
+:is(.admin-main, .portal-main) > form:has(> p):not(.searchbar) > p {
   min-width: 0;
   margin: 0;
 }
-.admin-main > form:has(> p):not(.searchbar) > button {
+:is(.admin-main, .portal-main) > form:has(> p):not(.searchbar) > button {
   justify-self: start;
 }
-.admin-main > form:has(> p):not(.searchbar) input:not([type='checkbox']),
-.admin-main > form:has(> p):not(.searchbar) select {
+:is(.admin-main, .portal-main)
+  > form:has(> p):not(.searchbar)
+  input:not([type='checkbox']),
+:is(.admin-main, .portal-main) > form:has(> p):not(.searchbar) select {
   max-width: none;
 }
-.admin-main > form:has(> p):not(.searchbar) br {
+:is(.admin-main, .portal-main) > form:has(> p):not(.searchbar) br {
   display: none;
 }
 
@@ -1423,4 +1425,276 @@ a.icon-button:hover {
   .cat-row__fields {
     padding-left: 0.9rem;
   }
+}
+
+/* ---- Dashboard worklist and the step-by-step guide ---- */
+.todo__list {
+  display: grid;
+  gap: 0.6rem;
+  max-width: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.todo__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.todo__count {
+  display: grid;
+  place-items: center;
+  min-width: 2.4rem;
+  height: 2.4rem;
+  padding: 0 0.4rem;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 999px;
+  font-weight: 700;
+}
+.todo__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 14rem;
+}
+.todo__text small {
+  color: var(--muted);
+}
+.todo__clear {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+}
+.guide__cols {
+  display: grid;
+  gap: 0 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  padding-bottom: 1rem;
+}
+.guide ol {
+  margin: 0.4rem 0 0;
+  padding-left: 1.25rem;
+}
+.guide li {
+  margin: 0 0 0.5rem;
+}
+
+/* ---- Tailor portal: a simple top bar with the steps, content centred, big targets for a phone ---- */
+.portal-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.portal-header__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.25rem;
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0.4rem 1rem;
+}
+.portal-steps {
+  display: flex;
+  flex: 1 1 24rem;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.portal-steps a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0 0.9rem;
+  color: var(--text);
+  border-radius: var(--radius);
+  font-weight: 500;
+  text-decoration: none;
+}
+.portal-steps a:hover {
+  background: var(--band);
+}
+.portal-steps a[aria-current='page'] {
+  color: var(--link);
+  background: var(--accent-soft);
+  font-weight: 650;
+}
+.portal-user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  max-width: none;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.portal-user span {
+  display: none;
+  overflow-wrap: anywhere;
+}
+.portal-main {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+.portal-main > h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.6rem;
+  line-height: 1.25;
+  color: var(--ink);
+}
+@media (min-width: 48rem) {
+  .portal-user span {
+    display: inline;
+  }
+}
+.portal-progress {
+  margin: 1rem 0 1.25rem;
+}
+.portal-progress p {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.portal-steplist {
+  display: grid;
+  gap: 0.6rem;
+  max-width: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.portal-step {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  padding: 0.9rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  counter-increment: step;
+}
+.portal-step::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  color: var(--link);
+  background: var(--accent-soft);
+  border-radius: 50%;
+  font-weight: 700;
+}
+.portal-step--done::before {
+  content: '\2713';
+  color: var(--ok);
+  background: var(--ok-soft);
+}
+.portal-step__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 12rem;
+}
+.portal-step__text small {
+  color: var(--muted);
+}
+.portal-submit {
+  padding: 1.1rem 1.25rem;
+}
+
+/* ---- Join requests as cards ---- */
+.request-list {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr));
+  align-items: start;
+}
+.request {
+  margin: 0;
+}
+.request__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+.request__head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.request__meta {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.request__status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+.request__message {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.9rem;
+  color: var(--text);
+  background: var(--surface-2);
+  border-left: 3px solid var(--line-strong);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.request__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.request__actions form {
+  margin: 0;
+}
+.request__remove {
+  margin: 0.9rem 0 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.request__remove > summary {
+  min-height: 2rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.request__remove[open] > summary {
+  margin-bottom: 0.5rem;
+  border: 0;
+}
+.steps-inline {
+  margin: 0.25rem 0 0.75rem;
+  padding-left: 1.4rem;
+}
+.steps-inline li {
+  margin: 0 0 0.25rem;
+}
+.portal-main > form:has(> p):not(.searchbar) {
+  display: block;
+}
+.portal-main > form:has(> p):not(.searchbar) > p {
+  margin: 0 0 1rem;
+}
+.portal-main
+  > form:has(> p):not(.searchbar)
+  input:not([type='checkbox'], [type='radio']),
+.portal-main > form:has(> p):not(.searchbar) select,
+.portal-main > form:has(> p):not(.searchbar) textarea {
+  max-width: none;
 }

@@ -102,7 +102,7 @@ Same as the codebase: Astro components with typed props, class names `block__ele
 4. All current permission, CSRF, audit and privacy tests pass unchanged; admin contract baseline unchanged.
 5. axe: zero violations on every admin page; contrast of every text pair at least 4.5:1.
 6. Works with JavaScript off. No inline styles or scripts.
-7. Page weight: admin CSS stays within a new, stated budget (measured 11249 bytes minified; budget 11500 in `tests/integration/budgets.test.ts`).
+7. Page weight: admin CSS stays within a new, stated budget (measured 11249 bytes minified; budget 11500 in `tests/integration/budgets.test.ts` at the time; later raised, now 26500, see DECISIONS).
 
 ## Order of work (proposed, one slice at a time)
 
