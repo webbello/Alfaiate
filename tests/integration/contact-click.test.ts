@@ -145,12 +145,22 @@ describe('the beacon script on profile pages', () => {
   it('loads from an external file on a profile that has contact buttons, and not on one that has none', async () => {
     const withContacts = await tailor();
     const html = await (await get(`/tailors/${withContacts.slug}`)).text();
+    // A script shared by two pages is built as its own chunk (the directory cards also count WhatsApp taps), so follow the page script's imports.
     const codeOf = async (page: string) =>
       Promise.all(
         [...page.matchAll(/<script[^>]*\bsrc="([^"]+)"/g)].map(async (m) => {
           const r = await worker.fetch(new Request(`${ORIGIN}${m[1]}`));
           expect(r.status).toBe(200);
-          return r.text();
+          const entry = await r.text();
+          const chunks = await Promise.all(
+            [...entry.matchAll(/(?:from|import)\s*"\.\/([^"]+\.js)"/g)].map(
+              async (c) =>
+                (
+                  await worker.fetch(new Request(`${ORIGIN}/_astro/${c[1]}`))
+                ).text(),
+            ),
+          );
+          return [entry, ...chunks].join('\n');
         }),
       );
     expect(html).not.toMatch(

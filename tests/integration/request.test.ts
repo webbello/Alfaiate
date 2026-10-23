@@ -392,10 +392,11 @@ describe('two-step layout', () => {
       html.indexOf('How can we reach you?'),
     );
   });
-  it('offers categories and areas as radio choices (with "not sure yet"), not as drop-down lists', async () => {
+  it('offers categories as radio choices and areas as one drop-down list, both with "not sure yet"', async () => {
     const { c, a } = await seed();
     const html = await (await get('/request')).text();
-    expect(html).not.toMatch(/<select[^>]*name="(category|area)"/);
+    expect(html).not.toMatch(/<select[^>]*name="category"/);
+    expect(html).not.toMatch(/<input[^>]*name="area"/);
     expect(html).toMatch(
       new RegExp(
         `<input[^>]*type="radio"[^>]*name="category"[^>]*value="${c}"`,
@@ -404,12 +405,12 @@ describe('two-step layout', () => {
     expect(html).toMatch(
       /<input[^>]*type="radio"[^>]*name="category"[^>]*value=""/,
     );
-    expect(html).toMatch(
-      new RegExp(`<input[^>]*type="radio"[^>]*name="area"[^>]*value="${a}"`),
-    );
-    expect(html).toMatch(
-      /<input[^>]*type="radio"[^>]*name="area"[^>]*value="other"/,
-    );
+    const select =
+      /<select[^>]*name="area"[\s\S]*?<\/select>/.exec(html)?.[0] ?? '';
+    expect(select).toMatch(/<option value(?:="")?[^>]*>Not sure yet<\/option>/);
+    expect(select).toContain(`<option value="${a}"`);
+    expect(select).toContain('<option value="other"');
+    expect(html).toContain('<label for="area-select">');
     expect(html).toContain('Steps Cat Fake');
   });
   it('keeps the chosen category and area when the form comes back with a mistake', async () => {
@@ -425,11 +426,7 @@ describe('two-step layout', () => {
         `<input[^>]*name="category"[^>]*value="${c}"[^>]*checked|<input[^>]*checked[^>]*name="category"[^>]*value="${c}"`,
       ),
     );
-    expect(html).toMatch(
-      new RegExp(
-        `<input[^>]*name="area"[^>]*value="${a}"[^>]*checked|<input[^>]*checked[^>]*name="area"[^>]*value="${a}"`,
-      ),
-    );
+    expect(html).toMatch(new RegExp(`<option value="${a}"[^>]*selected`));
   });
   it('stores a request made with the radio choices exactly as before', async () => {
     const { c, a } = await seed();

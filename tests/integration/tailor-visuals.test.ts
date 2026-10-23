@@ -41,12 +41,12 @@ describe('listing visuals', () => {
     const c = card(await (await get('/tailors')).text(), slug);
     expect(c).not.toBe('');
     expect(c).toMatch(
-      /<div class="card__swatch card__swatch--[012]" aria-hidden="true">/,
+      /<div class="card__swatch card__swatch--[012]" data-initials="[A-Z0-9]{1,2}" aria-hidden="true">/,
     );
     expect(c).not.toContain('<img');
     const profile = await (await get(`/tailors/${slug}`)).text();
     expect(profile).toMatch(
-      /<div class="profile__swatch profile__swatch--[012]" aria-hidden="true">/,
+      /<div class="profile__swatch profile__swatch--[012]" data-initials="[A-Z0-9]{1,2}" aria-hidden="true">/,
     );
     expect(profile).not.toContain('<img');
   });

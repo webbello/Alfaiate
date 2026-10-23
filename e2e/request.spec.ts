@@ -85,12 +85,14 @@ test('the Tetum form submits to the Tetum acknowledgement', async ({
   await expect(page.locator('html')).toHaveAttribute('lang', 'tet');
 });
 
-test('a customer taps a category and an area, fills step 2 and sends (Phase 7c)', async ({
+test('a customer taps a category, picks an area from the list, fills step 2 and sends (Phase 7c)', async ({
   page,
 }) => {
   await page.goto('/request');
   await page.getByText('[Placeholder] Suits', { exact: true }).click();
-  await page.getByText('[Placeholder] Area 1', { exact: true }).click();
+  await page
+    .locator('#area-select')
+    .selectOption({ label: '[Placeholder] Area 1' });
   await expect(page.locator('#category-none')).not.toBeChecked();
   await page.locator('#name').fill('E2E Fake Customer');
   await page.locator('#phone').fill('7712 3456');

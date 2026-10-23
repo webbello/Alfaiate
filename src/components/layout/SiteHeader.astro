@@ -41,14 +41,23 @@ const home = pathFor(lang, '/');
         <a href={pathFor(lang, '/about')}>{t.nav.about}</a>
         <a href={pathFor(lang, '/contact')}>{t.nav.contact}</a>
         {twin && (
-          <a
+          <span
             class="lang-switch"
-            href={twin.path}
-            lang={twin.lang}
-            hreflang={twin.lang}
+            role="group"
+            aria-label={t.language.switchLabel}
           >
-            {t.language[twin.lang]}
-          </a>
+            <span aria-current="true" lang={lang}>
+              {lang === 'tet' ? 'TET' : 'EN'}
+            </span>
+            <a
+              href={twin.path}
+              lang={twin.lang}
+              hreflang={twin.lang}
+              aria-label={t.language[twin.lang]}
+            >
+              {twin.lang === 'tet' ? 'TET' : 'EN'}
+            </a>
+          </span>
         )}
       </nav>
       <div class="site-actions">

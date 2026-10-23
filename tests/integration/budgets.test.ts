@@ -55,15 +55,15 @@ const seed = async () => {
 const BUDGET = {
   html: {
     home: 27700,
-    directory: 10000, // +200: visible "View Profile" button on each card (2026-10-23)
+    directory: 11000, // +1000 for the WhatsApp button on each card and the initials badge (2026-10-23); was 10000 (+200 the day before for the View Profile button)
     category: 10400,
     profile: 9600,
     request: 13200,
     howItWorks: 9400,
     join: 9500,
   },
-  css: 21000, // raised 2026-10-21 for the compact directory (filter bar, chips, phone rows): measured 18084 plus margin
-  homeCss: 36000, // raised 2026-10-21 for the compact directory and request form (site sheet grew); measured 33601
+  css: 23500, // 2026-10-23: initials badge, card WhatsApp button, lighter inputs, language switch (measured 22525); was 21000 (2026-10-21, compact directory)
+  homeCss: 38500, // raised 2026-10-23 for the initials badge, card WhatsApp button, lighter inputs and the language switch; was 36000, // raised 2026-10-21 for the compact directory and request form (site sheet grew); measured 33601
   adminCss: 28500, // admin redesign 2026-10-23: sidebar, top bar, dark theme, worklist, cards, portal; was 8200 (about 25 kB measured)
   js: 1500, // raised 2026-10-21: the directory page adds the filter script (measured 1195 with the header menu)
 } as const;

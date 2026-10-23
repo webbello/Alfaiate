@@ -46,7 +46,10 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
       '<h1 id="hero-heading">Buka Alfaiate ne’ebé Komprende',
     );
     const disclaimer = index(html, 'aprezenta ita ba alfaiate independente');
-    const cta = index(html, 'class="button button--accent" href="/tet/request"');
+    const cta = index(
+      html,
+      'class="button button--accent" href="/tet/request"',
+    );
     const how = index(html, '<h2 id="how">');
     expect(h1).toBeLessThan(disclaimer);
     expect(disclaimer).toBeLessThan(how);
@@ -80,14 +83,14 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
       'hreflang="x-default" href="https://alfaiate-tl.example/"',
     );
     expect(en).toMatch(
-      /<a class="lang-switch" href="\/tet\/" lang="tet" hreflang="tet">\s*Tetun/,
+      /<span class="lang-switch" role="group" aria-label="Language"><span aria-current="true" lang="en">EN<\/span><a href="\/tet\/" lang="tet" hreflang="tet" aria-label="Tetun">TET<\/a>/,
     );
     const tet = (await text('/tet/')).html;
     expect(tet).toContain(
       '<link rel="canonical" href="https://alfaiate-tl.example/tet/"',
     );
     expect(tet).toMatch(
-      /<a class="lang-switch" href="\/" lang="en" hreflang="en">\s*English/,
+      /<span class="lang-switch" role="group"[^>]*><span aria-current="true" lang="tet">TET<\/span><a href="\/" lang="en" hreflang="en" aria-label="English">EN<\/a>/,
     );
   });
 

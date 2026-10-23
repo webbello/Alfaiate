@@ -4,7 +4,12 @@ import { dictionary, fill } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 import { priceText } from '../modules/directory/format';
 import type { CardView } from '../modules/directory/view';
-import { swatchVariant } from './story/variant';
+import { swatchVariant, initials } from './story/variant';
+import Icon from './ui/Icon.astro';
+import {
+  whatsappLink,
+  whatsappMessage,
+} from '../modules/contact-links/whatsapp';
 
 interface Props {
   lang: Lang;
@@ -19,6 +24,16 @@ const price = priceText(
 );
 const profile = pathFor(lang, `/tailors/${tailor.slug}`);
 const photo = tailor.photo;
+// A stored number that is not valid must never take the page down: the button is then simply left out.
+const whatsapp = (() => {
+  try {
+    return tailor.whatsapp
+      ? whatsappLink(tailor.whatsapp, whatsappMessage(t, tailor.name))
+      : null;
+  } catch {
+    return null;
+  }
+})();
 ---
 
 <article class="card">
@@ -35,6 +50,7 @@ const photo = tailor.photo;
   {!photo && (
     <div
       class={`card__swatch card__swatch--${swatchVariant(tailor.slug)}`}
+      data-initials={initials(tailor.name)}
       aria-hidden="true"
     ></div>
   )}
@@ -61,8 +77,21 @@ const photo = tailor.photo;
         <Source lang={lang} verified={false} />
       </p>
     )}
-    <span class="button button--outline card__action" aria-hidden="true">
-      {t.home.featured.view}
-    </span>
+    <div class="card__footer">
+      <span class="button button--outline card__action" aria-hidden="true">
+        {t.home.featured.view}
+      </span>
+      {whatsapp && (
+        <a
+          class="card__whatsapp"
+          href={whatsapp}
+          data-contact-channel="whatsapp"
+          data-tailor={tailor.slug}
+          aria-label={fill(t.home.featured.whatsapp, { name: tailor.name })}
+        >
+          <Icon name="whatsapp" />
+        </a>
+      )}
+    </div>
   </div>
 </article>

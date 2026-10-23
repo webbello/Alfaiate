@@ -4,3 +4,12 @@ export const swatchVariant = (slug: string): 0 | 1 | 2 => {
   for (const ch of slug) sum += ch.charCodeAt(0);
   return (sum % 3) as 0 | 1 | 2;
 };
+
+/** Two letters for the stand-in badge: the first letters of the first two words of the name ("Atelier Lorosae" gives "AL"). */
+export const initials = (name: string): string => {
+  const words = name.match(/[\p{L}\p{N}]+/gu) ?? [];
+  return words
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join('');
+};

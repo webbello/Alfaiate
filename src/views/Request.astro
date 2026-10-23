@@ -241,52 +241,35 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
                 </p>
               )}
             </div>
-            <fieldset
-              class="field"
-              id="area"
-              aria-describedby={describedBy('area')}
-            >
-              <legend>{r.area}</legend>
-              <div class="chip-choices">
-                <label class="chip-choice" for="area-none">
-                  <input
-                    type="radio"
-                    id="area-none"
-                    name="area"
-                    value=""
-                    checked={!values.area}
-                  />
-                  <span>{r.notSure}</span>
-                </label>
+            <div class="field" id="area">
+              <label for="area-select">{r.area}</label>
+              <select
+                id="area-select"
+                name="area"
+                aria-invalid={invalid('area')}
+                aria-describedby={describedBy('area')}
+              >
+                <option value="" selected={!values.area}>
+                  {r.notSure}
+                </option>
                 {view.areas.map((x) => (
-                  <label class="chip-choice" for={`area-${x.id}`}>
-                    <input
-                      type="radio"
-                      id={`area-${x.id}`}
-                      name="area"
-                      value={String(x.id)}
-                      checked={values.area === String(x.id)}
-                    />
-                    <span>{x.name}</span>
-                  </label>
+                  <option
+                    value={String(x.id)}
+                    selected={values.area === String(x.id)}
+                  >
+                    {x.name}
+                  </option>
                 ))}
-                <label class="chip-choice" for="area-other">
-                  <input
-                    type="radio"
-                    id="area-other"
-                    name="area"
-                    value="other"
-                    checked={values.area === 'other'}
-                  />
-                  <span>{r.areaOther}</span>
-                </label>
-              </div>
+                <option value="other" selected={values.area === 'other'}>
+                  {r.areaOther}
+                </option>
+              </select>
               {errors.area && (
                 <p class="error" id="area-error">
                   {message('area')}
                 </p>
               )}
-            </fieldset>
+            </div>
             <div class="field field--other">
               <label for="area_text">{r.areaText}</label>
               <input

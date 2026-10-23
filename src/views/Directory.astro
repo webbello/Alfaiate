@@ -211,4 +211,7 @@ const variant = Astro.url.search !== '';
   <script>
     import '../scripts/directory';
   </script>
+  {tailors.some((x) => x.whatsapp) && <script>
+    import '../scripts/contact-click';
+  </script>}
 </PublicLayout>

@@ -130,3 +130,50 @@ describe('the five frontend fixes', () => {
     expect(general).not.toContain('data-contact-channel');
   });
 });
+
+describe('the medium-priority polish', () => {
+  it('puts a WhatsApp button on a directory card only when the tailor shows one, and loads the tap counter then', async () => {
+    const withWa = await seed({ whatsapp: '+67077123456', phone: null });
+    const without = await seed({ whatsapp: null, phone: '+67033123456' });
+    const html = await (await get('/tailors')).text();
+    const card = (n: number) =>
+      html.match(
+        new RegExp(
+          `<article class="card">(?:(?!</article>)[\\s\\S])*Ff Tailor ${n}[\\s\\S]*?</article>`,
+        ),
+      )?.[0] ?? '';
+    expect(card(withWa.n)).toContain('class="card__whatsapp"');
+    expect(card(withWa.n)).toContain('wa.me/67077123456');
+    expect(card(withWa.n)).toContain(`data-tailor="${withWa.slug}"`);
+    expect(card(withWa.n)).toContain(
+      `aria-label="WhatsApp Ff Tailor ${withWa.n}"`,
+    );
+    expect(card(without.n)).not.toContain('card__whatsapp');
+    expect(html).toMatch(/<script[^>]*\bsrc="[^"]+"/);
+  });
+
+  it('turns the area on the request form into one labelled drop-down list', async () => {
+    const html = await (await get('/request')).text();
+    expect(html).toMatch(/<label for="area-select">/);
+    expect(html).toMatch(/<select id="area-select" name="area"/);
+    expect(html).not.toContain('id="area-none"');
+  });
+
+  it('shows the language switch as EN and TET with the current one marked, and names both languages for screen readers', async () => {
+    const en = await (await get('/')).text();
+    expect(en).toContain('role="group" aria-label="Language"');
+    expect(en).toMatch(
+      /<span aria-current="true" lang="en">EN<\/span><a href="\/tet\/"[^>]*aria-label="Tetun">TET<\/a>/,
+    );
+    const tet = await (await get('/tet/')).text();
+    expect(tet).toMatch(
+      /<span aria-current="true" lang="tet">TET<\/span><a href="\/"[^>]*aria-label="English">EN<\/a>/,
+    );
+  });
+
+  it('shows the disclaimer in the slim style on a profile', async () => {
+    const { slug } = await seed({ whatsapp: '+67077123456', phone: null });
+    const html = await (await get(`/tailors/${slug}`)).text();
+    expect(html).toContain('<p class="notice notice--compact" role="note">');
+  });
+});
