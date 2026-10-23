@@ -1,6 +1,6 @@
 # Spec: Handspark theme as the public face of Alfaiate TL
 
-Status: **Decisions approved 2026-10-23. Steps 1 to 5 done (every public page is in the theme frame); step 6 (journal, gallery, categories, RSS) next, then the shop (SPEC-shop.md).** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
+Status: **Decisions approved 2026-10-23. Steps 1 to 6 done; step 7 (Tetun and SEO review, logo and name, trim) next, then the shop (SPEC-shop.md).** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
 
 ## Objective
 
@@ -50,6 +50,19 @@ Signature features the owner named: the **hero image trail** (pictures appear an
 - `PublicLayout`, `site.css` and the old Home, Directory and Profile views are no longer used by any public page; `home.css` is still imported by the Services and Craft pages for their service grid and craft section (checked in a screenshot of `/services`). All are cleaned up in step 8.
 - Tests: shell tests (404, menu, static pages, newsletter, font) retargeted to the theme's header, footer and fonts; budgets: all public pages use the theme's CSS and JS budgets (home CSS 295000; HTML request 30000, how it works 29000, join 28000, category 30000). `npm run check` 773 and 681, e2e 150, axe, CSP, reflow and no-script request tests all pass unchanged.
 - **Not done / for the owner:** I looked at the request, about, contact, join, privacy and profile pages in a browser at 1280 and 375 px only in screenshots; the rest, and the exact look of the form pills and the footer, are for your check. The header logo still says "HandSpark" (step 7 replaces logo and name).
+
+## Step 6: done (journal, gallery, FAQ, feed)
+
+- **Journal** `/journal`, `/journal/[slug]`, `/journal/category/[slug]` (and `/tet/...`) in the theme's blog layout. Articles are owner-written text in `src/modules/journal/posts.ts` (two categories: tips, care and repair). `POSTS` is **empty**: nothing invented is published (BR-11). Layout samples (`SAMPLE_POSTS`) show only when `SHOW_TESTIMONIAL_PLACEHOLDERS` is `true` (development), labelled as samples, never indexed, never in the feed. No paging yet (six posts a page is for when there are more than six); no images or author names (nothing needs a permission record).
+- **Feed** `/rss.xml` (English): approved articles only; empty until the journal is approved.
+- **Gallery** `/gallery`: photos with recorded permission and visible, from published, permitted tailors only (BR-06), in the theme's lightbox grid; each links to its tailor and to the large file (works without JavaScript). Empty message until there are photos.
+- **FAQ** `/faq`: the four directory questions in the theme's accordion (one open at a time); no new claims.
+- Menus: "Journal", "Gallery", "FAQ" added to the More menu and the footer.
+- Indexing: the three pages are `noindex` and out of the sitemap until the owner approves their text (`THEME_PAGES` in `src/modules/seo/pages.ts`, the same rule as the static pages).
+- When the owner approves a page (`reviewed: true`), only `/journal`, `/gallery` and `/faq` (and their Tetun twins) enter the sitemap; individual articles and category pages are added to the sitemap when the first real article exists. Keep a page unreviewed until it has content.
+- **Left out on purpose:** gift cards (the business and school enquiry page `/business` already serves group orders), the theme's style guide, instructions, licenses, changelog and external-link pages (developer pages, not for visitors), blog paging, authors and article images. Say if you want any of them.
+- Tests: `journal-gallery` and `journal-sample` integration tests (empty journal, 404s, feed, sitemap, gallery permissions, FAQ and menu links, samples labelled), route guard list, e2e axe on the three pages in both languages and an accordion test. `npm run check` 773 and 687, e2e 157.
+- Tetun journal, gallery and FAQ wording is mine (OQ-07).
 
 ## What the theme contains (all of it is to be kept)
 

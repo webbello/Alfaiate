@@ -1,0 +1,52 @@
+---
+// Photos with recorded permission, from published tailors, in the theme's lightbox grid. Each cell links to the large file, so it works without a script.
+import { env } from 'cloudflare:workers';
+import ThemeLayout from '../../layouts/ThemeLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import { dictionary, fill } from '../../i18n/public';
+import { pathFor, type Lang } from '../../i18n/lang';
+import { requireBindings } from '../../modules/config';
+import { listGalleryPhotos } from '../../modules/directory/queries';
+import { isIndexable } from '../../modules/seo/pages';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dictionary(lang);
+const g = t.gallery;
+const photos = await listGalleryPhotos(requireBindings(env).DB);
+---
+
+<ThemeLayout {lang} title={`${g.title} · ${t.siteName}`} description={g.intro} rest="/gallery" noindex={!isIndexable('gallery') || photos.length === 0}>
+  <Hero tag={g.heading} title={g.heading} />
+  <section class="global-section">
+    <div class="w-layout-blockcontainer main-container w-container">
+      <p class="dir-intro">{g.intro}</p>
+      {photos.length === 0 && <p class="dir-note">{g.empty}</p>}
+      <ul class="prof-gallery" role="list" data-lightbox-group>
+        {
+          photos.map((p) => (
+            <li>
+              <figure>
+                <a href={`/media/${p.base}/large.jpg`} data-lightbox aria-label={fill(g.view, { name: p.name })}>
+                  <img
+                    src={`/media/${p.base}/medium.jpg`}
+                    srcset={`/media/${p.base}/thumb.jpg 320w, /media/${p.base}/medium.jpg 800w`}
+                    sizes="(min-width: 48rem) 20rem, 100vw"
+                    alt={p.alt}
+                    loading="lazy"
+                  />
+                </a>
+                <figcaption>
+                  {p.caption && <span>{p.caption} · </span>}
+                  <a href={pathFor(lang, `/tailors/${p.slug}`)}>{fill(g.by, { name: p.name })}</a>
+                </figcaption>
+              </figure>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</ThemeLayout>

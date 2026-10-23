@@ -1,0 +1,10 @@
+---
+export const prerender = false;
+import Journal from '../../../theme/views/Journal.astro';
+import { categoryOf } from '../../../modules/journal/posts';
+
+const slug = Astro.params.slug ?? '';
+if (!categoryOf(slug)) return Astro.rewrite('/404');
+---
+
+<Journal lang="en" category={slug} />

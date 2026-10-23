@@ -1,0 +1,55 @@
+---
+// The common questions on their own page, in the theme's accordion. Same answers as the directory (our words, no invented claims).
+import ThemeLayout from '../../layouts/ThemeLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import Icon from '../components/ui/Icon.astro';
+import { dictionary } from '../../i18n/public';
+import { pathFor, type Lang } from '../../i18n/lang';
+import { isIndexable } from '../../modules/seo/pages';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dictionary(lang);
+const f = t.faq;
+const items = [
+  [f.q1, f.a1],
+  [f.q2, f.a2],
+  [f.q3, f.a3],
+  [f.q4, f.a4],
+];
+---
+
+<ThemeLayout {lang} title={`${t.faqPage.title} · ${t.siteName}`} description={t.faqPage.intro} rest="/faq" noindex={!isIndexable('faq')}>
+  <Hero tag={t.nav.faq} title={t.faqPage.title} />
+  <section class="global-section">
+    <div class="w-layout-blockcontainer main-container w-container">
+      <p class="dir-intro">{t.faqPage.intro}</p>
+      <div class="faq-card-block" data-accordion>
+        {
+          items.map(([q, a], index) => (
+            <div class="faq-card w-dropdown" data-anim="fade" data-accordion-item>
+              <button type="button" class="faq-info-card w-dropdown-toggle" aria-expanded="false" aria-controls={`faq-${index + 1}`} data-accordion-trigger>
+                <span class="faq-info-text">{q}</span>
+                <span class="faq-info-icon">
+                  <Icon name="faq-plus" class="faq-info-plus" />
+                  <Icon name="faq-minus" class="faq-info-minus" />
+                </span>
+              </button>
+              <div class="faq-text-card w-dropdown-list" id={`faq-${index + 1}`} data-accordion-panel>
+                <div class="faq-wrapper"><p class="faq-except">{a}</p></div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+      <div class="actions-row">
+        <a class="button w-inline-block" href={pathFor(lang, '/request')}>
+          <div class="button-bg"></div>
+          <div class="button-text">{t.nav.request}</div>
+        </a>
+      </div>
+    </div>
+  </section>
+</ThemeLayout>

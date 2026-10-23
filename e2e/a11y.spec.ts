@@ -11,6 +11,9 @@ const PATHS = [
   '/join',
   '/contact',
   '/theme-preview',
+  '/journal',
+  '/gallery',
+  '/faq',
   '/services',
   '/portal/login',
   '/portal/accept?token=invalid',
@@ -34,6 +37,7 @@ for (const prefix of ['', '/tet']) {
       if (
         url.includes('theme-preview') ||
         url.includes('/tailors') ||
+        /\/(journal|gallery|faq)$/.test(url) ||
         url === '/' ||
         url === '/tet/'
       )

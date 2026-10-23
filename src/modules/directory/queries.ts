@@ -379,3 +379,19 @@ export async function listSitemapPaths(db: Db): Promise<string[]> {
     ...tailors.results.map((t) => `/tailors/${t.slug}`),
   ];
 }
+
+export type GalleryPhoto = { slug: string; name: string; base: string; alt: string; caption: string | null };
+
+/** Photos with recorded permission, visible, from published and permitted tailors only (BR-06). Newest first. */
+export async function listGalleryPhotos(db: Db, limit = 18): Promise<GalleryPhoto[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT t.slug, t.display_name AS name, i.tailor_id, i.file_key, i.alt_text, i.caption
+       FROM portfolio_image i JOIN tailor t ON t.id = i.tailor_id
+       WHERE i.permission_granted = 1 AND i.is_visible = 1 AND t.is_published = 1 AND t.permission_recorded = 1
+       ORDER BY i.id DESC LIMIT ?`,
+    )
+    .bind(limit)
+    .all<{ slug: string; name: string; tailor_id: number; file_key: string; alt_text: string; caption: string | null }>();
+  return results.map((r) => ({ slug: r.slug, name: r.name, base: `tailor/${r.tailor_id}/${r.file_key}`, alt: r.alt_text, caption: r.caption }));
+}

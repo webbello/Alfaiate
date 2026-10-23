@@ -1,0 +1,13 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import JournalPost from '../../theme/views/JournalPost.astro';
+import { testimonialPlaceholders } from '../../modules/config';
+import { visiblePosts } from '../../modules/journal/posts';
+
+// Samples exist only when the development flag is on; otherwise an unknown or sample address is a plain 404.
+const post = visiblePosts(testimonialPlaceholders(env as { SHOW_TESTIMONIAL_PLACEHOLDERS?: string })).find((p) => p.slug === Astro.params.slug);
+if (!post) return Astro.rewrite('/404');
+---
+
+<JournalPost lang="en" {post} />

@@ -1,0 +1,52 @@
+---
+// One journal article. Text only, written by the owner (no author byline, no images), so nothing needs a permission record.
+import ThemeLayout from '../../layouts/ThemeLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import { dictionary } from '../../i18n/public';
+import { pathFor, type Lang } from '../../i18n/lang';
+import { categoryOf, type Post } from '../../modules/journal/posts';
+import { isIndexable } from '../../modules/seo/pages';
+
+interface Props {
+  lang: Lang;
+  post: Post;
+}
+const { lang, post } = Astro.props;
+const t = dictionary(lang);
+const j = t.journal;
+const cat = categoryOf(post.category);
+const date = new Intl.DateTimeFormat(lang === 'tet' ? 'pt-PT' : 'en-GB', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(post.date));
+---
+
+<ThemeLayout
+  {lang}
+  title={`${post.title[lang]} · ${t.siteName}`}
+  description={post.excerpt[lang]}
+  rest={`/journal/${post.slug}`}
+  noindex={!isIndexable('journal') || post.sample === true}
+>
+  <Hero parent={{ label: j.heading, href: pathFor(lang, '/journal') }} variant="cms" tag={cat?.name[lang] ?? j.heading} title={post.title[lang]} />
+  <section class="global-section">
+    <div class="w-layout-blockcontainer main-container w-container">
+      <article class="blog-details-block">
+        {post.sample && <p class="dir-note" role="note">{j.sample}</p>}
+        <div class="blog-wrapper-block">
+          <div class="blog-wrapper">
+            <div class="blog-info">{j.published}</div>
+            <div class="blog-text"><time datetime={post.date}>{date}</time></div>
+          </div>
+          {cat && (
+            <div class="blog-wrapper">
+              <div class="blog-info">{j.categories}</div>
+              <a class="blog-link" href={pathFor(lang, `/journal/category/${cat.slug}`)}>{cat.name[lang]}</a>
+            </div>
+          )}
+        </div>
+        <div class="blog-richtext-block w-richtext">
+          {post.body[lang].map((p) => <p>{p}</p>)}
+        </div>
+        <p><a href={pathFor(lang, '/journal')}>{j.back}</a></p>
+      </article>
+    </div>
+  </section>
+</ThemeLayout>
