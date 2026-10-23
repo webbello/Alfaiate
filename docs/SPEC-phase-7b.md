@@ -1,3 +1,5 @@
+> Superseded for layout and palette by [SPEC-admin-redesign.md](SPEC-admin-redesign.md) (2026-10-23).
+
 # Spec: Phase 7b — Admin UX polish and first-run experience
 
 Status: Approved 2026-10-19 (all six open-question defaults accepted) · Not in the original [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md): added on the owner's request (2026-10-19) after the first look at the admin in a browser, inserted as Phase 7b in IMPLEMENTATION_PLAN.md between Phase 7 and Phase 8 · Related: PRD §5 (users and needs), FR-ADM-01–09, FR-RPT-01/02, NFR-A11Y-01, PRD §7.3 (exclusions)

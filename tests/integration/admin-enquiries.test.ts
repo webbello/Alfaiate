@@ -461,7 +461,7 @@ describe('the enquiry page in cards (Phase 7b T5)', () => {
     };
   };
 
-  it('puts a summary, a next step, the customer, the forward box and the referrals first, and the anonymise warning last', async () => {
+  it('puts a summary, a next step, the customer and the forward box first, then the status and referrals column, and the anonymise warning last', async () => {
     const { html, ref } = await open('owner');
     const at = (needle: string) => {
       const i = html.indexOf(needle);
@@ -473,9 +473,9 @@ describe('the enquiry page in cards (Phase 7b T5)', () => {
       at('class="next-step"'),
       at('id="customer-card"'),
       at('id="forward-card"'),
-      at('id="referrals"'),
+      at('id="notes-card"'), // the wide column first, then the side column (status, referrals, anonymise)
       at('id="status-card"'),
-      at('id="notes-card"'),
+      at('id="referrals"'),
       at('<details'),
       at('class="card card--warning"'),
     ];
@@ -514,7 +514,7 @@ describe('the enquiry page in cards (Phase 7b T5)', () => {
     expect(notes.slice(0, 1500)).toContain('name="body"');
     const status = html.slice(
       html.indexOf('id="status-card"'),
-      html.indexOf('id="notes-card"'),
+      html.indexOf('id="referrals"'),
     );
     expect(status).toContain('value="set_status"');
   });

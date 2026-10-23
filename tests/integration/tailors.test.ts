@@ -83,6 +83,31 @@ describe('tailor list and create', () => {
     expect(areas.results).toEqual([{ area_id: area, kind: 'shop_location' }]);
   });
 
+  it('keeps the draft and says what failed when a ticked work type cannot be linked', async () => {
+    const cat = await addCategory('Gone Cat');
+    await env.DB.prepare(
+      'UPDATE garment_category SET is_active = 0 WHERE id = ?',
+    )
+      .bind(cat)
+      .run();
+    const cookie = await signIn('editor');
+    const created = await post('/admin/tailors/new', cookie, {
+      csrf: await csrfOf(cookie),
+      display_name: 'Atelier Half',
+      [`cat_${cat}`]: 'on',
+    });
+    expect(created.headers.get('location')).toMatch(
+      /^\/admin\/tailors\/\d+\?msg=inactive$/,
+    );
+    expect(
+      (
+        await env.DB.prepare(
+          "SELECT COUNT(*) AS n FROM tailor WHERE display_name = 'Atelier Half'",
+        ).first<{ n: number }>()
+      )?.n,
+    ).toBe(1);
+  });
+
   it('shows the essentials first and folds the rest into "More detail"; a viewer cannot open the form', async () => {
     const html = await (
       await get('/admin/tailors/new', await signIn('editor'))

@@ -12,7 +12,7 @@
   - Acceptance: same data and links as before; no empty right-hand third at 1280 px
   - Verify: `admin-*` integration tests; axe; reflow
   - Files: index, enquiries, tailors, interest, users (.astro), tests
-- [x] T4 Create tailor: essentials card plus folded "more detail" card, one submit, land on the draft with checklist
+- [x] T4 (click-count e2e deferred; owner approved the essentials default with the plan) Create tailor: essentials card plus folded "more detail" card, one submit, land on the draft with checklist
   - Acceptance: dashboard to saved draft in at most 3 clicks and one submit; same fields saved; `tailor.edit` still required
   - Verify: create journey e2e with click count; permission tests unchanged
   - Files: new.astro, ProfileFields.astro, form tests (about 4). Needs owner OK on the essentials list
@@ -20,14 +20,14 @@
   - Acceptance: every section and permission gate still present (fees owner-only, publish needs `tailor.publish`); page height reduced
   - Verify: `admin-tailor-checklist`, publish, fees, photos tests; axe; reflow
   - Files: [id].astro and its components (split if over 5 files)
-- [ ] T6 Enquiry detail: enquiry and status left, referral form and log right, anonymise stays folded
+- [x] T6 Enquiry detail: enquiry and status left, referral form and log right, anonymise stays folded
   - Acceptance: customer data still admin-only and never in URLs; all statuses and referral actions work
   - Verify: `admin-enquiries`, referral e2e, privacy tests
   - Files: enquiries/[id].astro, tests
-- [ ] T7 Small pages and sign-in: categories, areas, traffic, newsletter, account, login
+- [x] T7 Small pages and sign-in: categories, areas, traffic, newsletter, account, login
   - Acceptance: consistent with the new frame; login stays a small centred card
   - Verify: axe; existing tests
   - Files: 6 pages
-- [ ] T8 Audit pass: axe on every admin page, 320 px reflow, contrast, CSP, no-JavaScript, CSS budget, docs (STATUS, DECISIONS, ARCHITECTURE), privacy-scope-reviewer and docs-sync agents
+- [x] T8 Audit pass: axe on every admin page, 320 px reflow, contrast, CSP, no-JavaScript, CSS budget, docs (STATUS, DECISIONS, ARCHITECTURE), privacy-scope-reviewer and docs-sync agents
   - Acceptance: spec success criteria 1 to 7 each checked and reported
   - Verify: `npm run check`, `npm run test:e2e`, `npm run perf`

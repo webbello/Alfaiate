@@ -21,7 +21,7 @@ T3, T4 and T6 only need T1 and T2 and could run in parallel by file, but they sh
 | Risk | Mitigation |
 |---|---|
 | Existing tests read admin markup | Update expectations in the same task; never delete a permission or CSRF test |
-| Mobile sidebar without JavaScript | CSS-only `<details>` pattern, keyboard and axe tested in T1 |
+| Mobile sidebar without JavaScript | CSS-only checkbox pattern, keyboard and axe tested in T1 |
 | New palette fails contrast | Contrast test for admin tokens in T1 before any page uses them |
 | Merged create flow drops a field | Spec "Ask first": list of fields kept/folded is shown for approval in T4 |
 | Strict CSP | No inline style or script; checked by existing csp e2e |

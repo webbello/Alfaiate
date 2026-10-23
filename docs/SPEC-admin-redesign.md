@@ -1,6 +1,6 @@
 # Spec: Admin redesign (TailAdmin style, faster forms)
 
-Status: **DRAFT, awaiting owner approval. No code written.** · Requested 2026-10-23 · Not in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) (a design pass like Phase 7b, before Phase 8) · Related: NFR-A11Y, SEC-*, AD-xx on CSP, [SPEC-tailor-portal.md](SPEC-tailor-portal.md) (portal reuses admin patterns)
+Status: **Approved 2026-10-23; built T1 to T8** (nav icons, dark mode and a click-count e2e deferred) · Requested 2026-10-23 · Not in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) (a design pass like Phase 7b, before Phase 8) · Related: NFR-A11Y, SEC-*, AD-xx on CSP, [SPEC-tailor-portal.md](SPEC-tailor-portal.md) (portal reuses admin patterns)
 
 ## Objective
 
@@ -102,7 +102,7 @@ Same as the codebase: Astro components with typed props, class names `block__ele
 4. All current permission, CSRF, audit and privacy tests pass unchanged; admin contract baseline unchanged.
 5. axe: zero violations on every admin page; contrast of every text pair at least 4.5:1.
 6. Works with JavaScript off. No inline styles or scripts.
-7. Page weight: admin CSS stays within a new, stated budget (proposed 14 kB uncompressed; set in the plan after measuring).
+7. Page weight: admin CSS stays within a new, stated budget (measured 11249 bytes minified; budget 11500 in `tests/integration/budgets.test.ts`).
 
 ## Order of work (proposed, one slice at a time)
 
@@ -120,3 +120,7 @@ Same as the codebase: Astro components with typed props, class names `block__ele
 4. **Tailor page sections:** all on one page in two columns (no JavaScript, longer page), or tabs (needs JavaScript, shorter page)? Proposed: one page, two columns, anchored side links.
 5. **Create tailor:** may "essentials" be only name, one phone/WhatsApp number, area and work types, with everything else optional on the draft page?
 6. Should the portal (`/portal`) get the same look in a later pass?
+
+### Answers (2026-10-23, the owner approved the spec and plan with these defaults)
+
+1. Colour: blue for admin only. 2. Dark mode: later. 3. Scope: whole admin in five slices. 4. Tailor sections: one page, two columns from 1440 px wide, no tabs. 5. Essentials: name, WhatsApp, work types and shop areas (the rest under "More detail"). 6. Portal look: later pass, not decided.
