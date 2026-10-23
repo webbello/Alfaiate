@@ -352,3 +352,11 @@ html { scroll-padding-bottom: 5rem; }
 .prof-contact h2, .prof-section h2 { color: #1d1914; }
 
 .actions-row { margin-top: 2rem; }
+
+/* ---- Alfaiate TL wordmark (replaces the theme's logo) ---- */
+.brand-mark { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-family--heading, Georgia, serif); color: var(--color-primary, #3d5a33); line-height: 1; }
+.brand-name { font-size: 1.9rem; font-weight: 700; padding-bottom: 0.2rem; border-bottom: 2px dashed currentColor; }
+.brand-tl { font-family: var(--font-family--paragraph, system-ui, sans-serif); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.08em; padding: 0.3rem 0.5rem; color: #fff; background: var(--color-primary, #3d5a33); border-radius: 999px; }
+.brand-mark--footer { color: #8fb07f; }
+.brand-mark--footer .brand-name { font-size: clamp(3rem, 9vw, 6.5rem); border-bottom-width: 3px; }
+.brand-mark--footer .brand-tl { font-size: clamp(0.9rem, 2vw, 1.4rem); background: #8fb07f; color: #1d1914; }

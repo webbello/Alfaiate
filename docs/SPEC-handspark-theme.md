@@ -1,6 +1,6 @@
 # Spec: Handspark theme as the public face of Alfaiate TL
 
-Status: **Decisions approved 2026-10-23. Steps 1 to 6 done; step 7 (Tetun and SEO review, logo and name, trim) next, then the shop (SPEC-shop.md).** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
+Status: **Decisions approved 2026-10-23. Steps 1 to 6 done; step 7 partly done (brand, fonts, Tetun list, SEO check); the rest of step 7 and step 8 are open, then the shop (SPEC-shop.md).** · Requested 2026-10-23 by the owner · Branch `handspark-theme` · Touches PRD §7.3 (see Decisions) and AGENTS.md "no out-of-scope features"
 
 ## Objective
 
@@ -31,7 +31,7 @@ Signature features the owner named: the **hero image trail** (pictures appear an
 - The theme's menus and footer now use our pages and words in both languages (`src/theme/config/nav.ts`); the footer sign-up is our real, consent-gated form (the theme's demo form only pretended to send); social links come from our settings, not the theme's demo profiles; the designer credit line is off.
 - Accessibility: where the theme's text-splitting animation would hide a link or label a plain block (axe), the block uses a fade instead.
 - Tests: home and design tests rewritten for the new markup (nothing dropped: the service-card test moved to `/services`), shell tests retargeted to `/about` while it keeps the old frame, an e2e test for the image trail, budgets re-set from measurements. `npm run check` 771 and 677, e2e 147.
-- **Weight (measured at 375 px, 4x CPU, 1.6 Mbps):** home CSS 30 kB and JS 60 kB compressed (the whole theme sheet; GSAP and Lenis), fonts 188 kB (TTF), images 376 kB; load 5.5 s, first content 2.3 s, largest paint 2.3 s. The old home was far lighter. Step 7 trims it: woff2 fonts, per-page CSS, motion only on wide pointer devices.
+- **Weight (measured at 375 px, 4x CPU, 1.6 Mbps):** home CSS 30 kB and JS 60 kB compressed (the whole theme sheet; GSAP and Lenis), fonts 188 kB (TTF; WOFF2 now, see step 7), images 376 kB; load 5.5 s, first content 2.3 s, largest paint 2.3 s. The old home was far lighter. Step 7 trims it: woff2 fonts, per-page CSS, motion only on wide pointer devices.
 
 ## Step 4: done (directory, tailor profile and request list are the theme's)
 
@@ -49,7 +49,7 @@ Signature features the owner named: the **hero image trail** (pictures appear an
 - Every page now carries the disclaimer in the footer (`ThemeLayout` passes it to the footer), as the old footer did (FR-PUB-02).
 - `PublicLayout`, `site.css` and the old Home, Directory and Profile views are no longer used by any public page; `home.css` is still imported by the Services and Craft pages for their service grid and craft section (checked in a screenshot of `/services`). All are cleaned up in step 8.
 - Tests: shell tests (404, menu, static pages, newsletter, font) retargeted to the theme's header, footer and fonts; budgets: all public pages use the theme's CSS and JS budgets (home CSS 295000; HTML request 30000, how it works 29000, join 28000, category 30000). `npm run check` 773 and 681, e2e 150, axe, CSP, reflow and no-script request tests all pass unchanged.
-- **Not done / for the owner:** I looked at the request, about, contact, join, privacy and profile pages in a browser at 1280 and 375 px only in screenshots; the rest, and the exact look of the form pills and the footer, are for your check. The header logo still says "HandSpark" (step 7 replaces logo and name).
+- **Not done / for the owner:** I looked at the request, about, contact, join, privacy and profile pages in a browser at 1280 and 375 px only in screenshots; the rest, and the exact look of the form pills and the footer, are for your check. (The header logo and name were replaced in step 7.)
 
 ## Step 6: done (journal, gallery, FAQ, feed)
 
@@ -63,6 +63,16 @@ Signature features the owner named: the **hero image trail** (pictures appear an
 - **Left out on purpose:** gift cards (the business and school enquiry page `/business` already serves group orders), the theme's style guide, instructions, licenses, changelog and external-link pages (developer pages, not for visitors), blog paging, authors and article images. Say if you want any of them.
 - Tests: `journal-gallery` and `journal-sample` integration tests (empty journal, 404s, feed, sitemap, gallery permissions, FAQ and menu links, samples labelled), route guard list, e2e axe on the three pages in both languages and an accordion test. `npm run check` 773 and 687, e2e 157.
 - Tetun journal, gallery and FAQ wording is mine (OQ-07).
+
+## Step 7: partly done (brand, fonts, Tetun list, SEO check)
+
+- **Brand:** the theme's HandSpark logo and name are gone. The header and footer show an Alfaiate TL wordmark (text in the heading font, a stitched underline and a "TL" tag, no image file); `SITE` (name, title, description, address) now says Alfaiate TL and the theme's fake contact block (phone, email, address) is removed. The theme's unused `Seo.astro` and the `og-image` and `webclip` entries in `SITE` still point to files that do not exist; nothing renders them (our `ThemeLayout` builds its own head), but a real share image and logo are still needed for launch; no public page carries the theme's name (tested). A real logo from the owner can replace the wordmark later.
+- **Fonts:** the eight Libre Baskerville files were TTF (about 936 kB in total on disk); they are now Latin-subset WOFF2 (20 to 23 kB each, tested under 25 kB). Measured at 375 px, 4x CPU, 1.6 Mbps: fonts 85.8 kB on the home page (188 kB before), 64.7 kB on the lighter pages. Home load 5.3 s, largest paint 2.2 s; directory load 3.1 s.
+- **Tetun:** all wording written in the theme work is listed for a native speaker in [TETUN-REVIEW.md](TETUN-REVIEW.md) (OQ-07). I cannot review Tetun myself.
+- **SEO check:** a test now requires each of 15 public pages, in both languages, to have its own title, a description, one h1 and the right language. Canonical, hreflang, robots and structured-data rules were already covered by earlier tests and still pass.
+- **Not done, on purpose:** (1) *Motion script trim.* The 60 kB GSAP and Lenis script cannot be skipped on phones: the "Our services" section needs it at every width (without it only the first slide shows). I tried and reverted. A proper fix is to rebuild that section so it works without the script, which is a design change. **Known issue, found while trying:** with a reduced-motion preference the same section shows only its first slide, because the motion layer returns early; this should be fixed before launch. (2) *Per-page CSS.* The whole theme sheet (33 kB compressed) loads on every page; splitting it needs a second Tailwind entry per page type. (3) The theme's own About, Contact, FAQ and Privacy layouts, and replacing the theme's demo photos and sample partner logos, wait for your content.
+- Fonts licence: OFL texts for Libre Baskerville and Manrope added next to the files (`public/fonts/`), README updated; their name tables declare no Reserved Font Name, so the converted files keep their names.
+- Tests: `brand` and `seo-review` integration tests (the font and brand tests assert what is checked; the timings above come from `npm run perf`, one run). `npm run check` 773 and 691 and e2e 157 passed on the commit's tree.
 
 ## What the theme contains (all of it is to be kept)
 

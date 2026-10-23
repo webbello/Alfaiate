@@ -1,56 +1,56 @@
 /* Handspark fonts, self-hosted: Libre Baskerville (headings, SIL OFL 1.1) and Manrope (body, SIL OFL 1.1, one variable file). Plain @font-face rules in an external sheet, so the content security policy needs no inline style. */
 @font-face {
   font-family: 'Libre Baskerville';
-  src: url('/fonts/theme/LibreBaskerville-Regular.ttf') format('truetype');
+  src: url('/fonts/theme/LibreBaskerville-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Baskerville';
-  src: url('/fonts/theme/LibreBaskerville-Italic.ttf') format('truetype');
+  src: url('/fonts/theme/LibreBaskerville-Italic.woff2') format('woff2');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Baskerville';
-  src: url('/fonts/theme/LibreBaskerville-Medium.ttf') format('truetype');
+  src: url('/fonts/theme/LibreBaskerville-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Baskerville';
-  src: url('/fonts/theme/LibreBaskerville-MediumItalic.ttf') format('truetype');
+  src: url('/fonts/theme/LibreBaskerville-MediumItalic.woff2') format('woff2');
   font-weight: 500;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Baskerville';
-  src: url('/fonts/theme/LibreBaskerville-SemiBold.ttf') format('truetype');
+  src: url('/fonts/theme/LibreBaskerville-SemiBold.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Baskerville';
-  src: url('/fonts/theme/LibreBaskerville-SemiBoldItalic.ttf') format('truetype');
+  src: url('/fonts/theme/LibreBaskerville-SemiBoldItalic.woff2') format('woff2');
   font-weight: 600;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Baskerville';
-  src: url('/fonts/theme/LibreBaskerville-Bold.ttf') format('truetype');
+  src: url('/fonts/theme/LibreBaskerville-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Baskerville';
-  src: url('/fonts/theme/LibreBaskerville-BoldItalic.ttf') format('truetype');
+  src: url('/fonts/theme/LibreBaskerville-BoldItalic.woff2') format('woff2');
   font-weight: 700;
   font-style: italic;
   font-display: swap;

@@ -1,7 +1,6 @@
 ---
 import CartDrawer from './CartDrawer.astro';
 import Icon from '../ui/Icon.astro';
-import logo from '../../assets/images/primary-logo.svg';
 import { SITE } from '../../config/site';
 import type { Link } from '../../config/nav';
 
@@ -54,7 +53,7 @@ const isCurrent = (href: string) => path === href;
   <div class="header-block">
     <div class="header-brand-block">
       <a aria-label={SITE.name} href={homeHref} class="header-brand w-inline-block">
-        <img src={logo.src} alt={SITE.name} class="header-logo" loading="eager" />
+        <span class="brand-mark"><span class="brand-name">Alfaiate</span> <span class="brand-tl">TL</span></span>
       </a>
     </div>
 

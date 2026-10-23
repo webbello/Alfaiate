@@ -4,12 +4,11 @@
  */
 export const SITE = {
   /** Absolute URL of the deployed site. Used for canonical URLs and the sitemap. */
-  url: 'https://handspark-astro-preview.tncflow.com',
-  name: 'Handspark',
-  title: 'Handspark',
-  titleTemplate: '%s — Handspark',
-  description:
-    'A shop for handmade art, prints and personalized gifts — every piece made to order by a small studio of makers.',
+  url: 'https://alfaiate-tl.example',
+  name: 'Alfaiate TL',
+  title: 'Alfaiate TL',
+  titleTemplate: '%s · Alfaiate TL',
+  description: 'Find local tailors in Dili, Timor-Leste, see their work and ask for a tailor to come to you.',
   /** Default social sharing image, relative to /public. 1200x630. */
   ogImage: '/og-image.jpg',
   /** Square mark used for the Organization structured data. */
@@ -24,14 +23,7 @@ export const SITE = {
    * line entirely.
    */
   credit: null,
-  /** Shown in the footer and on the contact page. */
-  contact: {
-    phone: '(704) 555-0148',
-    phoneHref: 'tel:+17045550148',
-    email: 'hello@handspark.example.com',
-    address: '118 Kiln Row, Asheville, North Carolina 28801',
-    hours: 'Studio open Tuesday to Saturday, 10am to 6pm',
-  },
+
   /**
    * The returns panel on every product page. One policy, written once — a shop
    * whose terms differ per product would move this into the product schema.

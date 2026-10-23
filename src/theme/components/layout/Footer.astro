@@ -1,6 +1,5 @@
 ---
 import Icon from '../ui/Icon.astro';
-import logo from '../../assets/images/secondary-logo.svg';
 import { SITE } from '../../config/site';
 import type { FooterGroup } from '../../config/nav';
 
@@ -37,7 +36,7 @@ const year = new Date().getFullYear();
       <div class="footer-menu-block">
         <div class="footer-text-block">
           <a aria-label={SITE.name} href={homeHref} class="footer-brand w-inline-block">
-            <img src={logo.src} alt={SITE.name} class="footer-logo" loading="lazy" />
+            <span class="brand-mark brand-mark--footer"><span class="brand-name">Alfaiate</span> <span class="brand-tl">TL</span></span>
           </a>
 
           <div class="footer-except">
