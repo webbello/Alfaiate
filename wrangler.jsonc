@@ -22,7 +22,7 @@
       "name": "alfaiate-tl-staging",
       "vars": { "SITE_URL": "https://alfaiate-tl-staging.REPLACE_ME.workers.dev", "PUBLIC_LANGUAGES": "en,tet", "SITE_INDEXABLE": "false", "PASSWORD_ITERATIONS": "100000" },
       "d1_databases": [
-        { "binding": "DB", "database_name": "alfaiate-tl-staging", "database_id": "REPLACE_ME_STAGING_DATABASE_ID", "migrations_dir": "migrations" }
+        { "binding": "DB", "database_name": "alfaiate-tl-staging", "database_id": "0b1a18ba-dd44-4092-8f94-575dca4f536a", "migrations_dir": "migrations" }
       ]
       // Free plan: R2 needs a card, so photos are off. To switch them on, add a comma after the "]" above and remove the "//" at the start of the four bucket lines below (see docs/DEPLOY.md, "Switching on the paid features").
       // "r2_buckets": [
@@ -34,7 +34,7 @@
       "name": "alfaiate-tl-production",
       "vars": { "SITE_URL": "https://alfaiate-tl.example", "PUBLIC_LANGUAGES": "en", "SITE_INDEXABLE": "true", "PASSWORD_ITERATIONS": "100000" },
       "d1_databases": [
-        { "binding": "DB", "database_name": "alfaiate-tl-prod", "database_id": "REPLACE_ME_PRODUCTION_DATABASE_ID", "migrations_dir": "migrations" }
+        { "binding": "DB", "database_name": "alfaiate-tl-prod", "database_id": "20563516-3d15-4352-8b79-a5052d23cf4c", "migrations_dir": "migrations" }
       ]
       // Free plan: photos off (see staging above). Add a comma after the "]" above and remove the "//" markers once R2 is enabled.
       // "r2_buckets": [
