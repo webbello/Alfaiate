@@ -45,14 +45,15 @@ async function gate(db: D1Database, session: TailorSession) {
 export async function listOwnProducts(
   db: D1Database,
   tailorId: number,
-): Promise<(ProductRow & { photos: number })[]> {
+): Promise<(ProductRow & { photos: number; cover_key: string | null })[]> {
   const { results } = await db
     .prepare(
-      `SELECT p.*, (SELECT count(*) FROM product_image i WHERE i.product_id = p.id) AS photos
+      `SELECT p.*, (SELECT count(*) FROM product_image i WHERE i.product_id = p.id) AS photos,
+              (SELECT file_key FROM product_image c WHERE c.product_id = p.id ORDER BY c.sort_order, c.id LIMIT 1) AS cover_key
        FROM product p WHERE p.seller_tailor_id = ? ORDER BY p.is_published DESC, p.name COLLATE NOCASE LIMIT 100`,
     )
     .bind(tailorId)
-    .all<ProductRow & { photos: number }>();
+    .all<ProductRow & { photos: number; cover_key: string | null }>();
   return results;
 }
 
@@ -150,7 +151,8 @@ export async function uploadOwnProductPhoto(
     b,
     actor(session),
     productId,
-    input,
+    // a tailor who writes nothing gets the product's name as the description, so no photo is stored without alt text
+    { ...input, alt_text: input.alt_text.trim() || product.name.slice(0, 200) },
     now.toISOString().slice(0, 10),
   );
 }

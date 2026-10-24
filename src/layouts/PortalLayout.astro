@@ -1,75 +1,58 @@
 ---
-import '../styles/admin.css';
-import '../styles/portal.css';
-import AdminIcon from '../components/admin/AdminIcon.astro';
+// The signed-in tailor portal in the site's own frame (header, footer, fonts, colours). English only, never indexed, no Tetun twin.
+// Styles are scoped under `.pt` in src/theme/styles/portal-theme.css, which only these pages load.
+import ThemePage from './ThemePage.astro';
+import '../theme/styles/portal-theme.css';
 import { en } from '../i18n/en';
 
 interface Props {
   title: string;
   description?: string;
-  /** The signed-in tailor. Left out for the sign-in and accept pages, which get a small centred card. */
-  auth?: { email: string; csrfToken: string };
+  auth: { email: string; csrfToken: string };
 }
 const { title, description = title, auth } = Astro.props;
 const p = en.portal;
 const path = Astro.url.pathname.replace(/\/+$/, '') || '/portal';
-const links = [
-  { href: '/portal', label: p.overview },
-  { href: '/portal/products', label: 'Products' },
+const tabs = [
+  { href: '/portal', label: p.overview, here: path === '/portal' },
+  {
+    href: '/portal/profile?step=about',
+    label: p.myPage,
+    here: /^\/portal\/(profile|work|photos)/.test(path),
+  },
+  {
+    href: '/portal/products',
+    label: 'Products',
+    here: /^\/portal\/products/.test(path),
+  },
 ];
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} · {p.brand}</title>
-    <meta name="description" content={description} />
-    <meta name="robots" content="noindex,nofollow" />
-    <meta name="referrer" content="no-referrer" />
-  </head>
-  <body>
-    {auth ? (
-      <>
-        <a class="skip-link" href="#main">
-          Skip to main content
-        </a>
-        <header class="portal-header">
-          <div class="portal-header__inner">
-            <a class="admin-brand" href="/portal">
-              <span class="admin-brand__mark">
-                <AdminIcon name="logo" />
-              </span>
-              {p.brand}
-            </a>
-            <nav class="portal-steps" aria-label="Portal">
-              {links.map((l) => (
-                <a
-                  href={l.href}
-                  aria-current={l.href === path ? 'page' : undefined}
-                >
-                  {l.label}
-                </a>
-              ))}
-            </nav>
-            <form class="portal-user" method="post" action="/portal/logout">
-              <input type="hidden" name="csrf" value={auth.csrfToken} />
-              <span>{auth.email}</span>
-              <button type="submit" class="secondary">
-                {p.signOut}
-              </button>
-            </form>
-          </div>
-        </header>
-        <main id="main" class="portal-main">
-          <slot />
-        </main>
-      </>
-    ) : (
-      <main class="admin-card-page">
-        <slot />
-      </main>
-    )}
-  </body>
-</html>
+<ThemePage
+  lang="en"
+  title={`${title} · ${p.brand}`}
+  description={description}
+  rest={path}
+  noindex
+  realPage={false}
+>
+  <div class="pt">
+    <div class="pt__bar">
+      <nav class="pt__tabs" aria-label="Portal">
+        {tabs.map((t) => (
+          <a href={t.href} aria-current={t.here ? 'page' : undefined}>
+            {t.label}
+          </a>
+        ))}
+      </nav>
+      <form class="pt__user" method="post" action="/portal/logout">
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <span>{auth.email}</span>
+        <button type="submit" class="secondary">
+          {p.signOut}
+        </button>
+      </form>
+    </div>
+    <slot />
+  </div>
+</ThemePage>

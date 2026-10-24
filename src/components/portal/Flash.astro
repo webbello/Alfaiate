@@ -1,0 +1,20 @@
+---
+interface Props {
+  message: string;
+  kind: 'success' | 'problem';
+}
+const { message, kind } = Astro.props;
+---
+
+<div
+  class={`pt-flash pt-flash--${kind}`}
+  role={kind === 'problem' ? 'alert' : 'status'}
+>
+  <span class="pt-flash__icon" aria-hidden="true">
+    {kind === 'problem' ? '!' : '✓'}
+  </span>
+  <div>
+    <p>{message}</p>
+    <slot />
+  </div>
+</div>

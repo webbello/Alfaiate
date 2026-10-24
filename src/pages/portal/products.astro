@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 import { env } from 'cloudflare:workers';
-import Flash from '../../components/admin/Flash.astro';
+import Flash from '../../components/portal/Flash.astro';
 import ProductFields from '../../components/admin/ProductFields.astro';
 import PortalLayout from '../../layouts/PortalLayout.astro';
 import { requireBindings } from '../../modules/config';
@@ -37,7 +37,12 @@ if (Astro.request.method === 'POST') {
   const created = await createOwnProduct(DB, auth, productFromForm(form));
   if (created.ok)
     return Astro.redirect(`/portal/products/${created.id}?msg=created`, 303);
-  const code = created.error === 'invalid' ? 'invalid' : created.error === 'limit' ? 'limit' : 'locked';
+  const code =
+    created.error === 'invalid'
+      ? 'invalid'
+      : created.error === 'limit'
+        ? 'limit'
+        : 'locked';
   return Astro.redirect(
     `/portal/products?msg=${code}${created.error === 'invalid' ? `&fields=${(created.fields ?? []).join(',')}` : ''}`,
     303,
@@ -61,22 +66,49 @@ const categories = await listProductCategories(DB);
       {fields.length > 0 && <>Check: {fields.join(', ')}</>}
     </Flash>
   )}
-  {products.length === 0 && <p>You have no products yet.</p>}
-  {products.length > 0 && (
-    <ul>
-      {products.map((p) => (
-        <li>
-          <a href={`/portal/products/${p.id}`}>{p.name}</a> ·{' '}
-          {p.is_published
-            ? 'Published on the shop'
-            : 'Draft, waiting for Alfaiate TL'}{' '}
-          · {p.photos} {p.photos === 1 ? 'photo' : 'photos'}
-        </li>
-      ))}
-    </ul>
-  )}
+  <p class="portal-count-line">
+    {products.length} of {MAX_OWN_PRODUCTS} products
+  </p>
+  <ul class="portal-products">
+    {products.map((p) => (
+      <li class="portal-product">
+        <a href={`/portal/products/${p.id}`}>
+          {p.cover_key ? (
+            <img
+              class="portal-product__img"
+              src={`/portal/media/product/${p.id}/${p.cover_key}/thumb.jpg`}
+              alt=""
+              width="320"
+              height="240"
+              loading="lazy"
+            />
+          ) : (
+            <span class="portal-product__none">No photo yet</span>
+          )}
+          <span class="portal-product__body">
+            <h3>{p.name}</h3>
+            <span class={p.is_published ? 'badge badge--ok' : 'badge'}>
+              {p.is_published
+                ? 'Published on the shop'
+                : 'Draft, waiting for Alfaiate TL'}
+            </span>
+            <small>
+              {p.photos} {p.photos === 1 ? 'photo' : 'photos'}
+            </small>
+          </span>
+        </a>
+      </li>
+    ))}
+    {products.length < MAX_OWN_PRODUCTS && (
+      <li class="portal-product">
+        <a class="portal-add" href="#add-product">
+          + Add a product
+        </a>
+      </li>
+    )}
+  </ul>
   {products.length < MAX_OWN_PRODUCTS ? (
-    <form method="post">
+    <form method="post" id="add-product">
       <h2>Add a product</h2>
       <input type="hidden" name="csrf" value={auth.csrfToken} />
       <ProductFields categories={categories} />

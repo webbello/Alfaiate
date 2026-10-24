@@ -4,7 +4,7 @@ import { env } from 'cloudflare:workers';
 import PortalLayout from '../../layouts/PortalLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
-import Flash from '../../components/admin/Flash.astro';
+import Flash from '../../components/portal/Flash.astro';
 import { requireTailor } from '../../modules/portal/require';
 import {
   portalChecklist,
@@ -74,7 +74,7 @@ const status =
       </progress>
       {tailor.is_published !== 1 && !sent && next && (
         <p class="portal-hero__cta">
-          <a class="button-link button-link--primary" href={next.href}>
+          <a class="button" href={next.href}>
             {g.nextUp}: {next.short}
           </a>
           <span>{g.minutes.replace('{n}', String(next.minutes))}</span>
@@ -93,7 +93,7 @@ const status =
       <h2>{g.liveHeading}</h2>
       <p>{g.liveText}</p>
       <p>
-        <a class="button-link" href={`/tailors/${tailor.slug}`}>
+        <a class="button button--secondary" href={`/tailors/${tailor.slug}`}>
           {g.viewLive}
         </a>
       </p>
@@ -112,7 +112,7 @@ const status =
             {!i.required && !i.done && ' · optional'}
           </small>
         </span>
-        <a class="button-link" href={i.href}>
+        <a class="button button--secondary" href={i.href}>
           {i.done ? 'Change' : 'Fill in'}
           <span class="sr-only">: {i.short}</span>
         </a>

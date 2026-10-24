@@ -2,6 +2,7 @@
 // The tailor sign-in and invite pages in the site's own frame (header, footer, fonts, colours) instead of the plain admin card.
 // English only, never indexed, and with no Tetun twin, so the language switch is left out (`realPage={false}`).
 import ThemePage from './ThemePage.astro';
+import '../theme/styles/portal-theme.css'; // for the notice box
 import { en } from '../i18n/en';
 
 interface Props {

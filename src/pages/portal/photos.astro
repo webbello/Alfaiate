@@ -1,7 +1,8 @@
 ---
 export const prerender = false;
 import { env } from 'cloudflare:workers';
-import Flash from '../../components/admin/Flash.astro';
+import Flash from '../../components/portal/Flash.astro';
+import PhotoUploader from '../../components/portal/PhotoUploader.astro';
 import StepBar from '../../components/portal/StepBar.astro';
 import PortalLayout from '../../layouts/PortalLayout.astro';
 import { en } from '../../i18n/en';
@@ -34,64 +35,16 @@ const good = ['uploaded', 'removed', 'saved'].includes(code);
   </h1>
   <p class="portal-lead">{p.photosIntro}</p>
   {message && <Flash message={message} kind={good ? 'success' : 'problem'} />}
+  <p class="portal-count-line">
+    {images.length} of {MAX_IMAGES} photos added
+  </p>
   {images.length < MAX_IMAGES && (
-    <>
-      <form
-        class="portal-form portal-upload"
-        method="post"
-        action="/portal/photos/upload"
-        enctype="multipart/form-data"
-        data-photo-upload
-        data-auto-upload
-        data-msg-tick={g.addPhotoTickFirst}
-        data-msg-choose={en.photosChoose}
-        data-msg-type={en.photosBadType}
-        data-msg-empty={en.photosEmpty}
-        data-msg-size={en.photosTooBig}
-        data-msg-working={en.photosWorking}
-        data-msg-failed={en.photosFailed}
-      >
-        <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <h2>{g.addPhotoHeading}</h2>
-        <label class="pick pick--wide">
-          <input type="checkbox" name="confirm" value="yes" required />
-          <span>{p.photoConfirm}</span>
-        </label>
-        <label class="portal-drop" for="photo-file">
-          <span class="portal-drop__icon" aria-hidden="true">
-            +
-          </span>
-          <span>{g.addPhotoTap}</span>
-          <small>{g.addPhotoHint}</small>
-        </label>
-        <input
-          id="photo-file"
-          class="sr-only"
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          required
-        />
-        <details class="portal-more">
-          <summary>{g.details}</summary>
-          <div class="field">
-            <label for="photo-alt">{p.photoAlt}</label>
-            <input id="photo-alt" name="alt_text" maxlength="200" />
-          </div>
-          <div class="field">
-            <label for="photo-caption">{p.photoCaption}</label>
-            <input id="photo-caption" name="caption" maxlength="200" />
-          </div>
-        </details>
-        <p role="status" data-upload-status></p>
-        <button type="submit" data-upload-button>
-          {p.photoUpload}
-        </button>
-      </form>
-      <script>
-        import '../../scripts/image-upload';
-        import '../../scripts/portal-form';
-      </script>
-    </>
+    <PhotoUploader
+      action="/portal/photos/upload"
+      csrf={auth.csrfToken}
+      heading={g.addPhotoHeading}
+      room={MAX_IMAGES - images.length}
+    />
   )}
   {images.length === 0 && <p class="card">{p.photosNone}</p>}
   <ul class="portal-photos">
@@ -146,7 +99,7 @@ const good = ['uploaded', 'removed', 'saved'].includes(code);
     ))}
   </ul>
   <p class="portal-actions">
-    <a class="button-link button-link--primary" href="/portal">
+    <a class="button" href="/portal">
       Back to my overview
     </a>
   </p>
