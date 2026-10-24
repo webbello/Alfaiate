@@ -5,6 +5,7 @@ test('adds a product to the cart, changes the quantity, sees the subtotal, sends
   page,
 }) => {
   await page.goto('/shop/e2e-fake-shirt');
+  await page.waitForLoadState('networkidle'); // the cart script must be running before the first click
   await page.getByRole('button', { name: 'Add to Cart' }).click();
   const panel = page.locator('[data-cart-panel][data-open]').first();
   await expect(panel).toBeVisible();
@@ -27,6 +28,7 @@ test('adds a product to the cart, changes the quantity, sees the subtotal, sends
   ).toHaveAttribute('href', /^https:\/\/wa\.me\/67077000001\?text=/);
   await expect(page.getByText(/E2E Fake Shirt/).first()).toBeVisible();
   await page.goto('/shop/e2e-fake-shirt');
+  await page.waitForLoadState('networkidle'); // the cart script must be running before the first click
   await page.locator('[data-cart-toggle]:visible').first().click();
   await page
     .getByRole('button', { name: 'Remove E2E Fake Shirt from my cart' })
@@ -38,6 +40,7 @@ test('the shop page has the category drop-down and a card with a bag button', as
   page,
 }) => {
   await page.goto('/shop');
+  await page.waitForLoadState('networkidle'); // the cart script must be running before the first click
   await expect(
     page.getByRole('navigation', { name: 'Product categories' }),
   ).toBeVisible();
