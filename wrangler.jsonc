@@ -2,10 +2,14 @@
   "name": "alfaiate-tl",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
+  // Deploying is described step by step in docs/DEPLOY.md. Resource names below are the ones that guide tells you to create.
   // Public-site settings, not secrets. Each environment sets its own (vars are not inherited). Tetum stays off
   // in production until the owner confirms a native-speaker review; SITE_URL is a placeholder until the domain is chosen (OQ-11/AD-08).
+  // Optional vars that are NOT listed here (add them to the environment's "vars" when you decide): ORDER_WHATSAPP, SITE_WHATSAPP, JOIN_ENABLED,
+  // NEWSLETTER_ENABLED, SOCIAL_FACEBOOK, SOCIAL_INSTAGRAM, SOCIAL_YOUTUBE, RESPONSE_WINDOW_EN, RESPONSE_WINDOW_TET, GOOGLE_SITE_VERIFICATION.
+  // Secrets are never written here: FORM_TOKEN_SECRET (required) and NOTIFY_WEBHOOK_URL (optional) are set with `wrangler secret put`.
   "vars": { "SITE_URL": "https://alfaiate-tl.example", "PUBLIC_LANGUAGES": "en", "SITE_INDEXABLE": "false" },
-  // Local dev uses simulated D1/R2. Replace placeholder IDs in Phase 8; never put secrets here.
+  // Top level = local development only (simulated D1/R2 in .wrangler/state). It is never deployed: use --env staging or --env production.
   "d1_databases": [
     { "binding": "DB", "database_name": "alfaiate-tl-local", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
   ],
@@ -16,9 +20,9 @@
   "env": {
     "staging": {
       "name": "alfaiate-tl-staging",
-      "vars": { "SITE_URL": "https://staging.alfaiate-tl.example", "PUBLIC_LANGUAGES": "en,tet", "SITE_INDEXABLE": "false" },
+      "vars": { "SITE_URL": "https://alfaiate-tl-staging.REPLACE_ME.workers.dev", "PUBLIC_LANGUAGES": "en,tet", "SITE_INDEXABLE": "false" },
       "d1_databases": [
-        { "binding": "DB", "database_name": "alfaiate-tl-staging", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
+        { "binding": "DB", "database_name": "alfaiate-tl-staging", "database_id": "REPLACE_ME_STAGING_DATABASE_ID", "migrations_dir": "migrations" }
       ],
       "r2_buckets": [
         { "binding": "MEDIA_PUBLIC", "bucket_name": "alfaiate-tl-staging-media-public" },
@@ -29,11 +33,11 @@
       "name": "alfaiate-tl-production",
       "vars": { "SITE_URL": "https://alfaiate-tl.example", "PUBLIC_LANGUAGES": "en", "SITE_INDEXABLE": "true" },
       "d1_databases": [
-        { "binding": "DB", "database_name": "alfaiate-tl-production", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
+        { "binding": "DB", "database_name": "alfaiate-tl-prod", "database_id": "REPLACE_ME_PRODUCTION_DATABASE_ID", "migrations_dir": "migrations" }
       ],
       "r2_buckets": [
-        { "binding": "MEDIA_PUBLIC", "bucket_name": "alfaiate-tl-production-media-public" },
-        { "binding": "MEDIA_PRIVATE", "bucket_name": "alfaiate-tl-production-media-private" }
+        { "binding": "MEDIA_PUBLIC", "bucket_name": "alfaiate-tl-media-public" },
+        { "binding": "MEDIA_PRIVATE", "bucket_name": "alfaiate-tl-media-private" }
       ]
     }
   }

@@ -366,19 +366,14 @@ describe('internal_note', () => {
   });
 });
 
-describe('enquiry_attachment, contact_click_daily, rate_limit', () => {
-  it('rejects duplicate file keys for attachments', async () => {
-    const enquiry = await addEnquiry();
-    await run(
-      "INSERT INTO enquiry_attachment (enquiry_id, file_key) VALUES (?, 'att-1')",
-      enquiry,
-    );
-    await expect(
-      run(
-        "INSERT INTO enquiry_attachment (enquiry_id, file_key) VALUES (?, 'att-1')",
-        enquiry,
-      ),
-    ).rejects.toThrow();
+describe('contact_click_daily, rate_limit', () => {
+  it('has no customer-photo table until FR-ENQ-07 is built', async () => {
+    const found = await db
+      .prepare(
+        "SELECT name FROM sqlite_master WHERE name = 'enquiry_attachment'",
+      )
+      .all();
+    expect(found.results).toHaveLength(0);
   });
 
   it('keeps one click counter per tailor, channel and day, with no visitor data', async () => {

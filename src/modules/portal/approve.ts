@@ -43,6 +43,7 @@ export async function approveInterest(
     .bind(stamp, input.id)
     .run();
   if (claim.meta.changes !== 1) return { ok: false, reason: 'already_decided' };
+  let draftId: number | null = null;
   try {
     const name = (interest.business_name || interest.contact_name || '').trim();
     const draft = await createDraft(db, input.actorId, {
@@ -51,6 +52,7 @@ export async function approveInterest(
       private_phone: interest.phone_e164 ?? undefined,
     });
     if (!draft.ok) throw new Error('draft');
+    draftId = draft.id;
     const account = await db
       .prepare('INSERT INTO tailor_account (tailor_id) VALUES (?)')
       .bind(draft.id)
@@ -76,6 +78,13 @@ export async function approveInterest(
     return { ok: true, tailorId: draft.id, accountId, token };
   } catch {
     // Give the decision back so the owner can try again; nothing half-made is left pending.
+    // The draft is removed too (its account and invite go with it), so a retry cannot leave a duplicate.
+    if (draftId !== null)
+      await db
+        .prepare('DELETE FROM tailor WHERE id = ?')
+        .bind(draftId)
+        .run()
+        .catch(() => undefined);
     await db
       .prepare(
         "UPDATE tailor_interest SET decision = 'pending', decided_at = NULL WHERE id = ?",

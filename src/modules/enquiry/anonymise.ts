@@ -4,7 +4,7 @@ export type AnonymiseResult =
 /**
  * Removes a customer's personal data from an enquiry on request (PRV-04, FR-ADM-09). Irreversible, so the reference code must be typed.
  * One batch: the six personal columns and `anonymised_at`; the free text on its referrals (what was shared, why it ended, the order note, the fee basis note);
- * its internal notes and the notes on its referrals (they can quote the customer); and an audit row with ids only. (Customer photos, `enquiry_attachment`, are not built yet:
+ * its internal notes and the notes on its referrals (they can quote the customer); and an audit row with ids only. (Customer photos, FR-ENQ-07, are not built and have no table:
  * if they ever are, this must also delete those rows and their private files.) Status, status log, category, area, dates, source,
  * referral rows and fee fields stay, because reporting needs them. Nothing is automatic and nothing is hard-deleted.
  * Backups taken earlier still hold the old data until they expire (stated in the privacy review).

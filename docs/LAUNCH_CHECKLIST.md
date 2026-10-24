@@ -36,12 +36,16 @@ Everything the code can do before deployment is built and tested locally. What i
 
 ## 4. Accounts and deployment (Phase 8, once you have a Cloudflare account)
 
-- [ ] Create D1 (production, optional staging) and two R2 buckets per environment; put the real IDs in `wrangler.jsonc`. Keep the public bucket off `r2.dev`.
-- [ ] Secrets with `wrangler secret put`: `SESSION_SECRET`, `FORM_TOKEN_SECRET` (16+ characters), and `NOTIFY_WEBHOOK_URL` if the topic name is private.
+The numbered, copy-paste guide with exact names is [DEPLOY.md](DEPLOY.md); it ends with the list "What I need from you". The boxes below are the same steps in short.
+
+
+- [ ] Cloudflare account with two-step sign-in and Workers Paid (the password check needs it) (DEPLOY A1).
+- [ ] Create D1 `alfaiate-tl-prod` and `alfaiate-tl-staging`, and four R2 buckets (`alfaiate-tl-media-private`, `alfaiate-tl-media-public` and the `alfaiate-tl-staging-media-*` twins); put the two database IDs in `wrangler.jsonc` where it says `REPLACE_ME_…`. Keep the public bucket off `r2.dev` (DEPLOY B).
+- [ ] Secrets with `wrangler secret put … --env production` (and staging): `FORM_TOKEN_SECRET` (16+ characters) and `NOTIFY_WEBHOOK_URL` if the topic name is private. There is no `SESSION_SECRET` (DEPLOY C2).
 - [ ] Vars in `wrangler.jsonc` for production: `ORDER_WHATSAPP` (the number shop orders go to by default, with country code), `SITE_URL`, `SITE_INDEXABLE=true`, `PUBLIC_LANGUAGES`, optional `SITE_WHATSAPP`, `SOCIAL_*`, `RESPONSE_WINDOW_*`, `GOOGLE_SITE_VERIFICATION`. Set `JOIN_ENABLED=true` and `NEWSLETTER_ENABLED=true` only after the Privacy text covers them (the newsletter also needs a sender, OQ-06). Never set `SHOW_TESTIMONIAL_PLACEHOLDERS`.
-- [ ] `wrangler d1 migrations apply DB --remote` (migrations 0001 to 0013), then `seeds/launch.sql` once if you accept the starting lists.
-- [ ] Create the owner account (`npm run owner:create` works on the local database; creating the first owner on the deployed database is a Phase 8 step to be written and tested then) and test sign-in.
-- [ ] Add a Cloudflare rate-limiting rule for `POST /request` and `/api/contact-click`; confirm production sends `cf-connecting-ip`.
+- [ ] `npx wrangler d1 migrations apply DB --remote --env production` (six baseline migrations, `0001_auth` to `0006_analytics`), then `seeds/launch.sql` once if you accept the starting lists.
+- [ ] Create the first owner on the deployed database with `npm run owner:create -- --remote --env production --email <you>` (password typed hidden; DEPLOY F3) and test sign-in. Local database only: `npm run owner:create`.
+- [ ] Add a Cloudflare rate-limiting rule for `POST /request` and `/api/contact-click` (DEPLOY F2); confirm production sends `cf-connecting-ip` (DEPLOY F4).
 - [ ] Re-measure PBKDF2 on the deployed Worker and check page weights (`npm run perf`).
 
 ## 5. Be found

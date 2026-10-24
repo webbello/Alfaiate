@@ -1,36 +1,6 @@
--- Alfaiate TL schema, part 1: admin and tailor-side tables (DATA_MODEL §3.1-3.6, 3.11).
--- Timestamps are UTC ISO-8601 text; booleans are 0/1; enums are CHECK-constrained text.
-
-CREATE TABLE admin_user (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  email TEXT NOT NULL UNIQUE COLLATE NOCASE CHECK (length(email) > 3),
-  password_hash TEXT NOT NULL,
-  role TEXT NOT NULL CHECK (role IN ('owner', 'manager', 'editor', 'viewer')),
-  is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
-  last_login_at TEXT,
-  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
-  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
-);
-
-CREATE TABLE session (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  token_hash TEXT NOT NULL UNIQUE,
-  admin_user_id INTEGER NOT NULL REFERENCES admin_user (id) ON DELETE CASCADE,
-  last_seen_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
-  expires_at TEXT NOT NULL,
-  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
-);
-CREATE INDEX session_user ON session (admin_user_id);
-
--- Append-only by convention; never holds customer data.
-CREATE TABLE audit_log (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  admin_user_id INTEGER REFERENCES admin_user (id) ON DELETE SET NULL,
-  action TEXT NOT NULL CHECK (length(action) > 0),
-  entity_type TEXT,
-  entity_id INTEGER,
-  at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
-);
+-- Alfaiate TL baseline 2 of 6: the public catalogue: tailors, garment categories, service areas and portfolio photos (DATA_MODEL §3.4-3.6, 3.11).
+-- Launch categories and areas are not migrations: they are loaded once from seeds/launch.sql.
+-- tailor.profile_photo_id points at portfolio_image, which is created below (foreign keys are checked when rows are written).
 
 CREATE TABLE tailor (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,10 +27,14 @@ CREATE TABLE tailor (
   fee_terms_agreed_on TEXT,
   private_contact_name TEXT,
   private_phone TEXT,
+  -- Shop orders (SPEC-shop S6): where a cart's WhatsApp message goes. Set by staff only; a tailor cannot change it.
+  order_route TEXT NOT NULL DEFAULT 'admin' CHECK (order_route IN ('admin', 'tailor', 'number')),
+  order_number_e164 TEXT CHECK (order_number_e164 IS NULL OR (order_number_e164 GLOB '+[1-9]*' AND order_number_e164 NOT GLOB '*[^0-9+]*' AND length(order_number_e164) BETWEEN 8 AND 16)),
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   -- BR-05, BR-06, AC-10: publishing needs approval and recorded permission.
-  CHECK (is_published = 0 OR (status = 'approved' AND permission_recorded = 1))
+  CHECK (is_published = 0 OR (status = 'approved' AND permission_recorded = 1)),
+  CHECK (order_route <> 'number' OR order_number_e164 IS NOT NULL)
 );
 CREATE INDEX tailor_published ON tailor (is_published, status);
 

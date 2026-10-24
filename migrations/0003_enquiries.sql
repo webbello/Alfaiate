@@ -1,5 +1,5 @@
--- Alfaiate TL schema, part 2: private customer/referral tables and operational tables
--- (DATA_MODEL §3.7-3.10, 3.12). Everything here is admin-only data (BR-07).
+-- Alfaiate TL baseline 3 of 6: private customer data and the manual referral workflow (DATA_MODEL §3.7-3.10).
+-- Everything here is admin-only data (BR-07). The customer reference-image table (FR-ENQ-07) is not built and is not created.
 
 CREATE TABLE enquiry (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,6 +21,9 @@ CREATE TABLE enquiry (
   status_changed_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   is_spam INTEGER NOT NULL DEFAULT 0 CHECK (is_spam IN (0, 1)),
   source TEXT,
+  -- Business, school and organisation enquiries (FR-ENQ-09, source = 'business'); cleared by the anonymise routine like other free text.
+  organisation_name TEXT CHECK (organisation_name IS NULL OR length(organisation_name) <= 100),
+  group_size_text TEXT CHECK (group_size_text IS NULL OR length(group_size_text) <= 40),
   anonymised_at TEXT,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
@@ -30,6 +33,10 @@ CREATE TABLE enquiry (
   CHECK (anonymised_at IS NULL OR (customer_name IS NULL AND contact_number_e164 IS NULL AND notes IS NULL AND service_description IS NULL AND area_text IS NULL AND preferred_datetime_text IS NULL))
 );
 CREATE INDEX enquiry_status ON enquiry (status, created_at);
+-- Foreign keys that RESTRICT or SET NULL on delete: without an index every delete of a category, area or tailor scans enquiry.
+CREATE INDEX enquiry_category ON enquiry (garment_category_id);
+CREATE INDEX enquiry_area ON enquiry (area_id);
+CREATE INDEX enquiry_preferred_tailor ON enquiry (preferred_tailor_id);
 
 CREATE TABLE enquiry_status_log (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,14 +47,6 @@ CREATE TABLE enquiry_status_log (
   changed_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 CREATE INDEX enquiry_status_log_enquiry ON enquiry_status_log (enquiry_id, changed_at);
-
--- Private customer reference images (FR-ENQ-07, Should): metadata only, bytes in the private R2 bucket.
-CREATE TABLE enquiry_attachment (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  enquiry_id INTEGER NOT NULL REFERENCES enquiry (id) ON DELETE CASCADE,
-  file_key TEXT NOT NULL UNIQUE CHECK (length(file_key) > 0),
-  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
-);
 
 CREATE TABLE referral (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -120,19 +119,13 @@ CREATE INDEX internal_note_enquiry ON internal_note (enquiry_id);
 CREATE INDEX internal_note_tailor ON internal_note (tailor_id);
 CREATE INDEX internal_note_referral ON internal_note (referral_id);
 
--- Aggregate counts only; no visitor data (ANA-02, PRV-05).
-CREATE TABLE contact_click_daily (
-  tailor_id INTEGER NOT NULL REFERENCES tailor (id) ON DELETE CASCADE,
-  channel TEXT NOT NULL CHECK (channel IN ('whatsapp', 'phone')),
-  date TEXT NOT NULL,
-  count INTEGER NOT NULL DEFAULT 0 CHECK (count >= 0),
-  PRIMARY KEY (tailor_id, channel, date)
-);
 
--- Transient counters (login and form rate limits); Workers memory is not shared across instances.
-CREATE TABLE rate_limit (
-  key_hash TEXT NOT NULL,
-  window_start INTEGER NOT NULL,
-  count INTEGER NOT NULL DEFAULT 0 CHECK (count >= 0),
-  PRIMARY KEY (key_hash, window_start)
+-- "Stay updated" sign-ups from the footer (FR-PUB-08). Off unless NEWSLETTER_ENABLED is exactly "true": no sender exists yet (OQ-06)
+-- and the Privacy text must cover it first (OQ-08). Only the address and the consent record are kept; the owner removes an address on request.
+CREATE TABLE newsletter_signup (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL UNIQUE COLLATE NOCASE CHECK (length(email) BETWEEN 6 AND 254),
+  consent_text_version TEXT NOT NULL CHECK (length(consent_text_version) > 0),
+  consent_at TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );

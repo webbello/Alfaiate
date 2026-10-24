@@ -57,6 +57,13 @@ const messageOf = (html: string) =>
   );
 
 describe('the order page', () => {
+  it('refuses an oversized body before reading it (SEC)', async () => {
+    for (const path of ['/order', '/tet/order']) {
+      const res = await order(path, [['product', 'x'.repeat(70 * 1024)]]);
+      expect(res.status).toBe(413);
+    }
+  });
+
   it('opens WhatsApp for the admin with a well-formed message, prices from the server, and records the order', async () => {
     const a = await product('So Linen Shirt', { price: 3200 });
     const b = await product('So Cloth', { price: 1000 });

@@ -1,7 +1,7 @@
 // Owner account recovery (PRD §11: password reset is out-of-band, by the developer).
 //   npm run owner:create -- [--email you@example.com]
 //   npm run owner:reset  -- [--email you@example.com]
-// Local D1 by default. Passwords are typed without echo, hashed here, and never printed, logged or written to disk;
+// Deployed database: add `--remote --env production` (or `--env staging`); see docs/DEPLOY.md. Local D1 by default. Passwords are typed without echo, hashed here, and never printed, logged or written to disk;
 // only the hash goes to a temp file (mode 600) that is deleted afterwards. --password-stdin is for automation.
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -78,8 +78,11 @@ async function readPassword() {
   return first;
 }
 
+const remoteEnv = option('env');
+if (flag('remote') && !['staging', 'production'].includes(remoteEnv ?? ''))
+  fail('--remote needs --env staging or --env production.');
 const target = flag('remote')
-  ? ['--remote']
+  ? ['--remote', '--env', remoteEnv]
   : [
       '--local',
       ...(option('persist-to') ? ['--persist-to', option('persist-to')] : []),
@@ -109,7 +112,7 @@ function runFile(sql) {
 
 if (!['create', 'reset'].includes(command))
   fail(
-    'Usage: owner.mjs create|reset [--email <address>] [--remote] [--password-stdin]',
+    'Usage: owner.mjs create|reset [--email <address>] [--remote --env staging|production] [--password-stdin]',
   );
 if (flag('remote')) {
   if (flag('password-stdin'))
@@ -117,9 +120,9 @@ if (flag('remote')) {
   if (
     (
       await ask(
-        'This changes the REMOTE (production) database. Type "remote" to continue: ',
+        `This changes the REMOTE ${remoteEnv} database. Type "${remoteEnv}" to continue: `,
       )
-    ).trim() !== 'remote'
+    ).trim() !== remoteEnv
   )
     fail('Cancelled.');
 }

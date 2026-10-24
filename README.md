@@ -14,6 +14,9 @@ npm run setup:local              # first time only: creates .dev.vars with rando
 npm run owner:create             # first admin account (prompts; password is never echoed or stored)
 npm run dev                      # http://localhost:4321, admin at /admin
 ```
+To reset the local database (for example after the migrations were rebuilt on 2026-10-24): stop the dev server, delete the `.wrangler/state` folder, then run `npm run db:migrate` and `npm run owner:create` (and `npm run db:demo` for sample data).
+
+Deploying to Cloudflare: see [docs/DEPLOY.md](docs/DEPLOY.md).
 
 **Tailor portal (local, 2026-10-21):** a tailor who used the Join form is approved in `/admin/interest` ("Approve and make sign-in link"), which shows a one-time link to send them. They choose a password at `/portal/accept`, then sign in at `/portal/login` to fill in their page, tick what they make and where, add photos, and tell you it is ready. You check, show their photos and publish as before. A tailor can also add draft shop products and photos at `/portal/products`; staff publish them from `/admin/products`. Run `npm run db:migrate` first. Design: [docs/SPEC-tailor-portal.md](docs/SPEC-tailor-portal.md).
 

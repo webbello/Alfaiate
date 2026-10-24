@@ -98,9 +98,9 @@ export async function updateOwnProduct(
       error: 'invalid',
       fields: fields.length > 0 ? fields : ['category_id'],
     };
-  await db
+  const done = await db
     .prepare(
-      `UPDATE product SET name = ?, description = ?, price_cents = ?, price_note = ?, category_id = ?, availability = ?, details = ?, features = ?, returns = ?, updated_at = ${NOW} WHERE id = ? AND seller_tailor_id = ?`,
+      `UPDATE product SET name = ?, description = ?, price_cents = ?, price_note = ?, category_id = ?, availability = ?, details = ?, features = ?, returns = ?, updated_at = ${NOW} WHERE id = ? AND seller_tailor_id = ? AND is_published = 0`,
     )
     .bind(
       input.name,
@@ -116,6 +116,7 @@ export async function updateOwnProduct(
       session.tailorId,
     )
     .run();
+  if (done.meta.changes !== 1) return { ok: false, error: 'locked' };
   await audit(db, {
     ...who(actor(session)),
     action: 'product_updated',

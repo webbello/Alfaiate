@@ -334,3 +334,31 @@ describe('portfolio_image', () => {
     ).toBe(0);
   });
 });
+
+describe('baseline refinements', () => {
+  it('an order route of "number" needs a number', async () => {
+    const id = await addTailor('route-fake');
+    await expect(
+      run("UPDATE tailor SET order_route = 'number' WHERE id = ?", id),
+    ).rejects.toThrow();
+    await run(
+      "UPDATE tailor SET order_route = 'number', order_number_e164 = '+67070000999' WHERE id = ?",
+      id,
+    );
+  });
+
+  it('has the indexes that foreign-key deletes and the activity list rely on', async () => {
+    const names = (
+      await db
+        .prepare("SELECT name FROM sqlite_master WHERE type = 'index'")
+        .all<{ name: string }>()
+    ).results.map((r) => r.name);
+    for (const n of [
+      'audit_log_user',
+      'rate_limit_window',
+      'enquiry_area',
+      'tailor_interest_tailor',
+    ])
+      expect(names).toContain(n);
+  });
+});

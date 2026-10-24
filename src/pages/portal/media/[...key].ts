@@ -28,6 +28,7 @@ export const GET: APIRoute = async (context) => {
     headers: {
       'Content-Type': 'image/jpeg',
       'Content-Length': String(object.size),
+      'Cache-Control': 'private, no-store',
     },
   });
 };
