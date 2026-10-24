@@ -104,6 +104,8 @@ export const en = {
       not_jpeg: 'That file is not a usable photo.',
       missing_variant:
         'The photo upload was incomplete. Please try again with JavaScript turned on.',
+      photos_off:
+        'Photo uploads are switched off on this site for now. Everything else works.',
       storage: 'The photo could not be saved. Please try again.',
       other: 'That photo could not be added. Please try a different one.',
     },
@@ -387,6 +389,8 @@ export const en = {
     dimensions: 'That photo has the wrong size.',
     missing_variant:
       'The photo upload was incomplete. Please try again with JavaScript turned on.',
+    photos_off:
+      'Photo uploads are switched off on this site for now. Everything else works.',
     limit: 'This tailor already has the maximum of 10 photos.',
     storage:
       'The photo could not be saved. Nothing was stored; please try again.',

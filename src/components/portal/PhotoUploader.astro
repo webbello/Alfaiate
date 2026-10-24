@@ -1,5 +1,7 @@
 ---
 // One photo tile for the portal (own photos and product photos): tick, then choose or drop one or more photos; each is cleaned in the browser and sent at once.
+import { env } from 'cloudflare:workers';
+import { photosEnabled } from '../../modules/config';
 import { en } from '../../i18n/en';
 
 interface Props {
@@ -14,64 +16,68 @@ interface Props {
 const { action, csrf, heading, room, caption = true, hint } = Astro.props;
 const p = en.portal;
 const g = p.guide;
+const enabled = photosEnabled(env);
 ---
 
-<form
-  class="portal-form portal-upload"
-  method="post"
-  action={action}
-  enctype="multipart/form-data"
-  data-photo-upload
-  data-auto-upload
-  data-room={room}
-  data-msg-tick={g.addPhotoTickFirst}
-  data-msg-choose={en.photosChoose}
-  data-msg-type={en.photosBadType}
-  data-msg-empty={en.photosEmpty}
-  data-msg-size={en.photosTooBig}
-  data-msg-working={en.photosWorking}
-  data-msg-failed={en.photosFailed}
->
-  <input type="hidden" name="csrf" value={csrf} />
-  <h2>{heading}</h2>
-  <label class="pick pick--wide">
-    <input type="checkbox" name="confirm" value="yes" required />
-    <span>{p.photoConfirm}</span>
-  </label>
-  <label class="portal-drop" for="photo-file" data-drop>
-    <span class="portal-drop__icon" aria-hidden="true">
-      +
-    </span>
-    <span>{g.addPhotoTap}</span>
-    <small>{hint ?? g.addPhotoHint}</small>
-  </label>
-  <input
-    id="photo-file"
-    class="sr-only"
-    type="file"
-    accept="image/jpeg,image/png,image/webp"
-    multiple
-    required
-  />
-  <div class="portal-previews" data-previews></div>
-  <details class="portal-more">
-    <summary>{g.details}</summary>
-    <div class="field">
-      <label for="photo-alt">{p.photoAlt}</label>
-      <input id="photo-alt" name="alt_text" maxlength="200" />
-    </div>
-    {caption && (
+{!enabled && <p class="card">{p.photoMessages.photos_off}</p>}
+{enabled && (
+  <form
+    class="portal-form portal-upload"
+    method="post"
+    action={action}
+    enctype="multipart/form-data"
+    data-photo-upload
+    data-auto-upload
+    data-room={room}
+    data-msg-tick={g.addPhotoTickFirst}
+    data-msg-choose={en.photosChoose}
+    data-msg-type={en.photosBadType}
+    data-msg-empty={en.photosEmpty}
+    data-msg-size={en.photosTooBig}
+    data-msg-working={en.photosWorking}
+    data-msg-failed={en.photosFailed}
+  >
+    <input type="hidden" name="csrf" value={csrf} />
+    <h2>{heading}</h2>
+    <label class="pick pick--wide">
+      <input type="checkbox" name="confirm" value="yes" required />
+      <span>{p.photoConfirm}</span>
+    </label>
+    <label class="portal-drop" for="photo-file" data-drop>
+      <span class="portal-drop__icon" aria-hidden="true">
+        +
+      </span>
+      <span>{g.addPhotoTap}</span>
+      <small>{hint ?? g.addPhotoHint}</small>
+    </label>
+    <input
+      id="photo-file"
+      class="sr-only"
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      multiple
+      required
+    />
+    <div class="portal-previews" data-previews></div>
+    <details class="portal-more">
+      <summary>{g.details}</summary>
       <div class="field">
-        <label for="photo-caption">{p.photoCaption}</label>
-        <input id="photo-caption" name="caption" maxlength="200" />
+        <label for="photo-alt">{p.photoAlt}</label>
+        <input id="photo-alt" name="alt_text" maxlength="200" />
       </div>
-    )}
-  </details>
-  <p role="status" data-upload-status></p>
-  <button type="submit" data-upload-button>
-    {p.photoUpload}
-  </button>
-</form>
-<script>
+      {caption && (
+        <div class="field">
+          <label for="photo-caption">{p.photoCaption}</label>
+          <input id="photo-caption" name="caption" maxlength="200" />
+        </div>
+      )}
+    </details>
+    <p role="status" data-upload-status></p>
+    <button type="submit" data-upload-button>
+      {p.photoUpload}
+    </button>
+  </form>
+)}
+{enabled && <script>
   import '../../scripts/image-upload';
-</script>
+</script>}

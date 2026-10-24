@@ -15,7 +15,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run --project workers",
     "check": "npm run lint && npm run typecheck && npm run check:repo && npm test && npm run test:integration",
-    "types": "wrangler types",
+    "types": "wrangler types && node scripts/fix-types.mjs",
     "db:migrate": "wrangler d1 migrations apply DB --local",
     "db:seed": "wrangler d1 execute DB --local --file=seeds/placeholders.sql",
     "db:seed:launch": "wrangler d1 execute DB --local --file=seeds/launch.sql",

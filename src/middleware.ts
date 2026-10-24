@@ -7,10 +7,15 @@ import {
   shouldCount,
 } from './modules/analytics/pageviews';
 import { applySecurityHeaders } from './modules/auth/headers';
+import { configurePasswordIterations } from './modules/auth/password';
 import { siteConfig } from './modules/config';
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
+  // Free-plan mode: fewer password rounds when the deployment says so (docs/DEPLOY.md).
+  configurePasswordIterations(
+    (env as { PASSWORD_ITERATIONS?: string }).PASSWORD_ITERATIONS,
+  );
   const { languages, indexable } = siteConfig(env);
   // Tetum is served only when PUBLIC_LANGUAGES includes it; otherwise every /tet/... address is a plain 404.
   if (parsePath(pathname).lang === 'tet' && !isEnabled('tet', languages)) {

@@ -1,12 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { env } from 'cloudflare:workers';
-import {
-  DUMMY_HASH,
-  EMAIL_LIMIT,
-  IP_LIMIT,
-  login,
-} from '../../src/modules/auth/login';
-import { hashPassword, needsRehash } from '../../src/modules/auth/password';
+import { EMAIL_LIMIT, IP_LIMIT, login } from '../../src/modules/auth/login';
+import { hashPassword } from '../../src/modules/auth/password';
 import { revokeSession, validateSession } from '../../src/modules/auth/session';
 
 const db = env.DB;
@@ -97,10 +92,6 @@ describe('login success', () => {
 });
 
 describe('login failure', () => {
-  it('uses a well-formed, full-strength dummy hash so unknown users cost the same time as real ones', () => {
-    expect(needsRehash(DUMMY_HASH)).toBe(false);
-  });
-
   it('gives the identical result for wrong password, unknown user, inactive user and empty password (SEC-01)', async () => {
     const active = await addUser();
     const inactive = await addUser({ active: 0 });

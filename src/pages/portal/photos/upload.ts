@@ -1,7 +1,7 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
-import { requireBindings } from '../../../modules/config';
+import { photosEnabled, requireBindings } from '../../../modules/config';
 import { verifyCsrf } from '../../../modules/auth/csrf';
 import { readForm, UPLOAD_LIMIT } from '../../../modules/http/body';
 import { VARIANTS, type Variant } from '../../../modules/media/keys';
@@ -26,6 +26,7 @@ export const POST: APIRoute = async (context) => {
   const back = (code: string) =>
     context.redirect(`/portal/photos?msg=${code}`, 303);
 
+  if (!photosEnabled(env)) return back('photos_off'); // free-plan mode: no photo storage bound
   const variants: Partial<Record<Variant, Uint8Array>> = {};
   for (const variant of VARIANTS) {
     const file = form.get(variant);

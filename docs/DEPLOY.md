@@ -10,12 +10,15 @@ A step-by-step guide for the owner. Nothing here needs programming: you copy a c
 |---|---|---|
 | Worker (the website program) | `alfaiate-tl-staging` | `alfaiate-tl-production` |
 | D1 database | `alfaiate-tl-staging` | `alfaiate-tl-prod` |
-| R2 bucket, private photos | `alfaiate-tl-staging-media-private` | `alfaiate-tl-media-private` |
-| R2 bucket, public photos | `alfaiate-tl-staging-media-public` | `alfaiate-tl-media-public` |
+| R2 bucket, private photos (**paid step**, see below) | `alfaiate-tl-staging-media-private` | `alfaiate-tl-media-private` |
+| R2 bucket, public photos (**paid step**, see below) | `alfaiate-tl-staging-media-public` | `alfaiate-tl-media-public` |
 
 Binding names inside the program (never change them): `DB`, `MEDIA_PRIVATE`, `MEDIA_PUBLIC`.
 
-**Cost to expect.** The sign-in uses a deliberately slow password check (PBKDF2, 600000 rounds). It needs more computing time than the free Workers plan gives, so use **Workers Paid (about US$5 a month)**. R2 also asks for a payment card when you first switch it on; the free allowance is large and a small site normally stays inside it.
+**Free plan or paid plan.** The project is set up to run on the **free** Cloudflare plan with no card. Two things are then different, and both can be switched on later in a few minutes (section I):
+
+- **Photos are off.** Storing photos needs R2, and R2 asks for a payment card. Without it the site works fully, but tailors and staff cannot upload photos (they see a short message) and pages show their stand-in pictures. Skip step B2 and B3.
+- **Password check is lighter.** Sign-in normally uses a very slow check (PBKDF2, 600000 rounds), which needs more computing time than the free plan allows. `wrangler.jsonc` therefore sets `"PASSWORD_ITERATIONS": "100000"`. Every password is upgraded to the strong setting automatically at its next sign-in once you remove that line (section I).
 
 ---
 
@@ -25,7 +28,7 @@ Binding names inside the program (never change them): `DB`, `MEDIA_PRIVATE`, `ME
 1. Open <https://dash.cloudflare.com/sign-up>. Sign up with your email and a long, unique password. Use a password manager.
 2. Confirm your email (Cloudflare sends a link).
 3. Switch on two-step sign-in: top right profile icon → **My Profile** → **Authentication** → **Two-factor authentication**. This account will hold your customers' data, so do not skip it.
-4. Add the paid plan: left menu **Workers & Pages** → **Plans** → choose **Workers Paid** and add your card.
+4. Stay on the **Free** plan for now. (Later, to switch on photos and the stronger password setting: **Workers & Pages** → **Plans** → **Workers Paid**, and add your card; see section I.)
 
 ### A2. Install Node.js and the project tools (once, on your Mac)
 1. Install Node.js version **22.22 or newer** from <https://nodejs.org> (the "LTS" download). Open the installer and accept the defaults.
@@ -86,7 +89,9 @@ Each command prints a block with a `database_id` (a long code like `0a1b2c3d-...
 
 Do **not** touch the all-zero ID at the top of the file (`00000000-...`); that one is for the practice database on your own Mac. The IDs are not secrets and may stay in the project.
 
-### B2. R2 buckets (the photos)
+### B2. R2 buckets (the photos) — skip on the free plan
+
+**Free plan: skip B2 and B3.** Come back to them in section I when you add a card.
 
 **Dashboard way.** **R2 object storage** → (first time: add your card, choose the free plan) → **Create bucket**. Create these four, one at a time, each with location **Asia-Pacific** (or **Automatic**) and storage class **Standard**:
 
@@ -141,6 +146,7 @@ Each environment (`staging`, `production`) has its own `"vars": { ... }` line. V
 | Variable | Needed? | What it does and what to put |
 |---|---|---|
 | `SITE_URL` | **Required** | The web address with `https://` and no slash at the end, for example `https://yourdomain.tl`. Used for links, the sitemap and search engines. For staging, use the `workers.dev` address you will see after the first deploy (step D3), then redeploy. |
+| `PASSWORD_ITERATIONS` | Free plan: already set to `100000` | How slow the password check is. `100000` fits the free plan; delete it (or set `600000`) on Workers Paid. Passwords are upgraded automatically at their next sign-in. The owner commands (`npm run owner:create`) read the same value, so the first owner can sign in. |
 | `SITE_INDEXABLE` | Required | `true` in production only; `false` in staging. `true` lets Google list the site. |
 | `PUBLIC_LANGUAGES` | Required | `en` for production until a Tetum speaker has reviewed the text; `en,tet` shows both (staging). |
 | `ORDER_WHATSAPP` | Needed for shop orders | Your WhatsApp number with country code, like `+670XXXXXXXX` (any country allowed). Shop orders open WhatsApp to this number. If unset, ordering says it is not set up. |
@@ -307,7 +313,7 @@ The site limits requests per visitor using the `cf-connecting-ip` header, which 
 
 ## G. Smoke test with fake data (staging, then production)
 
-Use only made-up details: name `Smoke Test`, number `+67077000999`.
+Use only made-up details: name `Smoke Test`, number `+67077000999`. On the free plan, skip any photo upload: the page shows "Photo uploads are switched off".
 
 1. Open the home page, the directory, a category page, and `/shop` on a phone and a laptop: pages load, no errors.
 2. Send a request on `/request` with the fake details. You see a reference like `AT-XXXXXXXX`. **Write it down.**
@@ -389,13 +395,30 @@ The database is not changed by a code rollback. Dashboard → **Workers & Pages*
 
 ---
 
+## I. Switching on the paid features later
+
+Do this when you have a card. Staging first, then production; each part is independent.
+
+**Photos (R2).**
+1. Cloudflare dashboard → **Workers & Pages** → **Plans** → **Workers Paid** (needed only for the stronger password setting; R2 itself has a free allowance but asks for a card).
+2. Do steps B2 and B3 (create the four buckets, keep them closed).
+3. In `wrangler.jsonc`, in `staging` and `production`: add a comma after the `]` that ends `d1_databases`, and remove the `//` at the start of the `r2_buckets` lines (the bucket names are already there).
+4. Run `npm run types`, then deploy again (D3 / E).
+
+**Stronger password setting.**
+1. Have **Workers Paid** switched on.
+2. In `wrangler.jsonc`, delete `, "PASSWORD_ITERATIONS": "100000"` from the `vars` line of `staging` and `production`.
+3. Deploy again. Each person's password is re-hashed with 600000 rounds the next time they sign in; nothing else to do. If sign-in starts failing with a server error after this, you are not yet on Workers Paid: put the line back.
+
+---
+
 ## What I need from you
 
 Give these to whoever runs the deployment, or do them yourself. Each says where it goes.
 
 **Accounts**
-- [ ] A Cloudflare account with two-step sign-in and **Workers Paid** switched on → section A1.
-- [ ] A payment card for Workers Paid and R2 → A1, B2.
+- [ ] A Cloudflare account with two-step sign-in (free plan is enough to start) → section A1.
+- [ ] Later, for photos and the stronger password setting: a payment card, Workers Paid and R2 → section I.
 - [ ] The domain name you want (for example `yourdomain.tl`) and access to where you bought it, to change its name servers → `SITE_URL` in `wrangler.jsonc` (production), F1.
 
 **Values**

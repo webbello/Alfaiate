@@ -41,6 +41,7 @@ export const PROBLEM_CODES: readonly string[] = [
   'unsupported',
   'dimensions',
   'missing_variant',
+  'photos_off',
   'limit',
   'storage',
   'not_permitted',

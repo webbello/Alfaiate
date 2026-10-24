@@ -3,9 +3,13 @@ import {
   EMAIL_LIMIT,
   IP_LIMIT,
   WINDOW_SECONDS,
-  DUMMY_HASH,
 } from '../auth/login';
-import { hashPassword, needsRehash, verifyPassword } from '../auth/password';
+import {
+  dummyVerify,
+  hashPassword,
+  needsRehash,
+  verifyPassword,
+} from '../auth/password';
 import { hit, ipBucket, refund } from '../auth/rate-limit';
 import { createTailorSession, revokeTailorSession } from './session';
 
@@ -42,10 +46,9 @@ export async function portalLogin(
     )
     .bind(email)
     .first<Row>();
-  const ok = await verifyPassword(
-    input.password,
-    account?.password_hash ?? DUMMY_HASH,
-  );
+  const ok = account?.password_hash
+    ? await verifyPassword(input.password, account.password_hash)
+    : await dummyVerify(input.password);
   if (!account || !account.password_hash || !account.is_active || !ok) {
     await audit(db, {
       userId: null,

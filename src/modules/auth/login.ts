@@ -1,5 +1,10 @@
 import { audit } from './audit';
-import { hashPassword, needsRehash, verifyPassword } from './password';
+import {
+  dummyVerify,
+  hashPassword,
+  needsRehash,
+  verifyPassword,
+} from './password';
 import { hit, ipBucket, refund } from './rate-limit';
 import { createSession, revokeSession } from './session';
 
@@ -7,11 +12,6 @@ export const IP_LIMIT = 5;
 /** Per-email ceiling for guessing spread over many addresses. High on purpose: a low one lets anyone lock the owner out. */
 export const EMAIL_LIMIT = 50;
 export const WINDOW_SECONDS = 15 * 60;
-
-// A valid hash of a random value nobody knows, so unknown and inactive users cost the same time as real ones.
-// Generated with 600000 iterations; regenerate if DEFAULT_ITERATIONS changes.
-export const DUMMY_HASH =
-  'pbkdf2-sha256$600000$hgXZXHCFHXNMzJIcjID1RA$x30TVpnOJvzLCq7tE6gzOCtanXmRkIT-_HSjJ0Kn8cU';
 
 export type LoginResult =
   | { ok: true; token: string; expiresAt: Date; userId: number }
@@ -54,10 +54,10 @@ export async function login(
     )
     .bind(normalised)
     .first<UserRow>();
-  const passwordOk = await verifyPassword(
-    password,
-    user?.password_hash ?? DUMMY_HASH,
-  );
+  // An unknown user costs the same time as a real one (dummyVerify uses today's rounds setting).
+  const passwordOk = user
+    ? await verifyPassword(password, user.password_hash)
+    : await dummyVerify(password);
 
   if (!user || !user.is_active || !passwordOk) {
     await audit(db, { userId: user?.id ?? null, action: 'login_failed' });

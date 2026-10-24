@@ -4,16 +4,49 @@ import { isIndexable } from '../seo/indexable';
 
 export class ConfigError extends Error {}
 
-const REQUIRED = ['DB', 'MEDIA_PUBLIC', 'MEDIA_PRIVATE'] as const;
+type Bindings = Pick<Cloudflare.Env, 'DB' | 'MEDIA_PUBLIC' | 'MEDIA_PRIVATE'>;
 
-type Bindings = Pick<Cloudflare.Env, (typeof REQUIRED)[number]>;
+// Free-plan mode: R2 needs a payment card, so the photo buckets are optional. Without them the site runs with no stored photos:
+// readers see nothing (so public pages use their stand-ins), uploads are refused with a clear message (`photosEnabled`).
+const OFF = new WeakSet<object>();
+const offBucket = (): R2Bucket => {
+  const bucket = {
+    get: async () => null,
+    head: async () => null,
+    list: async () => ({
+      objects: [],
+      delimitedPrefixes: [],
+      truncated: false,
+    }),
+    delete: async () => undefined,
+    put: async () => {
+      throw new ConfigError('Photo storage is switched off on this deployment');
+    },
+  } as unknown as R2Bucket;
+  OFF.add(bucket);
+  return bucket;
+};
 
-/** Returns the bindings the app needs, or throws naming the missing ones (fails closed). */
+/** True when both photo buckets are bound. Upload pages and endpoints check this before they accept a photo. */
+export function photosEnabled(env: Partial<Bindings>): boolean {
+  return Boolean(env.MEDIA_PUBLIC && env.MEDIA_PRIVATE);
+}
+
+/**
+ * Returns the bindings the app needs, or throws naming the missing ones (fails closed). The database is required; the two photo buckets
+ * come as a pair: both bound (photos on) or both absent (photos off, stand-in buckets that hold nothing). One without the other is a mistake.
+ */
 export function requireBindings(env: Partial<Bindings>): Bindings {
-  const missing = REQUIRED.filter((name) => !env[name]);
-  if (missing.length > 0)
-    throw new ConfigError(`Missing bindings: ${missing.join(', ')}`);
-  return env as Bindings;
+  if (!env.DB) throw new ConfigError('Missing bindings: DB');
+  if (Boolean(env.MEDIA_PUBLIC) !== Boolean(env.MEDIA_PRIVATE))
+    throw new ConfigError(
+      `Missing bindings: ${env.MEDIA_PUBLIC ? 'MEDIA_PRIVATE' : 'MEDIA_PUBLIC'} (bind both photo buckets or neither)`,
+    );
+  return {
+    DB: env.DB,
+    MEDIA_PUBLIC: env.MEDIA_PUBLIC ?? offBucket(),
+    MEDIA_PRIVATE: env.MEDIA_PRIVATE ?? offBucket(),
+  };
 }
 
 /** Public-site settings. `SITE_URL` must be an https origin (http only for localhost); anything else fails closed. */

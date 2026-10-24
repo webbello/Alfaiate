@@ -11,7 +11,7 @@ import StatusChip from '../../../components/admin/StatusChip.astro';
 import ProductFields from '../../../components/admin/ProductFields.astro';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { en } from '../../../i18n/en';
-import { requireBindings } from '../../../modules/config';
+import { photosEnabled, requireBindings } from '../../../modules/config';
 import { requirePermission } from '../../../modules/auth/require';
 import { can } from '../../../modules/auth/permissions';
 import { verifyCsrf } from '../../../modules/auth/csrf';
@@ -136,7 +136,7 @@ const mayEditPhotos = !product.is_published || mayPublish;
         </li>
       ))}
     </ul>
-    {mayEditPhotos && images.length < MAX_PRODUCT_IMAGES && (
+    {mayEditPhotos && photosEnabled(env) && images.length < MAX_PRODUCT_IMAGES && (
       <>
         <h3>Add a photo</h3>
         <form

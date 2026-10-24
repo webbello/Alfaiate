@@ -20,25 +20,27 @@
   "env": {
     "staging": {
       "name": "alfaiate-tl-staging",
-      "vars": { "SITE_URL": "https://alfaiate-tl-staging.REPLACE_ME.workers.dev", "PUBLIC_LANGUAGES": "en,tet", "SITE_INDEXABLE": "false" },
+      "vars": { "SITE_URL": "https://alfaiate-tl-staging.REPLACE_ME.workers.dev", "PUBLIC_LANGUAGES": "en,tet", "SITE_INDEXABLE": "false", "PASSWORD_ITERATIONS": "100000" },
       "d1_databases": [
         { "binding": "DB", "database_name": "alfaiate-tl-staging", "database_id": "REPLACE_ME_STAGING_DATABASE_ID", "migrations_dir": "migrations" }
-      ],
-      "r2_buckets": [
-        { "binding": "MEDIA_PUBLIC", "bucket_name": "alfaiate-tl-staging-media-public" },
-        { "binding": "MEDIA_PRIVATE", "bucket_name": "alfaiate-tl-staging-media-private" }
       ]
+      // Free plan: R2 needs a card, so photos are off. To switch them on, add a comma after the "]" above and remove the "//" at the start of the four bucket lines below (see docs/DEPLOY.md, "Switching on the paid features").
+      // "r2_buckets": [
+      //   { "binding": "MEDIA_PUBLIC", "bucket_name": "alfaiate-tl-staging-media-public" },
+      //   { "binding": "MEDIA_PRIVATE", "bucket_name": "alfaiate-tl-staging-media-private" }
+      // ]
     },
     "production": {
       "name": "alfaiate-tl-production",
-      "vars": { "SITE_URL": "https://alfaiate-tl.example", "PUBLIC_LANGUAGES": "en", "SITE_INDEXABLE": "true" },
+      "vars": { "SITE_URL": "https://alfaiate-tl.example", "PUBLIC_LANGUAGES": "en", "SITE_INDEXABLE": "true", "PASSWORD_ITERATIONS": "100000" },
       "d1_databases": [
         { "binding": "DB", "database_name": "alfaiate-tl-prod", "database_id": "REPLACE_ME_PRODUCTION_DATABASE_ID", "migrations_dir": "migrations" }
-      ],
-      "r2_buckets": [
-        { "binding": "MEDIA_PUBLIC", "bucket_name": "alfaiate-tl-media-public" },
-        { "binding": "MEDIA_PRIVATE", "bucket_name": "alfaiate-tl-media-private" }
       ]
+      // Free plan: photos off (see staging above). Add a comma after the "]" above and remove the "//" markers once R2 is enabled.
+      // "r2_buckets": [
+      //   { "binding": "MEDIA_PUBLIC", "bucket_name": "alfaiate-tl-media-public" },
+      //   { "binding": "MEDIA_PRIVATE", "bucket_name": "alfaiate-tl-media-private" }
+      // ]
     }
   }
 }

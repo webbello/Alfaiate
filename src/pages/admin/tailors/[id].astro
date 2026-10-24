@@ -8,7 +8,7 @@ import Flash from '../../../components/admin/Flash.astro';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import ProfileFields from '../../../components/ProfileFields.astro';
 import { en } from '../../../i18n/en';
-import { requireBindings } from '../../../modules/config';
+import { photosEnabled, requireBindings } from '../../../modules/config';
 import { requirePermission } from '../../../modules/auth/require';
 import { can } from '../../../modules/auth/permissions';
 import { listEntries } from '../../../modules/catalog';
@@ -513,7 +513,7 @@ const action = `/admin/tailors/${id}/actions`;
             );
           })}
         </ul>
-        {editable && images.length < MAX_IMAGES && (
+        {editable && photosEnabled(env) && images.length < MAX_IMAGES && (
           <>
             <h3>{en.photosUploadHeading}</h3>
             <form

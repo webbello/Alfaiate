@@ -4,12 +4,16 @@
 // Deployed database: add `--remote --env production` (or `--env staging`); see docs/DEPLOY.md. Local D1 by default. Passwords are typed without echo, hashed here, and never printed, logged or written to disk;
 // only the hash goes to a temp file (mode 600) that is deleted afterwards. --password-stdin is for automation.
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { stdin, stdout, stderr, argv, exit } from 'node:process';
 import { createInterface } from 'node:readline/promises';
-import { hashPassword } from '../src/modules/auth/password.ts';
+import {
+  configurePasswordIterations,
+  hashPassword,
+  passwordIterations,
+} from '../src/modules/auth/password.ts';
 import {
   buildCreateSql,
   buildResetSql,
@@ -79,6 +83,20 @@ async function readPassword() {
 }
 
 const remoteEnv = option('env');
+// Free-plan mode: use the same PASSWORD_ITERATIONS the deployed Worker uses (from wrangler.jsonc, or the shell), so the owner can sign in within the free CPU limit.
+function configuredIterations() {
+  if (process.env.PASSWORD_ITERATIONS) return process.env.PASSWORD_ITERATIONS;
+  try {
+    const config = JSON.parse(
+      readFileSync('wrangler.jsonc', 'utf8').replace(/^\s*\/\/.*$/gm, ''),
+    );
+    return (remoteEnv ? config.env?.[remoteEnv] : config)?.vars
+      ?.PASSWORD_ITERATIONS;
+  } catch {
+    return undefined;
+  }
+}
+configurePasswordIterations(configuredIterations());
 if (flag('remote') && !['staging', 'production'].includes(remoteEnv ?? ''))
   fail('--remote needs --env staging or --env production.');
 const target = flag('remote')
@@ -146,6 +164,7 @@ try {
   ) {
     fail('No user with that email.');
   }
+  stderr.write(`Password rounds: ${passwordIterations()}\n`);
   const hash = await hashPassword(validatePassword(await readPassword()));
   runFile(
     command === 'create'

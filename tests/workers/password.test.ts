@@ -1,6 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
   DEFAULT_ITERATIONS,
+  configurePasswordIterations,
+  dummyVerify,
+  passwordIterations,
   hashPassword,
   needsRehash,
   verifyPassword,
@@ -73,5 +76,30 @@ describe('hashPassword / verifyPassword', () => {
 
   it('defaults to the OWASP-recommended 600000 iterations (AD-03, plan-dependent: see DECISIONS.md)', () => {
     expect(DEFAULT_ITERATIONS).toBe(600_000);
+  });
+
+  describe('free-plan setting (PASSWORD_ITERATIONS)', () => {
+    afterEach(() => configurePasswordIterations(undefined));
+
+    it('lowers the rounds for new hashes and flags them for upgrade once the default is restored', async () => {
+      expect(configurePasswordIterations('50000')).toBe(50_000);
+      const low = await hashPassword('correct horse');
+      expect(low.split('$')[1]).toBe('50000');
+      expect(needsRehash(low)).toBe(false);
+      expect(await verifyPassword('correct horse', low)).toBe(true);
+      configurePasswordIterations(undefined);
+      expect(passwordIterations()).toBe(DEFAULT_ITERATIONS);
+      expect(needsRehash(low)).toBe(true);
+    });
+
+    it('ignores values that are too low, too high or not numbers', () => {
+      for (const bad of ['1', '19999', '600001', 'abc', '', null, undefined])
+        expect(configurePasswordIterations(bad)).toBe(DEFAULT_ITERATIONS);
+    });
+
+    it('dummyVerify always fails but uses the configured rounds', async () => {
+      configurePasswordIterations('20000');
+      expect(await dummyVerify('anything')).toBe(false);
+    });
   });
 });
