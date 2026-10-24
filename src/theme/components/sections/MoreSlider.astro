@@ -21,6 +21,7 @@ interface Props {
 }
 
 const { title, link, count, label, section = 'more-section' } = Astro.props;
+import MotionScript from '../layout/MotionScript.astro';
 ---
 
 <section class={section}>
@@ -93,3 +94,5 @@ const { title, link, count, label, section = 'more-section' } = Astro.props;
     </div>
   </div>
 </section>
+
+<MotionScript />

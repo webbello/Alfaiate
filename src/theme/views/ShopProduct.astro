@@ -51,6 +51,7 @@ const related = (
   await listPublishedProducts(requireBindings(env).DB, { excludeSlug: product.slug, category: product.category_slug ?? undefined, limit: 6 })
 ).products;
 const more = related.length >= 3 ? related : (await listPublishedProducts(requireBindings(env).DB, { excludeSlug: product.slug, limit: 6 })).products;
+import MotionScript from '../components/layout/MotionScript.astro';
 ---
 
 <ThemeLayout
@@ -222,3 +223,5 @@ const more = related.length >= 3 ? related : (await listPublishedProducts(requir
     )
   }
 </ThemeLayout>
+
+<MotionScript />

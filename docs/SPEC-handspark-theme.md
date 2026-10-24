@@ -19,7 +19,7 @@ Signature features the owner named: the **hero image trail** (pictures appear an
 
 - Added `tailwindcss`, `@tailwindcss/vite`, `gsap`, `lenis` (exact versions), Tailwind in the Vite config, `imageService: 'compile'` (pictures on built pages are resized at build time).
 - `src/theme/` holds the theme's header (with a new EN | TET switch), footer, cart drawer, icons, styles and scripts; `src/layouts/ThemeLayout.astro` is the frame: our canonical and hreflang links, robots rules, social tags only on indexable pages, no inline style or script.
-- Fonts: the Astro fonts component writes an inline `<style>`, which our policy forbids, so the fonts are plain `@font-face` rules in `src/theme/styles/fonts.css` with files in `public/fonts/theme/`. The `js` class script is an external file (`public/js-flag.js`).
+- Fonts: the Astro fonts component writes an inline `<style>`, which our policy forbids, so the fonts are plain `@font-face` rules in `src/theme/styles/fonts.css` with files in `public/fonts/theme/`. The hide-until-animated rule uses `@media (scripting: enabled)` (the old `public/js-flag.js` was removed 2026-10-24).
 - Tailwind scans only `src/theme/` (`source(none)` plus `@source "../"`), so page templates live in `src/theme/views/` and `src/pages/` has thin route files, as with the existing `src/views/`.
 - Test page `/theme-preview` and `/tet/theme-preview` (noindex, not in the sitemap, removed 2026-10-23) prove the frame: security headers, no inline style or script, same-origin assets, head, language switch, axe clean, no text clipped, no CSP violation, reflow.
 - Vendor rules: `src/theme/` is skipped by lint and the formatter, `src/theme/scripts` by the Workers typecheck (they are browser code); the one console call was made constant (SEC-05).

@@ -31,7 +31,8 @@ describe('the Handspark page frame (ThemeLayout)', () => {
     expect(html).not.toMatch(
       /<script(?![^>]*(\bsrc=|type="application\/ld\+json"))[^>]*>/,
     );
-    expect(html).toContain('<script src="/js-flag.js"');
+    // no blocking script in the head: the hide-until-animated rule uses the CSS scripting media feature
+    expect(html).not.toContain('js-flag');
   });
 
   it('loads one stylesheet and the theme script from this site, and no third-party address', async () => {

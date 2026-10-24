@@ -9,6 +9,7 @@ interface Props {
   anim?: string | undefined;
 }
 const { quote, name, place, anim = 'card' } = Astro.props;
+import MotionScript from '../layout/MotionScript.astro';
 ---
 
 <div class="review-card" data-anim={anim}>
@@ -21,3 +22,5 @@ const { quote, name, place, anim = 'card' } = Astro.props;
     </div>
   </div>
 </div>
+
+<MotionScript />

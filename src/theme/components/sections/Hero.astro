@@ -24,6 +24,7 @@ interface Props {
 }
 
 const { parent, variant, tag, title } = Astro.props;
+import MotionScript from '../layout/MotionScript.astro';
 ---
 
 <section class="hero-section">
@@ -50,3 +51,5 @@ const { parent, variant, tag, title } = Astro.props;
     </div>
   </div>
 </section>
+
+<MotionScript />

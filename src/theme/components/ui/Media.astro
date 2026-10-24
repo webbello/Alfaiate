@@ -47,6 +47,7 @@ const {
 } = Astro.props;
 
 const isRemote = typeof src === 'string';
+import MotionScript from '../layout/MotionScript.astro';
 ---
 
 {
@@ -77,3 +78,5 @@ const isRemote = typeof src === 'string';
     <Image src={src} {alt} class={className} {loading} {...rest} />
   )
 }
+
+<MotionScript />

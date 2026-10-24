@@ -23,6 +23,7 @@ const posts = category ? all.filter((p) => p.category === category) : all;
 const current = category ? categoryOf(category) : undefined;
 const title = current ? current.name[lang] : j.heading;
 const date = (iso: string) => new Intl.DateTimeFormat(lang === 'tet' ? 'pt-PT' : 'en-GB', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(iso));
+import MotionScript from '../components/layout/MotionScript.astro';
 ---
 
 <ThemeLayout
@@ -66,3 +67,5 @@ const date = (iso: string) => new Intl.DateTimeFormat(lang === 'tet' ? 'pt-PT' :
     </div>
   </section>
 </ThemeLayout>
+
+<MotionScript />

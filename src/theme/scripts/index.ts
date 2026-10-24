@@ -12,8 +12,6 @@ import {
 import { initCart } from './cart';
 import { initHeader } from './header';
 import { initLightbox } from './lightbox';
-import { initMotion } from './motion';
-import { initSmoothScroll } from './smooth-scroll';
 import { initBackgroundVideo, initVideoControls } from './video';
 
 function init(): void {
@@ -28,8 +26,6 @@ function init(): void {
   initAnchors();
   initLightbox();
   initTeamSocial();
-  initMotion();
-  initSmoothScroll();
   initBackgroundVideo();
   initVideoControls();
 }

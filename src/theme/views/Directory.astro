@@ -44,6 +44,7 @@ const faq = [
   [t.faq.q3, t.faq.a3],
   [t.faq.q4, t.faq.a4],
 ] as const;
+import MotionScript from '../components/layout/MotionScript.astro';
 ---
 
 <ThemeLayout lang={lang} title={d.title} description={d.intro} rest="/tailors" noindex={variant}>
@@ -197,3 +198,5 @@ const faq = [
 <script>
   import '../../scripts/contact-click';
 </script>
+
+<MotionScript />

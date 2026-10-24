@@ -12,6 +12,7 @@ interface Props {
 }
 const { lang, categories, current, allLabel, navLabel } = Astro.props;
 const label = categories.find((c) => c.slug === current)?.name ?? allLabel;
+import MotionScript from '../layout/MotionScript.astro';
 ---
 
 <nav class="shop-category w-dropdown" data-anim="fade" data-category-dropdown aria-label={navLabel}>
@@ -28,3 +29,5 @@ const label = categories.find((c) => c.slug === current)?.name ?? allLabel;
     </div>
   </div>
 </nav>
+
+<MotionScript />

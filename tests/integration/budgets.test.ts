@@ -66,7 +66,8 @@ const BUDGET = {
   // The Handspark theme home (step 3, 2026-10-23): the whole theme sheet (267 kB raw, 31 kB compressed) and the motion script (165 kB raw, 59 kB compressed: GSAP, Lenis).
   // This is about ten times the old home and is the price of the theme; step 7 of docs/SPEC-handspark-theme.md trims it (per-page CSS, motion only on wide pointer devices).
   homeCss: 295000, // 292 kB with the scoped styles of the form and reading pages (step 5); was 280000
-  homeJs: 175000,
+  homeJs: 160000, // 2026-10-24: pages with the motion layer, core and GSAP (measured 150.6 kB: core 18.7 + motion 131.9); was 175000
+  themeJs: 22000, // 2026-10-24: pages with no animated elements load the core script only (measured 18.7 kB), GSAP is not sent
   adminCss: 28500, // admin redesign 2026-10-23: sidebar, top bar, dark theme, worklist, cards, portal; was 8200 (about 25 kB measured)
   js: 1500, // raised 2026-10-21: the directory page adds the filter script (measured 1195 with the header menu)
 } as const;
@@ -81,6 +82,9 @@ const THEMED: string[] = [
   'join',
   'category',
 ];
+
+// Pages with animated elements (tests/integration/motion-script.test.ts checks that this is where the motion script is).
+const MOTION_PAGES: string[] = ['home', 'directory', 'profile'];
 
 describe('page weight budgets (NFR-PERF-01)', () => {
   it('keeps each page, its stylesheet and its script within budget', async () => {
@@ -112,7 +116,13 @@ describe('page weight budgets (NFR-PERF-01)', () => {
       expect(
         await assetsOf(html, /<script[^>]*src="([^"]+)"/g),
         `${name} js`,
-      ).toBeLessThanOrEqual(THEMED.includes(name) ? BUDGET.homeJs : BUDGET.js);
+      ).toBeLessThanOrEqual(
+        !THEMED.includes(name)
+          ? BUDGET.js
+          : MOTION_PAGES.includes(name)
+            ? BUDGET.homeJs
+            : BUDGET.themeJs,
+      );
     }
   });
 

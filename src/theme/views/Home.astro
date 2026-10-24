@@ -8,11 +8,11 @@ import Icon from '../components/ui/Icon.astro';
 import TailorCard from '../components/shop/TailorCard.astro';
 import StoryCard from '../components/sections/StoryCard.astro';
 import placeholder from '../assets/images/placeholder.svg';
-import logo01 from '../assets/images/featured-logo-01.svg';
-import logo02 from '../assets/images/featured-logo-02.svg';
-import logo03 from '../assets/images/featured-logo-03.svg';
-import logo04 from '../assets/images/featured-logo-04.svg';
-import logo05 from '../assets/images/featured-logo-05.svg';
+import logo01 from '../assets/images/featured-logo-01.svg?url';
+import logo02 from '../assets/images/featured-logo-02.svg?url';
+import logo03 from '../assets/images/featured-logo-03.svg?url';
+import logo04 from '../assets/images/featured-logo-04.svg?url';
+import logo05 from '../assets/images/featured-logo-05.svg?url';
 import { scene, type Scene } from '../../components/home/images';
 import { PLACEHOLDER_TESTIMONIALS, TESTIMONIALS } from '../../components/home/testimonials';
 import { dictionary } from '../../i18n/public';
@@ -53,8 +53,10 @@ const steps = [
 ];
 const craft = scene('craft');
 const rack = scene('rack');
+const suits = scene('suits');
 const visit = scene('home-visit');
 const pad = (n: number) => String(n).padStart(2, '0');
+import MotionScript from '../components/layout/MotionScript.astro';
 ---
 
 <ThemeLayout
@@ -114,7 +116,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
             <div class="gsap-wrapper">
               <div class="gsap-block">
                 <div class="gsap-wrap">
-                  <img src={placeholder.src} alt="" class="gsap-place" loading="lazy" />
+                  <img src={placeholder.src} alt="" class="gsap-place" loading="lazy" decoding="async" />
                 </div>
               </div>
             </div>
@@ -123,7 +125,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
                 {
                   trailImages.map((image) => (
                     <div class="gsap-item">
-                      <img src={image.src} alt="" class="gsap-image" width={image.width} height={image.height} loading="lazy" />
+                      <img src={image.src} alt="" class="gsap-image" width={image.width} height={image.height} loading="lazy" decoding="async" />
                     </div>
                   ))
                 }
@@ -149,7 +151,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
             </div>
             <div class="company-title-block">
               <h2 class="company-title is-display-show-for-desktop" data-anim="text-lines">{h.craft.heading}</h2>
-              <h3 class="company-title is-display-show-for-mobile" data-anim="text-lines">{h.craft.heading}</h3>
+              <h2 class="company-title is-display-show-for-mobile" data-anim="text-lines">{h.craft.heading}</h2>
             </div>
           </div>
           <div class="company-wrap-block">
@@ -160,6 +162,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
             </div>
             <div class="company-details-block">
               <div class="company-thumb-block">
+                <div class="company-thumb-wrap">
+                  <img src={suits.src} srcset={suits.srcset} sizes="(min-width: 992px) 30vw, 90vw" width={suits.width} height={suits.height} alt={h.how.imageAlt} class="company-thumb" loading="lazy" data-anim="image-zoom" />
+                </div>
                 <div class="company-thumb-wrap">
                   <img src={rack.src} srcset={rack.srcset} sizes="(min-width: 992px) 30vw, 90vw" width={rack.width} height={rack.height} alt={h.how.imageAlt} class="company-thumb" loading="lazy" data-anim="image-zoom" />
                 </div>
@@ -193,7 +198,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <div class="more-block">
           <div class="more-title-block">
             <h2 class="more-title is-display-show-for-desktop" data-anim="text-lines">{h.featured.heading}</h2>
-            <h3 class="more-title is-display-show-for-mobile" data-anim="text-lines">{h.featured.heading}</h3>
+            <h2 class="more-title is-display-show-for-mobile" data-anim="text-lines">{h.featured.heading}</h2>
             <div class="more-link is-more-space" data-anim="fade">
               <a class="button is-link w-inline-block" href={to('/tailors')}>
                 <div class="button-bg is-link"></div>
@@ -273,7 +278,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
                   const image = scene(work.image);
                   return (
                     <div class:list={['works-thumb-wrap', `is-${['one', 'two', 'three', 'four'][i]}`]}>
-                      <img src={image.src} srcset={image.srcset} sizes="(min-width: 992px) 40vw, 90vw" width={image.width} height={image.height} alt="" class="works-thumb" loading="lazy" />
+                      <img src={image.src} srcset={image.srcset} sizes="(min-width: 992px) 40vw, 90vw" width={image.width} height={image.height} alt="" class="works-thumb" loading="lazy" decoding="async" />
                     </div>
                   );
                 })
@@ -304,7 +309,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
           </div>
           <div class="process-title-block">
             <h2 class="process-title is-display-show-for-desktop" data-anim="text-lines">{h.how.heading}</h2>
-            <h3 class="process-title is-display-show-for-mobile" data-anim="text-lines">{h.how.heading}</h3>
+            <h2 class="process-title is-display-show-for-mobile" data-anim="text-lines">{h.how.heading}</h2>
           </div>
         </div>
         <div class="process-card-block is-home">
@@ -334,8 +339,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
               <div class="featured-wrap" data-anim="fade">
                 {[0, 1].map(() => (
                   <div class="featured-loop">
-                    {[logo01, logo02, logo03, logo04, logo05].map((logo) => (
-                      <img src={logo.src} alt="" class="featured-logo" loading="lazy" />
+                    {[[logo01, 304], [logo02, 221], [logo03, 216], [logo04, 276], [logo05, 215]].map(([logo, width]) => (
+                      <img src={logo as string} alt="" class="featured-logo" width={width as number} height={40} loading="lazy" decoding="async" />
                     ))}
                   </div>
                 ))}
@@ -365,7 +370,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
                     </div>
                     <div class="review-title-block">
                       <h2 class="review-title is-display-show-for-desktop" data-anim="text-lines">{h.stories.heading}</h2>
-                      <h3 class="review-title is-display-show-for-mobile" data-anim="text-lines">{h.stories.heading}</h3>
+                      <h2 class="review-title is-display-show-for-mobile" data-anim="text-lines">{h.stories.heading}</h2>
                     </div>
                     {isSample && <p class="home-note">{h.stories.sample}</p>}
                   </div>
@@ -445,3 +450,5 @@ const pad = (n: number) => String(n).padStart(2, '0');
   // WhatsApp taps on the featured cards are counted like the ones on profiles.
   import '../../scripts/contact-click';
 </script>
+
+<MotionScript />

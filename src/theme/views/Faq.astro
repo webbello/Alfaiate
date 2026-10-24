@@ -19,6 +19,7 @@ const items = [
   [f.q3, f.a3],
   [f.q4, f.a4],
 ];
+import MotionScript from '../components/layout/MotionScript.astro';
 ---
 
 <ThemeLayout {lang} title={`${t.faqPage.title} · ${t.siteName}`} description={t.faqPage.intro} rest="/faq" noindex={!isIndexable('faq')}>
@@ -53,3 +54,5 @@ const items = [
     </div>
   </section>
 </ThemeLayout>
+
+<MotionScript />

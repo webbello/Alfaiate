@@ -1,0 +1,10 @@
+---
+// The motion layer (GSAP, ScrollTrigger, Lenis). Render it on every page that has `data-anim` elements or the home page's pinned sections:
+// Astro includes the script once per page and not at all on pages that never render this component. One entry on purpose: if two entries
+// shared the code it would split into a chunk the browser finds only after the first script, one more round trip before the hero shows.
+// tests/integration/motion-script.test.ts fails when a page has `data-anim` but no motion script.
+---
+
+<script>
+  import '../../scripts/motion-entry';
+</script>

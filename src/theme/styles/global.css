@@ -427,10 +427,12 @@
     outline-offset: 2px;
   }
 
-  /* Elements the motion layer animates start hidden, but only where JS
-     runs — without it the content still has to be readable. */
-  html.js [data-anim]:not([data-anim-ready]) {
-    visibility: hidden;
+  /* Elements the motion layer animates start hidden, but only where scripts run (no blocking script sets a class);
+     without JavaScript, or in a browser without this media feature, the content stays readable. */
+  @media (scripting: enabled) {
+    [data-anim]:not([data-anim-ready]) {
+      visibility: hidden;
+    }
   }
 }
 
