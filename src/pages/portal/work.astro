@@ -2,6 +2,8 @@
 export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Flash from '../../components/admin/Flash.astro';
+import Chip from '../../components/portal/Chip.astro';
+import StepBar from '../../components/portal/StepBar.astro';
 import PortalLayout from '../../layouts/PortalLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
@@ -9,11 +11,20 @@ import { readForm } from '../../modules/http/body';
 import { verifyCsrf } from '../../modules/auth/csrf';
 import { TAILOR_COOKIE } from '../../modules/portal/session';
 import { requireTailor } from '../../modules/portal/require';
+import {
+  nextStepHref,
+  portalChecklist,
+  progressMessage,
+  savedHref,
+} from '../../modules/portal/checklist';
 import { saveWork, workView } from '../../modules/portal/work';
 
 const auth = await requireTailor(Astro);
 if (auth instanceof Response) return auth;
 const p = en.portal;
+const g = p.guide;
+// Two steps share this page: the types of clothing and the places. The form posts only the shown part.
+const step = Astro.url.searchParams.get('step') === 'areas' ? 'areas' : 'work';
 const { DB } = requireBindings(env);
 let message = '';
 let kind: 'success' | 'problem' = 'success';
@@ -28,63 +39,86 @@ if (Astro.request.method === 'POST') {
   )
     return new Response('Forbidden', { status: 403 });
   const result = await saveWork(DB, auth, form);
-  if (result.ok) return Astro.redirect('/portal/work?saved=1', 303);
+  if (result.ok) {
+    const after = await portalChecklist(DB, auth.tailorId);
+    return Astro.redirect(savedHref(nextStepHref(after, step)), 303);
+  }
   kind = 'problem';
   message = result.error === 'locked' ? p.locked : p.invalid;
   Astro.response.status = result.error === 'locked' ? 403 : 422;
-} else if (Astro.url.searchParams.get('saved') === '1') message = p.saved;
+}
+const items = await portalChecklist(DB, auth.tailorId);
+if (!message && Astro.url.searchParams.get('saved') === '1')
+  message = `${g.saved} ${progressMessage(items)}`;
 const view = await workView(DB, auth.tailorId);
+const shopHere = [...view.shop][0];
 ---
 
-<PortalLayout title={p.workHeading} auth={auth}>
-  <h1>{p.workHeading}</h1>
-  <p>{p.workIntro}</p>
+<PortalLayout title={items.find((i) => i.key === step)!.short} auth={auth}>
+  <StepBar items={items} current={step} />
+  <h1 tabindex="-1" data-step-heading>
+    {step === 'work' ? g.typesHeading : g.areasHeading}
+  </h1>
+  <p class="portal-lead">{step === 'work' ? g.typesHint : g.areasHint}</p>
   {message && <Flash message={message} kind={kind} />}
-  <form method="post">
+  <form method="post" class="portal-form">
     <input type="hidden" name="csrf" value={auth.csrfToken} />
-    <fieldset>
-      <legend>{p.workTypes}</legend>
-      {view.categories.length === 0 && <p>{p.workNone}</p>}
-      {view.categories.map((c) => (
-        <p>
-          <label>
-            <input
-              type="checkbox"
+    <input
+      type="hidden"
+      name="part"
+      value={step === 'work' ? 'types' : 'areas'}
+    />
+    {step === 'work' ? (
+      <fieldset class="field">
+        <legend class="sr-only">{p.workTypes}</legend>
+        {view.categories.length === 0 && <p>{p.workNone}</p>}
+        <div class="picks">
+          {view.categories.map((c) => (
+            <Chip
               name={`cat_${c.id}`}
+              label={c.name}
               checked={view.chosen.has(c.id)}
-            />{' '}
-            {c.name}
-          </label>
-        </p>
-      ))}
-    </fieldset>
-    <fieldset>
-      <legend>{p.workAreas}</legend>
-      {view.areas.length === 0 && <p>{p.workNone}</p>}
-      {view.areas.map((a) => (
-        <p>
-          <strong>{a.name}</strong>:
-          <label>
-            <input
-              type="checkbox"
-              name={`shop_${a.id}`}
-              checked={view.shop.has(a.id)}
-            />{' '}
-            {p.workShop}
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              name={`serves_${a.id}`}
-              checked={view.serves.has(a.id)}
-            />{' '}
-            {p.workServes}
-          </label>
-        </p>
-      ))}
-    </fieldset>
-    <p>
-      <button type="submit">{p.save}</button>
-    </p>
+            />
+          ))}
+        </div>
+      </fieldset>
+    ) : (
+      <>
+        <fieldset class="field">
+          <legend class="sr-only">{p.workAreas}</legend>
+          {view.areas.length === 0 && <p>{p.workNone}</p>}
+          <div class="picks">
+            {view.areas.map((a) => (
+              <Chip
+                name={`serves_${a.id}`}
+                label={a.name}
+                checked={view.serves.has(a.id)}
+              />
+            ))}
+          </div>
+        </fieldset>
+        {view.areas.length > 0 && (
+          <div class="field">
+            <label for="shop_area">{g.shopWhere}</label>
+            <select id="shop_area" name="shop_area">
+              <option value="" selected={shopHere === undefined}>
+                {g.shopNone}
+              </option>
+              {view.areas.map((a) => (
+                <option value={a.id} selected={shopHere === a.id}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </>
+    )}
+    <div class="portal-actions">
+      <button type="submit">{g.saveNext}</button>
+    </div>
   </form>
+  <script>
+    import '../../scripts/portal-form';
+  </script>
 </PortalLayout>

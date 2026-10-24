@@ -1,0 +1,14 @@
+---
+interface Props {
+  id: string;
+  show: boolean;
+  text: string;
+}
+const { id, show, text } = Astro.props;
+---
+
+{show && (
+  <p class="field-error" id={`${id}-error`}>
+    {text}
+  </p>
+)}

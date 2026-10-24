@@ -2,6 +2,9 @@
 export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Flash from '../../components/admin/Flash.astro';
+import FieldError from '../../components/portal/FieldError.astro';
+import Chip from '../../components/portal/Chip.astro';
+import StepBar from '../../components/portal/StepBar.astro';
 import PortalLayout from '../../layouts/PortalLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
@@ -9,20 +12,31 @@ import { readForm } from '../../modules/http/body';
 import { verifyCsrf } from '../../modules/auth/csrf';
 import { TAILOR_COOKIE } from '../../modules/portal/session';
 import { requireTailor } from '../../modules/portal/require';
+import {
+  nextStepHref,
+  portalChecklist,
+  progressMessage,
+  savedHref,
+} from '../../modules/portal/checklist';
 import { savePortalProfile, tailorMayEdit } from '../../modules/portal/profile';
 import { getTailor } from '../../modules/tailors/repo';
 
 const auth = await requireTailor(Astro);
 if (auth instanceof Response) return auth;
 const p = en.portal;
+const g = p.guide;
 const { DB } = requireBindings(env);
 // The tailor id comes from the session only.
 const tailor = await getTailor(DB, auth.tailorId);
 if (!tailor) return new Response('Not found', { status: 404 });
+// Two steps share this page: the numbers, and everything about the work. Anything else shows "about".
+const step =
+  Astro.url.searchParams.get('step') === 'contact' ? 'contact' : 'about';
 
 let message = '';
 let kind: 'success' | 'problem' = 'success';
 let sent: FormData | null = null;
+let invalid: string[] = [];
 if (Astro.request.method === 'POST') {
   const { form, tooLarge } = await readForm(Astro.request);
   if (tooLarge) return new Response('Payload too large', { status: 413 });
@@ -34,12 +48,20 @@ if (Astro.request.method === 'POST') {
   )
     return new Response('Forbidden', { status: 403 });
   const result = await savePortalProfile(DB, auth, form);
-  if (result.ok) return Astro.redirect('/portal/profile?saved=1', 303);
+  if (result.ok) {
+    const after = await portalChecklist(DB, auth.tailorId);
+    return Astro.redirect(savedHref(nextStepHref(after, step)), 303);
+  }
   sent = form;
   kind = 'problem';
   message = result.error === 'locked' ? p.locked : p.invalid;
+  if (result.error === 'invalid') invalid = result.fields ?? [];
   Astro.response.status = result.error === 'locked' ? 403 : 422;
-} else if (Astro.url.searchParams.get('saved') === '1') message = p.saved;
+}
+
+const items = await portalChecklist(DB, auth.tailorId);
+if (!message && Astro.url.searchParams.get('saved') === '1')
+  message = `${g.saved} ${progressMessage(items)}`;
 
 const value = (name: string, stored: string | null) =>
   sent?.get(name)?.toString() ?? stored ?? '';
@@ -48,138 +70,241 @@ const home = sent
   : tailor.home_visits;
 const published = tailor.is_published === 1;
 const editable = tailorMayEdit(tailor.status);
+const bad = new Set(invalid);
+const describe = (id: string, hint = false) =>
+  bad.has(id) ? `${id}-error` : hint ? `${id}-hint` : undefined;
+const current = items.find((i) => i.key === step)!;
 ---
 
-<PortalLayout title={p.profileHeading} auth={auth}>
-  <h1>{p.profileHeading}</h1>
-  <p>{p.profileIntro}</p>
+<PortalLayout title={current.short} auth={auth}>
+  <StepBar items={items} current={step} />
+  <h1 tabindex="-1" data-step-heading>
+    {step === 'contact' ? g.contactHeading : g.aboutHeading}
+  </h1>
+  <p class="portal-lead">
+    {step === 'contact' ? g.contactHint : p.profileIntro}
+  </p>
   {message && <Flash message={message} kind={kind} />}
-  <form method="post">
+  <form method="post" class="portal-form" novalidate>
     <input type="hidden" name="csrf" value={auth.csrfToken} />
-    <p>
-      <label for="display_name">{p.displayName}</label>
-      <br />
-      <input
-        id="display_name"
-        name="display_name"
-        maxlength="120"
-        required
-        value={value('display_name', tailor.display_name)}
-        disabled={!editable}
-      />
-    </p>
-    <p>
-      <label for="description">{p.description}</label>
-      <br />
-      <span class="hint" id="description-hint">
-        {p.descriptionHint}
-      </span>
-      <br />
-      <textarea
-        id="description"
-        name="description"
-        rows="5"
-        maxlength="2000"
-        aria-describedby="description-hint"
-        disabled={!editable}
-      >{value('description', tailor.description)}</textarea>
-    </p>
-    <p>
-      <label for="shop_address_text">{p.shopAddress}</label>
-      <br />
-      <input
-        id="shop_address_text"
-        name="shop_address_text"
-        maxlength="300"
-        value={value('shop_address_text', tailor.shop_address_text)}
-        disabled={!editable}
-      />
-    </p>
-    <fieldset>
-      <legend>{p.homeVisits}</legend>
-      {(
-        [
-          ['yes', p.homeYes],
-          ['no', p.homeNo],
-          ['unknown', p.homeUnknown],
-        ] as const
-      ).map(([v, label]) => (
-        <label>
-          <input
-            type="radio"
-            name="home_visits"
-            value={v}
-            checked={home === v}
-            disabled={!editable}
-          />{' '}
-          {label}
-        </label>
-      ))}
-    </fieldset>
-    <p>
-      <label for="languages">{p.languages}</label>
-      <br />
-      <input
-        id="languages"
-        name="languages"
-        maxlength="200"
-        value={value('languages', tailor.languages)}
-        disabled={!editable}
-      />
-    </p>
-    <p>
-      <label for="price_note">{p.priceNote}</label>
-      <br />
-      <span class="hint" id="price-hint">
-        {p.priceNoteHint}
-      </span>
-      <br />
-      <input
-        id="price_note"
-        name="price_note"
-        maxlength="200"
-        aria-describedby="price-hint"
-        value={value('price_note', tailor.price_note)}
-        disabled={!editable}
-      />
-    </p>
-    {published ? (
-      <p>{p.numbersLocked}</p>
+    {step === 'contact' ? (
+      published ? (
+        <p class="card">{p.numbersLocked}</p>
+      ) : (
+        <>
+          <div class="field">
+            <label for="whatsapp">{p.whatsapp}</label>
+            <input
+              id="whatsapp"
+              name="whatsapp"
+              type="tel"
+              inputmode="tel"
+              autocomplete="tel"
+              maxlength="40"
+              placeholder="7712 3456"
+              aria-invalid={bad.has('whatsapp') ? 'true' : undefined}
+              aria-describedby={describe('whatsapp')}
+              value={value('whatsapp', tailor.whatsapp_e164)}
+              disabled={!editable}
+            />
+            <FieldError
+              id="whatsapp"
+              show={bad.has('whatsapp')}
+              text="Check this number: use digits only, for example 7712 3456."
+            />
+          </div>
+          <div class="field">
+            <label for="phone">{p.phone}</label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              inputmode="tel"
+              autocomplete="tel"
+              maxlength="40"
+              aria-invalid={bad.has('phone') ? 'true' : undefined}
+              aria-describedby={describe('phone')}
+              value={value('phone', tailor.phone_e164)}
+              disabled={!editable}
+            />
+            <FieldError
+              id="phone"
+              show={bad.has('phone')}
+              text="Check this number: use digits only, for example 7712 3456."
+            />
+          </div>
+        </>
+      )
     ) : (
       <>
-        <p class="hint">{p.numbersHint}</p>
-        <p>
-          <label for="whatsapp">{p.whatsapp}</label>
-          <br />
+        <div class="field">
+          <label for="display_name">{p.displayName}</label>
           <input
-            id="whatsapp"
-            name="whatsapp"
-            type="tel"
-            inputmode="tel"
-            maxlength="40"
-            value={value('whatsapp', tailor.whatsapp_e164)}
+            id="display_name"
+            name="display_name"
+            maxlength="120"
+            required
+            aria-invalid={bad.has('display_name') ? 'true' : undefined}
+            aria-describedby={describe('display_name')}
+            value={value('display_name', tailor.display_name)}
             disabled={!editable}
           />
-        </p>
-        <p>
-          <label for="phone">{p.phone}</label>
-          <br />
-          <input
-            id="phone"
-            name="phone"
-            type="tel"
-            inputmode="tel"
-            maxlength="40"
-            value={value('phone', tailor.phone_e164)}
-            disabled={!editable}
+          <FieldError
+            id="display_name"
+            show={bad.has('display_name')}
+            text="Write your business name."
           />
-        </p>
+        </div>
+        <div class="field">
+          <label for="description">{p.description}</label>
+          <p class="field-hint" id="description-hint">
+            {p.descriptionHint}
+          </p>
+          <textarea
+            id="description"
+            name="description"
+            rows="5"
+            maxlength="2000"
+            data-counter
+            aria-invalid={bad.has('description') ? 'true' : undefined}
+            aria-describedby={describe('description', true)}
+            disabled={!editable}
+          >{value('description', tailor.description)}</textarea>
+          <FieldError
+            id="description"
+            show={bad.has('description')}
+            text="This is too long. Please shorten it."
+          />
+          <p class="portal-count" data-counter-text aria-live="off"></p>
+          {editable && (
+            <div class="portal-suggest" data-suggest="description" hidden>
+              <p>{g.suggestHeading}</p>
+              <ul>
+                {g.suggestions.map((t) => (
+                  <li>
+                    <button type="button" class="secondary" data-add={t}>
+                      {t}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+        <details
+          class="portal-more"
+          open={
+            bad.has('shop_address_text') ||
+            bad.has('languages') ||
+            bad.has('price_note')
+          }
+        >
+          <summary>{g.moreDetails}</summary>
+          <p class="field-hint">{g.moreDetailsHint}</p>
+          <div class="field">
+            <label for="shop_address_text">{p.shopAddress}</label>
+            <input
+              id="shop_address_text"
+              name="shop_address_text"
+              maxlength="300"
+              aria-invalid={bad.has('shop_address_text') ? 'true' : undefined}
+              aria-describedby={describe('shop_address_text')}
+              value={value('shop_address_text', tailor.shop_address_text)}
+              disabled={!editable}
+            />
+            <FieldError
+              id="shop_address_text"
+              show={bad.has('shop_address_text')}
+              text="This is too long. Please shorten it."
+            />
+          </div>
+          <fieldset class="field">
+            <legend>{p.homeVisits}</legend>
+            <div class="picks">
+              {(
+                [
+                  ['yes', p.homeYes],
+                  ['no', p.homeNo],
+                  ['unknown', p.homeUnknown],
+                ] as const
+              ).map(([v, label]) => (
+                <Chip
+                  type="radio"
+                  name="home_visits"
+                  value={v}
+                  label={label}
+                  checked={home === v}
+                  disabled={!editable}
+                />
+              ))}
+            </div>
+          </fieldset>
+          <div class="field">
+            <label for="languages">{p.languages}</label>
+            <input
+              id="languages"
+              name="languages"
+              maxlength="200"
+              placeholder="Tetun, English"
+              aria-invalid={bad.has('languages') ? 'true' : undefined}
+              aria-describedby={describe('languages')}
+              value={value('languages', tailor.languages)}
+              disabled={!editable}
+            />
+            <FieldError
+              id="languages"
+              show={bad.has('languages')}
+              text="This is too long. Please shorten it."
+            />
+          </div>
+          <div class="field">
+            <label for="price_note">{p.priceNote}</label>
+            <p class="field-hint" id="price_note-hint">
+              {p.priceNoteHint}
+            </p>
+            <input
+              id="price_note"
+              name="price_note"
+              maxlength="200"
+              aria-invalid={bad.has('price_note') ? 'true' : undefined}
+              aria-describedby={describe('price_note', true)}
+              value={value('price_note', tailor.price_note)}
+              disabled={!editable}
+            />
+            <FieldError
+              id="price_note"
+              show={bad.has('price_note')}
+              text="This is too long. Please shorten it."
+            />
+            {editable && (
+              <div
+                class="portal-suggest"
+                data-suggest="price_note"
+                data-replace
+                hidden
+              >
+                <ul>
+                  {g.priceExamples.map((t) => (
+                    <li>
+                      <button type="button" class="secondary" data-add={t}>
+                        {t}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </details>
       </>
     )}
-    {editable && (
-      <p>
-        <button type="submit">{p.save}</button>
-      </p>
+    {editable && !(step === 'contact' && published) && (
+      <div class="portal-actions">
+        <button type="submit">{g.saveNext}</button>
+      </div>
     )}
   </form>
+  <script>
+    import '../../scripts/portal-form';
+  </script>
 </PortalLayout>

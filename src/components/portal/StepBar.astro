@@ -1,0 +1,36 @@
+---
+import type { PortalItem } from '../../modules/portal/checklist';
+
+interface Props {
+  items: PortalItem[];
+  current: PortalItem['key'];
+}
+const { items, current } = Astro.props;
+const at = items.findIndex((i) => i.key === current);
+const done = items.filter((i) => i.done).length;
+---
+
+<nav class="stepbar" aria-label="Your steps">
+  <ol>
+    {items.map((i, n) => (
+      <li class={i.done ? 'is-done' : undefined}>
+        <a href={i.href} aria-current={i.key === current ? 'step' : undefined}>
+          <span class="stepbar__dot" aria-hidden="true">
+            {i.done ? '✓' : n + 1}
+          </span>
+          <span class="stepbar__name">
+            {i.short}
+            <span class="sr-only">{i.done ? ' (done)' : ''}</span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ol>
+  <p class="stepbar__now">
+    Step {at + 1} of {items.length}: <strong>{items[at]?.label}</strong>
+    <span>
+      {' '}
+      · {done} of {items.length} done
+    </span>
+  </p>
+</nav>

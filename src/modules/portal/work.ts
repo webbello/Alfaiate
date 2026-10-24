@@ -42,6 +42,10 @@ export async function saveWork(
   session: TailorSession,
   form: FormData,
 ): Promise<LinkResult> {
+  // A step page posts one part; the other part is not touched. No `part` means both, as before.
+  const part = form.get('part')?.toString();
+  const doTypes = part !== 'areas';
+  const doAreas = part !== 'types';
   const tailor = await getTailor(db, session.tailorId);
   if (!tailor) return { ok: false, error: 'not_found' };
   if (!tailorMayEdit(tailor.status)) return { ok: false, error: 'locked' };
@@ -76,7 +80,8 @@ export async function saveWork(
   const activeAreaIds = new Set(activeAreas.map((a) => a.id));
   const areas: AreaEntry[] = [
     ...activeAreas.flatMap((a): AreaEntry[] => [
-      ...(form.get(`shop_${a.id}`) === 'on'
+      ...(form.get(`shop_${a.id}`) === 'on' ||
+      form.get('shop_area')?.toString() === String(a.id)
         ? [{ area_id: a.id, kind: 'shop_location' as const }]
         : []),
       ...(form.get(`serves_${a.id}`) === 'on'
@@ -88,13 +93,16 @@ export async function saveWork(
       .map((a) => ({ area_id: a.area_id, kind: a.kind })),
   ];
   // Same lock and validation as the owner's screens; the role only passes that lock, the tick-only input above decides what can change.
-  const first = await setCategories(
-    db,
-    actor,
-    'manager',
-    session.tailorId,
-    categories,
-  );
-  if (!first.ok) return first;
+  if (doTypes) {
+    const first = await setCategories(
+      db,
+      actor,
+      'manager',
+      session.tailorId,
+      categories,
+    );
+    if (!first.ok) return first;
+  }
+  if (!doAreas) return { ok: true };
   return setAreas(db, actor, 'manager', session.tailorId, areas);
 }

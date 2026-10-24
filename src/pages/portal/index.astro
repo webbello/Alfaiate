@@ -6,19 +6,28 @@ import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import Flash from '../../components/admin/Flash.astro';
 import { requireTailor } from '../../modules/portal/require';
-import { portalChecklist } from '../../modules/portal/checklist';
+import {
+  portalChecklist,
+  progressMessage,
+} from '../../modules/portal/checklist';
 import { getAccountState } from '../../modules/portal/account';
 
 const auth = await requireTailor(Astro);
 if (auth instanceof Response) return auth;
 const p = en.portal;
+const g = p.guide;
 // The tailor id comes from the session only.
 const tailor = await requireBindings(env)
   .DB.prepare(
-    'SELECT display_name, status, is_published FROM tailor WHERE id = ?',
+    'SELECT display_name, slug, status, is_published FROM tailor WHERE id = ?',
   )
   .bind(auth.tailorId)
-  .first<{ display_name: string; status: string; is_published: number }>();
+  .first<{
+    display_name: string;
+    slug: string;
+    status: string;
+    is_published: number;
+  }>();
 if (!tailor) return new Response('Not found', { status: 404 });
 const items = await portalChecklist(requireBindings(env).DB, auth.tailorId);
 const account = await getAccountState(requireBindings(env).DB, auth.tailorId);
@@ -26,7 +35,14 @@ const doneCount = items.filter((i) => i.done).length;
 const ready = items.every((i) => !i.required || i.done);
 const code = Astro.url.searchParams.get('msg') ?? '';
 const messages = p.overviewMessages as Record<string, string>;
-const note = messages[code] ?? '';
+const saved = Astro.url.searchParams.get('saved') === '1';
+const note = saved
+  ? `${g.saved} ${progressMessage(items)}`
+  : Object.hasOwn(messages, code)
+    ? messages[code]
+    : '';
+const next = items.find((i) => !i.done);
+const sent = !!account?.reviewRequestedAt;
 const status =
   tailor.is_published === 1
     ? p.statusLive
@@ -36,59 +52,110 @@ const status =
 ---
 
 <PortalLayout title={p.title} auth={auth}>
-  <h1>
-    {p.welcome}, {tailor.display_name}
-  </h1>
-  <p>{status}</p>
-  {note && (
-    <Flash message={note} kind={code === 'submitted' ? 'success' : 'problem'} />
-  )}
-  <section class="portal-progress" aria-labelledby="steps-heading">
-    <h2 id="steps-heading">{p.checklistHeading}</h2>
-    <p>
-      {doneCount} of {items.length} steps done
-    </p>
-    <progress class="progress" max={items.length} value={doneCount}>
-      {doneCount} of {items.length}
-    </progress>
+  <section class="portal-hero" aria-labelledby="hero-heading">
+    <div class={`ring ring--${doneCount}`} aria-hidden="true">
+      <span>
+        {doneCount}
+        <small>/{items.length}</small>
+      </span>
+    </div>
+    <div class="portal-hero__text">
+      <h1 id="hero-heading" tabindex="-1" data-step-heading>
+        {p.welcome}, {tailor.display_name}
+      </h1>
+      <p>
+        <strong>
+          {doneCount} of {items.length} steps done.
+        </strong>
+        {tailor.is_published === 1 ? '' : ` ${status}`}
+      </p>
+      <progress class="progress" max={items.length} value={doneCount}>
+        {doneCount} of {items.length}
+      </progress>
+      {tailor.is_published !== 1 && !sent && next && (
+        <p class="portal-hero__cta">
+          <a class="button-link button-link--primary" href={next.href}>
+            {g.nextUp}: {next.short}
+          </a>
+          <span>{g.minutes.replace('{n}', String(next.minutes))}</span>
+        </p>
+      )}
+    </div>
   </section>
-  <p>{p.checklistIntro}</p>
-  <ol class="portal-steplist">
+  {note && (
+    <Flash
+      message={note}
+      kind={code === 'submitted' || saved ? 'success' : 'problem'}
+    />
+  )}
+  {tailor.is_published === 1 && (
+    <section class="card portal-live">
+      <h2>{g.liveHeading}</h2>
+      <p>{g.liveText}</p>
+      <p>
+        <a class="button-link" href={`/tailors/${tailor.slug}`}>
+          {g.viewLive}
+        </a>
+      </p>
+    </section>
+  )}
+  <h2 id="steps-heading">{p.checklistHeading}</h2>
+  <ol class="portal-steplist" aria-labelledby="steps-heading">
     {items.map((i) => (
       <li class={i.done ? 'portal-step portal-step--done' : 'portal-step'}>
         <span class="portal-step__text">
           <strong>{i.label}</strong>
           <small>
-            {i.done ? p.done : p.todo}
-            {!i.required && ' (optional)'}
+            {i.done
+              ? p.done
+              : `${i.reason} ${g.minutes.replace('{n}', String(i.minutes))}`}
+            {!i.required && !i.done && ' · optional'}
           </small>
         </span>
         <a class="button-link" href={i.href}>
           {i.done ? 'Change' : 'Fill in'}
+          <span class="sr-only">: {i.short}</span>
         </a>
       </li>
     ))}
   </ol>
   {tailor.is_published !== 1 &&
-    (account?.reviewRequestedAt ? (
-      <p class="card portal-submit">{p.waiting}</p>
+    (sent ? (
+      <section
+        class="card portal-submit portal-sent"
+        aria-labelledby="sent-heading"
+      >
+        <h2 id="sent-heading">{g.sentHeading}</h2>
+        <p>{p.waiting}</p>
+        <ol class="portal-timeline">
+          {g.timeline.map((t, n) => (
+            <li
+              aria-current={n === 1 ? 'step' : undefined}
+              class={n === 0 ? 'is-done' : n === 1 ? 'is-now' : undefined}
+            >
+              {t}
+            </li>
+          ))}
+        </ol>
+      </section>
     ) : (
-      <form class="card portal-submit" method="post" action="/portal/submit">
+      <form
+        class={`card portal-submit${ready ? ' portal-submit--ready' : ''}`}
+        method="post"
+        action="/portal/submit"
+      >
         <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <h2>When you are finished</h2>
-        <p>
-          Press the button below. The Alfaiate TL team will look at your page,
-          and publish it once everything is right. You do not need to do
-          anything else.
-        </p>
+        <h2>{ready ? g.readyHeading : 'When you are finished'}</h2>
+        <p>{ready ? g.readyText : g.almostText}</p>
+        {ready && !items.find((i) => i.key === 'photos')?.done && (
+          <p>{g.photoNudge}</p>
+        )}
         <button type="submit" disabled={!ready}>
           {p.submit}
         </button>
-        {!ready && (
-          <p>
-            <small>Finish the steps marked "To do" first.</small>
-          </p>
-        )}
       </form>
     ))}
+  <script>
+    import '../../scripts/portal-form';
+  </script>
 </PortalLayout>

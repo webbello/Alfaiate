@@ -1,0 +1,29 @@
+---
+interface Props {
+  type?: 'checkbox' | 'radio';
+  name: string;
+  value?: string;
+  checked?: boolean;
+  disabled?: boolean;
+  label: string;
+}
+const {
+  type = 'checkbox',
+  name,
+  value,
+  checked = false,
+  disabled = false,
+  label,
+} = Astro.props;
+---
+
+<label class="pick">
+  <input
+    type={type}
+    name={name}
+    value={value}
+    checked={checked}
+    disabled={disabled}
+  />
+  <span>{label}</span>
+</label>

@@ -107,3 +107,24 @@ for (const form of document.querySelectorAll<HTMLFormElement>(
 )) {
   form.addEventListener('submit', (event) => void handle(form, event));
 }
+
+// The tailor portal's "add a photo" tile: choosing a file sends it at once, once the tailor has ticked that the photo is theirs to show.
+for (const form of document.querySelectorAll<HTMLFormElement>(
+  'form[data-auto-upload]',
+)) {
+  const input = form.querySelector<HTMLInputElement>('input[type="file"]');
+  form
+    .querySelector<HTMLButtonElement>('[data-upload-button]')
+    ?.setAttribute('hidden', '');
+  input?.addEventListener('change', () => {
+    if (!input.files?.length) return;
+    const confirm = form.elements.namedItem('confirm');
+    if (confirm instanceof HTMLInputElement && !confirm.checked) {
+      input.value = '';
+      show(form, form.dataset.msgTick ?? 'Tick the box first.');
+      confirm.focus();
+      return;
+    }
+    form.requestSubmit();
+  });
+}

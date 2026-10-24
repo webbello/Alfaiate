@@ -13,19 +13,18 @@ export function portalProfileInput(
   published: boolean,
 ): ProfileInput {
   const full = profileFromForm(form);
-  const input: ProfileInput = {
-    display_name: full.display_name,
-    description: full.description,
-    shop_address_text: full.shop_address_text,
-    home_visits: full.home_visits,
-    languages: full.languages,
-    price_note: full.price_note,
+  // A step page posts only its own fields: a field that was not sent is left as it is, never blanked.
+  const sent = <K extends keyof ProfileInput>(key: K) =>
+    form.has(key) ? { [key]: full[key] } : {};
+  return {
+    ...sent('display_name'),
+    ...sent('description'),
+    ...sent('shop_address_text'),
+    ...sent('home_visits'),
+    ...sent('languages'),
+    ...sent('price_note'),
+    ...(published ? {} : { ...sent('whatsapp'), ...sent('phone') }),
   };
-  if (!published) {
-    input.whatsapp = full.whatsapp;
-    input.phone = full.phone;
-  }
-  return input;
 }
 
 /** A suspended or archived page is the owner's to change. */
@@ -41,11 +40,13 @@ export async function savePortalProfile(
   if (!tailor) return { ok: false, error: 'not_found' };
   if (!tailorMayEdit(tailor.status)) return { ok: false, error: 'locked' };
   // The role argument only passes the repository's lock check; what can change is decided by `portalProfileInput` above.
+  const input = portalProfileInput(form, tailor.is_published === 1);
+  if (Object.keys(input).length === 0) return { ok: true }; // nothing sent (for example the numbers of a published page): nothing to write
   return updateProfile(
     db,
     { tailorAccountId: session.accountId },
     'manager',
     session.tailorId,
-    portalProfileInput(form, tailor.is_published === 1),
+    input,
   );
 }

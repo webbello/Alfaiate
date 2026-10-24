@@ -109,7 +109,10 @@ describe('profile page', () => {
       fee_terms_text: 'x',
     });
     expect(done.status).toBe(303);
-    expect(done.headers.get('location')).toBe('/portal/profile?saved=1');
+    // "Save and next": the first step still to do after this one
+    expect(done.headers.get('location')).toMatch(
+      /^\/portal\/(work\?step=types|profile\?step=contact|photos)(&|\?)saved=1$/,
+    );
     const row = await db
       .prepare(
         'SELECT display_name, description, slug, status, is_published, fee_terms_text FROM tailor WHERE id = ?',
@@ -178,8 +181,15 @@ describe('work page', () => {
         .run()
     ).meta.last_row_id;
     const page = await (await get('/portal/work', t.cookie)).text();
+    expect(page).toContain('Step 3 of 5');
     expect(page).toContain('Work Cat Fake');
-    expect(page).toContain('Work Area Fake');
+    expect(page).not.toContain('Work Area Fake'); // places are the next step
+    const places = await (
+      await get('/portal/work?step=areas', t.cookie)
+    ).text();
+    expect(places).toContain('Step 4 of 5');
+    expect(places).toContain('Work Area Fake');
+    expect(places).toContain('name="shop_area"');
     const done = await send('/portal/work', t.cookie, {
       csrf: t.csrf,
       [`cat_${cat}`]: 'on',
@@ -351,9 +361,12 @@ describe('overview and "ready for review"', () => {
       )
       .bind(t.tailorId, area)
       .run();
-    expect(await (await get('/portal', t.cookie)).text()).not.toMatch(
+    const ready = await (await get('/portal', t.cookie)).text();
+    expect(ready).not.toMatch(
       /<button type="submit" disabled>My page is ready/,
     );
+    expect(ready).toContain('You are ready!');
+    expect(ready).toContain('4 of 5 steps done');
     expect(
       (await send('/portal/submit', t.cookie, { csrf: 'bad' })).status,
     ).toBe(403);
@@ -361,6 +374,7 @@ describe('overview and "ready for review"', () => {
     expect(done.headers.get('location')).toBe('/portal?msg=submitted');
     const after = await (await get('/portal?msg=submitted', t.cookie)).text();
     expect(after).toContain('Waiting for the team');
+    expect(after).toContain('The team checks it');
     expect(after).not.toContain('action="/portal/submit"');
     const status = await db
       .prepare('SELECT status, is_published FROM tailor WHERE id = ?')

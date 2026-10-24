@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { env } from 'cloudflare:workers';
 import type { TailorSession } from '../../src/modules/portal/session';
 import {
+  nextStepHref,
   portalChecklist,
   submitForReview,
 } from '../../src/modules/portal/checklist';
@@ -88,15 +89,26 @@ describe('portalChecklist (FR-TPO-06)', () => {
     expect(
       (await portalChecklist(db, s.tailorId)).map((i) => [i.key, i.done]),
     ).toEqual([
+      ['contact', false],
       ['about', false],
       ['work', false],
       ['areas', false],
-      ['contact', false],
       ['photos', false],
     ]);
     await complete(s);
     const items = await portalChecklist(db, s.tailorId);
     expect(items.filter((i) => i.required).every((i) => i.done)).toBe(true);
+    expect(nextStepHref(items, 'contact')).toBe('/portal/photos');
+    // the next step still to do comes after this one, and only then earlier ones
+    const only = (open: string[]) =>
+      items.map((i) => ({ ...i, done: !open.includes(i.key) }));
+    expect(nextStepHref(only(['contact', 'areas']), 'about')).toBe(
+      '/portal/work?step=areas',
+    );
+    expect(nextStepHref(only(['contact', 'work']), 'work')).toBe(
+      '/portal/profile?step=contact',
+    );
+    expect(nextStepHref(items, 'photos')).toBe('/portal');
     expect(items.find((i) => i.key === 'photos')).toMatchObject({
       done: false,
       required: false,

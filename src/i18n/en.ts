@@ -79,7 +79,7 @@ export const en = {
     photosShownNote: 'Shown on your page',
     photoFile: 'Choose a photo',
     photoAlt:
-      'Describe the photo in a few words (for people who cannot see it)',
+      'Describe the photo in a few words (optional, for people who cannot see it)',
     photoCaption: 'Caption (optional)',
     photoConfirm:
       'These are photos of my own work and I agree they may be shown on my page.',
@@ -125,6 +125,52 @@ export const en = {
     statusDraft: 'Your page is a draft. Customers cannot see it yet.',
     statusLive: 'Your page is live on the website.',
     statusPaused: 'Your page is not shown on the website at the moment.',
+    guide: {
+      nextUp: 'Next step',
+      minutes: 'about {n} min',
+      readyHeading: 'You are ready!',
+      readyText:
+        'Everything customers need is filled in. Press the button and the Alfaiate TL team will look at your page and publish it. You do not need to do anything else.',
+      almostText:
+        'Finish the steps above, then you can tell the team your page is ready.',
+      photoNudge:
+        'Tip: pages with photos get more attention. You can add them now or later.',
+      sentHeading: 'Sent. Thank you!',
+      timeline: ['You sent your page', 'The team checks it', 'It goes live'],
+      liveHeading: 'Your page is live',
+      liveText: 'Customers can find you on the website.',
+      viewLive: 'See your public page',
+      saveNext: 'Save and next',
+      suggestHeading: 'Tap to add a sentence',
+      suggestions: [
+        'I make clothes by hand, with care for every customer.',
+        'I have been sewing for many years.',
+        'I can make or repair shirts, dresses and trousers.',
+        'Bring your cloth, or I can help you choose.',
+      ],
+      priceExamples: ['Shirts from $10', 'Repairs from $2', 'Dresses from $25'],
+      moreDetails: 'More details (optional)',
+      moreDetailsHint:
+        'Your shop address, languages and a price guide help customers decide.',
+      shopWhere: 'Where is your shop?',
+      shopNone: 'I have no shop',
+      areasHeading: 'Where do you work?',
+      areasHint: 'Tap every place you serve.',
+      typesHeading: 'What do you make?',
+      typesHint: 'Tap everything that fits. You can change this at any time.',
+      contactHeading: 'How can customers reach you?',
+      contactHint:
+        'Add your WhatsApp number, or a phone number, or both. Customers see them only after the team has checked and published your page.',
+      aboutHeading: 'Tell customers about you',
+      addPhotoHeading: 'Add a photo of your work',
+      addPhotoTap: 'Tap here to choose a photo',
+      addPhotoHint:
+        'Tick the box first, then choose a photo. It is added at once.',
+      addPhotoTickFirst: 'Tick the box first, then choose your photo.',
+      details: 'Add details',
+      saved: 'Your answers are saved.',
+      allRequired: 'Your page is ready to send.',
+    },
   },
   adminLoginFailed: 'Email or password is incorrect.',
   adminLoginLimited: 'Too many attempts. Try again in a few minutes.',
@@ -208,8 +254,13 @@ export const en = {
   publishSaveVerified: 'Save verified facts',
   publishNow: 'Publish',
   publishUnpublish: 'Unpublish',
-  publishBlockedIntro: 'Not published yet. These still need doing:',
+  publishBlockedIntro:
+    'Not published yet. The “Ready to publish?” checklist above shows what is still missing.',
   publishReady: 'Ready to publish.',
+  publishApprovedAlready: 'Already approved. Nothing to do here.',
+  publishRemoveHeading: 'Remove from public view',
+  publishRemoveHelp:
+    'Withdrawing the recorded permission unpublishes this tailor, clears the consent to show their number, and takes their photos off the public page until permission is recorded again for each photo. Only do this if the tailor asks to be removed.',
   publishFields: {
     permission_note: 'How and when permission was given',
     permission_date: 'Date permission was given',
@@ -336,8 +387,7 @@ export const en = {
       'A product needs a description before it can be published.',
     published: 'Published.',
     unpublished: 'Unpublished.',
-    blocked:
-      'This tailor cannot be published yet. Each missing piece is listed below, with where to fix it.',
+    blocked: 'This tailor cannot be published yet.',
     invalid_state:
       'This tailor is archived or suspended and cannot be approved.',
     needs_contact:

@@ -2,73 +2,48 @@
 export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Flash from '../../components/admin/Flash.astro';
+import StepBar from '../../components/portal/StepBar.astro';
 import PortalLayout from '../../layouts/PortalLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { MAX_IMAGES } from '../../modules/media/store';
 import { portalImages } from '../../modules/portal/photos';
 import { requireTailor } from '../../modules/portal/require';
+import { portalChecklist } from '../../modules/portal/checklist';
 
 const auth = await requireTailor(Astro);
 if (auth instanceof Response) return auth;
 const p = en.portal;
+const g = p.guide;
 const images = await portalImages(requireBindings(env).DB, auth);
+const items = await portalChecklist(requireBindings(env).DB, auth.tailorId);
 const code = Astro.url.searchParams.get('msg') ?? '';
 const messages = p.photoMessages as Record<string, string>;
-const message = code ? (messages[code] ?? messages.other) : '';
+const message = code
+  ? Object.hasOwn(messages, code)
+    ? messages[code]
+    : messages.other
+  : '';
 const good = ['uploaded', 'removed', 'saved'].includes(code);
 ---
 
 <PortalLayout title={p.photosHeading} auth={auth}>
-  <h1>{p.photosHeading}</h1>
-  <p>{p.photosIntro}</p>
+  <StepBar items={items} current="photos" />
+  <h1 tabindex="-1" data-step-heading>
+    {p.photosHeading}
+  </h1>
+  <p class="portal-lead">{p.photosIntro}</p>
   {message && <Flash message={message} kind={good ? 'success' : 'problem'} />}
-  {images.length === 0 && <p>{p.photosNone}</p>}
-  <ul>
-    {images.map((image) => (
-      <li>
-        <img
-          src={`/portal/media/tailor/${auth.tailorId}/${image.file_key}/thumb.jpg`}
-          alt={image.alt_text}
-          width="160"
-          loading="lazy"
-        />
-        <p>{image.is_visible ? p.photosShownNote : p.photosHiddenNote}</p>
-        <form method="post" action="/portal/photos/save">
-          <input type="hidden" name="csrf" value={auth.csrfToken} />
-          <input type="hidden" name="action" value="details" />
-          <input type="hidden" name="image_id" value={image.id} />
-          <input
-            name="alt_text"
-            value={image.alt_text}
-            maxlength="200"
-            required
-            aria-label={p.photoAlt}
-          />
-          <input
-            name="caption"
-            value={image.caption ?? ''}
-            maxlength="200"
-            aria-label={p.photoCaption}
-          />
-          <button type="submit">{p.photoSaveDetails}</button>
-        </form>
-        <form method="post" action="/portal/photos/save">
-          <input type="hidden" name="csrf" value={auth.csrfToken} />
-          <input type="hidden" name="action" value="delete" />
-          <input type="hidden" name="image_id" value={image.id} />
-          <button type="submit">{p.photoRemove}</button>
-        </form>
-      </li>
-    ))}
-  </ul>
   {images.length < MAX_IMAGES && (
     <>
       <form
+        class="portal-form portal-upload"
         method="post"
         action="/portal/photos/upload"
         enctype="multipart/form-data"
         data-photo-upload
+        data-auto-upload
+        data-msg-tick={g.addPhotoTickFirst}
         data-msg-choose={en.photosChoose}
         data-msg-type={en.photosBadType}
         data-msg-empty={en.photosEmpty}
@@ -77,38 +52,102 @@ const good = ['uploaded', 'removed', 'saved'].includes(code);
         data-msg-failed={en.photosFailed}
       >
         <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <p>
-          <label for="photo-file">{p.photoFile}</label>
-          <br />
-          <input
-            id="photo-file"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            required
-          />
-        </p>
-        <p>
-          <label for="photo-alt">{p.photoAlt}</label>
-          <br />
-          <input id="photo-alt" name="alt_text" maxlength="200" required />
-        </p>
-        <p>
-          <label for="photo-caption">{p.photoCaption}</label>
-          <br />
-          <input id="photo-caption" name="caption" maxlength="200" />
-        </p>
-        <p>
-          <label>
-            <input type="checkbox" name="confirm" value="yes" required />{' '}
-            {p.photoConfirm}
-          </label>
-        </p>
+        <h2>{g.addPhotoHeading}</h2>
+        <label class="pick pick--wide">
+          <input type="checkbox" name="confirm" value="yes" required />
+          <span>{p.photoConfirm}</span>
+        </label>
+        <label class="portal-drop" for="photo-file">
+          <span class="portal-drop__icon" aria-hidden="true">
+            +
+          </span>
+          <span>{g.addPhotoTap}</span>
+          <small>{g.addPhotoHint}</small>
+        </label>
+        <input
+          id="photo-file"
+          class="sr-only"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          required
+        />
+        <details class="portal-more">
+          <summary>{g.details}</summary>
+          <div class="field">
+            <label for="photo-alt">{p.photoAlt}</label>
+            <input id="photo-alt" name="alt_text" maxlength="200" />
+          </div>
+          <div class="field">
+            <label for="photo-caption">{p.photoCaption}</label>
+            <input id="photo-caption" name="caption" maxlength="200" />
+          </div>
+        </details>
         <p role="status" data-upload-status></p>
-        <button type="submit">{p.photoUpload}</button>
+        <button type="submit" data-upload-button>
+          {p.photoUpload}
+        </button>
       </form>
       <script>
         import '../../scripts/image-upload';
+        import '../../scripts/portal-form';
       </script>
     </>
   )}
+  {images.length === 0 && <p class="card">{p.photosNone}</p>}
+  <ul class="portal-photos">
+    {images.map((image) => (
+      <li class="card">
+        <img
+          src={`/portal/media/tailor/${auth.tailorId}/${image.file_key}/thumb.jpg`}
+          alt={image.alt_text}
+          width="160"
+          loading="lazy"
+        />
+        <p class={image.is_visible ? 'badge badge--ok' : 'badge'}>
+          {image.is_visible ? p.photosShownNote : p.photosHiddenNote}
+        </p>
+        <details class="portal-more">
+          <summary>{g.details}</summary>
+          <form class="portal-form" method="post" action="/portal/photos/save">
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <input type="hidden" name="action" value="details" />
+            <input type="hidden" name="image_id" value={image.id} />
+            <div class="field">
+              <label for={`alt-${image.id}`}>{p.photoAlt}</label>
+              <input
+                id={`alt-${image.id}`}
+                name="alt_text"
+                value={image.alt_text}
+                maxlength="200"
+                required
+              />
+            </div>
+            <div class="field">
+              <label for={`cap-${image.id}`}>{p.photoCaption}</label>
+              <input
+                id={`cap-${image.id}`}
+                name="caption"
+                value={image.caption ?? ''}
+                maxlength="200"
+              />
+            </div>
+            <button type="submit">{p.photoSaveDetails}</button>
+          </form>
+        </details>
+        <form method="post" action="/portal/photos/save">
+          <input type="hidden" name="csrf" value={auth.csrfToken} />
+          <input type="hidden" name="action" value="delete" />
+          <input type="hidden" name="image_id" value={image.id} />
+          <button type="submit" class="secondary">
+            {p.photoRemove}
+          </button>
+        </form>
+      </li>
+    ))}
+  </ul>
+  <p class="portal-actions">
+    <a class="button-link button-link--primary" href="/portal">
+      Back to my overview
+    </a>
+  </p>
 </PortalLayout>

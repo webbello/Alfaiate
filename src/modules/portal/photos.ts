@@ -41,7 +41,8 @@ export async function uploadPortalPhoto(
   StoreResult | { ok: false; error: 'locked' | 'not_confirmed' | 'limited' }
 > {
   if (!input.confirmed) return { ok: false, error: 'not_confirmed' };
-  if (!(await gate(b, session))) return { ok: false, error: 'locked' };
+  const tailor = await gate(b, session);
+  if (!tailor) return { ok: false, error: 'locked' };
   if (
     (await hit(b.DB, `portal:upload:${session.tailorId}`, 3600, now)) >
     UPLOADS_PER_HOUR
@@ -53,6 +54,10 @@ export async function uploadPortalPhoto(
     session.tailorId,
     {
       ...input,
+      // A tailor who writes nothing gets a plain description, so no photo is stored without alt text.
+      alt_text:
+        input.alt_text.trim() ||
+        `Clothes made by ${tailor.display_name}`.slice(0, 200),
       // Hidden and with the tailor's confirmation from the very first insert: no moment where the row is visible.
       initial: {
         visible: false,

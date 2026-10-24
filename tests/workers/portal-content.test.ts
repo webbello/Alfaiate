@@ -276,6 +276,51 @@ describe('work types and areas (FR-TPO-04)', () => {
     v = await workView(db, s.tailorId);
     expect([v.chosen.size, v.shop.size, v.serves.size]).toEqual([0, 0, 0]);
   });
+  it('saves one part at a time: a step page never clears the other part, and the shop drop-down sets the shop place', async () => {
+    const s = await make();
+    const c = await catalog();
+    await saveWork(
+      db,
+      s,
+      form({
+        part: 'types',
+        [`cat_${c.cat}`]: 'on',
+      }),
+    );
+    await saveWork(
+      db,
+      s,
+      form({
+        part: 'areas',
+        shop_area: String(c.area),
+        [`serves_${c.area}`]: 'on',
+      }),
+    );
+    let v = await workView(db, s.tailorId);
+    expect(v.chosen.has(c.cat)).toBe(true);
+    expect(v.shop.has(c.area) && v.serves.has(c.area)).toBe(true);
+    // the types step again: places are untouched; the places step with no shop and no ticks clears only places
+    await saveWork(db, s, form({ part: 'types' }));
+    v = await workView(db, s.tailorId);
+    expect([v.chosen.size, v.shop.size, v.serves.size]).toEqual([0, 1, 1]);
+    await saveWork(db, s, form({ part: 'areas', shop_area: '' }));
+    v = await workView(db, s.tailorId);
+    expect([v.shop.size, v.serves.size]).toEqual([0, 0]);
+  });
+  it('leaves a profile field alone when its step did not send it', async () => {
+    const s = await make();
+    await savePortalProfile(
+      db,
+      s,
+      form({ display_name: 'Keep Name', description: 'Keep words' }),
+    );
+    await savePortalProfile(db, s, form({ whatsapp: '7799 0000' }));
+    expect(await row(s.tailorId)).toMatchObject({
+      display_name: 'Keep Name',
+      description: 'Keep words',
+      whatsapp_e164: '+67077990000',
+    });
+  });
   it('keeps prices and a verified price when only ticks change, and cannot verify anything', async () => {
     const s = await make();
     const c = await catalog();
@@ -439,15 +484,11 @@ describe('photos (FR-TPO-05)', () => {
       .first();
     expect(a).toEqual({ admin_user_id: null, tailor_account_id: s.accountId });
   });
-  it('needs the confirmation, a description and valid photos, and is limited per hour', async () => {
+  it('needs the confirmation and valid photos, and is limited per hour', async () => {
     const s = await make();
     expect(await up(s, { confirmed: false })).toEqual({
       ok: false,
       error: 'not_confirmed',
-    });
-    expect(await up(s, { alt_text: '' })).toMatchObject({
-      ok: false,
-      error: 'invalid',
     });
     expect(
       await up(s, {
@@ -462,6 +503,16 @@ describe('photos (FR-TPO-05)', () => {
         .bind(s.tailorId)
         .first<{ c: number }>())!.c,
     ).toBe(0);
+  });
+  it('describes a photo for the tailor when they write nothing, so none is stored without alt text', async () => {
+    const s = await make();
+    const r = await up(s, { alt_text: '   ' });
+    expect(r).toMatchObject({ ok: true });
+    const row = await db
+      .prepare('SELECT alt_text FROM portfolio_image WHERE tailor_id = ?')
+      .bind(s.tailorId)
+      .first<{ alt_text: string }>();
+    expect(row!.alt_text).toMatch(/^Clothes made by /);
   });
   it('counts uploads per hour per tailor and then refuses more', async () => {
     const spam = await make();

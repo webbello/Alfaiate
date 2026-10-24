@@ -1,5 +1,6 @@
 ---
 import '../styles/admin.css';
+import '../styles/portal.css';
 import AdminIcon from '../components/admin/AdminIcon.astro';
 import { en } from '../i18n/en';
 
@@ -14,9 +15,6 @@ const p = en.portal;
 const path = Astro.url.pathname.replace(/\/+$/, '') || '/portal';
 const links = [
   { href: '/portal', label: p.overview },
-  { href: '/portal/profile', label: p.profileNav },
-  { href: '/portal/work', label: p.workNav },
-  { href: '/portal/photos', label: p.photosNav },
   { href: '/portal/products', label: 'Products' },
 ];
 ---
@@ -45,7 +43,7 @@ const links = [
               </span>
               {p.brand}
             </a>
-            <nav class="portal-steps" aria-label="Your page">
+            <nav class="portal-steps" aria-label="Portal">
               {links.map((l) => (
                 <a
                   href={l.href}

@@ -49,23 +49,39 @@ test('a tailor joins, is approved, fills in their page, adds a photo and asks fo
   ).toBeDisabled();
   expect(await violationsOf(page)).toEqual([]);
 
-  await page.getByRole('link', { name: 'About you', exact: true }).click();
+  // The guided steps: each one says where the tailor is and "Save and next" moves on.
+  await page.getByRole('link', { name: /Next step: Contact/ }).click();
+  await expect(page.getByText(/Step 1 of 5/)).toBeVisible();
+  await page.getByLabel('WhatsApp number').fill('7712 3499');
+  expect(await violationsOf(page)).toEqual([]);
+  await page.getByRole('button', { name: 'Save and next' }).click();
+
+  await expect(page.getByText(/Step 2 of 5/)).toBeVisible();
+  await expect(page.getByText(/1 of 5 steps done/)).toBeVisible();
   await page
     .getByLabel('About your work')
     .fill('I make fake shirts for tests.');
-  await page.getByLabel('WhatsApp number').fill('7712 3499');
-  await page.getByRole('button', { name: 'Save' }).click();
-  await expect(page.getByText('Saved.')).toBeVisible();
+  await page
+    .getByRole('button', { name: /I have been sewing for many years/ })
+    .click();
+  await expect(page.getByLabel('About your work')).toHaveValue(
+    /fake shirts for tests\. I have been sewing/,
+  );
   expect(await violationsOf(page)).toEqual([]);
+  await page.getByRole('button', { name: 'Save and next' }).click();
 
-  await page.getByRole('link', { name: 'What you make', exact: true }).click();
+  await expect(page.getByText(/Step 3 of 5/)).toBeVisible();
   await page.locator('input[name^="cat_"]').first().check();
-  await page.locator('input[name^="shop_"]').first().check();
-  await page.getByRole('button', { name: 'Save' }).click();
-  await expect(page.getByText('Saved.')).toBeVisible();
   expect(await violationsOf(page)).toEqual([]);
+  await page.getByRole('button', { name: 'Save and next' }).click();
 
-  await page.getByRole('link', { name: 'Photos', exact: true }).click();
+  await expect(page.getByText(/Step 4 of 5/)).toBeVisible();
+  await page.locator('input[name^="serves_"]').first().check();
+  await page.locator('#shop_area').selectOption({ index: 1 });
+  expect(await violationsOf(page)).toEqual([]);
+  await page.getByRole('button', { name: 'Save and next' }).click();
+
+  await expect(page.getByText(/Step 5 of 5/)).toBeVisible();
   const png = await page.evaluate(async () => {
     const canvas = document.createElement('canvas');
     canvas.width = 1600;
@@ -81,17 +97,12 @@ test('a tailor joins, is approved, fills in their page, adds a photo and asks fo
     for (const b of bytes) text += String.fromCharCode(b);
     return btoa(text);
   });
+  await page.getByLabel(/These are photos of my own work/).check();
   await page.locator('#photo-file').setInputFiles({
     name: 'fake.png',
     mimeType: 'image/png',
     buffer: Buffer.from(png, 'base64'),
   });
-  await page
-    .getByLabel(/Describe the photo/)
-    .first()
-    .fill('A plain blue fake shirt');
-  await page.getByLabel(/These are photos of my own work/).check();
-  await page.getByRole('button', { name: 'Add photo' }).click();
   await expect(page.getByText(/Photo added/)).toBeVisible();
   await expect(page.getByText('Waiting for the team')).toBeVisible();
   expect(await violationsOf(page)).toEqual([]);
@@ -112,11 +123,34 @@ test('a tailor joins, is approved, fills in their page, adds a photo and asks fo
   await page.goto('/portal');
 
   await page.getByRole('link', { name: 'Overview', exact: true }).click();
+  await expect(page.getByText('You are ready!')).toBeVisible();
+  expect(await violationsOf(page)).toEqual([]);
   await page.getByRole('button', { name: /My page is ready/ }).click();
   await expect(page.getByText('Thank you. We have been told')).toBeVisible();
   await expect(
     page.getByText('Waiting for the team to look at your page.'),
   ).toBeVisible();
+  expect(await violationsOf(page)).toEqual([]);
+  // a small phone: nothing scrolls sideways on the overview or a step
+  await page.setViewportSize({ width: 320, height: 640 });
+  for (const path of [
+    '/portal',
+    '/portal/profile?step=about',
+    '/portal/photos',
+  ]) {
+    await page.goto(path);
+    expect(
+      await page.evaluate(() =>
+        [...document.querySelectorAll('main *')]
+          .filter(
+            (e) => e.getBoundingClientRect().right > window.innerWidth + 1,
+          )
+          .map((e) => `${e.tagName.toLowerCase()}.${e.className}`),
+      ),
+      path,
+    ).toEqual([]);
+    expect(await violationsOf(page), path).toEqual([]);
+  }
 
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page).toHaveURL(/\/portal\/login$/);

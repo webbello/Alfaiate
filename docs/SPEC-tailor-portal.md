@@ -2,6 +2,8 @@
 
 Status: **DRAFT, awaiting owner approval. No code written.** · Requested by the owner 2026-10-21 · Not in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) (would sit before Phase 8, or after launch: see Open Question 1) · Related: PRD §7.3 and §7.4, BR-05, BR-06, BR-09, BR-11, FR-JOIN-01..03, FR-PRO-*, SEC-*, AC-09, AC-10, PRV-*
 
+> 2026-10-24: the screens were redesigned as guided steps (contact, about, what you make, where you work, photos; progress, "Save and next", tap choices). Same routes, rules and permissions; see [SPEC-portal-revamp.md](SPEC-portal-revamp.md).
+
 ## Objective
 
 Today a tailor who taps "Join us" only leaves a number (FR-JOIN-01); the owner phones them, then types the whole profile and uploads photos in the admin. The owner wants this to be self-service and easy:

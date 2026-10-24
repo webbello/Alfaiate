@@ -1,0 +1,416 @@
+/* ---- Tailor portal, guided steps: progress ring, step bar, tap choices, photo tile ---- */
+.portal-lead {
+  max-width: 40rem;
+  margin: 0.25rem 0 1rem;
+  color: var(--text);
+  font-size: 1.05rem;
+}
+.portal-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  margin: 0 0 1.25rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, var(--accent-soft), var(--surface));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.portal-hero__text {
+  flex: 1 1 16rem;
+}
+.portal-hero__text h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+.portal-hero__text p {
+  margin: 0 0 0.25rem;
+}
+.portal-hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.9rem !important;
+}
+.portal-hero__cta .button-link {
+  min-height: 3rem;
+  padding: 0 1.4rem;
+  font-size: 1.05rem;
+}
+.ring {
+  --pct: 0%;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, var(--surface) 78%, transparent 80%),
+    conic-gradient(#2fa36b var(--pct), var(--line) 0);
+  color: var(--ink);
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+.ring small {
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 500;
+}
+.ring--0 {
+  --pct: 0%;
+}
+.ring--1 {
+  --pct: 20%;
+}
+.ring--2 {
+  --pct: 40%;
+}
+.ring--3 {
+  --pct: 60%;
+}
+.ring--4 {
+  --pct: 80%;
+}
+.ring--5 {
+  --pct: 100%;
+}
+
+.portal-step--done::before {
+  animation: portal-pop 0.4s ease-out;
+}
+@keyframes portal-pop {
+  from {
+    transform: scale(0.4);
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.stepbar {
+  margin: 0 0 1rem;
+}
+.stepbar ol {
+  display: flex;
+  gap: 0.25rem;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stepbar li {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.stepbar a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  min-height: 2.75rem;
+  padding: 0.3rem 0.1rem;
+  color: var(--text);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  text-align: center;
+  text-decoration: none;
+}
+.stepbar a:hover {
+  background: var(--band);
+}
+.stepbar__dot {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--link);
+  background: var(--accent-soft);
+  border: 2px solid transparent;
+  border-radius: 50%;
+  font-weight: 700;
+}
+.stepbar .is-done .stepbar__dot {
+  color: var(--ok);
+  background: var(--ok-soft);
+}
+.stepbar a[aria-current='step'] .stepbar__dot {
+  border-color: var(--link);
+}
+.stepbar a[aria-current='step'] .stepbar__name {
+  font-weight: 700;
+  color: var(--ink);
+}
+.stepbar__name {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 40rem) {
+  /* hidden from the eye but still the link's name */
+  .stepbar a:not([aria-current='step']) .stepbar__name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+.stepbar__now {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+}
+.portal-main h1[tabindex='-1']:focus {
+  outline: none;
+}
+.portal-form {
+  display: grid;
+  gap: 1rem;
+  max-width: 36rem;
+}
+.portal-form .field {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.portal-form .field > label,
+.portal-form .field > legend {
+  font-weight: 650;
+  color: var(--ink);
+}
+.portal-form input:not([type='checkbox'], [type='radio']),
+.portal-form select,
+.portal-form textarea {
+  width: 100%;
+  max-width: none;
+  min-height: 3rem;
+  font-size: 1.05rem;
+}
+.portal-count {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.portal-suggest ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  max-width: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.portal-suggest p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.portal-suggest button {
+  min-height: 2.75rem;
+  font-weight: 500;
+  text-align: left;
+}
+.portal-more {
+  padding: 0.25rem 0;
+}
+.portal-more > summary {
+  min-height: 2.75rem;
+  padding: 0.6rem 0;
+  color: var(--link);
+  font-weight: 650;
+  cursor: pointer;
+}
+.portal-more[open] > summary {
+  margin-bottom: 0.5rem;
+}
+.portal-more > .field {
+  margin-bottom: 1rem;
+}
+.picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.pick {
+  position: relative;
+  display: inline-flex;
+  margin: 0;
+}
+.pick > input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.pick > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.9rem;
+  padding: 0 1rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  font-weight: 500;
+}
+.pick > span::before {
+  content: '';
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+}
+.pick > input:checked + span {
+  color: var(--ok);
+  background: var(--ok-soft);
+  border-color: var(--ok);
+  font-weight: 650;
+}
+.pick > input:checked + span::before {
+  content: '\2713';
+  display: grid;
+  place-items: center;
+  color: var(--accent-ink);
+  background: var(--ok);
+  border-color: var(--ok);
+  font-size: 0.8rem;
+  line-height: 1;
+}
+.pick > input:focus-visible + span {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.pick > input:disabled + span {
+  opacity: 0.6;
+}
+.pick--wide > span {
+  border-radius: var(--radius);
+  padding: 0.6rem 1rem;
+}
+.portal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.5rem 0 0;
+}
+.portal-actions button,
+.portal-actions .button-link {
+  min-height: 3rem;
+  padding: 0 1.6rem;
+  font-size: 1.05rem;
+}
+.portal-drop {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  padding: 1.75rem 1rem;
+  color: var(--ink);
+  background: var(--accent-soft);
+  border: 2px dashed var(--link);
+  border-radius: var(--radius-lg);
+  font-weight: 650;
+  text-align: center;
+  cursor: pointer;
+}
+.portal-drop small {
+  color: var(--muted);
+  font-weight: 400;
+}
+.portal-drop__icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-radius: 50%;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+.portal-upload:has(#photo-file:focus-visible) .portal-drop {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.portal-photos {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  max-width: none;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+.portal-photos img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+.badge {
+  display: inline-block;
+  margin: 0.4rem 0;
+  padding: 0.1rem 0.6rem;
+  color: var(--warn);
+  background: var(--warn-soft);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.badge--ok {
+  color: var(--ok);
+  background: var(--ok-soft);
+}
+.portal-submit--ready {
+  background: var(--ok-soft);
+  border-color: var(--ok-line);
+}
+.portal-submit--ready button {
+  min-height: 3rem;
+  font-size: 1.05rem;
+}
+.portal-timeline {
+  display: grid;
+  gap: 0.5rem;
+  max-width: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.portal-timeline li {
+  padding: 0.5rem 0.9rem;
+  color: var(--muted);
+  background: var(--band);
+  border-radius: var(--radius);
+}
+.portal-timeline li.is-done {
+  color: var(--ok);
+  background: var(--ok-soft);
+}
+.portal-timeline li.is-done::before {
+  content: '\2713 ';
+}
+.portal-timeline li.is-now {
+  color: var(--ink);
+  background: var(--accent-soft);
+  font-weight: 650;
+}
+.portal-live {
+  margin: 0 0 1.25rem;
+}
+.portal-upload {
+  position: relative;
+}
+.portal-upload > input[type='file'] {
+  top: 0;
+  left: 0;
+  max-width: 1px;
+}
