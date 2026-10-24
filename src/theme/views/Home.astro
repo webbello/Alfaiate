@@ -278,7 +278,7 @@ import MotionScript from '../components/layout/MotionScript.astro';
                   const image = scene(work.image);
                   return (
                     <div class:list={['works-thumb-wrap', `is-${['one', 'two', 'three', 'four'][i]}`]}>
-                      <img src={image.src} srcset={image.srcset} sizes="(min-width: 992px) 40vw, 90vw" width={image.width} height={image.height} alt="" class="works-thumb" loading="lazy" decoding="async" />
+                      <img src={image.src} srcset={image.srcset} sizes="100vw" width={image.width} height={image.height} alt="" class="works-thumb" loading="lazy" decoding="async" />
                     </div>
                   );
                 })

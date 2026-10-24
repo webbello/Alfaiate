@@ -34,5 +34,23 @@ for (const [width, height] of [
     expect(later.stickyTop).toBe(start.stickyTop);
     expect(later.titles).toBeLessThan(start.titles);
     expect(later.firstPhotoLeft).toBeLessThan(start.firstPhotoLeft);
+
+    // At every step through the section a slide covers a good part of the viewport and is already loaded (no blank frame, even after a jump).
+    for (let i = 0; i <= 8; i++) {
+      await page.evaluate((y) => scrollTo(0, y), top + (i * (height * 3 - 10)) / 8);
+      await expect
+        .poll(
+          () =>
+            page.evaluate(() =>
+              [...document.querySelectorAll<HTMLImageElement>('.works-thumb')].some((im) => {
+                const r = im.getBoundingClientRect();
+                const seen = Math.max(0, Math.min(r.right, innerWidth) - Math.max(r.left, 0)) * Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0));
+                return im.complete && im.naturalWidth > 0 && seen > 0.3 * innerWidth * innerHeight;
+              }),
+            ),
+          { message: `a loaded slide is in view at step ${i}`, timeout: 1500 },
+        )
+        .toBe(true);
+    }
   });
 }

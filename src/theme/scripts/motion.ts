@@ -324,6 +324,14 @@ function initWorks(): void {
       schedule();
     });
 
+    // The slides are full-screen layers that move without the browser's lazy-loading seeing them arrive: once the page has loaded and is idle,
+    // fetch them all, so a slide is never blank while the reader scrolls through the pinned section.
+    const loadSlides = () =>
+      section.querySelectorAll<HTMLImageElement>('.works-thumb').forEach((img) => (img.loading = 'eager'));
+    const afterLoad = () => ('requestIdleCallback' in window ? requestIdleCallback(loadSlides) : setTimeout(loadSlides, 200));
+    if (document.readyState === 'complete') afterLoad();
+    else window.addEventListener('load', afterLoad, { once: true });
+
     const link = section.querySelector<HTMLElement>('.works-button-block');
     const button = link?.firstElementChild as HTMLElement | null;
     if (!link || !button || !matchMedia('(hover: hover) and (pointer: fine)').matches) continue;
