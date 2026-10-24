@@ -35,6 +35,7 @@ export const tet: Dictionary = {
     exploreLabel: 'Esplora sítiu',
     support: 'Apoiu',
     contact: 'Kontaktu',
+    tailorSignIn: 'Alfaiate: tama',
     closing: 'Halo ba Ita-nia Estilu. Liga ho Ami-nia Komunidade.',
     social: {
       facebook: 'Facebook',
@@ -487,6 +488,8 @@ export const tet: Dictionary = {
     thanksHeading: 'Obrigadu, ami simu ona ita-nia detalle',
     thanksBody:
       'Ami sei kontaktu ita iha númeru neʼebé ita fó. Ami la bele promete bainhira.',
+    signInNote:
+      'Se ami aprova ita, ami haruka link atu tama liuhusi WhatsApp. Ita bele tama fali ho “Alfaiate: tama” iha pájina hotu-hotu nia kraik.',
     banner: {
       heading: 'Ita alfaiate?',
       body: 'Hatete mai ami katak ita interese no ami sei telefone atu koalia.',

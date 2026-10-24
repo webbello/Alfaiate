@@ -157,3 +157,8 @@ Status: **not reviewed.** The Tetun below was written by the assistant during th
 ## Request page revamp (2026-10-24)
 
 New `request` lines in `src/i18n/public/tet.ts` (unreviewed): `areaText` (reworded), `areaHint`, `whenPick`, `whenAsap`, `whenWeek`, `whenFlexible` (check the spelling "fleksivel"), `whenDay`, `notesIdeasHeading`, `notesIdeas` (four sentences separated by `|`), `next1`, `next2`, `next3`, `nextLabel`.
+
+
+## Tailor sign-in link (2026-10-24)
+
+New lines in `src/i18n/public/tet.ts` (unreviewed): `footer.tailorSignIn` ("Alfaiate: tama") and `join.signInNote`.

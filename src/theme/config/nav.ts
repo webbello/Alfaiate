@@ -49,6 +49,8 @@ export function shellNav(t: Dictionary, lang: Lang) {
         { label: t.nav.journal, href: to('/journal') },
         { label: t.nav.gallery, href: to('/gallery') },
         { label: t.footer.contact, href: to('/contact') },
+        // the portal is English only for now, so both languages go to the same sign-in page
+        { label: t.footer.tailorSignIn, href: '/portal/login' },
         { label: t.footer.privacy, href: to('/privacy') },
         { label: t.footer.terms, href: to('/terms') },
       ],

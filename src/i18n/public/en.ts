@@ -30,6 +30,7 @@ export const en = {
     exploreLabel: 'Explore the site',
     support: 'Support',
     contact: 'Contact',
+    tailorSignIn: 'Tailor sign in',
     closing: 'Made for Your Style. Connected to Our Community.',
     social: {
       facebook: 'Facebook',
@@ -481,6 +482,8 @@ export const en = {
     thanksHeading: 'Thank you, we have your details',
     thanksBody:
       'We will contact you on the number you gave. We cannot promise when.',
+    signInNote:
+      'If we approve you, we send you a sign-in link on WhatsApp. You can sign in again later with the link "Tailor sign in" at the bottom of every page.',
     banner: {
       heading: 'Are you a tailor?',
       body: 'Tell us you are interested and we will call you to talk.',

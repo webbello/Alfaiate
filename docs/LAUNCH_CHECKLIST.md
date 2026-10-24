@@ -15,13 +15,14 @@ Everything the code can do before deployment is built and tested locally. What i
 ## 2. Approve text
 
 - [ ] Privacy and Terms: start from [DRAFT-privacy-and-terms.md](DRAFT-privacy-and-terms.md), have it reviewed (OQ-08), then put the approved text into the static pages and set their `reviewed` flag in `src/modules/seo/pages.ts`. Until then those pages stay `noindex`.
-- [ ] How it works and About: read them, then set their `reviewed` flag.
+- [ ] How it works, About, FAQ, Gallery, Journal and Shop: read them, then set their `reviewed` flag in `src/modules/seo/pages.ts` (`STATIC_PAGES`, `THEME_PAGES`). Until then they stay `noindex` and out of the sitemap.
 - [ ] Consent wording on the request, business, join and newsletter forms.
 - [ ] Tetum text reviewed by a native speaker (OQ-07). Until then production keeps `PUBLIC_LANGUAGES=en`.
 
 ## 2b. Tailor portal (built locally; see [SPEC-tailor-portal.md](SPEC-tailor-portal.md))
 
 - [ ] Click through it with demo data: join, approve, send the link yourself, tailor fills the page and adds a photo, you show the photo and publish.
+- [x] Tailors find the sign-in page from "Tailor sign in" in the footer of every page (done 2026-10-24); the join thank-you page tells a new tailor how it works.
 - [ ] Decide how you will send sign-in links (WhatsApp from your own number) and who may approve (managers and the owner).
 - [ ] Privacy text covers tailor accounts (OQ-08) and the permission wording `consent-tailor-2026-10-v1` is approved.
 - [ ] Decide whether phone-number sign-in is wanted (not built), and (decided 2026-10-21: edits to a published page go live at once, labelled tailor-supplied).
@@ -37,8 +38,8 @@ Everything the code can do before deployment is built and tested locally. What i
 
 - [ ] Create D1 (production, optional staging) and two R2 buckets per environment; put the real IDs in `wrangler.jsonc`. Keep the public bucket off `r2.dev`.
 - [ ] Secrets with `wrangler secret put`: `SESSION_SECRET`, `FORM_TOKEN_SECRET` (16+ characters), and `NOTIFY_WEBHOOK_URL` if the topic name is private.
-- [ ] Vars in `wrangler.jsonc` for production: `SITE_URL`, `SITE_INDEXABLE=true`, `PUBLIC_LANGUAGES`, optional `SITE_WHATSAPP`, `SOCIAL_*`, `RESPONSE_WINDOW_*`, `GOOGLE_SITE_VERIFICATION`. Set `JOIN_ENABLED=true` and `NEWSLETTER_ENABLED=true` only after the Privacy text covers them (the newsletter also needs a sender, OQ-06). Never set `SHOW_TESTIMONIAL_PLACEHOLDERS`.
-- [ ] `wrangler d1 migrations apply DB --remote` (migrations 0001 to 0006), then `seeds/launch.sql` once if you accept the starting lists.
+- [ ] Vars in `wrangler.jsonc` for production: `ORDER_WHATSAPP` (the number shop orders go to by default, with country code), `SITE_URL`, `SITE_INDEXABLE=true`, `PUBLIC_LANGUAGES`, optional `SITE_WHATSAPP`, `SOCIAL_*`, `RESPONSE_WINDOW_*`, `GOOGLE_SITE_VERIFICATION`. Set `JOIN_ENABLED=true` and `NEWSLETTER_ENABLED=true` only after the Privacy text covers them (the newsletter also needs a sender, OQ-06). Never set `SHOW_TESTIMONIAL_PLACEHOLDERS`.
+- [ ] `wrangler d1 migrations apply DB --remote` (migrations 0001 to 0013), then `seeds/launch.sql` once if you accept the starting lists.
 - [ ] Create the owner account (`npm run owner:create` works on the local database; creating the first owner on the deployed database is a Phase 8 step to be written and tested then) and test sign-in.
 - [ ] Add a Cloudflare rate-limiting rule for `POST /request` and `/api/contact-click`; confirm production sends `cf-connecting-ip`.
 - [ ] Re-measure PBKDF2 on the deployed Worker and check page weights (`npm run perf`).
