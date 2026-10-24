@@ -56,7 +56,8 @@ export const tet: Dictionary = {
   shop: {
     title: 'Loja',
     heading: 'Loja',
-    intro: 'Ropa, tecidu no asesóriu husi Alfaiate TL. Husu kona-ba item ida no koko hatene detalle ho ema ne’ebé fa’an.',
+    intro:
+      'Ropa, tecidu no asesóriu husi Alfaiate TL. Husu kona-ba item ida no koko hatene detalle ho ema ne’ebé fa’an.',
     empty: 'Seidauk iha produtu. Favór fila fali iha tempu badak.',
     allTypes: 'Item hotu',
     types: 'Tipu',
@@ -69,11 +70,13 @@ export const tet: Dictionary = {
     ask: 'Husu kona-ba item ne’e',
     askMessage: 'Olá, haʼu hakarak husu kona-ba: {name}',
     back: 'Fila ba loja',
-    notice: 'Alfaiate TL lista item ne’e. Folin, entrega no fila fali item hatene diretamente ho ema ne’ebé fa’an. La iha pagamentu ka enkomenda iha sítiu ne’e.',
+    notice:
+      'Alfaiate TL lista item ne’e. Folin, entrega no fila fali item hatene diretamente ho ema ne’ebé fa’an. La iha pagamentu ka enkomenda iha sítiu ne’e.',
     photoOf: 'Foto husi {name}',
     soldByTailor: 'Fa’an husi {name}',
     supplied: 'Deskrisaun no folin fornese husi alfaiate',
-    noticeTailor: 'Alfaiate TL lista item ne’e ba alfaiate ne’ebé fa’an. Folin, entrega no fila fali item hatene diretamente ho alfaiate. La iha pagamentu ka enkomenda iha sítiu ne’e.',
+    noticeTailor:
+      'Alfaiate TL lista item ne’e ba alfaiate ne’ebé fa’an. Folin, entrega no fila fali item hatene diretamente ho alfaiate. La iha pagamentu ka enkomenda iha sítiu ne’e.',
     seeTailor: 'Haree alfaiate nia pájina',
     heroTitle: 'Ropa, tecidu no seluk tan, husi fatin ida deit',
     allCategories: 'Kategoria hotu',
@@ -86,7 +89,8 @@ export const tet: Dictionary = {
     tabDetails: 'Detalle',
     tabFeatures: 'Karakterístika',
     tabReturns: 'Fila fali & Troka',
-    returnsDefault: 'Folin, entrega no fila fali item hatene diretamente ho ema ne’ebé fa’an.|La iha pagamentu iha sítiu ne’e.|Husu ba ema ne’ebé fa’an molok ita foti ka haruka fila fali buat ruma.',
+    returnsDefault:
+      'Folin, entrega no fila fali item hatene diretamente ho ema ne’ebé fa’an.|La iha pagamentu iha sítiu ne’e.|Husu ba ema ne’ebé fa’an molok ita foti ka haruka fila fali buat ruma.',
     lovedTitle: 'Ne’ebé kliente sira gosta liu',
     lovedLabel: 'Produtu ne’ebé gosta liu',
     relatedTitle: 'Produtu relasionadu',
@@ -102,19 +106,22 @@ export const tet: Dictionary = {
   order: {
     title: 'Ita-nia enkomenda',
     heading: 'Ita-nia enkomenda prontu',
-    intro: 'WhatsApp loke ho ita-nia enkomenda ne’ebé hakerek tiha ona. Tau ita-nia naran no fatin entrega, depois taka haruka. La iha pagamentu iha sítiu ne’e.',
+    intro:
+      'WhatsApp loke ho ita-nia enkomenda ne’ebé hakerek tiha ona. Tau ita-nia naran no fatin entrega, depois taka haruka. La iha pagamentu iha sítiu ne’e.',
     reference: 'Referénsia enkomenda',
     sendTo: 'Haruka ba {name}',
     open: 'Loke WhatsApp',
     preview: 'Mensajen',
-    several: 'Ita-nia item sira mai husi ema na’in-fa’an lubuk, entaun iha mensajen ida ba ida-idak.',
+    several:
+      'Ita-nia item sira mai husi ema na’in-fa’an lubuk, entaun iha mensajen ida ba ida-idak.',
     opening: 'Loke WhatsApp…',
     skipped: 'La inklui, la disponivel tan: {names}',
     back: 'Fila ba loja',
     notSetUpTitle: 'Enkomenda seidauk prontu',
-    notSetUp: 'Enkomenda liuhusi WhatsApp seidauk prontu. Ita bele haruka pedidu no ami sei fila fali ba ita.',
-    sendRequest: 'Haruka pedidu',
-    limited: 'Enkomenda barak liu husi koneksaun ida ne’e. Favór koko fila fali tuir mai.',
+    notSetUp: 'Enkomenda la disponivel agora. Favór koko fali tuir mai.',
+    limitedTitle: 'Favór hein uitoan',
+    limited:
+      'Enkomenda barak liu husi koneksaun ida ne’e. Favór koko fila fali tuir mai.',
   },
   journal: {
     title: 'Jornál',
@@ -133,8 +140,10 @@ export const tet: Dictionary = {
   gallery: {
     title: 'Galeria',
     heading: 'Galeria',
-    intro: 'Serbisu hatudu ho alfaiate nia lisensa. Loke foto atu haree boot liu, ka vizita alfaiate.',
-    empty: 'Seidauk iha foto. Alfaiate nia serbisu sei hatudu iha ne’e bainhira nia fó lisensa.',
+    intro:
+      'Serbisu hatudu ho alfaiate nia lisensa. Loke foto atu haree boot liu, ka vizita alfaiate.',
+    empty:
+      'Seidauk iha foto. Alfaiate nia serbisu sei hatudu iha ne’e bainhira nia fó lisensa.',
     by: 'Husi {name}',
     view: 'Haree foto {name} nian boot liu',
   },
@@ -146,7 +155,8 @@ export const tet: Dictionary = {
     toggle: 'Karreta',
     title: 'Ita-nia karreta',
     close: 'Taka karreta',
-    empty: 'Ita-nia karreta mamuk. Tau item loja ka alfaiate sira ne’ebé ita hakarak husu.',
+    empty:
+      'Ita-nia karreta mamuk. Tau item loja ka alfaiate sira ne’ebé ita hakarak husu.',
     addLabel: 'Tau iha lista pedidu',
     add: 'Tau {name} iha ha’u-nia lista pedidu',
     remove: 'Hasai',
@@ -193,7 +203,8 @@ export const tet: Dictionary = {
         'Hetan alfaiate lokál ho talentu iha Timor-Leste tomak. Haree sira-nia serbisu, hili serbisu ne’ebé loos, no halo ita-nia ideia roupa foun sai realidade.',
       find: 'Buka Alfaiate',
       request: 'Husu Alfaiate',
-      reassure: 'La presiza konta. Haruka mensajen ba alfaiate liu WhatsApp, ka husu vizita ba uma.',
+      reassure:
+        'La presiza konta. Haruka mensajen ba alfaiate liu WhatsApp, ka husu vizita ba uma.',
       script: 'Alfaiate ba Timor-Leste di’ak liu',
       badge: 'Apoia kbiit lokál',
       imageAlt:
@@ -501,22 +512,24 @@ export const tet: Dictionary = {
     heading: 'Husu alfaiate ba uma',
     intro:
       "Hatete ba ami saida mak ita presiza no ita iha ne'ebé. Ho ita-nia konsentimentu, ami sei haruka ita-nia pedidu ba alfaiate parseiru ida ne'ebé apropriadu, no nia sei kontaktu ita direta.",
-    howLabel: "Saida mak akontese tuir mai",
+    howLabel: 'Saida mak akontese tuir mai',
     how1: 'Ita hatete ba ami saida mak ita presiza.',
     how2: "Ami haruka ba alfaiate ida ne'ebé apropriadu.",
-    how3: "Alfaiate kontaktu ita atu hatene detallu no folin.",
-    promise: "Laiha konta no laiha pagamentu iha sítiu ne'e. Naran no númeru de'it mak presiza.",
+    how3: 'Alfaiate kontaktu ita atu hatene detallu no folin.',
+    promise:
+      "Laiha konta no laiha pagamentu iha sítiu ne'e. Naran no númeru de'it mak presiza.",
     more: 'Aumenta loron ka detallu seluk (opsionál)',
     notBooking:
       "Ida-ne'e pedidu de'it, la'ós marka konfirma ona. Alfaiate tenke konfirma ho ita direta se nia bele atende.",
     summaryHeading: "Favór hadi'a buat hirak ne'e",
     fromTailor: "Ita hahú pedidu ne'e husi pájina ba {name}.",
     fromList: "Ita husu alfaiate sira ne'e: {names}.",
-    fromProducts: "Ita husu kona-ba item loja nian sira ne'e: {names}. Ema ne'ebé fa'an sei hatene folin no entrega diretamente ho ita.",
+    fromProducts:
+      "Ita husu kona-ba item loja nian sira ne'e: {names}. Ema ne'ebé fa'an sei hatene folin no entrega diretamente ho ita.",
     name: 'Ita-nia naran',
     phone: 'Númeru telefone ka WhatsApp',
     phoneHint: 'Ezemplu: 7712 3456',
-    channel: 'Dalan di\'ak liu atu kontaktu ita',
+    channel: "Dalan di'ak liu atu kontaktu ita",
     channelWhatsapp: 'WhatsApp',
     channelPhone: 'Telefone',
     channelEither: 'Sira rua',
@@ -529,14 +542,16 @@ export const tet: Dictionary = {
     area: 'Ita-nia área (opsionál)',
     areaOther: 'Fatin seluk',
     areaText: 'Dalan, referénsia ka buat besik ita-nia uma (opsionál)',
-    areaHint: 'Atu alfaiate bele hetan ita. Ezemplu: besik Farol, odamatan azul.',
+    areaHint:
+      'Atu alfaiate bele hetan ita. Ezemplu: besik Farol, odamatan azul.',
     whenPick: 'Ita hakarak bainhira? (opsionál)',
     whenAsap: 'Lalais liu',
     whenWeek: "Semana ne'e",
     whenFlexible: 'Hau bele fleksivel',
     whenDay: 'Ka hakerek loron ida',
     notesIdeasHeading: 'Hili atu aumenta',
-    notesIdeas: "Ba kasamentu.|Hau iha ona tesidu rasik.|Atu hadi'a ropa.|Favór mai kalan.",
+    notesIdeas:
+      "Ba kasamentu.|Hau iha ona tesidu rasik.|Atu hadi'a ropa.|Favór mai kalan.",
     next1: 'Ita haruka ona',
     next2: "Ami haruka ba alfaiate ne'ebé apropriadu",
     next3: 'Alfaiate kontaktu ita',

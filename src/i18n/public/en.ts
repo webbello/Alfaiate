@@ -51,7 +51,8 @@ export const en = {
   shop: {
     title: 'Shop',
     heading: 'Shop',
-    intro: 'Clothing, fabrics and accessories from Alfaiate TL. Ask about an item and agree the details directly with the seller.',
+    intro:
+      'Clothing, fabrics and accessories from Alfaiate TL. Ask about an item and agree the details directly with the seller.',
     empty: 'No products yet. Please check back soon.',
     allTypes: 'All items',
     types: 'Types',
@@ -64,11 +65,13 @@ export const en = {
     ask: 'Ask about this item',
     askMessage: 'Hello, I would like to ask about: {name}',
     back: 'Back to the shop',
-    notice: 'Alfaiate TL lists this item. Price, delivery and returns are agreed directly with the seller. Nothing is paid or ordered on this site.',
+    notice:
+      'Alfaiate TL lists this item. Price, delivery and returns are agreed directly with the seller. Nothing is paid or ordered on this site.',
     photoOf: 'Photo of {name}',
     soldByTailor: 'Sold by {name}',
     supplied: 'Description and price supplied by the tailor',
-    noticeTailor: 'Alfaiate TL lists this item for the tailor who sells it. Price, delivery and returns are agreed directly with the tailor. Nothing is paid or ordered on this site.',
+    noticeTailor:
+      'Alfaiate TL lists this item for the tailor who sells it. Price, delivery and returns are agreed directly with the tailor. Nothing is paid or ordered on this site.',
     seeTailor: 'See the tailor’s page',
     heroTitle: 'Clothing, fabrics and more, from one place',
     allCategories: 'All Categories',
@@ -81,7 +84,8 @@ export const en = {
     tabDetails: 'Details',
     tabFeatures: 'Features',
     tabReturns: 'Returns & Exchanges',
-    returnsDefault: 'Price, delivery and returns are agreed directly with the seller.|Nothing is paid on this site.|Ask the seller before you collect or send anything back.',
+    returnsDefault:
+      'Price, delivery and returns are agreed directly with the seller.|Nothing is paid on this site.|Ask the seller before you collect or send anything back.',
     lovedTitle: 'Most loved by our customers',
     lovedLabel: 'Most loved products',
     relatedTitle: 'Related products like this',
@@ -97,18 +101,20 @@ export const en = {
   order: {
     title: 'Your order',
     heading: 'Your order is ready',
-    intro: 'WhatsApp opens with your order written for you. Add your name and where to deliver, then press send. Nothing is paid on this site.',
+    intro:
+      'WhatsApp opens with your order written for you. Add your name and where to deliver, then press send. Nothing is paid on this site.',
     reference: 'Order reference',
     sendTo: 'Send to {name}',
     open: 'Open WhatsApp',
     preview: 'The message',
-    several: 'Your items come from more than one seller, so there is one message for each.',
+    several:
+      'Your items come from more than one seller, so there is one message for each.',
     opening: 'Opening WhatsApp…',
     skipped: 'Not included, no longer available: {names}',
     back: 'Back to the shop',
     notSetUpTitle: 'Ordering is not set up yet',
-    notSetUp: 'Ordering by WhatsApp is not set up yet. You can send a request instead and we will come back to you.',
-    sendRequest: 'Send a request',
+    notSetUp: 'Ordering is not available right now. Please try again later.',
+    limitedTitle: 'Please wait a moment',
     limited: 'Too many orders from this connection. Please try again later.',
   },
   journal: {
@@ -120,7 +126,8 @@ export const en = {
     back: 'Back to the journal',
     categories: 'Categories',
     all: 'All articles',
-    sample: 'Sample article for reviewing the layout only. It is not real advice.',
+    sample:
+      'Sample article for reviewing the layout only. It is not real advice.',
     related: 'More from the journal',
     rss: 'RSS feed',
     published: 'Published',
@@ -128,8 +135,10 @@ export const en = {
   gallery: {
     title: 'Gallery',
     heading: 'Gallery',
-    intro: 'Work shown with each tailor’s permission. Open a photo to see it larger, or visit the tailor.',
-    empty: 'No photos yet. A tailor’s work appears here once they have given permission.',
+    intro:
+      'Work shown with each tailor’s permission. Open a photo to see it larger, or visit the tailor.',
+    empty:
+      'No photos yet. A tailor’s work appears here once they have given permission.',
     by: 'By {name}',
     view: 'View {name}’s photo larger',
   },
@@ -141,7 +150,8 @@ export const en = {
     toggle: 'Cart',
     title: 'Your cart',
     close: 'Close the cart',
-    empty: 'Your cart is empty. Add shop items, or the tailors you would like to ask.',
+    empty:
+      'Your cart is empty. Add shop items, or the tailors you would like to ask.',
     addLabel: 'Add to request list',
     add: 'Add {name} to my request list',
     remove: 'Remove',
@@ -188,7 +198,8 @@ export const en = {
         'Discover talented local tailors across Timor-Leste. Explore their work, find the right service, and bring your next clothing idea to life.',
       find: 'Find a Tailor',
       request: 'Request a Tailor',
-      reassure: 'No account needed. Message a tailor on WhatsApp, or ask for a home visit.',
+      reassure:
+        'No account needed. Message a tailor on WhatsApp, or ask for a home visit.',
       script: 'Tailoring a better Timor-Leste',
       badge: 'Support local craftsmanship',
       imageAlt: 'A tailor’s workroom: a half-made blue jacket on a dress form',
@@ -499,14 +510,16 @@ export const en = {
     how1: 'You tell us what you need.',
     how2: 'We pass it to a suitable tailor.',
     how3: 'The tailor contacts you to agree details and price.',
-    promise: 'No account and no payment on this site. Only your name and number are needed.',
+    promise:
+      'No account and no payment on this site. Only your name and number are needed.',
     more: 'Add a preferred day or more details (optional)',
     notBooking:
       'This is a request, not a confirmed appointment. The tailor must confirm availability with you directly.',
     summaryHeading: 'Please fix the following',
     fromTailor: 'You started this request from the page of {name}.',
     fromList: 'You are asking these tailors: {names}.',
-    fromProducts: 'You are asking about these shop items: {names}. The seller agrees price and delivery with you directly.',
+    fromProducts:
+      'You are asking about these shop items: {names}. The seller agrees price and delivery with you directly.',
     name: 'Your name',
     phone: 'Phone or WhatsApp number',
     phoneHint: 'For example 7712 3456',
@@ -523,14 +536,16 @@ export const en = {
     area: 'Your area (optional)',
     areaOther: 'Another place',
     areaText: 'Street, landmark or what is near your home (optional)',
-    areaHint: 'So the tailor can find you. For example: near the Farol roundabout, blue gate.',
+    areaHint:
+      'So the tailor can find you. For example: near the Farol roundabout, blue gate.',
     whenPick: 'When would suit you? (optional)',
     whenAsap: 'As soon as possible',
     whenWeek: 'This week',
     whenFlexible: 'I am flexible',
     whenDay: 'Or type a day',
     notesIdeasHeading: 'Tap to add',
-    notesIdeas: 'It is for a wedding.|I have my own cloth.|It is an alteration.|Please come in the evening.',
+    notesIdeas:
+      'It is for a wedding.|I have my own cloth.|It is an alteration.|Please come in the evening.',
     next1: 'You sent it',
     next2: 'We pass it to a suitable tailor',
     next3: 'The tailor contacts you',

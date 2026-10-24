@@ -19,7 +19,7 @@ const single = order?.groups.length === 1;
 ---
 
 <ThemeLayout {lang} title={`${failure === 'not_set_up' ? o.notSetUpTitle : o.title} · ${t.siteName}`} description={o.intro} rest="/order" noindex>
-  <Hero tag={t.shop.heading} title={failure ? o.notSetUpTitle : o.heading} />
+  <Hero tag={t.shop.heading} title={failure === 'not_set_up' ? o.notSetUpTitle : failure ? o.limitedTitle : o.heading} />
   <section class="global-section">
     <div class="w-layout-blockcontainer main-container w-container">
       {
@@ -27,9 +27,9 @@ const single = order?.groups.length === 1;
           <div class="global-block">
             <p class="dir-intro">{failure === 'limited' ? o.limited : o.notSetUp}</p>
             <p class="actions-row">
-              <a class="button w-inline-block" href={pathFor(lang, '/request')}>
+              <a class="button w-inline-block" href={pathFor(lang, '/shop')}>
                 <div class="button-bg"></div>
-                <div class="button-text">{o.sendRequest}</div>
+                <div class="button-text">{o.back}</div>
               </a>
             </p>
           </div>
