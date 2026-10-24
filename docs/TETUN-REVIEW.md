@@ -153,3 +153,7 @@ Status: **not reviewed.** The Tetun below was written by the assistant during th
     limited: 'Enkomenda barak liu husi koneksaun ida ne’e. Favór koko fila fali tuir mai.',
 ```
 
+
+## Request page revamp (2026-10-24)
+
+New `request` lines in `src/i18n/public/tet.ts` (unreviewed): `areaText` (reworded), `areaHint`, `whenPick`, `whenAsap`, `whenWeek`, `whenFlexible` (check the spelling "fleksivel"), `whenDay`, `notesIdeasHeading`, `notesIdeas` (four sentences separated by `|`), `next1`, `next2`, `next3`, `nextLabel`.

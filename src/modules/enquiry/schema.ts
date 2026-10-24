@@ -56,6 +56,12 @@ const LIMITS = {
   organisation: 100,
   group_size: 40,
 };
+/** Tap choices for the preferred time; the stored text is plain English so staff read it the same on either language page. */
+const WHEN_CHOICES = new Map([
+  ['asap', 'As soon as possible'],
+  ['week', 'This week'],
+  ['flexible', 'I am flexible'],
+]);
 const CHANNELS = ['whatsapp', 'phone', 'either'] as const;
 const ID = /^[0-9]{1,9}$/;
 
@@ -105,7 +111,7 @@ export function parseEnquiryForm(
     service: get('service'),
     area: get('area'),
     area_text: get('area_text'),
-    when: get('when'),
+    when: get('when') || WHEN_CHOICES.get(get('when_pick')) || '',
     notes: get('notes'),
     organisation: business ? get('organisation') : '',
     group_size: business ? get('group_size') : '',
@@ -139,12 +145,10 @@ export function parseEnquiryForm(
   }
 
   let areaId: number | null = null;
-  let areaText: string | null = null;
-  if (values.area === 'other') {
-    if (values.area_text.length > LIMITS.area_text)
-      errors.area_text = 'too_long';
-    areaText = values.area_text || null;
-  } else if (values.area) {
+  // A landmark or street is useful next to a chosen area too, so the text is kept either way.
+  if (values.area_text.length > LIMITS.area_text) errors.area_text = 'too_long';
+  const areaText = values.area_text || null;
+  if (values.area && values.area !== 'other') {
     if (ID.test(values.area)) areaId = Number(values.area);
     else errors.area = 'invalid';
   }

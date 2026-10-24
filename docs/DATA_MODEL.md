@@ -112,7 +112,7 @@ Fields: `slug` (unique), `name`, `description` (null), `sort_order`, `is_active`
 | garment_category_id | FK, null (or "other" note) |
 | service_description | short text, null |
 | area_id | FK, null — customer's neighbourhood |
-| area_text | text, null — if not in the list |
+| area_text | text, null — a street, landmark or "near" note (max 100), kept whether or not an area is chosen; never coordinates |
 | preferred_datetime_text | text, null — a preference, not a booking |
 | notes | text, null |
 | preferred_tailor_id | FK tailor, null — set when started from a profile or request list (the first published tailor on the list). Other tailors on the list are written into `notes` as free text ("Also asked about: ..."), not linked rows, and are cleared with the notes on anonymise |

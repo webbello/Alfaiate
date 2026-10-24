@@ -36,6 +36,11 @@ const r = t.request;
     <strong>{t.home.noteLabel}:</strong> {r.notBooking}
   </p>
   <p>{r.thanksBody}</p>
+  <ol class="how request__next" aria-label={r.nextLabel}>
+    <li>{r.next1}</li>
+    <li>{r.next2}</li>
+    <li>{r.next3}</li>
+  </ol>
   {when && <p>{fill(t.request.responseLine, { when })}</p>}
   <p>
     <a class="button" href={pathFor(lang, '/tailors')}>

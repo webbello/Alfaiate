@@ -94,6 +94,8 @@ test('a customer taps a category, picks an area from the list, fills step 2 and 
     .locator('#area-select')
     .selectOption({ label: '[Placeholder] Area 1' });
   await expect(page.locator('#category-none')).not.toBeChecked();
+  await page.locator('#area_text').fill('Near the fake blue gate');
+  await page.locator('#when-week').check();
   await page.locator('#name').fill('E2E Fake Customer');
   await page.locator('#phone').fill('7712 3456');
   await page.locator('#channel-whatsapp').check();

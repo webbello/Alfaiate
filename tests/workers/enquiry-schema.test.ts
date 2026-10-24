@@ -101,10 +101,20 @@ describe('parseEnquiryForm (FR-ENQ-01/02/05, PRV-01)', () => {
       areaId: null,
       areaText: 'Behind the market',
     });
-    expect(ok({ area: '3', area_text: 'ignored' })).toMatchObject({
+    expect(ok({ area: '3', area_text: 'Blue gate' })).toMatchObject({
       areaId: 3,
-      areaText: null,
+      areaText: 'Blue gate',
     });
+    expect(errors({ area: '3', area_text: 'x'.repeat(101) }).area_text).toBe(
+      'too_long',
+    );
+  });
+
+  it('turns a tapped time choice into plain text; typed text wins; odd choices are ignored', () => {
+    expect(ok({ when_pick: 'week' }).when).toBe('This week');
+    expect(ok({ when_pick: 'week', when: 'Friday' }).when).toBe('Friday');
+    expect(ok({ when_pick: 'constructor' }).when).toBeNull();
+    expect(ok({ when_pick: 'nope' }).when).toBeNull();
   });
 
   it('keeps the typed values (not the consent) so the form can be shown again', () => {

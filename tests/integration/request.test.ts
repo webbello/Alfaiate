@@ -411,6 +411,12 @@ describe('two-step layout', () => {
     expect(select).toContain(`<option value="${a}"`);
     expect(select).toContain('<option value="other"');
     expect(html).toContain('<label for="area-select">');
+    // Least-typing helpers: a landmark box that is always shown, tap choices for the time, ideas for the notes (script optional).
+    expect(html).toContain('<label for="area_text">Street, landmark');
+    expect(html).toMatch(/name="when_pick"[^>]*value="asap"/);
+    expect(html).toMatch(
+      /<div class="request__ideas"[^>]*data-suggest="notes"[^>]*hidden/,
+    );
     expect(html).toContain('Steps Cat Fake');
   });
   it('keeps the chosen category and area when the form comes back with a mistake', async () => {

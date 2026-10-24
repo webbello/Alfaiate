@@ -99,11 +99,6 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
       <>
         <h1>{heading}</h1>
         <p class="request__intro">{intro}</p>
-        <ol class="how" aria-label={r.howLabel}>
-          <li>{r.how1}</li>
-          <li>{r.how2}</li>
-          <li>{r.how3}</li>
-        </ol>
         <p class="hint request__promise">{r.promise}</p>
         {view.tailor && (
           <p class="notice">
@@ -298,6 +293,9 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
             </div>
             <div class="field field--other">
               <label for="area_text">{r.areaText}</label>
+              <p class="hint" id="area_text-hint">
+                {r.areaHint}
+              </p>
               <input
                 type="text"
                 id="area_text"
@@ -305,7 +303,7 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
                 value={values.area_text}
                 maxlength="100"
                 aria-invalid={invalid('area_text')}
-                aria-describedby={describedBy('area_text')}
+                aria-describedby={describedBy('area_text', 'area_text-hint')}
               />
               {errors.area_text && (
                 <p class="error" id="area_text-error">
@@ -313,6 +311,30 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
                 </p>
               )}
             </div>
+            <fieldset class="field" id="when_pick">
+              <legend>{r.whenPick}</legend>
+              <div class="chip-choices">
+                {(
+                  [
+                    ['asap', r.whenAsap],
+                    ['week', r.whenWeek],
+                    ['flexible', r.whenFlexible],
+                  ] as const
+                ).map(([value, text]) => (
+                  <label class="chip-choice" for={`when-${value}`}>
+                    <input
+                      type="radio"
+                      id={`when-${value}`}
+                      name="when_pick"
+                      value={value}
+                      checked={values.when === text}
+                    />
+                    <span>{text}</span>
+                  </label>
+                ))}
+              </div>
+              <p class="hint">{r.whenHint}</p>
+            </fieldset>
             <details
               class="more"
               open={Boolean(
@@ -321,7 +343,7 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
             >
               <summary>{r.more}</summary>
               <div class="field">
-                <label for="when">{r.when}</label>
+                <label for="when">{r.whenDay}</label>
                 <p class="hint" id="when-hint">
                   {r.whenHint}
                 </p>
@@ -350,6 +372,18 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
                   aria-invalid={invalid('notes')}
                   aria-describedby={describedBy('notes')}
                 >{values.notes}</textarea>
+                <div class="request__ideas" data-suggest="notes" hidden>
+                  <p>{r.notesIdeasHeading}</p>
+                  <ul>
+                    {r.notesIdeas.split('|').map((idea) => (
+                      <li>
+                        <button type="button" class="secondary" data-add={idea}>
+                          {idea}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
                 {errors.notes && (
                   <p class="error" id="notes-error">
                     {message('notes')}
@@ -472,7 +506,15 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
             </button>
           </p>
         </form>
+        <ol class="how request__next" aria-label={r.howLabel}>
+          <li>{r.how1}</li>
+          <li>{r.how2}</li>
+          <li>{r.how3}</li>
+        </ol>
       </>
     )
   )}
+  <script>
+    import '../scripts/portal-form';
+  </script>
 </ThemePage>

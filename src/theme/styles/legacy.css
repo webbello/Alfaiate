@@ -393,9 +393,6 @@
     grid-template-columns: 1fr 1fr;
   }
 }
-.legacy .request:has(#area-other:not(:checked)) .field--other {
-  display: none;
-}
 .legacy .request .more {
   margin: 0 0 0.9rem;
 }
@@ -423,6 +420,26 @@
   font-size: 0.85rem;
   line-height: 1.4;
 }
-.legacy .request:not(:has(#area-select option[value='other']:checked)) .field--other {
-  display: none;
+
+.legacy .request__ideas p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.legacy .request__ideas ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  max-width: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.legacy .request__ideas button {
+  min-height: 2.75rem;
+  font-weight: 500;
+  text-align: left;
+}
+.legacy .request__next {
+  margin-top: 1.5rem;
 }
