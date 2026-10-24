@@ -65,7 +65,7 @@ const BUDGET = {
   css: 23500, // 2026-10-23: initials badge, card WhatsApp button, lighter inputs, language switch (measured 22525); was 21000 (2026-10-21, compact directory)
   // The Handspark theme home (step 3, 2026-10-23): the whole theme sheet (267 kB raw, 31 kB compressed) and the motion script (165 kB raw, 59 kB compressed: GSAP, Lenis).
   // This is about ten times the old home and is the price of the theme; step 7 of docs/SPEC-handspark-theme.md trims it (per-page CSS, motion only on wide pointer devices).
-  homeCss: 295000, // 292 kB with the scoped styles of the form and reading pages (step 5); was 280000
+  homeCss: 210000, // 2026-10-24: unused rules purged at build (scripts/purge-theme-css.mjs), measured 201.9 kB; was 295000
   homeJs: 160000, // 2026-10-24: pages with the motion layer, core and GSAP (measured 150.6 kB: core 18.7 + motion 131.9); was 175000
   themeJs: 22000, // 2026-10-24: pages with no animated elements load the core script only (measured 18.7 kB), GSAP is not sent
   adminCss: 28500, // admin redesign 2026-10-23: sidebar, top bar, dark theme, worklist, cards, portal; was 8200 (about 25 kB measured)
