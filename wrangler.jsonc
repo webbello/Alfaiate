@@ -20,7 +20,7 @@
   "env": {
     "staging": {
       "name": "alfaiate-tl-staging",
-      "vars": { "SITE_URL": "https://alfaiate-tl-staging.REPLACE_ME.workers.dev", "PUBLIC_LANGUAGES": "en,tet", "SITE_INDEXABLE": "false", "PASSWORD_ITERATIONS": "100000" },
+      "vars": { "SITE_URL": "https://alfaiate-tl-staging.md-irfan-tls.workers.dev", "PUBLIC_LANGUAGES": "en,tet", "SITE_INDEXABLE": "false", "PASSWORD_ITERATIONS": "100000" },
       "d1_databases": [
         { "binding": "DB", "database_name": "alfaiate-tl-staging", "database_id": "0b1a18ba-dd44-4092-8f94-575dca4f536a", "migrations_dir": "migrations" }
       ]
