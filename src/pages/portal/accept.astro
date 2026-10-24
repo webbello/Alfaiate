@@ -2,7 +2,7 @@
 export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Flash from '../../components/admin/Flash.astro';
-import PortalLayout from '../../layouts/PortalLayout.astro';
+import PortalAuthLayout from '../../layouts/PortalAuthLayout.astro';
 import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { readForm } from '../../modules/http/body';
@@ -57,17 +57,16 @@ const usable = info !== null;
 if (!usable && !message) Astro.response.status = 410;
 ---
 
-<PortalLayout title={p.acceptHeading}>
+<PortalAuthLayout title={p.acceptHeading} rest="/portal/accept">
   {usable ? (
     <>
       <h1>{p.acceptHeading}</h1>
-      <p>{p.acceptIntro}</p>
+      <p class="auth__sub">{p.acceptIntro}</p>
       {message && <Flash message={message} kind="problem" />}
-      <form method="post">
+      <form method="post" class="auth__form">
         <input type="hidden" name="token" value={token} />
-        <p>
+        <div class="auth__field">
           <label for="email">{p.email}</label>
-          <br />
           <input
             id="email"
             name="email"
@@ -76,10 +75,9 @@ if (!usable && !message) Astro.response.status = 410;
             required
             value={email}
           />
-        </p>
-        <p>
+        </div>
+        <div class="auth__field">
           <label for="password">{p.newPassword}</label>
-          <br />
           <input
             id="password"
             name="password"
@@ -88,26 +86,28 @@ if (!usable && !message) Astro.response.status = 410;
             minlength="12"
             required
           />
-        </p>
-        <fieldset>
+        </div>
+        <fieldset class="auth__consent">
           <legend>{p.consentLegend}</legend>
           <label>
             <input type="checkbox" name="consent" value="yes" required />
-            {p.consent}
+            <span>{p.consent}</span>
           </label>
         </fieldset>
-        <p>
-          <button type="submit">{p.accept}</button>
-        </p>
+        <button type="submit" class="button auth__submit">
+          {p.accept}
+        </button>
       </form>
     </>
   ) : (
     <>
       <h1>{p.invalidLinkHeading}</h1>
-      <p>{p.invalidLink}</p>
+      <p class="auth__sub">{p.invalidLink}</p>
       <p>
-        <a href="/portal/login">{p.signIn}</a>
+        <a class="button auth__submit" href="/portal/login">
+          {p.signIn}
+        </a>
       </p>
     </>
   )}
-</PortalLayout>
+</PortalAuthLayout>

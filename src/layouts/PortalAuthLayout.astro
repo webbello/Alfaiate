@@ -1,0 +1,41 @@
+---
+// The tailor sign-in and invite pages in the site's own frame (header, footer, fonts, colours) instead of the plain admin card.
+// English only, never indexed, and with no Tetun twin, so the language switch is left out (`realPage={false}`).
+import ThemePage from './ThemePage.astro';
+import { en } from '../i18n/en';
+
+interface Props {
+  title: string;
+  rest: string;
+}
+const { title, rest } = Astro.props;
+const a = en.portal.auth;
+---
+
+<ThemePage
+  lang="en"
+  title={`${title} · Alfaiate TL`}
+  description={title}
+  rest={rest}
+  noindex
+  realPage={false}
+>
+  <div class="auth">
+    <aside class="auth__side" aria-label={a.sideLabel}>
+      <span class="brand-mark brand-mark--footer" aria-hidden="true">
+        <span class="brand-name">Alfaiate</span>
+        <span class="brand-tl">TL</span>
+      </span>
+      <p class="auth__lead">{a.lead}</p>
+      <ul class="auth__points">
+        {a.points.map((point) => (
+          <li>{point}</li>
+        ))}
+      </ul>
+    </aside>
+    <section class="auth__card">
+      <slot />
+      <p class="auth__help">{a.help}</p>
+    </section>
+  </div>
+</ThemePage>

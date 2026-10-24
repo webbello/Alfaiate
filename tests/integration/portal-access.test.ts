@@ -229,9 +229,11 @@ describe('the two sign-ins stay apart', () => {
       const res = await get(path, cookie);
       expect(res.headers.get('cache-control'), path).toContain('no-store');
       expect(res.headers.get('x-robots-tag'), path).toContain('noindex');
-      expect(await res.text(), path).toContain(
-        'name="robots" content="noindex,nofollow"',
+      // the sign-in and invite pages use the site frame, which writes "noindex,follow"; the header above still says nofollow
+      expect(await res.text(), path).toMatch(
+        /name="robots" content="noindex,(no)?follow"/,
       );
+      expect(res.headers.get('x-robots-tag'), path).toContain('nofollow');
     }
   });
 });

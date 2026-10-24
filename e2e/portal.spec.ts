@@ -36,7 +36,9 @@ test('a tailor joins, is approved, fills in their page, adds a photo and asks fo
 
   await page.goto(link.replace(/^https?:\/\/[^/]+/, ''));
   expect(await violationsOf(page)).toEqual([]);
-  await page.getByLabel('Email').fill('e2e-portal@example.test');
+  await page
+    .getByLabel('Email', { exact: true })
+    .fill('e2e-portal@example.test');
   await page.getByLabel(/Choose a password/).fill('a-long-fake-e2e-passphrase');
   await page.getByLabel(/I agree that Alfaiate TL may show/).check();
   await page.getByRole('button', { name: 'Save and continue' }).click();
@@ -154,8 +156,12 @@ test('a tailor joins, is approved, fills in their page, adds a photo and asks fo
 
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page).toHaveURL(/\/portal\/login$/);
-  await page.getByLabel('Email').fill('e2e-portal@example.test');
-  await page.getByLabel('Password').fill('a-long-fake-e2e-passphrase');
+  await page
+    .getByLabel('Email', { exact: true })
+    .fill('e2e-portal@example.test');
+  await page
+    .getByLabel('Password', { exact: true })
+    .fill('a-long-fake-e2e-passphrase');
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page).toHaveURL(/\/portal$/);
 });

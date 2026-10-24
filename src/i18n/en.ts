@@ -125,6 +125,21 @@ export const en = {
     statusDraft: 'Your page is a draft. Customers cannot see it yet.',
     statusLive: 'Your page is live on the website.',
     statusPaused: 'Your page is not shown on the website at the moment.',
+    auth: {
+      sideLabel: 'Why sign in',
+      lead: 'Your page, your photos and your products, in one place.',
+      points: [
+        'Fill in your page in a few easy steps',
+        'See what is left to finish',
+        'Add photos and products of your own',
+        'We check everything before customers see it',
+      ],
+      help: 'Lost your sign-in link or password? Message Alfaiate TL on WhatsApp and we will send you a new link.',
+      welcomeBack: 'Welcome back',
+      welcomeBackText: 'Sign in to continue with your tailor page.',
+      notYet: 'Not a tailor with us yet?',
+      joinLink: 'Tell us you are interested',
+    },
     guide: {
       nextUp: 'Next step',
       minutes: 'about {n} min',
