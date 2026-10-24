@@ -473,3 +473,39 @@
   left: 0;
   max-width: 1px;
 }
+
+/* ---- Overview: progress bar, checklist cards, send card ---- */
+.pt .progress { display: block; width: 100%; max-width: 32rem; height: 0.7rem; margin: 0.6rem 0 0; border: 0; border-radius: 999px; background: #e4dfd2; overflow: hidden; accent-color: #3d5a33; }
+.pt .progress::-webkit-progress-bar { background: #e4dfd2; }
+.pt .progress::-webkit-progress-value { background: #3d5a33; border-radius: 999px; }
+.pt .progress::-moz-progress-bar { background: #3d5a33; border-radius: 999px; }
+.pt .portal-steplist { display: grid; gap: 0.7rem; max-width: none; margin: 0.75rem 0 1.5rem; padding: 0; list-style: none; }
+.pt .portal-step { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.5rem 1rem; padding: 0.9rem 1.1rem; background: #fff; border: 2px solid var(--line); border-radius: 0.75rem; box-shadow: var(--shadow-sm); }
+.pt .portal-step__num { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; color: var(--indigo); background: #efe9da; border-radius: 50%; font-weight: 700; }
+.pt .portal-step__text { display: grid; gap: 0.15rem; min-width: 0; }
+.pt .portal-step__text strong { font-size: 1.05rem; line-height: 1.3; }
+.pt .portal-step__text small { color: var(--muted); font-size: 0.9rem; }
+.pt .portal-step__flag { margin-left: 0.5rem; padding: 0.1rem 0.6rem; color: #fff; background: var(--accent); border-radius: 999px; font-size: 0.75rem; font-weight: 650; vertical-align: middle; }
+.pt .portal-step__tags { display: flex; gap: 0.4rem; margin-top: 0.15rem; }
+.pt .portal-tag { padding: 0.05rem 0.55rem; color: #6f3a22; background: #f6ead5; border-radius: 999px; font-size: 0.75rem; font-weight: 650; }
+.pt .portal-tag--soft { color: var(--muted); background: #efe9da; }
+.pt .portal-step--next { border-color: var(--accent); background: #fffaf5; }
+.pt .portal-step--done { background: #f4f8f1; border-color: #c5dbb9; box-shadow: none; }
+.pt .portal-step--done .portal-step__num { color: #fff; background: #3d5a33; }
+.pt .portal-step--done .portal-step__text strong { color: #2f4a2a; }
+.pt .portal-step--done .portal-tag { display: none; }
+.pt .portal-step .button { white-space: nowrap; }
+@media (max-width: 40rem) {
+  .pt .portal-step { grid-template-columns: auto 1fr; }
+  .pt .portal-step .button { grid-column: 1 / -1; width: 100%; }
+}
+.pt .portal-submit { padding: 1.25rem 1.4rem; }
+.pt .portal-submit h2 { margin-top: 0; }
+.pt .portal-submit--ready { background: #e4eedd; border-color: #a9c79b; }
+.pt .portal-submit--ready button { min-height: 3.2rem; font-size: 1.05rem; }
+.pt .portal-timeline { display: grid; gap: 0.5rem; max-width: none; margin: 0.75rem 0 0; padding: 0; list-style: none; }
+.pt .portal-timeline li { padding: 0.55rem 0.9rem; color: var(--muted); background: #efe9da; border-radius: 0.5rem; }
+.pt .portal-timeline li.is-done { color: #2f4a2a; background: #e4eedd; }
+.pt .portal-timeline li.is-done::before { content: '\2713 '; }
+.pt .portal-timeline li.is-now { color: var(--ink); background: #fff; border: 2px solid var(--accent); font-weight: 650; }
+.pt .portal-live { background: #e4eedd; border-color: #a9c79b; }

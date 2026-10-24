@@ -43,6 +43,7 @@ const note = saved
     : '';
 const next = items.find((i) => !i.done);
 const sent = !!account?.reviewRequestedAt;
+const left = items.filter((i) => i.required && !i.done).length;
 const status =
   tailor.is_published === 1
     ? p.statusLive
@@ -101,23 +102,45 @@ const status =
   )}
   <h2 id="steps-heading">{p.checklistHeading}</h2>
   <ol class="portal-steplist" aria-labelledby="steps-heading">
-    {items.map((i) => (
-      <li class={i.done ? 'portal-step portal-step--done' : 'portal-step'}>
-        <span class="portal-step__text">
-          <strong>{i.label}</strong>
-          <small>
-            {i.done
-              ? p.done
-              : `${i.reason} ${g.minutes.replace('{n}', String(i.minutes))}`}
-            {!i.required && !i.done && ' · optional'}
-          </small>
-        </span>
-        <a class="button button--secondary" href={i.href}>
-          {i.done ? 'Change' : 'Fill in'}
-          <span class="sr-only">: {i.short}</span>
-        </a>
-      </li>
-    ))}
+    {items.map((i, n) => {
+      const isNext = !i.done && i === next;
+      return (
+        <li
+          class={`portal-step${i.done ? ' portal-step--done' : ''}${isNext ? ' portal-step--next' : ''}`}
+        >
+          <span class="portal-step__num" aria-hidden="true">
+            {i.done ? '\u2713' : n + 1}
+          </span>
+          <span class="portal-step__text">
+            <strong>
+              {i.label}
+              {isNext && <span class="portal-step__flag">Start here</span>}
+            </strong>
+            <small>
+              {i.done
+                ? p.done
+                : `${i.reason} ${g.minutes.replace('{n}', String(i.minutes))}`}
+            </small>
+            <span class="portal-step__tags">
+              <span
+                class={
+                  i.required ? 'portal-tag' : 'portal-tag portal-tag--soft'
+                }
+              >
+                {i.required ? 'Needed' : 'Optional'}
+              </span>
+            </span>
+          </span>
+          <a
+            class={isNext ? 'button' : 'button button--secondary'}
+            href={i.href}
+          >
+            {i.done ? 'Change' : 'Fill in'}
+            <span class="sr-only">: {i.short}</span>
+          </a>
+        </li>
+      );
+    })}
   </ol>
   {tailor.is_published !== 1 &&
     (sent ? (
@@ -146,7 +169,11 @@ const status =
       >
         <input type="hidden" name="csrf" value={auth.csrfToken} />
         <h2>{ready ? g.readyHeading : 'When you are finished'}</h2>
-        <p>{ready ? g.readyText : g.almostText}</p>
+        <p>
+          {ready
+            ? g.readyText
+            : `${left} needed ${left === 1 ? 'step is' : 'steps are'} left. ${g.almostText}`}
+        </p>
         {ready && !items.find((i) => i.key === 'photos')?.done && (
           <p>{g.photoNudge}</p>
         )}
