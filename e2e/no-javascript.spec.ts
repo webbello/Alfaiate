@@ -88,3 +88,15 @@ test('the home page shows its menu links and the join form works with JavaScript
   await page.locator('#main button[type="submit"]').click();
   await expect(page).toHaveURL(/\/join\/thanks\?ref=JN-/);
 });
+
+test('the services section is a plain list, not a pinned reel, with JavaScript off', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const titles = page.locator('.our-works-section .works-title');
+  await expect(titles).toHaveCount(4);
+  for (let i = 0; i < 4; i++) await expect(titles.nth(i)).toBeVisible();
+  expect(
+    await page.locator('.works-sticky').evaluate((e) => getComputedStyle(e).position),
+  ).toBe('static');
+});
