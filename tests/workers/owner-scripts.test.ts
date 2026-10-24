@@ -106,7 +106,7 @@ describe('buildResetSql', () => {
     expect(row?.password_hash).toBe(hash);
     expect(
       await db
-        .prepare('SELECT 1 FROM session WHERE admin_user_id = ?')
+        .prepare('SELECT 1 FROM admin_session WHERE admin_user_id = ?')
         .bind(id)
         .first(),
     ).toBeNull();

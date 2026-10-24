@@ -42,7 +42,7 @@ const tailor = async (
         .run()
     ).meta.last_row_id;
     await db
-      .prepare('UPDATE tailor SET profile_photo_id = ? WHERE id = ?')
+      .prepare('UPDATE portfolio_image SET is_profile_photo = 1 WHERE id = ? AND tailor_id = ?')
       .bind(photo, id)
       .run();
   }

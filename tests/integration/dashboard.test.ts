@@ -52,7 +52,7 @@ beforeAll(async () => {
     e3,
   );
   await q(
-    "INSERT INTO contact_click_daily (tailor_id, channel, date, count) VALUES (?, 'phone', '2026-06-04', 6)",
+    "INSERT INTO contact_click_daily (tailor_id, channel, day, count) VALUES (?, 'phone', '2026-06-04', 6)",
     t,
   );
 });

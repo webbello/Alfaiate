@@ -34,7 +34,7 @@ export function buildResetSql(emailInput, hashInput) {
   const [email, hash] = checked(emailInput, hashInput);
   return [
     `UPDATE admin_user SET password_hash = '${hash}', updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE email = '${email}';`,
-    `DELETE FROM session WHERE admin_user_id IN (SELECT id FROM admin_user WHERE email = '${email}');`,
+    `DELETE FROM admin_session WHERE admin_user_id IN (SELECT id FROM admin_user WHERE email = '${email}');`,
     `INSERT INTO audit_log (admin_user_id, action, entity_type, entity_id) SELECT id, 'password_changed', 'admin_user', id FROM admin_user WHERE email = '${email}';`,
   ].join('\n');
 }

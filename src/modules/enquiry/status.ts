@@ -31,11 +31,12 @@ export const getEnquiry = (db: D1Database, id: number) =>
     .prepare(
       `SELECT e.id, e.reference_code, e.customer_name, e.contact_number_e164, e.contact_channel, c.name AS category_name, e.service_description,
               a.name AS area_name, e.area_text, e.preferred_datetime_text, e.notes, e.preferred_tailor_id, t.display_name AS preferred_tailor_name, e.consent_text_version,
-              e.consent_at, e.status, e.status_changed_at, e.is_spam, e.source, e.organisation_name, e.group_size_text, e.anonymised_at, e.created_at
+              e.consent_at, e.status, e.status_changed_at, e.is_spam, e.source, b.organisation_name, b.group_size_text, e.anonymised_at, e.created_at
        FROM enquiry e
        LEFT JOIN garment_category c ON c.id = e.garment_category_id
        LEFT JOIN service_area a ON a.id = e.area_id
        LEFT JOIN tailor t ON t.id = e.preferred_tailor_id
+       LEFT JOIN enquiry_business b ON b.enquiry_id = e.id
        WHERE e.id = ?`,
     )
     .bind(id)

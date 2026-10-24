@@ -1,244 +1,145 @@
-# Alfaiate TL — Conceptual Data Model
+# Alfaiate TL — Data Model
 
-Status: Draft v0.2 · 2026-10-18 · Requirements: [PRD.md](PRD.md) · Architecture: [ARCHITECTURE.md](ARCHITECTURE.md)
+Status: rewritten 2026-10-24 for the first deploy · Requirements: [PRD.md](PRD.md) · Architecture: [ARCHITECTURE.md](ARCHITECTURE.md)
 
-This is a conceptual model: names and types guide the schema in Phase 2 and may be adjusted there; changes must be reflected here. The schema is built as six baseline migrations, `0001` to `0006` (section 9 names them and lists where they differ from this model). All tables carry `id`, `created_at`, `updated_at` unless stated.
+The database is Cloudflare D1 (SQLite). The schema is **27 baseline migrations, one per table**, in `migrations/`, designed as one piece before anything was deployed (the earlier thirteen incremental files were thrown away; no data existed). **The migration files are the column-level source of truth**: every table and every non-obvious column carries a comment there. This document gives the map: what each file holds, how the tables relate, what is private, and the rules the database itself enforces.
 
 ## 1. Key distinctions
 
 | Concept | Meaning | Where recorded |
 |---|---|---|
-| **Enquiry** | A customer's request submitted through the form. Not an appointment. | `enquiry` |
-| **Referral** | The act of passing an enquiry to a specific tailor, with the tailor's response. | `referral` |
-| **Confirmed appointment** | Agreed between tailor and customer directly. **Not modelled** in the MVP (BR-02/03). The most the system holds is the tailor's `accepted` response. | — |
-| **Reported completed order** | A tailor (or customer) *says* the order was completed; recorded as a date and reporter on the referral. Not verified, not an order record. | `referral.completion_*` |
+| **Enquiry** | A customer's request submitted through a form. Not an appointment. | `enquiry` |
+| **Referral** | Passing an enquiry to one tailor by hand, with the tailor's response. | `referral` |
+| **Confirmed appointment** | Agreed between tailor and customer directly. **Not modelled** (BR-02/03). | — |
+| **Reported completed order** | Someone *says* the order was completed; a date and a reporter on the referral. Not verified. | `referral.completion_*` |
+| **Shop order** | A cart turned into a WhatsApp message. No customer data, no payment. | `shop_order` |
 
-No order, measurement, garment, payment-of-customer or delivery entities exist (PRD §7.3).
+No measurement, garment, customer-account, payment or delivery tables exist (PRD §7.3).
 
-## 2. Overview
+## 2. The migration files
 
+**One file per table**, named after the table (`0013_enquiry.sql`), in dependency order, each with a one-line header saying what the table is for and which requirement it serves. A table is defined in exactly one place with its final columns; no file exists to patch an earlier table. A file only references tables from earlier files, so there are no forward references. The conventions are stated in the header of `0001_admin_user.sql`.
+
+| Area | Files (number order) |
+|---|---|
+| Staff sign-in | `0001_admin_user`, `0002_admin_session`, `0003_rate_limit` |
+| Public catalogue | `0004_garment_category`, `0005_service_area`, `0006_tailor`, `0007_tailor_category`, `0008_tailor_area`, `0009_portfolio_image` |
+| Tailor sign-in (portal) | `0010_tailor_account`, `0011_tailor_session`, `0012_tailor_invite` |
+| Inbound and referral workflow (private) | `0013_enquiry`, `0014_enquiry_business`, `0015_enquiry_status_log`, `0016_referral` (with its four triggers), `0017_internal_note`, `0018_tailor_interest`, `0019_newsletter_signup` |
+| Shop | `0020_product_category` (the only migration seed: four product types), `0021_product`, `0022_product_image`, `0023_tailor_order_routing`, `0024_shop_order` |
+| Site records | `0025_audit_log`, `0026_contact_click_daily`, `0027_page_view_daily` |
+
+Launch categories and areas are not migrations: `seeds/launch.sql` loads them once. Apply the migrations with `wrangler d1 migrations apply`.
+
+## 3. How the tables relate
+
+```mermaid
+erDiagram
+  admin_user ||--o{ admin_session : "signs in"
+  admin_user ||--o{ audit_log : "acts"
+  admin_user ||--o{ internal_note : "writes"
+  admin_user ||--o{ enquiry_status_log : "changes status"
+
+  tailor ||--o{ tailor_category : "makes"
+  garment_category ||--o{ tailor_category : ""
+  tailor ||--o{ tailor_area : "works in"
+  service_area ||--o{ tailor_area : ""
+  tailor ||--o{ portfolio_image : "photos (one is the profile photo)"
+  tailor ||--o| tailor_account : "signs in as"
+  tailor_account ||--o{ tailor_session : ""
+  tailor_account ||--o{ tailor_invite : ""
+  tailor_account ||--o{ audit_log : "acts"
+  tailor ||--o| tailor_order_routing : "orders go to"
+  tailor ||--o{ product : "sells (or platform if empty)"
+  product_category ||--o{ product : ""
+  product ||--o{ product_image : ""
+
+  enquiry ||--o| enquiry_business : "business details"
+  enquiry ||--o{ enquiry_status_log : ""
+  enquiry ||--o{ referral : "handed to"
+  tailor ||--o{ referral : "receives"
+  enquiry ||--o{ internal_note : ""
+  tailor ||--o{ internal_note : ""
+  referral ||--o{ internal_note : ""
+  garment_category ||--o{ enquiry : "asked for"
+  service_area ||--o{ enquiry : "customer area"
+  tailor_interest }o--o| tailor : "approved into a draft"
+  tailor ||--o{ contact_click_daily : "tap counts"
 ```
-admin_user 1─* session
-admin_user 1─* audit_log
-admin_user 1─* enquiry_status_log (changed_by)
 
-tailor *─* garment_category   (tailor_category)
-tailor *─* service_area       (tailor_area)
-tailor 1─* portfolio_image
-tailor 1─* referral
-enquiry 1─* referral
-enquiry *─1 garment_category   (requested)
-enquiry *─1 service_area       (customer area)
-enquiry 1─* enquiry_status_log
-enquiry 1─* internal_note ; tailor 1─* internal_note ; referral 1─* internal_note   (one note table, nullable FKs)
-```
+Standalone: `rate_limit`, `shop_order`, `newsletter_signup`, `page_view_daily`.
 
-## 3. Entities
+## 4. Conventions (stated in `0001_admin_user.sql`, enforced where it can be)
 
-### 3.1 `tailor` — Public (conditional) / private fields noted
+- Singular table names. A foreign key column is `<table>_id` (the historical short forms `category_id` and `area_id` on `tailor_category`, `tailor_area` and `product` are kept because they are also admin form field names; each is unambiguous inside its table).
+- Timestamps are UTC ISO-8601 text in `*_at` columns with one default expression; calendar dates are text in `*_on` / `*_date` columns; booleans are `0/1` `is_*` columns (the legacy `permission_recorded`, `permission_granted`, `contact_publish_consent` are kept for the same reason as above). Enums are CHECK-constrained text.
+- Phone numbers are `*_e164` columns with one shape (`+`, non-zero digit, digits only, 8 to 16 characters). The Timor-Leste rule (AD-10) is applied in code by `normalisePhone`.
+- SQLite cannot share a CHECK, so the same expression is written out where needed; `tests/workers/schema-conventions.test.ts` fails if any copy differs, if a `*_at` column is not text, or if a timestamp default differs.
+- Prices are whole minor units of one site-wide currency (US cents; OQ-14).
+- Foreign keys are enforced. Staff are deactivated, never deleted. Lookup rows (categories, areas) are deactivated, never deleted while used.
 
-**Purpose:** a participating tailoring business. **Lifecycle:** `draft` → `approved` + `published` ⇄ `unpublished`; `suspended`; `archived`.
+## 5. What the database enforces
 
-| Field | Type | Visibility | Notes |
-|---|---|---|---|
-| slug | text, unique | public | URL identifier, stable |
-| display_name | text, required | public | Shop or tailor name |
-| description | text | public | Tailor-supplied unless marked verified |
-| profile_photo_id | FK portfolio_image, null | public | Logo/photo; needs permission |
-| shop_address_text | text, null | public if consented | Free text; no geocoding in MVP |
-| home_visits | enum yes/no/unknown | public | "unknown" is not displayed as "no" |
-| languages | text, null | public only if verified | |
-| price_note | text, null | public | Short approximate-price statement, labelled |
-| price_confirmed_on | date, null | public | When price info was last confirmed |
-| whatsapp_e164 | text, null | public if consented | |
-| phone_e164 | text, null | public if consented | |
-| status | enum | private | `draft`, `approved`, `suspended`, `archived` |
-| is_published | bool | private | Visibility switch |
-| published_at | timestamp, null | private | |
-| permission_recorded | bool, required to publish | private | BR-06 |
-| permission_note | text | private | Who/when/how permission was given |
-| permission_date | date, null | private | |
-| contact_publish_consent | bool | private | Whether numbers/address may be shown (PRV-06) |
-| verified_fields | list/JSON of field names | private (drives labels) | Which public facts the owner verified (BR-11) |
-| fee_terms_text | text, null | private | FR-REF-08 agreed referral-fee terms |
-| fee_terms_agreed_on | date, null | private | |
-| private_contact_name / private_phone | text, null | private | For forwarding enquiries when different from public contact |
-
-**Constraints:** slug unique; `is_published` true requires `status = approved` and `permission_recorded = true`; published tailors need at least a display name and one published contact method (application rule, confirmed 2026-10-19; see `publishBlockers` and `needs_contact`); whatsapp/phone stored in E.164.
-**Relations:** many categories, many areas, many images, many referrals.
-
-### 3.2 `garment_category` — Public
-
-**Purpose:** garment or service type used for filtering (e.g. suits, dresses, alterations — the list is the owner's, OQ-10).
-Fields: `slug` (unique), `name`, `description` (null), `sort_order`, `is_active`. Names are single-language now; per-language values can be added later (NFR-I18N-01).
-**Constraints:** deleting is blocked while in use — deactivate instead. Inactive categories disappear from public filters.
-
-### 3.3 `tailor_category` (join) — Public via tailor
-
-`tailor_id`, `category_id`, optional `price_from`, `price_to`, `price_unit_note` (null), `price_source` (`tailor_supplied`|`verified`), `price_confirmed_on`. One row per tailor-category pair (unique). This holds category-specific prices, avoiding duplicate price fields on `tailor`. Prices are US dollars, stored as whole cents (OQ-14, answered 2026-10-19). Display must include the "approximate" label (FR-PRO-03).
-
-### 3.4 `service_area` — Public
-
-**Purpose:** neighbourhood or zone in Dili where a tailor's shop is or where they travel. Fields: `slug` (unique), `name`, `sort_order`, `is_active`. List defined by owner (OQ-10). Customers choose an area in the form; tailors link to the areas they serve.
-
-### 3.5 `tailor_area` (join) — Public via tailor
-
-`tailor_id`, `area_id`, `kind` (`shop_location` | `serves`). Unique per triple.
-
-### 3.6 `portfolio_image` — Public if permitted
-
-| Field | Notes |
+| Rule | Where |
 |---|---|
-| tailor_id | FK |
-| file_key | Random identifier of the image variants in the object store (R2); no image bytes in the database |
-| alt_text / caption | Required alt text |
-| sort_order | |
-| permission_granted | bool; public only when true (BR-06) |
-| permission_date | date, null |
-| is_visible | admin hide toggle |
+| A tailor is published only when `approved` with permission recorded (BR-05, BR-06, AC-10) | CHECK on `tailor` |
+| A tailor has at most one profile photo; no pointer on `tailor` | partial unique index `portfolio_image_one_profile_photo` |
+| A referral needs an approved tailor and an enquiry that has sharing consent and live data (FR-REF-02, BR-08, AC-12) | four triggers on `referral` |
+| Live enquiries have name, number and channel (PRV-01); anonymised ones have none of the personal columns (PRV-04) | two CHECKs on `enquiry` |
+| `enquiry.source` is `form`, `business`, `shop` or `profile:<slug>` | CHECK |
+| A fee exists only after a completion report; a completion names its reporter; `paid` needs a paid date | CHECKs on `referral` |
+| A note belongs to exactly one of enquiry, tailor or referral | CHECK on `internal_note` |
+| A join request is `pending` exactly while it has no decision time | CHECK on `tailor_interest` |
+| An order route of `number` has a number, and the others do not | CHECK on `tailor_order_routing` |
+| A product is published only with a description | CHECK on `product` |
+| An audit row names at most one actor | CHECK on `audit_log` |
+| A tailor account has an email and a password together or neither | CHECK on `tailor_account` |
 
-**Lifecycle:** uploaded (private) → permitted & visible (public) → hidden or deleted; deleting removes files. Withdrawing permission removes public variants.
+Not enforced by the database (so enforced in code and tests): "at least one active owner" (one guarded UPDATE in `src/modules/auth/users.ts`), "a published tailor has a contact method", that `audit_log` is append-only (no code path updates it), and that a business enquiry has an `enquiry_business` row.
 
-### 3.7 `enquiry` — **Private**
-
-**Purpose:** one customer request (FR-ENQ). Never exposed publicly (BR-07).
-
-| Field | Notes |
-|---|---|
-| reference_code | Unique, non-sequential, shown to customer |
-| customer_name | required |
-| contact_number_e164 | required |
-| contact_channel | `whatsapp` \| `phone` \| `either` |
-| garment_category_id | FK, null (or "other" note) |
-| service_description | short text, null |
-| area_id | FK, null — customer's neighbourhood |
-| area_text | text, null — a street, landmark or "near" note (max 100), kept whether or not an area is chosen; never coordinates |
-| preferred_datetime_text | text, null — a preference, not a booking |
-| notes | text, null |
-| preferred_tailor_id | FK tailor, null — set when started from a profile or request list (the first published tailor on the list). Other tailors on the list are written into `notes` as free text ("Also asked about: ..."), not linked rows, and are cleared with the notes on anonymise |
-| consent_shared_with_tailor | bool, must be true |
-| consent_text_version | text |
-| consent_at | timestamp |
-| status | enum, see below |
-| status_changed_at | timestamp |
-| is_spam | bool |
-| source | e.g. `form`, `profile:<slug>`, `business`, `shop` (a request that named shop items; the item names are in `notes`) |
-| anonymised_at | timestamp, null |
-
-**Status values** (PRD §7.2, manual): `new`, `contacted`, `referred`, `accepted_by_tailor`, `completed_reported`, `not_converted`, `cancelled`. Default `new`. No enforced transitions.
-**Constraints:** consent must be true; reference unique; when anonymised the name, number, notes, service description, area text and preferred time must all be NULL (CHECK).
-**Lifecycle:** created → worked by admin → closed (completed_reported / not_converted / cancelled) → retained until the policy deadline (OQ-09, not decided) → anonymised by the owner (built, Phase 7; no hard delete exists) (PRV-04).
-Customer reference images (FR-ENQ-07, Should): **not built and no table exists**. If it ships, add an `enquiry_attachment` table (`enquiry_id`, `file_key`, private only) and make the anonymise routine delete the rows and their private files.
-
-### 3.7b `tailor_interest` — **Private** (Phase 7c, baseline `0004_portal.sql`)
-
-A tailor's "Join as a tailor" interest (FR-JOIN-01..03): `reference_code` (JN-…, unique), `contact_name`, `business_name`, `phone_e164`, `area_text`, `craft_text`, `message`, `consent_contact` (must be 1), `consent_text_version`, `consent_at`, `anonymised_at`, `created_at`. Live rows need a name and number; anonymised rows keep only the reference, consent and dates. It has **no link** to `tailor` or `admin_user`: nothing is created from it automatically. Admin-only; removed on request like an enquiry (audit row `interest_anonymised`, ids only).
-
-### 3.8 `referral` — **Private**
-
-**Purpose:** one enquiry passed to one tailor; the single place for forwarding, response, reported completion and fee. An enquiry may have several referrals over time (re-referral after decline); **one active** (`pending` or `accepted`) at a time, enforced in the INSERT and in every edit, not by the database.
-
-| Field | Notes |
-|---|---|
-| enquiry_id, tailor_id | FKs |
-| forwarded_at | Dili day `YYYY-MM-DD` text, null until forwarded |
-| forwarded_via | `whatsapp` \| `phone` \| `sms` \| `in_person` \| `other` |
-| fields_shared_note | text — what was shared (supports BR-08 audit) |
-| tailor_response | `pending` \| `accepted` \| `declined` \| `no_response` |
-| responded_at | Dili day text, null while `pending` |
-| completion_reported_at | Dili day text, null — set when completion is reported |
-| completion_reported_by | `tailor` \| `customer` \| `owner_confirmed` |
-| order_value_note | text/amount, null — as reported, optional, used only if the fee is value-based |
-| fee_basis_note | text — which agreed terms apply |
-| fee_amount | integer cents (US dollars), null |
-| fee_status | `not_due` \| `due` \| `paid` \| `waived` \| `disputed` |
-| fee_paid_at | Dili day text, null |
-| closed_reason | text, null |
-
-**Constraints:** enquiry must have consent true and tailor must be `approved` at creation; `fee_amount` allowed only when `completion_reported_at` is set (database CHECK); `fee_status = paid` requires `fee_paid_at` (CHECK); `due` or `paid` also needs the tailor's `fee_terms_agreed_on` (BR-09, enforced in `src/modules/referral/fee.ts`). `fields_shared_note` and `closed_reason` are free text: the anonymise routine (FR-ADM-09, not built yet) must clear them.
-**Why not duplicate status here:** the overall customer-facing lifecycle lives in `enquiry.status`; the referral stores only per-tailor facts. The admin UI never suggests or changes an enquiry status because of a referral edit (no workflow orchestration).
-
-### 3.9 `enquiry_status_log` — Private
-
-Append-only: `enquiry_id`, `from_status`, `to_status`, `changed_by` (admin_user), `changed_at`. Supports FR-ADM-07, M8 and reporting.
-
-### 3.10 `internal_note` — Private
-
-`body`, `author_id`, with exactly one of `enquiry_id`, `tailor_id`, `referral_id` set. Never rendered publicly.
-
-### 3.11 `admin_user`, `session`, `audit_log` — Private
-
-`admin_user`: `email` (unique), `password_hash` (plus KDF parameters/salt), `role` (`owner` | `manager` | `editor` | `viewer`; one role per user; the role-to-permission map is defined in code, see ARCHITECTURE §6), `is_active`, `last_login_at`. Constraint: at least one active `owner` must always exist.
-`session`: `token_hash` (the raw token lives only in the cookie), `admin_user_id`, `expires_at`, `created_at`.
-`audit_log`: append-only `admin_user_id`, `action` (e.g. `login`, `role_changed`, `tailor_published`, `enquiry_status_changed`), `entity_type`, `entity_id`, `at`; no customer data in the log text. `enquiry_status_log` (3.9) remains the detailed status history. Users section (no schema change): audit actions `user_password_reset` and `user_signed_out` record the target user id only, never a password, hash or link.
-No customer identities exist. Tailors have their own sign-in tables (3.13). First owner is created by a seed script; further users by an owner.
-
-### 3.13 Tailor portal (baseline `0004_portal.sql`; FR-TPO-*)
-
-- `tailor_account` (`tailor_id` unique, `email` unique and `password_hash` empty until the invite is accepted, `is_active`, `consent_version`, `consent_at`, `last_login_at`, `review_requested_at`) — one per tailor, cascades with the tailor.
-- `tailor_session` (`token_hash`, `tailor_account_id`, `last_seen_at`, `expires_at`) — separate from `session`.
-- `tailor_invite` (`tailor_account_id`, `token_hash`, `expires_at`, `used_at`) — single use; only the hash is stored.
-- `tailor_interest` gains `decision` (pending, approved, declined), `tailor_id`, `decided_at`.
-- `audit_log` gains `tailor_account_id` (an id only).
-
-### 3.12 Aggregates and operational tables
-
-- `page_view_daily` (`day`, `path`, `referrer`, `count`; baseline `0006_analytics.sql`) — cookie-free visit counts by Dili day, public page and referring group (`direct`, `internal`, `search`, `social` or a host name), no address, device or visitor id; bots and Do Not Track / Global Privacy Control visits are not counted (ANA-01). Public: no.
-- `contact_click_daily` (`tailor_id`, `channel`, `date`, `count`) — aggregate counts only, no visitor data (ANA-02, PRV-05). Public: no.
-- `rate_limit` (key hash, window, count) — transient; may live in memory instead.
-- Reports (FR-RPT) are computed by queries, not stored.
-
-### 3.14 Shop (baseline `0005_shop.sql`; FR-SHP-*)
-
-`product_category` (slug, name, sort order, active; seeded with Exclusive collection, Ready-made clothing, Fabrics, Accessories) and `product` (slug, name, description, `price_cents` in US dollars or NULL, price note, category, `seller_tailor_id` NULL for the platform's own product and set for a tailor's product (S4), availability available/unavailable, `is_published`, `published_at`). A CHECK stops a published row without a description. Enquiry only: no stock, price history, order or payment tables. `product_image` (`0005_shop`: product, unguessable file key, alt text, order; bytes in R2 under `product/<id>/<key>/<variant>.jpg`, at most 6 a product, public only while the product is published) holds the photos; the same file also has `permission_granted` (default 1 for the platform's photos; a tailor's upload sets it with `permission_date`, the day the tailor confirmed) and an index on `product.seller_tailor_id`. `details`, `features` and `returns` (`0005_shop`; text, one item a line, shown as the product page's tabs) and `is_featured` (the shop's "Most loved" slider; set by staff with `product.publish`). A product with a seller is public only while the seller tailor is published with recorded permission and each photo has `permission_granted = 1`. Product enquiries are ordinary `enquiry` rows with `source = 'shop'` (no table). **Orders (`0002_catalogue` and `0005_shop`):** `tailor.order_route` (`admin` default, `tailor`, `number`) and `tailor.order_number_e164` say where orders for that tailor's products go; staff set them, no tailor form can. `shop_order` records each order message that was prepared: `reference_code` (`OR-` plus 8 characters), `total_cents`, `items_json` (slug, name, quantity, price at that moment), `routes_json` (destination kind and label, item count, subtotal) and `created_at`; **no customer name, number or address**. Public only while `is_published = 1`.
-
-## 4. Public vs private summary
+## 6. Public and private
 
 | Public (only when published and permitted) | Private (admin only) |
 |---|---|
-| tailor public fields (D1), categories, areas, permitted images, price notes with labels | enquiry, referral, notes, status log, fee data, permissions and fee terms, admin_user, session, private contact fields, click aggregates |
+| tailor profile fields, categories, areas, permitted photos, price notes with their source label, permitted products and their photos | everything in `0004_inbound.sql`; `tailor` columns under "admin only" (`private_contact_name`, `private_phone`, `fee_terms_*`); `referral`; notes; status log; staff and tailor accounts and sessions; `shop_order`; `tailor_order_routing`; `audit_log`; the counters |
 
-## 5. Verification handling
+`tailor.verified_fields` (JSON list of profile fields staff have checked) and `price_source` express what the owner verified; anything else shows as "information supplied by the tailor" (BR-11). No ratings, credentials or claims fields exist.
 
-`tailor.verified_fields` plus `price_source` express which public facts the owner verified; anything else is displayed as "information supplied by the tailor". No ratings, credentials or claims fields exist in the model; adding one requires a PRD change (BR-11).
+JSON in text is used in exactly three places, each justified: `tailor.verified_fields` (a short list edited as a whole), `shop_order.items_json` and `routes_json` (frozen snapshots of one prepared message, never filtered by field).
 
-## 6. Data minimisation and retention
+## 7. Anonymise and retention
 
-- Customer data lives only in `enquiry` (and optionally attachments); `referral` stores no customer copy.
-- Anonymisation keeps non-identifying fields (category, area, status, dates, fee data) for reporting.
-- Retention period is an open decision (OQ-09). Backups follow the same policy.
+- Customer data lives only in `enquiry`, `enquiry_business`, `tailor_interest` and `newsletter_signup`; `referral` stores no copy.
+- **Anonymise an enquiry (FR-ADM-09):** one batch clears `customer_name`, `contact_number_e164`, `notes`, `service_description`, `area_text`, `preferred_datetime_text` and sets `anonymised_at`; **deletes the `enquiry_business` row**; clears `fields_shared_note`, `closed_reason`, `order_value_note` and `fee_basis_note` on its referrals; deletes its `internal_note` rows and the notes on its referrals; writes an `enquiry_anonymised` audit row (ids only). Category, area, status, status log, dates, source and fee amounts stay for reporting. Afterwards the code refuses free text on that enquiry.
+- **Anonymise a join request:** clears name, business, phone, area, craft and message; keeps reference, consent and decision.
+- Customer reference photos (FR-ENQ-07) are **not built and have no table**. If they ship, add a table and extend the anonymise routine to delete the rows and their private files.
+- Retention period: OQ-09. Backups follow the same policy.
 
-## 7. Indexing and integrity notes
+## 8. Delete behaviour
 
-Index: `tailor(slug)`, `tailor(is_published, status)`, joins by FK, `enquiry(status, created_at)`, `enquiry(reference_code)`, `referral(enquiry_id)`, `referral(tailor_id, fee_status)`. Foreign keys enforced; migrations are reversible or have a documented restore path.
+CASCADE: `admin_session`, `tailor_category`, `tailor_area`, `portfolio_image`, `tailor_account` and its sessions and invites, `tailor_order_routing`, `product_image`, a tailor's own `product`, `enquiry_business`, `enquiry_status_log`, `referral.enquiry_id`, `internal_note`, `contact_click_daily`. RESTRICT: `tailor_category.category_id`, `tailor_area.area_id`, `referral.tailor_id`, `internal_note.author_id`, `enquiry.garment_category_id`, `enquiry.area_id`. SET NULL: `audit_log` actors, `enquiry_status_log.changed_by`, `enquiry.preferred_tailor_id`, `tailor_interest.tailor_id`, `product.category_id`.
 
-## 8. Requirement coverage
+## 9. Indexes
 
-FR-PRO-* → tailor, tailor_category, tailor_area, portfolio_image · FR-ENQ-* → enquiry · FR-ADM-* → all admin tables · FR-REF-* → referral, tailor fee terms · FR-RPT-* → computed from enquiry, status_log, referral · SEC-05/BR-07 → public/private split · ANA-01 → page_view_daily · ANA-02 → contact_click_daily.
+`tailor(is_published, status)`, `tailor_category(category_id)`, `tailor_area(area_id)`, `portfolio_image(tailor_id, sort_order)` and the unique profile-photo index, `enquiry(status, created_at)`, `enquiry(garment_category_id)`, `enquiry(area_id)`, `enquiry(preferred_tailor_id)`, `enquiry_status_log(enquiry_id, changed_at)`, `referral(enquiry_id)`, `referral(tailor_id, fee_status)`, `internal_note` (one per owner column), `tailor_interest(created_at)`, `tailor_interest(tailor_id)`, `admin_session(admin_user_id)`, `tailor_session(tailor_account_id)`, `tailor_invite(tailor_account_id)`, `rate_limit(window_start)`, `audit_log(admin_user_id, id)`, `audit_log(tailor_account_id)`, `product(is_published, category_id)`, `product(seller_tailor_id)`, `product_image(product_id, sort_order)`, `shop_order(created_at)`; uniques on slugs, reference codes, token hashes, file keys and emails.
 
-## 9. As implemented in migrations (`migrations/0001` to `0006`, a clean baseline)
+## 10. Requirement coverage
 
-Where the migrations refine the conceptual model above, the migrations win; this list records the differences.
+FR-PRO-* → `tailor`, `tailor_category`, `tailor_area`, `portfolio_image` · FR-ENQ-* → `enquiry`, `enquiry_business` (FR-ENQ-09) · FR-JOIN-* → `tailor_interest` · FR-TPO-* → `tailor_account`, `tailor_session`, `tailor_invite` · FR-SHP-* → `product*`, `tailor_order_routing`, `shop_order` · FR-PUB-08 → `newsletter_signup` · FR-ADM-* → the admin tables · FR-REF-* → `referral`, tailor fee terms · FR-RPT-* → computed from `enquiry`, `enquiry_status_log`, `referral` · SEC-05/BR-07 → the public/private split above · ANA-01 → `page_view_daily` · ANA-02 → `contact_click_daily`.
 
-- Timestamps are UTC ISO-8601 text, booleans 0/1, enums CHECK-constrained text, foreign keys enforced. Prices (`price_from`/`price_to`, `fee_amount`) are whole minor units of one site-wide currency (US cents, OQ-14 answered).
-- `session` also has `last_seen_at` (idle expiry) and `expires_at` (absolute expiry). CSRF tokens are derived, not stored.
-- `tailor`: publishing is refused by CHECK unless `status = 'approved'` and `permission_recorded = 1`. "At least one published contact method" stays an application rule (it was Proposed).
-- `enquiry`: `customer_name`, `contact_number_e164` and `contact_channel` are nullable only when `anonymised_at` is set; a CHECK requires them present before, and requires name, number, notes and `service_description` to be cleared after. Consent must be 1.
-- `referral`: triggers refuse creation for a tailor that is not `approved`, and for an enquiry that is anonymised (FR-REF-02, AC-12). CHECKs: `fee_amount` only after `completion_reported_at`; a completion needs `completion_reported_by`; `fee_status = 'paid'` needs `fee_paid_at`.
-- `internal_note`: exactly one of `enquiry_id`, `tailor_id`, `referral_id` (CHECK); `author_id` is required and users are deactivated, never deleted.
-- `audit_log` and `enquiry_status_log` are append-only by convention (the code has no update path); no database triggers enforce it.
-- `rate_limit` uses an integer `window_start` (epoch seconds).
-- **Files (baseline, rebuilt 2026-10-24 before the first deploy; nothing had been deployed, so the earlier thirteen incremental files were replaced, not followed):** `0001_auth.sql` (`admin_user`, `session`, `audit_log`, `rate_limit`), `0002_catalogue.sql` (`tailor` including the order-routing columns, `garment_category`, `tailor_category`, `service_area`, `tailor_area`, `portfolio_image`), `0003_enquiries.sql` (`enquiry` including the business columns, `enquiry_status_log`, `referral` and its triggers, `internal_note`, `newsletter_signup`), `0004_portal.sql` (`tailor_interest` with its decision columns, `tailor_account` with `review_requested_at`, `tailor_session`, `tailor_invite`), `0005_shop.sql` (`product_category` with its four seeded rows, `product`, `product_image`, `shop_order`), `0006_analytics.sql` (`contact_click_daily`, `page_view_daily`). Foreign keys that point at a table created later (`audit_log.tailor_account_id`, `tailor.profile_photo_id`) are checked when rows are written, not when tables are created. Details of the tables: `newsletter_signup` (email unique, case-insensitive, 6 to 254 characters; consent version and time; no name, no IP; removal deletes the row and writes a `newsletter_removed` audit row), `enquiry.organisation_name` (at most 100) and `group_size_text` (at most 40) set only by the business form (FR-ENQ-09, `source = 'business'`), `tailor_interest` (live rows need a name and a number, anonymised rows keep only the reference, consent and dates; references `JN-` plus 8 characters; consent version `consent-join-2026-10-v1-<lang>`; audit action `interest_anonymised`).
-- **Baseline refinements (2026-10-24):** `enquiry_attachment` dropped (FR-ENQ-07 is not built, nothing used it, and the anonymise routine did not cover it; add it back with that feature). New CHECK: `tailor.order_route = 'number'` needs `order_number_e164`. New indexes: `audit_log_user (admin_user_id, id)` and `audit_log_tailor_account` (the user activity list and the SET NULL deletes), `rate_limit_window (window_start)` (the cleanup delete), `enquiry_category`, `enquiry_area`, `enquiry_preferred_tailor` (RESTRICT and SET NULL deletes), `tailor_interest_tailor`. Columns added by later migrations now sit in their natural place in each `CREATE TABLE`. Every other table, column, CHECK, foreign key, trigger and index is identical to the old chain (verified by dumping both).
-- **Last owner:** "at least one active owner" (§3.11) is not a database constraint. It is enforced by one guarded UPDATE in `src/modules/auth/users.ts`, so a direct SQL edit can bypass it.
-- **Password hash:** `admin_user.password_hash` holds the whole `pbkdf2-sha256$iterations$salt$hash` string; there are no separate KDF columns. `admin_user.email` is unique, case-insensitive (`COLLATE NOCASE`), length > 3.
-- **Phone shape:** `whatsapp_e164`, `phone_e164` and `contact_number_e164` have a CHECK for E.164 shape (leading `+`, non-zero first digit, digits only, 8-16 characters). The Timor-Leste rule (AD-10: `+670` + 8 digits starting 7 or 3) is applied in application code by `normalisePhone`, not in the database.
-- **Dates** (`price_confirmed_on`, `permission_date`, `fee_paid_at`, `contact_click_daily.date`, ...) are plain text. `tailor.verified_fields` defaults to `'[]'` and is `json_valid`-checked.
-- **Referral triggers** run on INSERT and on UPDATE of `tailor_id` / `enquiry_id`, so a referral cannot be moved to an unapproved tailor or an anonymised enquiry.
-- **Anonymise routine (FR-ADM-09, built in Phase 7):** clears the six personal enquiry columns and sets `anonymised_at`; clears `fields_shared_note`, `closed_reason`, `order_value_note` and `fee_basis_note` on the enquiry's referrals; deletes the enquiry's `internal_note` rows and those on its referrals; writes an `enquiry_anonymised` audit row (ids only); afterwards the application refuses free text on that enquiry, its notes and its referrals. Customer photos (FR-ENQ-07) are not built and have no table: the routine must delete them if that is ever added.
-- **Delete behaviour:** CASCADE for `session`, `tailor_category`, `tailor_area`, `portfolio_image`, `referral.enquiry_id`, `enquiry_status_log`, `internal_note`, `contact_click_daily`. RESTRICT for `tailor_category.category_id`, `tailor_area.area_id`, `referral.tailor_id`, `internal_note.author_id`, `enquiry.garment_category_id`, `enquiry.area_id`. SET NULL for `audit_log.admin_user_id`, `enquiry_status_log.changed_by`, `enquiry.preferred_tailor_id`, `tailor.profile_photo_id`.
-- **Indexes** beyond §7: `session_user`, `tailor_category_category`, `tailor_area_area`, `portfolio_image_tailor`, `enquiry_status_log_enquiry`, `internal_note_*`, plus those listed under Baseline refinements.
-- **Phase 3 conventions (no schema change):** `tailor.verified_fields` holds a JSON list drawn from `description, shop_address_text, home_visits, languages, price_note, whatsapp, phone`, in that order; editing a verified value removes it from the list. `portfolio_image.file_key` is the 32-hex base of the three R2 objects `tailor/<tailor_id>/<file_key>/<variant>.jpg`. `tailor.profile_photo_id` may only point to a photo with permission that is visible, and is cleared otherwise. `tailor_category.price_*` are US cents (OQ-14). `internal_note` rows for a tailor can be added by any role with `tailor.edit`, even when the tailor is published.
+## 11. Changes from the first baseline (2026-10-24, before any deploy)
 
-- **Phase 6 conventions (no schema change):** `referral.forwarded_at`, `responded_at`, `completion_reported_at` and `fee_paid_at` are `YYYY-MM-DD` text meaning the Dili calendar day (UTC+9), typed by an admin; `fee_amount` is integer cents (US dollars); a referral is never deleted and a new one is created on reassignment; only one referral per enquiry may be `pending` or `accepted` (checked in the INSERT, not by the database); `enquiry.consent_shared_with_tailor` is always 1 (CHECK), so the consent refusal in practice means an anonymised enquiry; audit actions `referral_created`, `referral_updated`, `referral_fee_updated` (referral id only).
-- **Phase 5 conventions (no schema change):** `enquiry.source` is `form`, `profile:<slug>`, `business` or `shop`; `reference_code` is `AT-` plus 8 characters from `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`; `consent_text_version` is `consent-2026-10-v1-<language>`; the first `enquiry_status_log` row has `from_status` NULL, `to_status` `new` and `changed_by` NULL; spam toggles write only an `audit_log` row (`enquiry_spam_changed`), and status changes write `enquiry_status_changed` (ids only).
+The design review that produced these files moved every "later addition" to its proper home. Old to new, for the columns that changed (all other columns kept their table and name; the complete 239-row list was checked by script with none missing):
+
+| Old | New |
+|---|---|
+| `session` (table) | `admin_session` (pairs with `tailor_session`) |
+| `audit_log.at` | `audit_log.created_at` |
+| `contact_click_daily.date` | `contact_click_daily.day` (same name as `page_view_daily.day`; now CHECKed as a date) |
+| `enquiry.organisation_name`, `enquiry.group_size_text` | `enquiry_business` (1:1; `organisation_name` is required there) |
+| `tailor.order_route`, `tailor.order_number_e164` | `tailor_order_routing.route`, `.number_e164` (no row means the admin number) |
+| `tailor.profile_photo_id` | `portfolio_image.is_profile_photo` with a partial unique index |
+| `enquiry_attachment` (table) | dropped (feature not built) |
+| `enquiry.source` (free text) | same column, now CHECK-constrained |
+
+New constraints and indexes: see §5 and §9. Reasons and rejected alternatives are in [DECISIONS.md](DECISIONS.md) (2026-10-24).

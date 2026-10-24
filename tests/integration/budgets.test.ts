@@ -170,7 +170,7 @@ describe('images are sized, described and lazy (NFR-PERF-01, NFR-A11Y-01)', () =
     const first = await photo(unique().toString(16).padStart(32, '0'));
     await photo(unique().toString(16).padStart(32, '0'));
     await db
-      .prepare('UPDATE tailor SET profile_photo_id = ? WHERE id = ?')
+      .prepare('UPDATE portfolio_image SET is_profile_photo = 1 WHERE id = ? AND tailor_id = ?')
       .bind(first, id)
       .run();
     const slugOf = (await db

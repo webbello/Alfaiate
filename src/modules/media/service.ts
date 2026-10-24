@@ -193,11 +193,17 @@ export async function setProfilePhoto(
   if (!image) return { ok: false, error: 'not_found' };
   if (!image.permission_granted || !image.is_visible)
     return { ok: false, error: 'not_permitted' };
-  await b.DB.prepare(
-    `UPDATE tailor SET profile_photo_id = ?, updated_at = ${NOW} WHERE id = ?`,
-  )
-    .bind(imageId, tailorId)
-    .run();
+  await b.DB.batch([
+    b.DB.prepare(
+      'UPDATE portfolio_image SET is_profile_photo = 0 WHERE tailor_id = ? AND is_profile_photo = 1 AND id <> ?',
+    ).bind(tailorId, imageId),
+    b.DB.prepare(
+      'UPDATE portfolio_image SET is_profile_photo = 1 WHERE id = ? AND tailor_id = ?',
+    ).bind(imageId, tailorId),
+    b.DB.prepare(`UPDATE tailor SET updated_at = ${NOW} WHERE id = ?`).bind(
+      tailorId,
+    ),
+  ]);
   await audit(b.DB, {
     ...who(actorId),
     action: 'tailor_updated',

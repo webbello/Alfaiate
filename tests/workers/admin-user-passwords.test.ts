@@ -44,13 +44,13 @@ describe('resetPassword', () => {
     const target = await addUser('manager');
     await db
       .prepare(
-        "INSERT INTO session (token_hash, admin_user_id, expires_at) VALUES ('h-reset', ?, '2999-01-01T00:00:00Z')",
+        "INSERT INTO admin_session (token_hash, admin_user_id, expires_at) VALUES ('h-reset', ?, '2999-01-01T00:00:00Z')",
       )
       .bind(target)
       .run();
     expect(
       (await db
-        .prepare('SELECT count(*) AS c FROM session WHERE admin_user_id = ?')
+        .prepare('SELECT count(*) AS c FROM admin_session WHERE admin_user_id = ?')
         .bind(target)
         .first<{ c: number }>())!.c,
     ).toBe(1);
@@ -69,7 +69,7 @@ describe('resetPassword', () => {
     ).toBe(false);
     expect(
       (await db
-        .prepare('SELECT count(*) AS c FROM session WHERE admin_user_id = ?')
+        .prepare('SELECT count(*) AS c FROM admin_session WHERE admin_user_id = ?')
         .bind(target)
         .first<{ c: number }>())!.c,
     ).toBe(0);
@@ -104,14 +104,14 @@ describe('signOutEverywhere', () => {
     const target = await addUser('editor');
     await db
       .prepare(
-        "INSERT INTO session (token_hash, admin_user_id, expires_at) VALUES ('h-out', ?, '2999-01-01T00:00:00Z')",
+        "INSERT INTO admin_session (token_hash, admin_user_id, expires_at) VALUES ('h-out', ?, '2999-01-01T00:00:00Z')",
       )
       .bind(target)
       .run();
     expect(await signOutEverywhere(db, me, target)).toEqual({ ok: true });
     expect(
       (await db
-        .prepare('SELECT count(*) AS c FROM session WHERE admin_user_id = ?')
+        .prepare('SELECT count(*) AS c FROM admin_session WHERE admin_user_id = ?')
         .bind(target)
         .first<{ c: number }>())!.c,
     ).toBe(0);

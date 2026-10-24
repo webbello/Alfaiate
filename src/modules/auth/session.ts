@@ -40,7 +40,7 @@ export async function createSession(
   const expiresAt = new Date(now.getTime() + ABSOLUTE_MS).toISOString();
   await db
     .prepare(
-      'INSERT INTO session (token_hash, admin_user_id, last_seen_at, expires_at) VALUES (?, ?, ?, ?)',
+      'INSERT INTO admin_session (token_hash, admin_user_id, last_seen_at, expires_at) VALUES (?, ?, ?, ?)',
     )
     .bind(await hashToken(token), userId, now.toISOString(), expiresAt)
     .run();
@@ -66,7 +66,7 @@ export async function validateSession(
   const row = await db
     .prepare(
       `SELECT s.id, s.admin_user_id, u.email, u.role, u.is_active, s.last_seen_at, s.expires_at
-       FROM session s JOIN admin_user u ON u.id = s.admin_user_id WHERE s.token_hash = ?`,
+       FROM admin_session s JOIN admin_user u ON u.id = s.admin_user_id WHERE s.token_hash = ?`,
     )
     .bind(await hashToken(token))
     .first<Row>();
@@ -76,11 +76,11 @@ export async function validateSession(
   const expired =
     now.getTime() > idleDeadline || now.toISOString() > row.expires_at;
   if (expired || !row.is_active) {
-    await db.prepare('DELETE FROM session WHERE id = ?').bind(row.id).run();
+    await db.prepare('DELETE FROM admin_session WHERE id = ?').bind(row.id).run();
     return null;
   }
   await db
-    .prepare('UPDATE session SET last_seen_at = ? WHERE id = ?')
+    .prepare('UPDATE admin_session SET last_seen_at = ? WHERE id = ?')
     .bind(now.toISOString(), row.id)
     .run();
   return {
@@ -96,7 +96,7 @@ export async function revokeSession(
   token: string,
 ): Promise<void> {
   await db
-    .prepare('DELETE FROM session WHERE token_hash = ?')
+    .prepare('DELETE FROM admin_session WHERE token_hash = ?')
     .bind(await hashToken(token))
     .run();
 }
@@ -109,7 +109,7 @@ export async function revokeUserSessions(
 ): Promise<void> {
   const keepHash = keepToken ? await hashToken(keepToken) : '';
   await db
-    .prepare('DELETE FROM session WHERE admin_user_id = ? AND token_hash <> ?')
+    .prepare('DELETE FROM admin_session WHERE admin_user_id = ? AND token_hash <> ?')
     .bind(userId, keepHash)
     .run();
 }

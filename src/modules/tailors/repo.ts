@@ -104,8 +104,14 @@ export async function getTailor(
   db: D1Database,
   id: number,
 ): Promise<TailorRow | null> {
+  // The profile photo and the order route live in their own places; they are joined back here so the admin page reads one row.
   return db
-    .prepare('SELECT * FROM tailor WHERE id = ?')
+    .prepare(
+      `SELECT t.*,
+              (SELECT p.id FROM portfolio_image p WHERE p.tailor_id = t.id AND p.is_profile_photo = 1) AS profile_photo_id,
+              COALESCE(o.route, 'admin') AS order_route, o.number_e164 AS order_number_e164
+       FROM tailor t LEFT JOIN tailor_order_routing o ON o.tailor_id = t.id WHERE t.id = ?`,
+    )
     .bind(id)
     .first<TailorRow>();
 }

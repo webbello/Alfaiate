@@ -76,7 +76,7 @@ export async function recentActivity(
   return (
     await db
       .prepare(
-        'SELECT action, at FROM audit_log WHERE admin_user_id = ? ORDER BY id DESC LIMIT ?',
+        'SELECT action, created_at AS at FROM audit_log WHERE admin_user_id = ? ORDER BY id DESC LIMIT ?',
       )
       .bind(id, limit)
       .all<Activity>()

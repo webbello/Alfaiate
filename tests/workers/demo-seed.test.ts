@@ -102,7 +102,7 @@ describe('loading and removing on a scratch database', () => {
     );
     // real-looking rows that share the made-up number prefix but not the demo markers must survive the removal
     await run(
-      "INSERT INTO enquiry (reference_code, customer_name, contact_number_e164, contact_channel, consent_shared_with_tailor, consent_text_version, consent_at, source) VALUES ('AT-REAL0001', 'Real Person', '+67070009999', 'phone', 1, 'v1', '2026-01-01T00:00:00Z', 'request form');",
+      "INSERT INTO enquiry (reference_code, customer_name, contact_number_e164, contact_channel, consent_shared_with_tailor, consent_text_version, consent_at, source) VALUES ('AT-REAL0001', 'Real Person', '+67070009999', 'phone', 1, 'v1', '2026-01-01T00:00:00Z', 'form');",
     );
     await run(
       "INSERT INTO tailor_interest (reference_code, contact_name, phone_e164, consent_contact, consent_text_version, consent_at) VALUES ('JN-REAL0001', 'Real Applicant', '+67070009998', 1, 'v1', '2026-01-01T00:00:00Z');",
@@ -120,7 +120,7 @@ describe('loading and removing on a scratch database', () => {
     // nothing but demo rows was added to the person-level tables
     expect(
       await one(
-        "SELECT count(*) AS n FROM enquiry WHERE source <> 'demo data'",
+        "SELECT count(*) AS n FROM enquiry WHERE consent_text_version <> 'consent-demo'",
       ),
     ).toBe(before.enquiry);
     expect(

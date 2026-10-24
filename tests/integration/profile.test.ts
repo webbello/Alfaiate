@@ -226,7 +226,7 @@ describe('profile page (AC-03, FR-PRO-01/02/03/05/08)', () => {
     const t = await tailor();
     const p = await photo(t.id, 'Pf Lead Alt');
     await db
-      .prepare('UPDATE tailor SET profile_photo_id = ? WHERE id = ?')
+      .prepare('UPDATE portfolio_image SET is_profile_photo = 1 WHERE id = ? AND tailor_id = ?')
       .bind(p.id, t.id)
       .run();
     expect((await page(`/tailors/${t.slug}`)).html).toContain(

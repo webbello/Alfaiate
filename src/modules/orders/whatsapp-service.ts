@@ -76,9 +76,10 @@ export function whatsappOrderService(deps: {
       const { results } = await db
         .prepare(
           `SELECT p.id, p.slug, p.name, p.price_cents, p.availability, p.seller_tailor_id,
-                  st.display_name AS seller_name, st.order_route, st.order_number_e164, st.whatsapp_e164, st.contact_publish_consent,
+                  st.display_name AS seller_name, o.route AS order_route, o.number_e164 AS order_number_e164, st.whatsapp_e164, st.contact_publish_consent,
                   (SELECT i.file_key FROM product_image i WHERE i.product_id = p.id AND i.permission_granted = 1 ORDER BY i.sort_order, i.id LIMIT 1) AS photo_key
            FROM product p LEFT JOIN tailor st ON st.id = p.seller_tailor_id
+           LEFT JOIN tailor_order_routing o ON o.tailor_id = st.id
            WHERE p.is_published = 1 AND (p.seller_tailor_id IS NULL OR (st.is_published = 1 AND st.permission_recorded = 1))
              AND p.slug IN (SELECT value FROM json_each(?))`,
         )

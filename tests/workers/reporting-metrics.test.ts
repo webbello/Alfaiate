@@ -160,7 +160,7 @@ beforeAll(async () => {
 
   const click = (t: string, channel: string, date: string, count: number) =>
     q(
-      'INSERT INTO contact_click_daily (tailor_id, channel, date, count) VALUES (?, ?, ?, ?)',
+      'INSERT INTO contact_click_daily (tailor_id, channel, day, count) VALUES (?, ?, ?, ?)',
       ids[t],
       channel,
       date,

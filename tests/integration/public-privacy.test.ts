@@ -98,18 +98,22 @@ describe('public pages never contain private values (SEC-05, BR-07, AC-15)', () 
     const enquiry = (
       await db
         .prepare(
-          "INSERT INTO enquiry (reference_code, customer_name, contact_number_e164, contact_channel, notes, consent_shared_with_tailor, consent_text_version, consent_at, source, organisation_name, group_size_text) VALUES (?, ?, ?, 'phone', ?, 1, 'v1', '2026-01-01T00:00:00Z', 'business', ?, ?)",
+          "INSERT INTO enquiry (reference_code, customer_name, contact_number_e164, contact_channel, notes, consent_shared_with_tailor, consent_text_version, consent_at, source) VALUES (?, ?, ?, 'phone', ?, 1, 'v1', '2026-01-01T00:00:00Z', 'business')",
         )
         .bind(
           `REF-SWEEP-${unique()}`,
           SECRET.customerName,
           SECRET.customerPhone,
           SECRET.customerNote,
-          SECRET.organisation,
-          SECRET.groupSize,
         )
         .run()
     ).meta.last_row_id;
+    await db
+      .prepare(
+        'INSERT INTO enquiry_business (enquiry_id, organisation_name, group_size_text) VALUES (?, ?, ?)',
+      )
+      .bind(enquiry, SECRET.organisation, SECRET.groupSize)
+      .run();
     await db
       .prepare(
         `INSERT INTO referral (enquiry_id, tailor_id, forwarded_at, tailor_response, completion_reported_at, completion_reported_by, fields_shared_note,

@@ -335,7 +335,7 @@ describe('image actions and permission', () => {
     ).toBe(`/admin/tailors/${id}?msg=saved`);
     expect(
       (
-        await env.DB.prepare('SELECT profile_photo_id FROM tailor WHERE id = ?')
+        await env.DB.prepare('SELECT (SELECT p.id FROM portfolio_image p WHERE p.tailor_id = tailor.id AND p.is_profile_photo = 1) AS profile_photo_id FROM tailor WHERE id = ?')
           .bind(id)
           .first<{ profile_photo_id: number }>()
       )?.profile_photo_id,

@@ -247,7 +247,7 @@ describe('deleteImage', () => {
       .first<{ file_key: string }>())!.file_key;
     for (const variant of ['thumb', 'medium', 'large'] as const)
       await env.MEDIA_PUBLIC.put(`tailor/${id}/${key}/${variant}.jpg`, 'x');
-    await env.DB.prepare('UPDATE tailor SET profile_photo_id = ? WHERE id = ?')
+    await env.DB.prepare('UPDATE portfolio_image SET is_profile_photo = 1 WHERE id = ? AND tailor_id = ?')
       .bind(stored.id, id)
       .run();
     expect(await deleteImage(buckets, by, id, stored.id)).toEqual({ ok: true });
@@ -260,7 +260,7 @@ describe('deleteImage', () => {
     ).toBeNull();
     expect(
       (
-        await env.DB.prepare('SELECT profile_photo_id FROM tailor WHERE id = ?')
+        await env.DB.prepare('SELECT (SELECT p.id FROM portfolio_image p WHERE p.tailor_id = tailor.id AND p.is_profile_photo = 1) AS profile_photo_id FROM tailor WHERE id = ?')
           .bind(id)
           .first<{ profile_photo_id: number | null }>()
       )?.profile_photo_id,

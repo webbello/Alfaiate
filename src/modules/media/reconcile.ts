@@ -92,7 +92,7 @@ export async function reconcileImages(
   ).results.map((r) => r.id);
   const marks = eligible.map(() => '?').join(', ');
   await b.DB.prepare(
-    `UPDATE tailor SET profile_photo_id = NULL WHERE id = ? AND profile_photo_id IS NOT NULL${eligible.length ? ` AND profile_photo_id NOT IN (${marks})` : ''}`,
+    `UPDATE portfolio_image SET is_profile_photo = 0 WHERE tailor_id = ? AND is_profile_photo = 1${eligible.length ? ` AND id NOT IN (${marks})` : ''}`,
   )
     .bind(tailorId, ...eligible)
     .run();

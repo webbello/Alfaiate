@@ -170,13 +170,13 @@ describe('reconcileImages: transitions', () => {
       permission: true,
       visible: true,
     });
-    await env.DB.prepare('UPDATE tailor SET profile_photo_id = ? WHERE id = ?')
+    await env.DB.prepare('UPDATE portfolio_image SET is_profile_photo = 1 WHERE id = ? AND tailor_id = ?')
       .bind(imageId, tailorId)
       .run();
     await reconcileImages(b, tailorId);
     expect(
       (
-        await env.DB.prepare('SELECT profile_photo_id FROM tailor WHERE id = ?')
+        await env.DB.prepare('SELECT (SELECT p.id FROM portfolio_image p WHERE p.tailor_id = tailor.id AND p.is_profile_photo = 1) AS profile_photo_id FROM tailor WHERE id = ?')
           .bind(tailorId)
           .first<{ profile_photo_id: number | null }>()
       )?.profile_photo_id,
@@ -189,7 +189,7 @@ describe('reconcileImages: transitions', () => {
     await reconcileImages(b, tailorId);
     expect(
       (
-        await env.DB.prepare('SELECT profile_photo_id FROM tailor WHERE id = ?')
+        await env.DB.prepare('SELECT (SELECT p.id FROM portfolio_image p WHERE p.tailor_id = tailor.id AND p.is_profile_photo = 1) AS profile_photo_id FROM tailor WHERE id = ?')
           .bind(tailorId)
           .first<{ profile_photo_id: number | null }>()
       )?.profile_photo_id,
@@ -202,13 +202,13 @@ describe('reconcileImages: transitions', () => {
       permission: true,
       visible: true,
     });
-    await env.DB.prepare('UPDATE tailor SET profile_photo_id = ? WHERE id = ?')
+    await env.DB.prepare('UPDATE portfolio_image SET is_profile_photo = 1 WHERE id = ? AND tailor_id = ?')
       .bind(imageId, tailorId)
       .run();
     await reconcileImages(b, tailorId);
     const pointer = async () =>
       (
-        await env.DB.prepare('SELECT profile_photo_id FROM tailor WHERE id = ?')
+        await env.DB.prepare('SELECT (SELECT p.id FROM portfolio_image p WHERE p.tailor_id = tailor.id AND p.is_profile_photo = 1) AS profile_photo_id FROM tailor WHERE id = ?')
           .bind(tailorId)
           .first<{ profile_photo_id: number | null }>()
       )?.profile_photo_id;

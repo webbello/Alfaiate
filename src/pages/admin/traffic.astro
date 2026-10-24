@@ -27,7 +27,7 @@ const [enquiries, taps] = await db.batch<{ c: number }>([
     .bind(diliDayStartUtc(from)),
   db
     .prepare(
-      'SELECT coalesce(sum(count), 0) AS c FROM contact_click_daily WHERE date >= ?',
+      'SELECT coalesce(sum(count), 0) AS c FROM contact_click_daily WHERE day >= ?',
     )
     .bind(from),
 ]);

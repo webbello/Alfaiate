@@ -31,7 +31,9 @@ const send = async (path: string, over: Record<string, string> = {}) =>
   );
 const latest = () =>
   db
-    .prepare('SELECT * FROM enquiry ORDER BY id DESC LIMIT 1')
+    .prepare(
+      'SELECT e.*, b.organisation_name, b.group_size_text FROM enquiry e LEFT JOIN enquiry_business b ON b.enquiry_id = e.id ORDER BY e.id DESC LIMIT 1',
+    )
     .first<Record<string, unknown>>();
 
 describe('the business form', () => {
@@ -96,10 +98,10 @@ describe('the business form', () => {
     expect(
       await db
         .prepare(
-          'SELECT organisation_name, group_size_text FROM enquiry WHERE id = ?',
+          'SELECT count(*) AS n FROM enquiry_business WHERE enquiry_id = ?',
         )
         .bind(row.id)
         .first(),
-    ).toEqual({ organisation_name: null, group_size_text: null });
+    ).toEqual({ n: 0 });
   });
 });

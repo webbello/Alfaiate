@@ -37,7 +37,7 @@ describe('createSession', () => {
     const user = await addUser();
     const { token } = await createSession(db, user, T0);
     const rows = await db
-      .prepare('SELECT token_hash FROM session WHERE admin_user_id = ?')
+      .prepare('SELECT token_hash FROM admin_session WHERE admin_user_id = ?')
       .bind(user)
       .all<{ token_hash: string }>();
     expect(rows.results).toHaveLength(1);
@@ -75,7 +75,7 @@ describe('validateSession', () => {
     expect(await validateSession(db, token, after(IDLE_MS + MIN))).toBeNull();
     expect(
       await db
-        .prepare('SELECT 1 FROM session WHERE admin_user_id = ?')
+        .prepare('SELECT 1 FROM admin_session WHERE admin_user_id = ?')
         .bind(user)
         .first(),
     ).toBeNull();
@@ -139,7 +139,7 @@ describe('revocation', () => {
     await setActive(db, editor, false);
     expect(
       await db
-        .prepare('SELECT 1 FROM session WHERE admin_user_id = ?')
+        .prepare('SELECT 1 FROM admin_session WHERE admin_user_id = ?')
         .bind(editor)
         .first(),
     ).toBeNull();

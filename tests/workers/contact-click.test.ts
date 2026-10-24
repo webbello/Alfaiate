@@ -40,7 +40,7 @@ const rows = async (id: number) =>
   (
     await db
       .prepare(
-        'SELECT channel, date, count FROM contact_click_daily WHERE tailor_id = ? ORDER BY channel, date',
+        'SELECT channel, day, count FROM contact_click_daily WHERE tailor_id = ? ORDER BY channel, day',
       )
       .bind(id)
       .all()
@@ -84,9 +84,9 @@ describe('recordContactClick (ANA-02, M6)', () => {
       ),
     ).toBe('recorded');
     expect(await rows(t.id)).toEqual([
-      { channel: 'phone', date: '2026-06-01', count: 1 },
-      { channel: 'whatsapp', date: '2026-06-01', count: 2 },
-      { channel: 'whatsapp', date: '2026-06-02', count: 1 },
+      { channel: 'phone', day: '2026-06-01', count: 1 },
+      { channel: 'whatsapp', day: '2026-06-01', count: 2 },
+      { channel: 'whatsapp', day: '2026-06-02', count: 1 },
     ]);
   });
 
@@ -98,7 +98,7 @@ describe('recordContactClick (ANA-02, M6)', () => {
       ip(),
       new Date('2026-06-01T23:59:59.000Z'),
     );
-    expect((await rows(t.id))[0].date).toBe('2026-06-01');
+    expect((await rows(t.id))[0].day).toBe('2026-06-01');
   });
 
   it('ignores taps for tailors that are not published, did not consent, or lack that channel', async () => {
@@ -139,7 +139,7 @@ describe('recordContactClick (ANA-02, M6)', () => {
     ).toBe('recorded');
     for (const t of [draft, noConsent]) expect(await rows(t.id)).toEqual([]);
     expect(await rows(noWhatsapp.id)).toEqual([
-      { channel: 'phone', date: '2026-06-01', count: 1 },
+      { channel: 'phone', day: '2026-06-01', count: 1 },
     ]);
   });
 
@@ -183,7 +183,7 @@ describe('recordContactClick (ANA-02, M6)', () => {
     ).results
       .map((c) => c.name)
       .sort();
-    expect(columns).toEqual(['channel', 'count', 'date', 'tailor_id']);
+    expect(columns).toEqual(['channel', 'count', 'day', 'tailor_id']);
     const limiter = (
       await db
         .prepare('SELECT key_hash FROM rate_limit')

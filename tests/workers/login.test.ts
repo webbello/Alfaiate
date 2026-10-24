@@ -118,7 +118,7 @@ describe('login failure', () => {
     await attempt(user.email, 'wrong-password');
     expect(
       await db
-        .prepare('SELECT 1 FROM session WHERE admin_user_id = ?')
+        .prepare('SELECT 1 FROM admin_session WHERE admin_user_id = ?')
         .bind(user.id)
         .first(),
     ).toBeNull();
@@ -147,7 +147,7 @@ describe('login rate limit', () => {
     });
     expect(
       await db
-        .prepare('SELECT 1 FROM session WHERE admin_user_id = ?')
+        .prepare('SELECT 1 FROM admin_session WHERE admin_user_id = ?')
         .bind(user.id)
         .first(),
     ).toBeNull();

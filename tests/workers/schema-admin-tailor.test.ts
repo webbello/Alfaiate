@@ -62,11 +62,11 @@ describe('admin_user', () => {
   });
 });
 
-describe('session', () => {
+describe('admin_session', () => {
   it('rejects a session for a user that does not exist (foreign keys on)', async () => {
     await expect(
       run(
-        'INSERT INTO session (token_hash, admin_user_id, expires_at) VALUES (?, ?, ?)',
+        'INSERT INTO admin_session (token_hash, admin_user_id, expires_at) VALUES (?, ?, ?)',
         't1',
         99999,
         '2030-01-01T00:00:00Z',
@@ -77,14 +77,14 @@ describe('session', () => {
   it('rejects a duplicate token hash', async () => {
     const id = await addUser('d@example.test');
     await run(
-      'INSERT INTO session (token_hash, admin_user_id, expires_at) VALUES (?, ?, ?)',
+      'INSERT INTO admin_session (token_hash, admin_user_id, expires_at) VALUES (?, ?, ?)',
       't2',
       id,
       '2030-01-01T00:00:00Z',
     );
     await expect(
       run(
-        'INSERT INTO session (token_hash, admin_user_id, expires_at) VALUES (?, ?, ?)',
+        'INSERT INTO admin_session (token_hash, admin_user_id, expires_at) VALUES (?, ?, ?)',
         't2',
         id,
         '2030-01-01T00:00:00Z',
@@ -95,14 +95,14 @@ describe('session', () => {
   it('is deleted with its user', async () => {
     const id = await addUser('e@example.test');
     await run(
-      'INSERT INTO session (token_hash, admin_user_id, expires_at) VALUES (?, ?, ?)',
+      'INSERT INTO admin_session (token_hash, admin_user_id, expires_at) VALUES (?, ?, ?)',
       't3',
       id,
       '2030-01-01T00:00:00Z',
     );
     await run('DELETE FROM admin_user WHERE id = ?', id);
     expect(
-      await first('SELECT 1 FROM session WHERE token_hash = ?', 't3'),
+      await first('SELECT 1 FROM admin_session WHERE token_hash = ?', 't3'),
     ).toBeNull();
   });
 });
@@ -335,16 +335,84 @@ describe('portfolio_image', () => {
   });
 });
 
-describe('baseline refinements', () => {
-  it('an order route of "number" needs a number', async () => {
+describe('baseline design', () => {
+  it('an order route of "number" needs a number, and other routes must not carry one', async () => {
     const id = await addTailor('route-fake');
     await expect(
-      run("UPDATE tailor SET order_route = 'number' WHERE id = ?", id),
+      run(
+        "INSERT INTO tailor_order_routing (tailor_id, route) VALUES (?, 'number')",
+        id,
+      ),
+    ).rejects.toThrow();
+    await expect(
+      run(
+        "INSERT INTO tailor_order_routing (tailor_id, route, number_e164) VALUES (?, 'admin', '+67070000999')",
+        id,
+      ),
     ).rejects.toThrow();
     await run(
-      "UPDATE tailor SET order_route = 'number', order_number_e164 = '+67070000999' WHERE id = ?",
+      "INSERT INTO tailor_order_routing (tailor_id, route, number_e164) VALUES (?, 'number', '+67070000999')",
       id,
     );
+  });
+
+  it('a tailor has at most one profile photo', async () => {
+    const id = await addTailor('photo-fake');
+    const add = (key: string, flag: number) =>
+      run(
+        'INSERT INTO portfolio_image (tailor_id, file_key, alt_text, is_profile_photo) VALUES (?, ?, ?, ?)',
+        id,
+        key,
+        'Fake',
+        flag,
+      );
+    await add('pp-1', 1);
+    await expect(add('pp-2', 1)).rejects.toThrow();
+    await add('pp-3', 0);
+  });
+
+  it('enquiry source is one of the known tags', async () => {
+    const insert = (source: string | null) =>
+      run(
+        `INSERT INTO enquiry (reference_code, customer_name, contact_number_e164, contact_channel, consent_shared_with_tailor, consent_text_version, consent_at, source)
+         VALUES (?, 'Fake', '+67070000999', 'phone', 1, 'v', '2026-01-01T00:00:00Z', ?)`,
+        `AT-SRC${Math.random().toString(36).slice(2, 8)}`,
+        source,
+      );
+    for (const ok of ['form', 'business', 'shop', 'profile:some-tailor', null])
+      await insert(ok);
+    for (const bad of ['facebook', 'profile:', 'Form'])
+      await expect(insert(bad)).rejects.toThrow();
+  });
+
+  it('a join request is pending exactly until it has a decision time', async () => {
+    const insert = (decision: string, decidedAt: string | null) =>
+      run(
+        `INSERT INTO tailor_interest (reference_code, contact_name, phone_e164, consent_contact, consent_text_version, consent_at, decision, decided_at)
+         VALUES (?, 'Fake', '+67070000999', 1, 'v', '2026-01-01T00:00:00Z', ?, ?)`,
+        `JN-${Math.random().toString(36).slice(2, 10)}`,
+        decision,
+        decidedAt,
+      );
+    await insert('pending', null);
+    await insert('approved', '2026-01-02T00:00:00Z');
+    await expect(insert('pending', '2026-01-02T00:00:00Z')).rejects.toThrow();
+    await expect(insert('declined', null)).rejects.toThrow();
+  });
+
+  it('an audit row names at most one actor', async () => {
+    const user = await addUser('audit-two@example.test');
+    const tailor = await addTailor('audit-two');
+    const account = (
+      await run('INSERT INTO tailor_account (tailor_id) VALUES (?)', tailor)
+    ).meta.last_row_id;
+    await expect(
+      run(
+        "INSERT INTO audit_log (admin_user_id, tailor_account_id, action) VALUES (?, ?, 'x')",
+        user,
+        account,
+      ),
+    ).rejects.toThrow();
   });
 
   it('has the indexes that foreign-key deletes and the activity list rely on', async () => {
@@ -358,6 +426,7 @@ describe('baseline refinements', () => {
       'rate_limit_window',
       'enquiry_area',
       'tailor_interest_tailor',
+      'portfolio_image_one_profile_photo',
     ])
       expect(names).toContain(n);
   });

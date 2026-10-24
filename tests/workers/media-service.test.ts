@@ -262,7 +262,7 @@ describe('profile photo', () => {
     });
     expect(
       (
-        await env.DB.prepare('SELECT profile_photo_id FROM tailor WHERE id = ?')
+        await env.DB.prepare('SELECT (SELECT p.id FROM portfolio_image p WHERE p.tailor_id = tailor.id AND p.is_profile_photo = 1) AS profile_photo_id FROM tailor WHERE id = ?')
           .bind(id)
           .first<{ profile_photo_id: number }>()
       )?.profile_photo_id,
@@ -273,7 +273,7 @@ describe('profile photo', () => {
     const [mgr, id] = [await user('manager'), await tailor(true)];
     const pointer = async () =>
       (
-        await env.DB.prepare('SELECT profile_photo_id FROM tailor WHERE id = ?')
+        await env.DB.prepare('SELECT (SELECT p.id FROM portfolio_image p WHERE p.tailor_id = tailor.id AND p.is_profile_photo = 1) AS profile_photo_id FROM tailor WHERE id = ?')
           .bind(id)
           .first<{ profile_photo_id: number | null }>()
       )?.profile_photo_id;

@@ -14,7 +14,14 @@ npm run setup:local              # first time only: creates .dev.vars with rando
 npm run owner:create             # first admin account (prompts; password is never echoed or stored)
 npm run dev                      # http://localhost:4321, admin at /admin
 ```
-To reset the local database (for example after the migrations were rebuilt on 2026-10-24): stop the dev server, delete the `.wrangler/state` folder, then run `npm run db:migrate` and `npm run owner:create` (and `npm run db:demo` for sample data).
+**Start the local database again from nothing** (also needed once after the migrations were rebuilt on 2026-10-24): stop the dev server, then
+```bash
+rm -rf .wrangler/state
+npm run db:migrate          # creates every table (migrations/0001 to 0027, one file per table)
+npm run db:seed:launch      # the launch categories and areas (seeds/launch.sql)
+npm run owner:create        # your admin account (asks for the password, hidden)
+npm run db:demo             # optional: made-up sample data; remove with npm run db:demo:remove
+```
 
 Deploying to Cloudflare: see [docs/DEPLOY.md](docs/DEPLOY.md).
 

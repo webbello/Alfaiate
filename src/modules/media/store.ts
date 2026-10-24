@@ -139,7 +139,7 @@ export async function deleteImage(
   await b.MEDIA_PUBLIC.delete(keys);
   await b.DB.prepare('DELETE FROM portfolio_image WHERE id = ?')
     .bind(imageId)
-    .run(); // profile_photo_id is cleared by ON DELETE SET NULL
+    .run(); // the profile photo flag goes with the row
   await audit(b.DB, {
     ...who(actorId),
     action: 'image_deleted',

@@ -21,7 +21,7 @@ describe('audit', () => {
     });
     const row = await db
       .prepare(
-        "SELECT admin_user_id, action, entity_type, entity_id, at FROM audit_log WHERE action = 'role_changed'",
+        "SELECT admin_user_id, action, entity_type, entity_id, created_at FROM audit_log WHERE action = 'role_changed'",
       )
       .first<Record<string, unknown>>();
     expect(row).toMatchObject({
@@ -30,7 +30,7 @@ describe('audit', () => {
       entity_type: 'admin_user',
       entity_id: 7,
     });
-    expect(String(row?.at)).toMatch(/^\d{4}-\d\d-\d\dT/);
+    expect(String(row?.created_at)).toMatch(/^\d{4}-\d\d-\d\dT/);
   });
 
   it('records a failed sign-in with no user and no identifying data', async () => {
@@ -54,7 +54,7 @@ describe('audit', () => {
     expect(cols.results.map((c) => c.name).sort()).toEqual([
       'action',
       'admin_user_id',
-      'at',
+      'created_at',
       'entity_id',
       'entity_type',
       'id',

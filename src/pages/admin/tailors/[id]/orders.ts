@@ -37,7 +37,8 @@ export const POST: APIRoute = async (context) => {
       : null;
   if (route === 'number' && !number) return back('invalid');
   const done = await DB.prepare(
-    'UPDATE tailor SET order_route = ?, order_number_e164 = ? WHERE id = ?',
+    `INSERT INTO tailor_order_routing (tailor_id, route, number_e164) SELECT id, ?, ? FROM tailor WHERE id = ?
+     ON CONFLICT (tailor_id) DO UPDATE SET route = excluded.route, number_e164 = excluded.number_e164, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
   )
     .bind(route, number, id)
     .run();

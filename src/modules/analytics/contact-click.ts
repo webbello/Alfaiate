@@ -44,8 +44,8 @@ export async function recordContactClick(
 
   await db
     .prepare(
-      `INSERT INTO contact_click_daily (tailor_id, channel, date, count) VALUES (?, ?, ?, 1)
-       ON CONFLICT (tailor_id, channel, date) DO UPDATE SET count = count + 1`,
+      `INSERT INTO contact_click_daily (tailor_id, channel, day, count) VALUES (?, ?, ?, 1)
+       ON CONFLICT (tailor_id, channel, day) DO UPDATE SET count = count + 1`,
     )
     .bind(tailor.id, channel, now.toISOString().slice(0, 10))
     .run();

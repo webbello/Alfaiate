@@ -34,7 +34,7 @@ async function tailor(
   const id = (
     await db
       .prepare(
-        "INSERT INTO tailor (slug, display_name, status, is_published, permission_recorded, contact_publish_consent, whatsapp_e164, order_route, order_number_e164) VALUES (?, ?, 'approved', ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO tailor (slug, display_name, status, is_published, permission_recorded, contact_publish_consent, whatsapp_e164) VALUES (?, ?, 'approved', ?, ?, ?, ?)",
       )
       .bind(
         slug,
@@ -43,11 +43,16 @@ async function tailor(
         o.published ?? 1,
         o.consent ?? 1,
         o.whatsapp === undefined ? '+67033111222' : o.whatsapp,
-        o.route ?? 'admin',
-        o.number ?? null,
       )
       .run()
   ).meta.last_row_id as number;
+  if (o.route)
+    await db
+      .prepare(
+        'INSERT INTO tailor_order_routing (tailor_id, route, number_e164) VALUES (?, ?, ?)',
+      )
+      .bind(id, o.route, o.number ?? null)
+      .run();
   return { id, name: `Order Tailor ${n}` };
 }
 async function product(

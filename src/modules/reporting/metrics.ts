@@ -85,7 +85,7 @@ export async function metrics(
       .bind(...days),
     db
       .prepare(
-        `SELECT coalesce(sum(count), 0) AS c FROM contact_click_daily WHERE ${between('date')}`,
+        `SELECT coalesce(sum(count), 0) AS c FROM contact_click_daily WHERE ${between('day')}`,
       )
       .bind(...days),
     db

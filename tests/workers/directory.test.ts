@@ -396,7 +396,7 @@ describe('photos (BR-06)', () => {
     const t = await tailor({ name: 'Card Photo Fake' });
     const p = await photo(t);
     await db
-      .prepare('UPDATE tailor SET profile_photo_id = ? WHERE id = ?')
+      .prepare('UPDATE portfolio_image SET is_profile_photo = 1 WHERE id = ? AND tailor_id = ?')
       .bind(p, t)
       .run();
     const card = async () =>

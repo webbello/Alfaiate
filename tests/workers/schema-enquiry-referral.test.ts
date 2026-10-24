@@ -379,24 +379,24 @@ describe('contact_click_daily, rate_limit', () => {
   it('keeps one click counter per tailor, channel and day, with no visitor data', async () => {
     const tailor = await addTailor();
     await run(
-      "INSERT INTO contact_click_daily (tailor_id, channel, date, count) VALUES (?, 'phone', '2026-01-01', 1)",
+      "INSERT INTO contact_click_daily (tailor_id, channel, day, count) VALUES (?, 'phone', '2026-01-01', 1)",
       tailor,
     );
     await expect(
       run(
-        "INSERT INTO contact_click_daily (tailor_id, channel, date, count) VALUES (?, 'phone', '2026-01-01', 1)",
+        "INSERT INTO contact_click_daily (tailor_id, channel, day, count) VALUES (?, 'phone', '2026-01-01', 1)",
         tailor,
       ),
     ).rejects.toThrow();
     await expect(
       run(
-        "INSERT INTO contact_click_daily (tailor_id, channel, date, count) VALUES (?, 'email', '2026-01-02', 1)",
+        "INSERT INTO contact_click_daily (tailor_id, channel, day, count) VALUES (?, 'email', '2026-01-02', 1)",
         tailor,
       ),
     ).rejects.toThrow();
     await expect(
       run(
-        "INSERT INTO contact_click_daily (tailor_id, channel, date, count) VALUES (?, 'phone', '2026-01-03', -1)",
+        "INSERT INTO contact_click_daily (tailor_id, channel, day, count) VALUES (?, 'phone', '2026-01-03', -1)",
         tailor,
       ),
     ).rejects.toThrow();

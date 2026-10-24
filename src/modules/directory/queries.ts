@@ -146,7 +146,7 @@ export async function listPublished(
 
   const { results } = await db
     .prepare(
-      `SELECT t.id, t.slug, t.display_name, t.home_visits, t.profile_photo_id, t.description, t.whatsapp_e164, t.contact_publish_consent FROM tailor t
+      `SELECT t.id, t.slug, t.display_name, t.home_visits, (SELECT p.id FROM portfolio_image p WHERE p.tailor_id = t.id AND p.is_profile_photo = 1) AS profile_photo_id, t.description, t.whatsapp_e164, t.contact_publish_consent FROM tailor t
        WHERE ${where.join(' AND ')} ORDER BY t.display_name COLLATE NOCASE, t.id LIMIT ?`,
     )
     .bind(...binds, MAX_CARDS + 1)
@@ -237,7 +237,8 @@ export async function getPublishedBySlug(
   const t = await db
     .prepare(
       `SELECT id, slug, display_name, description, shop_address_text, home_visits, languages, price_note, whatsapp_e164, phone_e164,
-              contact_publish_consent, verified_fields, profile_photo_id
+              contact_publish_consent, verified_fields,
+              (SELECT p.id FROM portfolio_image p WHERE p.tailor_id = tailor.id AND p.is_profile_photo = 1) AS profile_photo_id
        FROM tailor WHERE slug = ? AND is_published = 1 AND permission_recorded = 1`,
     )
     .bind(slug)

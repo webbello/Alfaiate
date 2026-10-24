@@ -103,7 +103,7 @@ describe('the order page', () => {
     const owner = await tailor('So Shop Owner Tailor');
     await db
       .prepare(
-        "UPDATE tailor SET order_route = 'number', order_number_e164 = '+918864812200' WHERE id = ?",
+        "INSERT INTO tailor_order_routing (route, number_e164, tailor_id) VALUES ('number', '+918864812200', ?)",
       )
       .bind(owner.id)
       .run();
@@ -187,7 +187,7 @@ describe('who decides where orders go', () => {
     expect(
       await db
         .prepare(
-          'SELECT order_route AS r, order_number_e164 AS n FROM tailor WHERE id = ?',
+          "SELECT COALESCE(o.route, 'admin') AS r, o.number_e164 AS n FROM tailor t LEFT JOIN tailor_order_routing o ON o.tailor_id = t.id WHERE t.id = ?",
         )
         .bind(t.id)
         .first(),
@@ -220,7 +220,7 @@ describe('who decides where orders go', () => {
     expect(
       await db
         .prepare(
-          'SELECT order_route AS r, order_number_e164 AS n FROM tailor WHERE id = ?',
+          "SELECT COALESCE(o.route, 'admin') AS r, o.number_e164 AS n FROM tailor t LEFT JOIN tailor_order_routing o ON o.tailor_id = t.id WHERE t.id = ?",
         )
         .bind(t.id)
         .first(),
@@ -272,7 +272,7 @@ describe('who decides where orders go', () => {
     expect(
       await db
         .prepare(
-          'SELECT order_route AS r, order_number_e164 AS n FROM tailor WHERE id = ?',
+          "SELECT COALESCE(o.route, 'admin') AS r, o.number_e164 AS n FROM tailor t LEFT JOIN tailor_order_routing o ON o.tailor_id = t.id WHERE t.id = ?",
         )
         .bind(t.id)
         .first(),

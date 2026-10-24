@@ -190,7 +190,7 @@ There is **no** `SESSION_SECRET`: earlier notes mentioned one, but the site does
 npx wrangler d1 migrations apply DB --remote --env staging
 ```
 
-It lists six files (`0001_auth.sql` ... `0006_analytics.sql`) and asks to proceed. Type `y`. You should see a green check next to each.
+It lists 27 files, one per table (`0001_admin_user.sql` ... `0027_page_view_daily.sql`), and asks to proceed. Type `y`. You should see a green check next to each.
 
 ### D2. Load the starting categories and areas (staging, once)
 Read `seeds/launch.sql` first (garment types and Dili areas). Edit it if you want different starting lists, then:
@@ -327,6 +327,30 @@ npx wrangler d1 execute DB --remote --env production --command "DELETE FROM tail
 ```
 
 Deleting the request also removes its status log, notes and referrals. Audit-log lines keep only ids, not names. Visit counts are only totals and need no cleaning.
+
+---
+
+## Starting your own Mac's practice database again
+
+The practice database lives in the `.wrangler/state` folder and is separate from Cloudflare. To wipe it and start clean (this never touches the online site):
+
+```bash
+rm -rf .wrangler/state
+```
+
+```bash
+npm run db:migrate
+```
+
+```bash
+npm run db:seed:launch
+```
+
+```bash
+npm run owner:create
+```
+
+Optional sample data: `npm run db:demo` (remove it with `npm run db:demo:remove`).
 
 ---
 

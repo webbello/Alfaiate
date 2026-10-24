@@ -35,7 +35,7 @@ export async function setActive(db: D1Database, id: number, active: boolean) {
   await guardedUpdate(db, sql, active ? 1 : 0, id);
   if (!active)
     await db
-      .prepare('DELETE FROM session WHERE admin_user_id = ?')
+      .prepare('DELETE FROM admin_session WHERE admin_user_id = ?')
       .bind(id)
       .run();
 }
