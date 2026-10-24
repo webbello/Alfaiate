@@ -243,6 +243,34 @@ describe('invite tokens (FR-TPO-02)', () => {
       await reissueInvite(db, { tailorId: 99999999, actorId: 1 }, T0),
     ).toBeNull();
   });
+  it('first link makes the sign-in for a tailor staff added by hand, but never for a missing tailor', async () => {
+    const t = await db
+      .prepare(
+        "INSERT INTO tailor (slug, display_name) VALUES ('hand-made-x', 'Hand Made X')",
+      )
+      .run();
+    const tailorId = t.meta.last_row_id;
+    const first = await reissueInvite(
+      db,
+      { tailorId, actorId: await admin() },
+      T0,
+    );
+    expect(first).not.toBeNull();
+    const info = await lookupInvite(db, first!.token, T0);
+    expect(info?.tailorId).toBe(tailorId);
+    const second = await reissueInvite(
+      db,
+      { tailorId, actorId: await admin() },
+      T0,
+    );
+    expect(await lookupInvite(db, first!.token, T0)).toBeNull();
+    expect(await lookupInvite(db, second!.token, T0)).not.toBeNull();
+    const accounts = await db
+      .prepare('SELECT count(*) AS c FROM tailor_account WHERE tailor_id = ?')
+      .bind(tailorId)
+      .first<{ c: number }>();
+    expect(accounts!.c).toBe(1);
+  });
   it('are refused for a deactivated account, and a taken email does not use up the link', async () => {
     const r = await fresh();
     await db

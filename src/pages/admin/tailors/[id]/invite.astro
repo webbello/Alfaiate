@@ -29,9 +29,16 @@ if (
 const { DB } = requireBindings(env);
 const result = await reissueInvite(DB, { tailorId: id, actorId: auth.userId });
 if (!result) return new Response('Not found', { status: 404 });
-const tailor = await DB.prepare('SELECT display_name FROM tailor WHERE id = ?')
+const tailor = await DB.prepare(
+  'SELECT display_name, whatsapp_e164, private_phone, phone_e164 FROM tailor WHERE id = ?',
+)
   .bind(id)
-  .first<{ display_name: string }>();
+  .first<{
+    display_name: string;
+    whatsapp_e164: string | null;
+    private_phone: string | null;
+    phone_e164: string | null;
+  }>();
 const url = `${siteConfig(env).siteUrl}/portal/accept?token=${result.token}`;
 ---
 
@@ -39,6 +46,7 @@ const url = `${siteConfig(env).siteUrl}/portal/accept?token=${result.token}`;
   <InviteLink
     name={tailor?.display_name ?? 'the tailor'}
     url={url}
+    phone={tailor?.whatsapp_e164 ?? tailor?.private_phone ?? tailor?.phone_e164}
     back={`/admin/tailors/${id}`}
     backLabel="Back to the tailor"
   />

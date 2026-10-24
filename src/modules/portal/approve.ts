@@ -123,20 +123,35 @@ export async function declineInterest(
   return 'ok';
 }
 
-/** A new link for an existing tailor account (lost link, expired link, or a forgotten password). Replaces any unused older link. */
+/**
+ * A new link for a tailor's sign-in (lost link, expired link, or a forgotten password). Replaces any unused older link.
+ * A tailor staff added by hand has no sign-in yet: the first link makes it. A switched-off sign-in stays off (null).
+ */
 export async function reissueInvite(
   db: D1Database,
   input: { tailorId: number; actorId: number },
   now = new Date(),
 ): Promise<{ token: string } | null> {
   const account = await db
-    .prepare(
-      'SELECT id FROM tailor_account WHERE tailor_id = ? AND is_active = 1',
-    )
+    .prepare('SELECT id, is_active FROM tailor_account WHERE tailor_id = ?')
     .bind(input.tailorId)
-    .first<{ id: number }>();
-  if (!account) return null;
-  const token = await issueInvite(db, account.id, now);
+    .first<{ id: number; is_active: number }>();
+  if (account && !account.is_active) return null;
+  let accountId = account?.id;
+  if (accountId === undefined) {
+    const tailor = await db
+      .prepare('SELECT id FROM tailor WHERE id = ?')
+      .bind(input.tailorId)
+      .first<{ id: number }>();
+    if (!tailor) return null;
+    accountId = (
+      await db
+        .prepare('INSERT INTO tailor_account (tailor_id) VALUES (?)')
+        .bind(input.tailorId)
+        .run()
+    ).meta.last_row_id;
+  }
+  const token = await issueInvite(db, accountId, now);
   await audit(db, {
     userId: input.actorId,
     action: 'tailor_invite_issued',

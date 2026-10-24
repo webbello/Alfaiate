@@ -1,11 +1,17 @@
 ---
+import { whatsappLink } from '../../modules/contact-links/whatsapp';
+
 interface Props {
   name: string;
   url: string;
+  /** The tailor's own number (E.164) when staff have it, for the Send on WhatsApp button. */
+  phone?: string | null;
   back: string;
   backLabel: string;
 }
-const { name, url, back, backLabel } = Astro.props;
+const { name, url, phone, back, backLabel } = Astro.props;
+const message = `Hello ${name}, your Alfaiate TL sign-in link: ${url} (opens once, valid for 7 days). Open it to choose a password.`;
+const whatsapp = phone ? whatsappLink(phone, message) : null;
 ---
 
 <h1>Sign-in link for {name}</h1>
@@ -20,6 +26,16 @@ const { name, url, back, backLabel } = Astro.props;
   <br />
   <input id="invite-url" type="text" readonly value={url} size="60" />
 </p>
+{whatsapp ? (
+  <p>
+    <a class="button" href={whatsapp} target="_blank" rel="noopener noreferrer">
+      Send on WhatsApp
+    </a>
+    Opens WhatsApp with the message ready; you press send.
+  </p>
+) : (
+  <p>No number saved for this tailor, so copy the link and send it yourself.</p>
+)}
 <p>
   <a href={back}>{backLabel}</a>
 </p>
