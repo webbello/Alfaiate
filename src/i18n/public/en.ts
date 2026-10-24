@@ -217,6 +217,8 @@ export const en = {
       eyebrow: 'Our services',
       heading: 'What Can We Help You Make?',
       all: 'Explore All Services',
+      shop: 'Shop Ready-Made',
+      shopAll: 'Visit the Shop',
       custom: 'Custom Clothing',
       traditional: 'Traditional and Cultural Wear',
       alterations: 'Alterations and Repairs',

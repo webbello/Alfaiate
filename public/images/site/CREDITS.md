@@ -10,7 +10,7 @@ All photos: [Unsplash License](https://unsplash.com/license) (free to use, no pe
 | custom | Vitaly Gariev | https://unsplash.com/photos/a-seamstress-measures-a-woman-for-a-custom-shirt-2WEw9_LIk3o | Unsplash License | service card: custom clothing |
 | traditional | ran liwen | https://unsplash.com/photos/woven-textile-with-geometric-pattern-BNShhj6w4TE | Unsplash License | service card: traditional and cultural wear (a woven textile, not a Timorese tais) |
 | alterations | Ashley Diane Worsham | https://unsplash.com/photos/a-close-up-of-a-person-using-a-sewing-machine-F14VKsS0iL8 | Unsplash License | service card: alterations and repairs |
-| shirts | Nimble Made | https://unsplash.com/photos/blue-button-up-shirt-on-white-table-BKYeLLB1OxI | Unsplash License | service card: shirts and trousers |
+| shirts | Nimble Made | https://unsplash.com/photos/blue-button-up-shirt-on-white-table-BKYeLLB1OxI | Unsplash License | service card: shirts and trousers; home services reel, last slide (the shop) |
 | dresses | wang yan | https://unsplash.com/photos/womens-white-sleeveless-dress-QY0qR938qL8 | Unsplash License | service card: dresses and women's clothing |
 | suits | Robbie | https://unsplash.com/photos/black-suit-jacket-on-brown-wooden-table-YZ0WDjg4EFg | Unsplash License | service card: suits and formalwear |
 | uniforms | Robin Worrall | https://unsplash.com/photos/yellow-prefect-pin-QaYcPAO6SIc | Unsplash License | service card: school and business uniforms |

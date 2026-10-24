@@ -13,9 +13,9 @@ for (const [width, height] of [
     await page.setViewportSize({ width, height });
     await page.goto('/');
     const titles = page.locator('.our-works-section .works-title');
-    await expect(titles).toHaveCount(4);
-    for (let i = 0; i < 4; i++) await expect(titles.nth(i)).toBeVisible();
-    const box = await titles.nth(3).boundingBox();
+    await expect(titles).toHaveCount(5);
+    for (let i = 0; i < 5; i++) await expect(titles.nth(i)).toBeVisible();
+    const box = await titles.nth(4).boundingBox();
     expect(box && box.height).toBeGreaterThan(10);
     await page.waitForTimeout(500);
     expect(await violationsOf(page)).toEqual([]);

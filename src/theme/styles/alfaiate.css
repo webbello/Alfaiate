@@ -361,6 +361,9 @@ html { scroll-padding-bottom: 5rem; }
 .brand-mark--footer .brand-name { font-size: clamp(3rem, 9vw, 6.5rem); border-bottom-width: 3px; }
 .brand-mark--footer .brand-tl { font-size: clamp(0.9rem, 2vw, 1.4rem); background: #8fb07f; color: #1d1914; }
 
+/* The shop link is for the plain list only; in the pinned reel the main button turns into it on the last slide */
+.works-shop-link { display: none; }
+
 /* ---- Services section without the motion script: a plain list and stacked photos (reduced motion, or no JavaScript: the `scripting` media feature, since no `js` class is set any more), instead of one pinned slide ---- */
 @media (prefers-reduced-motion: reduce) {
   .works-height { height: auto; }
@@ -375,6 +378,7 @@ html { scroll-padding-bottom: 5rem; }
   .works-button-block { position: static; display: inline-flex; margin-top: 1rem; }
   .works-title, .our-works-section .section-info-item { color: #1d1914; }
   .works-button { background: #3d5a33; }
+  .works-shop-link { display: inline-flex; margin-top: 1rem; color: #fff; text-decoration: none; }
 }
 @media (scripting: none) {
   .works-height { height: auto; }
@@ -389,6 +393,7 @@ html { scroll-padding-bottom: 5rem; }
   .works-button-block { position: static; display: inline-flex; margin-top: 1rem; }
   .works-title, .our-works-section .section-info-item { color: #1d1914; }
   .works-button { background: #3d5a33; }
+  .works-shop-link { display: inline-flex; margin-top: 1rem; color: #fff; text-decoration: none; }
 }
 
 /* ---- One-row header on wide screens: logo on the left, menu on the right (saves about 85px of height) ---- */

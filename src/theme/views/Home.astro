@@ -44,6 +44,7 @@ const works: { title: string; image: Scene }[] = [
   { title: h.services.dresses, image: 'dresses' },
   { title: h.services.alterations, image: 'alterations' },
   { title: h.services.traditional, image: 'traditional' },
+  { title: h.services.shop, image: 'shirts' },
 ];
 const steps = [
   { name: h.how.step1Title, text: h.how.step1 },
@@ -277,17 +278,22 @@ import MotionScript from '../components/layout/MotionScript.astro';
                 works.map((work, i) => {
                   const image = scene(work.image);
                   return (
-                    <div class:list={['works-thumb-wrap', `is-${['one', 'two', 'three', 'four'][i]}`]}>
+                    <div class:list={['works-thumb-wrap', `is-${['one', 'two', 'three', 'four', 'five'][i]}`]}>
                       <img src={image.src} srcset={image.srcset} sizes="100vw" width={image.width} height={image.height} alt="" class="works-thumb" loading="lazy" decoding="async" />
                     </div>
                   );
                 })
               }
             </div>
-            <a class="works-button-block w-inline-block" href={to('/services')}>
+            <a class="works-button-block w-inline-block" href={to('/services')} data-services-href={to('/services')} data-services-label={h.services.all} data-shop-href={to('/shop')} data-shop-label={h.services.shopAll}>
               <div class="works-button">
                 <div class="works-button-text">{h.services.all}</div>
                 <Icon name="works-arrow" class="works-button-icon" />
+              </div>
+            </a>
+            <a class="works-shop-link w-inline-block" href={to('/shop')}>
+              <div class="works-button">
+                <div class="works-button-text">{h.services.shopAll}</div>
               </div>
             </a>
           </div>

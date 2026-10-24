@@ -266,7 +266,7 @@ function initImageTrail(): void {
  * heading, its counter and its photographs change over.
  *
  * Each of the three changes is a short scrubbed move — a quarter of a screen's
- * scroll long — that starts a little after the last one ends, 1.25 screens
+ * scroll long — that starts a little after the last one ends, 1.2 screens
  * apart: the heading and the counter each step up one line, and the top
  * photograph slides off to the left to uncover the next. The moves are linear
  * in the scroll position, so the page's own scrolling is the only easing.
@@ -283,13 +283,25 @@ function initWorks(): void {
     const photos = [...section.querySelectorAll<HTMLElement>('.works-thumb-wrap')].slice(0, -1);
     if (!titles || !titleBlock || !numbers || !numberBlock) continue;
 
+    // On the last slide (the shop) the one button becomes a link to the shop.
+    const link = section.querySelector<HTMLAnchorElement>('.works-button-block');
+    const label = link?.querySelector<HTMLElement>('.works-button-text');
+    let onShop = false;
+
     let top = 0;
     let vh = 0;
     let ticking = false;
 
+    // Long titles wrap to two lines, so every row gets the height of the tallest title and the heading steps one whole row at a time.
+    const rows = [...titles.children] as HTMLElement[];
     const measure = () => {
       top = section.getBoundingClientRect().top + window.scrollY;
       vh = window.innerHeight;
+      titleBlock.style.height = '';
+      rows.forEach((row) => (row.style.height = ''));
+      const tallest = Math.max(...rows.map((row) => row.offsetHeight));
+      titleBlock.style.height = `${tallest}px`;
+      rows.forEach((row) => (row.style.height = `${tallest}px`));
     };
 
     const update = () => {
@@ -297,13 +309,19 @@ function initWorks(): void {
       const distance = window.scrollY - top;
       let done = 0;
       photos.forEach((photo, i) => {
-        const start = (0.03 + 1.25 * i) * vh;
+        const start = (0.03 + 1.2 * i) * vh;
         const t = Math.min(1, Math.max(0, (distance - start) / (0.25 * vh)));
         gsap.set(photo, { xPercent: -100 * t });
         done += t;
       });
       gsap.set(titles, { y: -done * titleBlock.offsetHeight });
       gsap.set(numbers, { y: -done * numberBlock.offsetHeight });
+      const shop = photos.length > 0 && done > photos.length - 0.5;
+      if (link && label && link.dataset.shopHref && shop !== onShop) {
+        onShop = shop;
+        link.href = (shop ? link.dataset.shopHref : link.dataset.servicesHref) ?? link.href;
+        label.textContent = (shop ? link.dataset.shopLabel : link.dataset.servicesLabel) ?? label.textContent;
+      }
     };
 
     const schedule = () => {
@@ -332,7 +350,6 @@ function initWorks(): void {
     if (document.readyState === 'complete') afterLoad();
     else window.addEventListener('load', afterLoad, { once: true });
 
-    const link = section.querySelector<HTMLElement>('.works-button-block');
     const button = link?.firstElementChild as HTMLElement | null;
     if (!link || !button || !matchMedia('(hover: hover) and (pointer: fine)').matches) continue;
 

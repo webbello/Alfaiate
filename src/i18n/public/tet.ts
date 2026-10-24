@@ -231,6 +231,8 @@ export const tet: Dictionary = {
       suits: 'Fatu no Roupa Formál',
       uniforms: 'Uniforme Eskola no Serbisu',
       wedding: 'Kaben no Okaziaun Espesiál',
+      shop: 'Loja Roupa Prontu',
+      shopAll: 'Bá Loja',
     },
     featured: {
       eyebrow: 'Alfaiate sira',
