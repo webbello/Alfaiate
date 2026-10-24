@@ -28,6 +28,15 @@ const { results } = await requireBindings(env)
     routes_json: string;
     created_at: string;
   }>();
+const counts = (await requireBindings(env)
+  .DB.prepare(
+    `SELECT count(*) AS total,
+            coalesce(sum(created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', 'start of day')), 0) AS today,
+            coalesce(sum(created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-7 days')), 0) AS week,
+            coalesce(sum(created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days')), 0) AS month
+     FROM shop_order`,
+  )
+  .first<{ total: number; today: number; week: number; month: number }>())!;
 const safe = <T,>(json: string): T[] => {
   try {
     const parsed = JSON.parse(json);
@@ -52,6 +61,10 @@ const where = {
     title={en.adminNavOrders}
     sub="Orders that customers prepared from the shop cart. Each one was opened in the customer's own WhatsApp: you will receive the message there, with the same reference. No customer details are stored here."
   />
+  <p>
+    <strong>{counts.total}</strong> orders so far: {counts.today} today,{' '}
+    {counts.week} in the last 7 days, {counts.month} in the last 30 days.
+  </p>
   {results.length === 0 && (
     <EmptyState title="No orders yet">
       <p>

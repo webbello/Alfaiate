@@ -294,6 +294,8 @@ describe('who decides where orders go', () => {
     expect(list).toContain(ref);
     expect(list).toContain('So Listed Item × 3');
     expect(list).toContain('the admin');
+    expect(list).toMatch(/<strong>\d+<\/strong> orders so far: \d+ today/);
+    expect(list).toMatch(/<strong>[1-9]\d*<\/strong> orders so far/);
     expect((await get('/admin/orders', await signIn('editor'))).status).toBe(
       403,
     );
