@@ -68,7 +68,7 @@ const BUDGET = {
   homeCss: 214000, // 2026-10-25: the four-step request page adds about 1.3 kB of its own styles (measured 211.3 kB on /request); 2026-10-24: unused rules purged at build (scripts/purge-theme-css.mjs), measured 201.9 kB; was 295000
   homeJs: 160000, // 2026-10-24: pages with the motion layer, core and GSAP (measured 150.6 kB: core 18.7 + motion 131.9); was 175000
   themeJs: 22000, // 2026-10-24: pages with no animated elements load the core script only (measured 18.7 kB), GSAP is not sent
-  adminCss: 31000, // 2026-10-25: phone bottom bar (measured 30222); was 29500 with the dashboard counters (28993); admin redesign 2026-10-23: sidebar, top bar, dark theme, worklist, cards, portal; was 28500
+  adminCss: 33500, // 2026-10-25: request cards and action chips (measured 32209); 31000 with the phone bottom bar (30222); was 29500 with the dashboard counters (28993); admin redesign 2026-10-23: sidebar, top bar, dark theme, worklist, cards, portal; was 28500
   js: 1500, // raised 2026-10-21: the directory page adds the filter script (measured 1195 with the header menu)
 } as const;
 

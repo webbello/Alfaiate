@@ -28,6 +28,7 @@ import {
 } from '../../../modules/referral/queries';
 import { centsToDollars } from '../../../modules/tailors/links';
 import Card from '../../../components/admin/Card.astro';
+import RequestActions from '../../../components/admin/RequestActions.astro';
 import StatusChip from '../../../components/admin/StatusChip.astro';
 import { nextStep } from '../../../modules/admin-ui/next-step';
 
@@ -85,6 +86,19 @@ const action = `/admin/enquiries/${id}/actions`;
     {e.source ? ` · ${text.source}: ${e.source}` : ''}
   </p>
   {message && <Flash message={message} kind={messageKind(code)} />}
+  <RequestActions
+    reference={e.reference_code}
+    status={e.status}
+    isSpam={Boolean(e.is_spam)}
+    createdAt={e.created_at}
+    categoryName={e.category_name}
+    areaName={e.area_name}
+    reach={reach}
+    canUpdate={canUpdate}
+    csrf={auth.csrfToken}
+    action={action}
+    anonymised={Boolean(e.anonymised_at)}
+  />
   <p class="next-step" role="note">
     <strong>{text.nextStep}</strong> {step}
   </p>

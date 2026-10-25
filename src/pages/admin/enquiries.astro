@@ -14,7 +14,8 @@ import PageHeader from '../../components/admin/PageHeader.astro';
 import EmptyState from '../../components/admin/EmptyState.astro';
 import StatusChip from '../../components/admin/StatusChip.astro';
 import { toneFor } from '../../modules/admin-ui/tone';
-import { waitingTooLong } from '../../modules/enquiry/waiting';
+import { waitedText, waitingTooLong } from '../../modules/enquiry/waiting';
+import { customerReach } from '../../modules/contact-links/admin-links';
 
 const auth = await requirePermission(Astro, 'enquiry.view');
 if (auth instanceof Response) return auth;
@@ -108,7 +109,51 @@ const now = new Date();
     </EmptyState>
   )}
   {rows.length > 0 && (
-    <table>
+    <ul class="req-cards" aria-label={text.heading}>
+      {rows.map((r) => {
+        const reach = customerReach(r);
+        const wants = [r.category_name, r.area_name]
+          .filter(Boolean)
+          .join(' · ');
+        return (
+          <li class="req-card">
+            <p class="req-card__top">
+              <a class="req-card__ref" href={`/admin/enquiries/${r.id}`}>
+                {r.reference_code}
+              </a>
+              <StatusChip state={r.status} label={text.statuses[r.status]} />
+              {waitingTooLong(r, now) && (
+                <StatusChip state="overdue" label={text.waiting} />
+              )}
+              {r.is_spam ? (
+                <StatusChip state="cancelled" label={text.spamMark} />
+              ) : null}
+            </p>
+            <p class="req-card__who">{r.customer_name ?? text.anonymised}</p>
+            <p class="req-card__wants">{wants || text.nothingChosen}</p>
+            <p class="req-card__time">
+              {text.received} {waitedText(r.created_at, now)}
+              {waitedText(r.created_at, now) === 'just now' ? '' : ' ago'}
+            </p>
+            {reach && (
+              <a
+                class="req-big"
+                href={reach.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {reach.kind === 'call'
+                  ? text.callCustomer
+                  : text.whatsappCustomer}
+              </a>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  )}
+  {rows.length > 0 && (
+    <table class="req-table">
       <thead>
         <tr>
           <th>{text.reference}</th>

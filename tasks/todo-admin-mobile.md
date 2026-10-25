@@ -19,7 +19,7 @@ Each task: acceptance, how to verify, files. Requirement IDs are from the spec.
 - [x] **A5 Bottom bar and phone layout (FR-ADM-15). Done 2026-10-25.** Below the mobile breakpoint a bottom bar: Enquiries, Shop orders, Tailors, More; sidebar unchanged above it.
   - Verify: e2e at 375 and 320 px (no sideways scroll, bar does not cover the last content or focus, keyboard order); axe; contrast test.
   - Files: `src/layouts/AdminLayout.astro`, `src/modules/admin-ui/nav.ts`, `src/styles/admin.css`.
-- [ ] **A6 Request card on a phone (FR-ADM-16).** Card with reference, area, garment, waiting time; four large buttons (WhatsApp, status chips, assign placeholder hidden until phase C, note); details below; 44 px targets.
+- [x] **A6 Request card on a phone (FR-ADM-16). Done 2026-10-25 (list cards with a message button; the request opens with large actions and one-tap status chips; the assign button waits for phase C).** Card with reference, area, garment, waiting time; four large buttons (WhatsApp, status chips, assign placeholder hidden until phase C, note); details below; 44 px targets.
   - Verify: e2e at 375 px; status change by one tap works without JavaScript; axe.
   - Files: `src/pages/admin/enquiries.astro`, `src/pages/admin/enquiries/[id].astro`, `src/components/admin/StatusChip.astro`, `src/styles/admin.css`.
 - [ ] **A7 Confirmations (FR-ADM-17).** Two-step (details/summary, no JavaScript) only for publish or unpublish, tailor sign-in off, anonymise; none elsewhere.

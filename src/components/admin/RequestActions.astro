@@ -1,0 +1,94 @@
+---
+// The phone-first top of a request (FR-ADM-16): what it is and how long it has waited, then large buttons: message the customer, set the status with one tap,
+// and add a note. Each status chip is its own submit button of the existing set_status form, so it works without JavaScript and every change is audited as before.
+import StatusChip from './StatusChip.astro';
+import { en } from '../../i18n/en';
+import { STATUSES, type Status } from '../../modules/enquiry/queries';
+import { waitedText, waitingTooLong } from '../../modules/enquiry/waiting';
+import type { Reach } from '../../modules/contact-links/admin-links';
+
+interface Props {
+  reference: string;
+  status: Status;
+  isSpam: boolean;
+  createdAt: string;
+  categoryName: string | null;
+  areaName: string | null;
+  reach: Reach | null;
+  canUpdate: boolean;
+  csrf: string;
+  action: string;
+  anonymised: boolean;
+}
+const {
+  reference,
+  status,
+  isSpam,
+  createdAt,
+  categoryName,
+  areaName,
+  reach,
+  canUpdate,
+  csrf,
+  action,
+  anonymised,
+} = Astro.props;
+const text = en.enquiry;
+const late = waitingTooLong({
+  status,
+  is_spam: isSpam ? 1 : 0,
+  created_at: createdAt,
+});
+const wants = [categoryName, areaName].filter(Boolean).join(' · ');
+---
+
+<section class="req-actions" aria-label={`Quick actions for ${reference}`}>
+  <p class="req-actions__what">
+    <StatusChip state={status} label={text.statuses[status]} />
+    {late && <StatusChip state="overdue" label={text.waiting} />}
+    <span>{wants || text.nothingChosen}</span>
+    <span class="req-actions__time">
+      {text.received} {waitedText(createdAt)}
+      {waitedText(createdAt) === 'just now' ? '' : ' ago'}
+    </span>
+  </p>
+  <div class="req-actions__buttons">
+    {reach && (
+      <a
+        class="req-big"
+        href={reach.href}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {reach.kind === 'call' ? text.callCustomer : text.whatsappCustomer}
+      </a>
+    )}
+    {!anonymised && (
+      <a class="req-big req-big--quiet" href="#note">
+        {text.addNote}
+      </a>
+    )}
+  </div>
+  {canUpdate && (
+    <form
+      method="post"
+      action={action}
+      class="status-chips"
+      aria-label={text.statusHeading}
+    >
+      <input type="hidden" name="csrf" value={csrf} />
+      <input type="hidden" name="action" value="set_status" />
+      {STATUSES.map((s) => (
+        <button
+          type="submit"
+          name="status"
+          value={s}
+          class="status-chip"
+          aria-pressed={s === status ? 'true' : 'false'}
+        >
+          {text.statuses[s]}
+        </button>
+      ))}
+    </form>
+  )}
+</section>

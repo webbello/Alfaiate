@@ -645,6 +645,8 @@ export const en = {
     anonymiseButton: 'Anonymise permanently',
     spamMark: 'spam',
     waiting: 'Waiting 24h+',
+    addNote: 'Add a note',
+    nothingChosen: 'No clothing or area chosen',
     whatsappCustomer: 'WhatsApp customer',
     callCustomer: 'Call customer',
     statuses: {
