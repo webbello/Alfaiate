@@ -79,7 +79,22 @@ describe('publishing through the admin pages', () => {
     );
     expect(html).toContain('href="#contact-consent"');
     expect(html).toContain('The number is saved');
+    // Each fix link must land on the control itself, so the jump hands it focus.
+    expect(html).toMatch(/id="contact-consent"[^>]*tabindex="-1"/);
+    expect(html).toMatch(/<h2[^>]*id="publish"[^>]*tabindex="-1"/);
+    // The number is saved, so the "add a number" hint must not appear.
+    expect(html).not.toContain('Add a WhatsApp or phone number here');
+    // The banner gives the count, and the list itself lives in the checklist.
+    expect(html).toContain('3 things still need doing');
     expect((await row(id))?.is_published).toBe(0);
+
+    // With no number on the profile, the WhatsApp field itself says what to add.
+    await env.DB.prepare('UPDATE tailor SET phone_e164 = NULL WHERE id = ?')
+      .bind(id)
+      .run();
+    const none = await (await get(`/admin/tailors/${id}`, cookie)).text();
+    expect(none).toContain('Add a WhatsApp or phone number here');
+    expect(none).toContain('id="whatsapp-hint"');
   });
 
   it('marks the consent box when a saved number cannot be published without consent', async () => {
@@ -95,6 +110,21 @@ describe('publishing through the admin pages', () => {
     expect(html).toContain('field-needed');
     expect(html).toContain('Needed before publishing');
     expect(html).not.toContain('id="whatsapp-error"');
+    // The same gap is said once in "Next step" and once in the checklist, not four times.
+    expect((html.match(/href="#contact-consent"/g) ?? []).length).toBe(2);
+    // Publish cannot be pressed while the page is blocked, and the reason is next to it.
+    expect(html).toMatch(/<button[^>]*disabled[^>]*>\s*Publish\s*<\/button>/);
+    expect(html).toContain('id="publish-blocked-hint"');
+    // An approved tailor sees a line, not a button that silently does nothing.
+    expect(html).toContain('Already approved. Nothing to do here.');
+    expect(html).not.toContain('name="action" value="approve"');
+    // Withdrawing permission is out of the way, at the end of the card, not between the forms.
+    expect(html).toMatch(
+      /<details>\s*<summary>Remove from public view<\/summary>/,
+    );
+    expect(html.indexOf('Remove from public view')).toBeGreaterThan(
+      html.indexOf('publish-blocked-hint'),
+    );
   });
 
   it('shows the publishing section to managers only', async () => {

@@ -31,14 +31,14 @@ describe('message banners', () => {
       const ok = banner(await (await get(`${path}?msg=saved`, owner)).text());
       expect(ok?.[1], `${path} saved`).toBe('success');
       expect(ok?.[2], `${path} saved`).toBe('status');
-      expect(ok?.[3], `${path} saved`).toContain('<strong>Done.</strong>');
+      expect(ok?.[3], `${path} saved`).toContain('<strong>Done.</strong> ');
       const bad = banner(
         await (await get(`${path}?msg=invalid`, owner)).text(),
       );
       expect(bad?.[1], `${path} invalid`).toBe('problem');
       expect(bad?.[2], `${path} invalid`).toBe('alert');
       expect(bad?.[3], `${path} invalid`).toContain(
-        '<strong>Problem.</strong>',
+        '<strong>Problem.</strong> ',
       );
     }
     const enquiry = (

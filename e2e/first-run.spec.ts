@@ -26,6 +26,37 @@ test('the checklist leads from a new draft to a published tailor', async ({
   await expect(card.locator('.check--missing')).toHaveCount(4);
   expect(await violationsOf(page)).toEqual([]);
 
+  // A fix link must land the control below the sticky bar (desktop and phone) and hand it focus.
+  for (const viewport of [
+    { width: 1280, height: 900 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto(page.url());
+    await card.getByRole('link', { name: 'Tick the consent box' }).click();
+    const landing = await page.evaluate(() => {
+      const target = document.getElementById('contact-consent');
+      const bar = [...document.querySelectorAll('.admin-header, .admin-topbar')]
+        .map((el) => el.getBoundingClientRect())
+        .filter((r) => r.height > 0 && r.height < 200 && r.top <= 1)
+        .reduce((bottom, r) => Math.max(bottom, r.bottom), 0);
+      return {
+        top: target ? Math.round(target.getBoundingClientRect().top) : -1,
+        bar: Math.round(bar),
+        focused: document.activeElement?.id ?? '',
+      };
+    });
+    expect(
+      landing.top,
+      `${viewport.width}px above the bar`,
+    ).toBeGreaterThanOrEqual(landing.bar);
+    expect(landing.top, `${viewport.width}px on screen`).toBeGreaterThan(0);
+    expect(landing.focused, `${viewport.width}px focus`).toBe(
+      'contact-consent',
+    );
+  }
+  await page.setViewportSize({ width: 1280, height: 900 });
+
   // Fix each item with the controls the checklist points at.
   await page.getByRole('button', { name: 'Approve' }).click();
   await expect(card.locator('.check--missing')).toHaveCount(3);

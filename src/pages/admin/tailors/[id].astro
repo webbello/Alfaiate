@@ -61,6 +61,8 @@ const serves = new Set(
 const { message, kind, code, fields, fieldKeys } = messageFrom(Astro.url);
 const checklist = publishChecklist(tailor);
 const missing = missingItems(tailor);
+/** A "blocked" banner is only shown while something is actually missing; a stale URL must not contradict the checklist. */
+const banner = code === 'blocked' && missing.length === 0 ? '' : message;
 const missingCount = missing.length;
 const nextMissing = missing[0];
 const needsNumber = missing.some((i) => i.key === 'no_contact_number');
@@ -100,26 +102,21 @@ const action = `/admin/tailors/${id}/actions`;
       </a>
     )}
   </PageHeader>
-  {message && (
-    <Flash message={message} kind={kind}>
+  {banner && (
+    <Flash message={banner} kind={kind}>
       {fields.length > 0 && (
         <>
           {en.tailorCheck}: {fields.join(', ')}
         </>
       )}
       {code === 'blocked' && missing.length > 0 && (
-        <ul class="blockers">
-          {missing.map((item) => (
-            <li>
-              <strong>{item.label}.</strong> {item.detail}{' '}
-              {canFix(item.key) ? (
-                <a href={item.fixHref}>{item.fixLabel}</a>
-              ) : (
-                <span class="field-hint">A manager does this.</span>
-              )}
-            </li>
-          ))}
-        </ul>
+        <p>
+          {missing.length === 1
+            ? '1 thing still needs doing'
+            : `${missing.length} things still need doing`}
+          . The “Ready to publish?” checklist below shows each one and where to
+          fix it.
+        </p>
       )}
     </Flash>
   )}
@@ -644,30 +641,25 @@ const action = `/admin/tailors/${id}/actions`;
       {mayVerify && (
         <>
           <section class="card">
-            <h2 id="publish">{en.publishHeading}</h2>
+            <h2 id="publish" tabindex="-1">
+              {en.publishHeading}
+            </h2>
             {tailor.is_published ? (
               <p>{en.tailorPublished}</p>
             ) : missing.length > 0 ? (
-              <>
-                <p>{en.publishBlockedIntro}</p>
-                <ul class="blockers">
-                  {missing.map((item) => (
-                    <li>
-                      {item.label}. <a href={item.fixHref}>{item.fixLabel}</a>
-                    </li>
-                  ))}
-                </ul>
-              </>
+              <p>{en.publishBlockedIntro}</p>
             ) : (
               <p>{en.publishReady}</p>
             )}
-            <form method="post" action={publishAction}>
-              <input type="hidden" name="csrf" value={auth.csrfToken} />
-              <input type="hidden" name="action" value="approve" />
-              <button type="submit" disabled={tailor.status === 'approved'}>
-                {en.publishApprove}
-              </button>
-            </form>
+            {tailor.status === 'approved' ? (
+              <p class="field-hint">{en.publishApprovedAlready}</p>
+            ) : (
+              <form method="post" action={publishAction}>
+                <input type="hidden" name="csrf" value={auth.csrfToken} />
+                <input type="hidden" name="action" value="approve" />
+                <button type="submit">{en.publishApprove}</button>
+              </form>
+            )}
             <form method="post" action={publishAction}>
               <input type="hidden" name="csrf" value={auth.csrfToken} />
               <input type="hidden" name="action" value="record_permission" />
@@ -721,6 +713,7 @@ const action = `/admin/tailors/${id}/actions`;
               </p>
               <p
                 id="contact-consent"
+                tabindex="-1"
                 class={needsConsent ? 'field-needed' : undefined}
               >
                 <label>
@@ -743,19 +736,6 @@ const action = `/admin/tailors/${id}/actions`;
               </p>
               <button type="submit">{en.publishRecord}</button>
             </form>
-            {tailor.permission_recorded ? (
-              <form method="post" action={publishAction}>
-                <input type="hidden" name="csrf" value={auth.csrfToken} />
-                <input
-                  type="hidden"
-                  name="action"
-                  value="withdraw_permission"
-                />
-                <button type="submit" class="danger">
-                  {en.publishWithdraw}
-                </button>
-              </form>
-            ) : null}
             <form method="post" action={publishAction}>
               <input type="hidden" name="csrf" value={auth.csrfToken} />
               <input type="hidden" name="action" value="set_verified" />
@@ -782,21 +762,39 @@ const action = `/admin/tailors/${id}/actions`;
                 value={tailor.is_published ? 'unpublish' : 'publish'}
               />
               {!tailor.is_published && missing.length > 0 && (
-                <p class="field-hint">
+                <p class="field-hint" id="publish-blocked-hint">
                   Publishing is blocked until{' '}
                   {missingCount === 1
                     ? 'the missing item is done'
                     : `all ${missingCount} missing items are done`}
-                  ; each one is listed in “Ready to publish?” above.
+                  ; the “Ready to publish?” checklist above shows each one.
                 </p>
               )}
               <button
                 type="submit"
                 class={tailor.is_published ? 'danger' : undefined}
+                disabled={!tailor.is_published && missingCount > 0}
               >
                 {tailor.is_published ? en.publishUnpublish : en.publishNow}
               </button>
             </form>
+            {tailor.permission_recorded ? (
+              <details>
+                <summary>{en.publishRemoveHeading}</summary>
+                <p>{en.publishRemoveHelp}</p>
+                <form method="post" action={publishAction}>
+                  <input type="hidden" name="csrf" value={auth.csrfToken} />
+                  <input
+                    type="hidden"
+                    name="action"
+                    value="withdraw_permission"
+                  />
+                  <button type="submit" class="danger">
+                    {en.publishWithdraw}
+                  </button>
+                </form>
+              </details>
+            ) : null}
           </section>
         </>
       )}
@@ -812,14 +810,14 @@ const action = `/admin/tailors/${id}/actions`;
                   : 'Invited, waiting for the tailor to open the link and choose a password.'
                 : 'No sign-in yet. Create a sign-in link to let this tailor in, or approve their join request.'}
               {account?.reviewRequestedAt &&
+                ` The tailor said the page is ready on ${account.reviewRequestedAt.slice(0, 10)}: please check it and publish.`}
+            </p>
             {!account && (
               <form method="post" action={`/admin/tailors/${id}/invite`}>
                 <input type="hidden" name="csrf" value={auth.csrfToken} />
                 <button type="submit">Create a sign-in link</button>
               </form>
             )}
-                ` The tailor said the page is ready on ${account.reviewRequestedAt.slice(0, 10)}: please check it and publish.`}
-            </p>
             {account && (
               <>
                 <form method="post" action={`/admin/tailors/${id}/invite`}>

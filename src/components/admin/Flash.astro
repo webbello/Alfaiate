@@ -14,8 +14,7 @@ const { message, kind } = Astro.props;
 >
   <AdminIcon name={kind === 'problem' ? 'alert' : 'check'} />
   <div>
-    <strong>{kind === 'problem' ? 'Problem.' : 'Done.'}</strong>
-    {message}
+    <strong>{kind === 'problem' ? 'Problem.' : 'Done.'}</strong> {message}
     <slot />
   </div>
 </div>

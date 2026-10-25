@@ -107,6 +107,7 @@ export function nextStep(e: { status: Status; referralStates: string[]; anonymis
 - The tailors list and tailor page build the checklist from `src/modules/admin-ui/checklist.ts` and inline markup, not a separate `Checklist.astro` component.
 - No Playwright demo-data journey: the demo scripts only target the local database and cannot be pointed at the throwaway e2e database, so add, repeat and remove are tested in the D1 test runtime instead (`tests/workers/demo-seed.test.ts`); the run through wrangler was not automated.
 - Editors see the checklist but not the approval/permission forms (they lack `tailor.publish`). Since 2026-10-24 the approval, permission and consent items show "A manager does this" for editors instead of a link to a form they cannot see; `#whatsapp` still works for them on a draft.
+- Since 2026-10-24 each missing requirement is described in prose in at most two places ("Next step" and the checklist), with the fixing field keeping its own short hint; the blocked banner gives the count and the publish card does not repeat the list. Publish is disabled while blocked (reason shown next to it), an approved tailor sees "Already approved" instead of a disabled Approve button, and withdrawing permission lives in a collapsed "Remove from public view" section at the end of the card.
 - Tables scroll inside themselves below 48rem instead of stacking, so wide admin tables never make the page scroll sideways.
 
 ## Open questions

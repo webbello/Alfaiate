@@ -208,6 +208,10 @@ a {
 .admin-main {
   padding: 1.25rem 1rem 4rem;
 }
+/* An in-page link must not drop its target under the sticky header (the top bar on a wide screen, the menu bar on a phone). */
+.admin-main [id] {
+  scroll-margin-top: 4.75rem;
+}
 .admin-main > h1,
 .page-head h1 {
   margin: 0;
@@ -376,13 +380,6 @@ select.input--needed {
   border: 1px solid var(--bad-line);
   border-radius: var(--radius);
   background: var(--bad-surface);
-}
-.blockers {
-  margin: 0.4rem 0 0;
-  padding-left: 1.1rem;
-}
-.blockers li {
-  margin: 0.3rem 0;
 }
 label:has(> input[type='checkbox']),
 label:has(> input[type='radio']) {
