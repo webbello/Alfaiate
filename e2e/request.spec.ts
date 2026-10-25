@@ -18,6 +18,13 @@ test('a customer completes the request with the keyboard only and sees a referen
   page,
 }) => {
   await page.goto('/request');
+  // steps 1 to 3 are optional: reach each Next/Skip button by keyboard and press it
+  for (const step of [1, 2, 3]) {
+    await expect(page.locator(`[data-wz-step="${step}"]`)).toBeVisible();
+    await page.locator('[data-wz-next]').focus();
+    await page.keyboard.press('Enter');
+  }
+  await expect(page.locator('[data-wz-step="4"]')).toBeVisible();
   await page.locator('#name').focus();
   await page.keyboard.type('E2E Fake Customer');
   await tabTo(page, 'phone');
@@ -37,24 +44,30 @@ test('a customer completes the request with the keyboard only and sees a referen
   expect(page.url()).not.toMatch(/Fake|7712|3456/);
 });
 
-test('mistakes show a summary and field errors, keep what was typed, and pass axe (AC-06)', async ({
+test('mistakes show a summary and field errors, keep what was typed, open the step with the problem, and pass axe (AC-06)', async ({
   page,
 }) => {
-  await page.goto('/request');
+  await page.goto('/request#notes'); // a link to a field on another step opens that step
+  await expect(page.locator('[data-wz-step="3"]')).toBeVisible();
   await page
     .locator('form.request')
     .evaluate((form: HTMLFormElement) => (form.noValidate = true)); // reach the server-side messages
-  await page.getByText('Add a preferred day or more details').click();
   await page.locator('#notes').fill('keep these words');
   await page.waitForTimeout(FILL_DELAY);
-  await page.getByRole('button', { name: 'Send request' }).click();
+  await page
+    .locator('form.request')
+    .evaluate((form: HTMLFormElement) => form.requestSubmit());
   await expect(page.getByRole('alert')).toContainText(
     'Please fix the following',
   );
+  await expect(page.locator('[data-wz-step="4"]')).toBeVisible();
   await expect(page.locator('#name-error')).toBeVisible();
   await expect(page.locator('#consent-error')).toBeVisible();
   await expect(page.locator('#notes')).toHaveValue('keep these words');
   await expect(page.locator('#consent')).not.toBeChecked();
+  // the summary's link to the name field works
+  await page.getByRole('link', { name: /Your name/ }).click();
+  await expect(page.locator('#name')).toBeVisible();
   expect(await violationsOf(page)).toEqual([]);
 });
 
@@ -74,7 +87,7 @@ test('the request page does not scroll sideways at 375 px', async ({
 test('the Tetum form submits to the Tetum acknowledgement', async ({
   page,
 }) => {
-  await page.goto('/tet/request');
+  await page.goto('/tet/request#name'); // a link to a field on a later step opens that step
   await page.locator('#name').fill('E2E Fake Customer');
   await page.locator('#phone').fill('7712 3456');
   await page.locator('#channel-phone').check();
@@ -85,17 +98,23 @@ test('the Tetum form submits to the Tetum acknowledgement', async ({
   await expect(page.locator('html')).toHaveAttribute('lang', 'tet');
 });
 
-test('a customer taps a category, picks an area from the list, fills step 2 and sends (Phase 7c)', async ({
+test('a customer taps a category, an area and a time, then sends (four steps)', async ({
   page,
 }) => {
   await page.goto('/request');
-  await page.getByText('[Placeholder] Suits', { exact: true }).click();
-  await page
-    .locator('#area-select')
-    .selectOption({ label: '[Placeholder] Area 1' });
-  await expect(page.locator('#category-none')).not.toBeChecked();
+  await page.getByText('[Placeholder] Suits', { exact: true }).click(); // a tap on a card moves on by itself
+  await expect(page.locator('[data-wz-step="2"]')).toBeVisible();
+  await page.getByText('[Placeholder] Area 1', { exact: true }).click();
   await page.locator('#area_text').fill('Near the fake blue gate');
-  await page.locator('#when-week').check();
+  await page.locator('[data-wz-next]').click();
+  await expect(page.locator('[data-wz-step="3"]')).toBeVisible();
+  await page.getByText('This week', { exact: true }).click();
+  await expect(page.locator('[data-wz-step="4"]')).toBeVisible();
+  // what was chosen is shown again, each answer a button that goes back to its step
+  await expect(page.locator('[data-wz-summary]')).toContainText(
+    '[Placeholder] Suits',
+  );
+  await expect(page.locator('[data-wz-summary]')).toContainText('This week');
   await page.locator('#name').fill('E2E Fake Customer');
   await page.locator('#phone').fill('7712 3456');
   await page.locator('#channel-whatsapp').check();

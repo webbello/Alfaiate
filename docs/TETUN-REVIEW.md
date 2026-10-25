@@ -162,3 +162,7 @@ New `request` lines in `src/i18n/public/tet.ts` (unreviewed): `areaText` (reword
 ## Tailor sign-in link (2026-10-24)
 
 New lines in `src/i18n/public/tet.ts` (unreviewed): `footer.tailorSignIn` ("Alfaiate: tama") and `join.signInNote`.
+
+## Request page steps (2026-10-25)
+
+New lines in `src/i18n/public/tet.ts` under `request` (unreviewed, written by the developer): `wizardStep` ("Pasu {n} husi {total}"), `wizardNext` ("Tuir mai"), `wizardSkip` ("Liu"), `wizardBack` ("Fila fali"), `wizardChange` ("troka"), `wizardAnswers`, `wizardWhatSub`, `wizardWhereTitle` ("Ita iha nebé?"), `wizardWhereSub`, `wizardWhenTitle`.

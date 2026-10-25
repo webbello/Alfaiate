@@ -2,12 +2,13 @@ import { fitLike, likeAnywhere } from '../db/like';
 export type Choice = { id: number; name: string };
 
 /** Active categories and areas for the request form (ids, because the form posts ids and the server re-checks them). */
-export async function formChoices(
-  db: D1Database,
-): Promise<{ categories: Choice[]; areas: Choice[] }> {
-  const [categories, areas] = await db.batch<Choice>([
+export async function formChoices(db: D1Database): Promise<{
+  categories: (Choice & { slug: string })[];
+  areas: Choice[];
+}> {
+  const [categories, areas] = await db.batch<Choice & { slug: string }>([
     db.prepare(
-      'SELECT id, name FROM garment_category WHERE is_active = 1 ORDER BY sort_order, name',
+      'SELECT id, name, slug FROM garment_category WHERE is_active = 1 ORDER BY sort_order, name',
     ),
     db.prepare(
       'SELECT id, name FROM service_area WHERE is_active = 1 ORDER BY sort_order, name',

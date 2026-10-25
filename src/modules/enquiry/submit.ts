@@ -28,7 +28,7 @@ export type FormView = {
   also: { slug: string; name: string }[];
   /** Shop products the visitor is asking about (published ones only). */
   products: { slug: string; name: string; qty: number }[];
-  categories: Choice[];
+  categories: (Choice & { slug: string })[];
   areas: Choice[];
 };
 export type Outcome =

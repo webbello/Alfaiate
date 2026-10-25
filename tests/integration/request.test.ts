@@ -67,9 +67,8 @@ describe('GET /request (FR-ENQ-01/02/03, AC-06)', () => {
       'phone',
       'channel',
       'category',
-      'service',
       'area',
-      'when',
+      'when_pick',
       'notes',
       'consent',
       'form_token',
@@ -346,11 +345,12 @@ describe('acknowledgement page (FR-ENQ-03/04)', () => {
 });
 
 // Phase 7c T6: the same single form, laid out as two steps with tappable choices. Server rules are covered above and unchanged.
-describe('two-step layout', () => {
+describe('four-step request (picture cards, one question at a time)', () => {
+  // Each step is a <section data-wz-step>; without JavaScript they stack and the one Send button follows the last.
   const steps = (html: string) =>
     [
       ...html.matchAll(
-        /<fieldset class="step"[\s\S]*?<\/fieldset>\s*(?=<fieldset class="step"|<p class="notice"|<p>\s*<button)/g,
+        /<section class="wz-step" data-wz-step="(\d)"[\s\S]*?<\/section>/g,
       ),
     ].map((m) => m[0]);
   const seed = async () => {
@@ -372,54 +372,60 @@ describe('two-step layout', () => {
       .first<{ id: number }>())!.id;
     return { c, a };
   };
-  it('has two short sections in one form, with no step counter: what and where first, then who and consent', async () => {
+  it('has four steps in one form, a step counter, and the send button after the last step', async () => {
     const html = await (await get('/request')).text();
     expect(/<main[\s\S]*<\/main>/.exec(html)![0].match(/<form /g)).toHaveLength(
       1,
     );
-    const [one, two] = steps(html);
+    const [one, two, three, four] = steps(html);
+    expect(steps(html)).toHaveLength(4);
     expect(one, 'step 1').toContain('What do you need?');
-    expect(two, 'step 2').toContain('How can we reach you?');
-    expect(html).not.toMatch(/Step \d of \d/);
-    // why and what next are stated before the form, and only name and number are asked for
+    expect(two, 'step 2').toContain('Where are you?');
+    expect(three, 'step 3').toContain('When would suit you?');
+    expect(four, 'step 4').toContain('How can we reach you?');
+    expect(html).toContain('Step 1 of 4');
     expect(html).toContain('What happens next');
     expect(html).toContain('Only your name and number are needed');
-    for (const name of ['category', 'service', 'area', 'when', 'notes'])
-      expect(one, name).toContain(`name="${name}"`);
-    for (const name of ['name', 'phone', 'channel', 'consent'])
-      expect(two, name).toContain(`name="${name}"`);
+    for (const [step, names] of [
+      [one, ['category']],
+      [two, ['area', 'area_text']],
+      [three, ['when_pick', 'notes']],
+      [four, ['name', 'phone', 'channel', 'consent']],
+    ] as const)
+      for (const name of names) expect(step, name).toContain(`name="${name}"`);
     expect(
       html.indexOf('type="submit"', html.indexOf('<main')),
-    ).toBeGreaterThan(html.indexOf('How can we reach you?'));
+    ).toBeGreaterThan(html.indexOf('data-wz-step="4"'));
+    expect(
+      /<main[\s\S]*<\/main>/.exec(html)![0].match(/type="submit"/g),
+    ).toHaveLength(1);
   });
-  it('offers categories as radio choices and areas as one drop-down list, both with "not sure yet"', async () => {
+  it('offers categories as picture cards and areas as tap choices, both with "not sure yet", and a landmark box', async () => {
     const { c, a } = await seed();
     const html = await (await get('/request')).text();
-    expect(html).not.toMatch(/<select[^>]*name="category"/);
-    expect(html).not.toMatch(/<input[^>]*name="area"/);
+    expect(html).not.toMatch(/<select[^>]*name="(category|area)"/);
     expect(html).toMatch(
       new RegExp(
         `<input[^>]*type="radio"[^>]*name="category"[^>]*value="${c}"`,
       ),
     );
     expect(html).toMatch(
-      /<input[^>]*type="radio"[^>]*name="category"[^>]*value=""/,
+      /<input[^>]*type="radio"[^>]*id="category-none"[^>]*value=""/,
     );
-    const select =
-      /<select[^>]*name="area"[\s\S]*?<\/select>/.exec(html)?.[0] ?? '';
-    expect(select).toMatch(/<option value(?:="")?[^>]*>Not sure yet<\/option>/);
-    expect(select).toContain(`<option value="${a}"`);
-    expect(select).toContain('<option value="other"');
-    expect(html).toContain('<label for="area-select">');
-    // Least-typing helpers: a landmark box that is always shown, tap choices for the time, ideas for the notes (script optional).
+    expect(html).toMatch(
+      new RegExp(`<input[^>]*type="radio"[^>]*name="area"[^>]*value="${a}"`),
+    );
+    expect(html).toMatch(
+      /<input[^>]*name="area"[^>]*id="area-none"|<input[^>]*id="area-none"[^>]*name="area"/,
+    );
+    expect(html).toMatch(/<input[^>]*name="area"[^>]*value="other"/);
     expect(html).toContain('<label for="area_text">Street, landmark');
     expect(html).toMatch(/name="when_pick"[^>]*value="asap"/);
-    expect(html).toMatch(
-      /<div class="request__ideas"[^>]*data-suggest="notes"[^>]*hidden/,
-    );
     expect(html).toContain('Steps Cat Fake');
+    // every card has a decorative picture (empty alt) and the page loads the one external script
+    expect(html).toMatch(/class="wz-card"[\s\S]*?<img [^>]*alt=""/);
   });
-  it('keeps the chosen category and area when the form comes back with a mistake', async () => {
+  it('keeps the chosen category and area when the form comes back with a mistake, and opens the step with the problem', async () => {
     const { c, a } = await seed();
     const html = await (
       await send(
@@ -432,7 +438,13 @@ describe('two-step layout', () => {
         `<input[^>]*name="category"[^>]*value="${c}"[^>]*checked|<input[^>]*checked[^>]*name="category"[^>]*value="${c}"`,
       ),
     );
-    expect(html).toMatch(new RegExp(`<option value="${a}"[^>]*selected`));
+    expect(html).toMatch(
+      new RegExp(
+        `<input[^>]*name="area"[^>]*value="${a}"[^>]*checked|<input[^>]*checked[^>]*name="area"[^>]*value="${a}"`,
+      ),
+    );
+    expect(html).toContain('data-start="4"');
+    expect(html).toContain('id="name-error"');
   });
   it('stores a request made with the radio choices exactly as before', async () => {
     const { c, a } = await seed();

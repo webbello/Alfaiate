@@ -152,11 +152,14 @@ describe('the medium-priority polish', () => {
     expect(html).toMatch(/<script[^>]*\bsrc="[^"]+"/);
   });
 
-  it('turns the area on the request form into one labelled drop-down list', async () => {
+  it('offers the area on the request form as a labelled group of tap choices, with "not sure" and "another place"', async () => {
     const html = await (await get('/request')).text();
-    expect(html).toMatch(/<label for="area-select">/);
-    expect(html).toMatch(/<select id="area-select" name="area"/);
-    expect(html).not.toContain('id="area-none"');
+    expect(html).toMatch(
+      /<div class="wz-chips" id="area" role="radiogroup" aria-labelledby="wz-h2">/,
+    );
+    expect(html).toContain('id="area-none"');
+    expect(html).toContain('id="area-other"');
+    expect(html).not.toMatch(/<select[^>]*name="area"/);
   });
 
   it('shows the language switch as EN and TET with the current one marked, and names both languages for screen readers', async () => {

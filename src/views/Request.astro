@@ -1,5 +1,6 @@
 ---
 import ThemePage from '../layouts/ThemePage.astro';
+import RequestWizard from '../components/RequestWizard.astro';
 import { dictionary, fill } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
 import type { Outcome } from '../modules/enquiry/submit';
@@ -98,7 +99,7 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
     values && (
       <>
         <h1>{heading}</h1>
-        <p class="request__intro">{intro}</p>
+        {business && <p class="request__intro">{intro}</p>}
         <p class="hint request__promise">{r.promise}</p>
         {view.tailor && (
           <p class="notice">
@@ -161,6 +162,15 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
             />
           </div>
 
+          {!business ? (
+            <RequestWizard
+              view={view}
+              r={r}
+              errorText={Object.fromEntries(failing.map((f) => [f, message(f)]))}
+              privacyHref={pathFor(lang, '/privacy')}
+            />
+          ) : (
+            <>
           <fieldset class="step">
             <legend>{r.stepOne}</legend>
             {business && (
@@ -505,6 +515,8 @@ const invalid = (field: Field) => (errors[field] ? 'true' : undefined);
               {r.submit}
             </button>
           </p>
+            </>
+          )}
         </form>
         <ol class="how request__next" aria-label={r.howLabel}>
           <li>{r.how1}</li>

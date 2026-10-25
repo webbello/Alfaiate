@@ -65,7 +65,7 @@ const BUDGET = {
   css: 23500, // 2026-10-23: initials badge, card WhatsApp button, lighter inputs, language switch (measured 22525); was 21000 (2026-10-21, compact directory)
   // The Handspark theme home (step 3, 2026-10-23): the whole theme sheet (267 kB raw, 31 kB compressed) and the motion script (165 kB raw, 59 kB compressed: GSAP, Lenis).
   // This is about ten times the old home and is the price of the theme; step 7 of docs/SPEC-handspark-theme.md trims it (per-page CSS, motion only on wide pointer devices).
-  homeCss: 210000, // 2026-10-24: unused rules purged at build (scripts/purge-theme-css.mjs), measured 201.9 kB; was 295000
+  homeCss: 214000, // 2026-10-25: the four-step request page adds about 1.3 kB of its own styles (measured 211.3 kB on /request); 2026-10-24: unused rules purged at build (scripts/purge-theme-css.mjs), measured 201.9 kB; was 295000
   homeJs: 160000, // 2026-10-24: pages with the motion layer, core and GSAP (measured 150.6 kB: core 18.7 + motion 131.9); was 175000
   themeJs: 22000, // 2026-10-24: pages with no animated elements load the core script only (measured 18.7 kB), GSAP is not sent
   adminCss: 31000, // 2026-10-25: phone bottom bar (measured 30222); was 29500 with the dashboard counters (28993); admin redesign 2026-10-23: sidebar, top bar, dark theme, worklist, cards, portal; was 28500
@@ -170,7 +170,9 @@ describe('images are sized, described and lazy (NFR-PERF-01, NFR-A11Y-01)', () =
     const first = await photo(unique().toString(16).padStart(32, '0'));
     await photo(unique().toString(16).padStart(32, '0'));
     await db
-      .prepare('UPDATE portfolio_image SET is_profile_photo = 1 WHERE id = ? AND tailor_id = ?')
+      .prepare(
+        'UPDATE portfolio_image SET is_profile_photo = 1 WHERE id = ? AND tailor_id = ?',
+      )
       .bind(first, id)
       .run();
     const slugOf = (await db

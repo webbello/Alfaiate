@@ -1,0 +1,282 @@
+---
+// The request as four short steps with picture cards and one big button fixed at the bottom of the phone (owner choice, variant D of the 2026-10-25 prototype).
+// Same field names and ids as the form it replaced, so the same handler takes it; the error summary still links to #name, #phone, #consent and so on.
+// Without JavaScript the four steps stack and the Send button is at the end. All words come from the dictionary (src/i18n/public), in the page's language.
+import { scene, type Scene } from './home/images';
+import { SERVICES } from './home/services';
+import type { FormView } from '../modules/enquiry/submit';
+import type { Dictionary } from '../i18n/public';
+import { fill } from '../i18n/public';
+
+interface Props {
+  view: FormView;
+  r: Dictionary['request'];
+  /** Error text for the fields that failed, already in the page's language. */
+  errorText: Partial<Record<string, string>>;
+  privacyHref: string;
+}
+const { view, r, errorText, privacyHref } = Astro.props;
+const { values, errors } = view;
+
+// A card's photo: by the category's slug (the same ones the home services use), else by words in its name, else a neutral workshop picture.
+const photoFor = (slug: string, name: string): Scene => {
+  const known = SERVICES.find((s) => s.category === slug);
+  if (known) return known.image;
+  const n = name.toLowerCase();
+  if (/suit|formal/.test(n)) return 'suits';
+  if (/dress/.test(n)) return 'dresses';
+  if (/shirt|trouser/.test(n)) return 'shirts';
+  if (/alter|repair/.test(n)) return 'alterations';
+  if (/tradition|cultur|tais/.test(n)) return 'traditional';
+  if (/wedding/.test(n)) return 'wedding';
+  if (/uniform/.test(n)) return 'uniforms';
+  return 'craft';
+};
+const whens = [
+  ['asap', r.whenAsap],
+  ['week', r.whenWeek],
+  ['flexible', r.whenFlexible],
+] as const;
+const channels = [
+  ['whatsapp', r.channelWhatsapp],
+  ['phone', r.channelPhone],
+  ['either', r.channelEither],
+] as const;
+const TOTAL = 4;
+// Open on the step that has the problem after a failed send.
+const failed = (...fields: string[]) => fields.some((f) => errors[f as keyof typeof errors]);
+const start = failed('name', 'phone', 'channel', 'consent') || view.formError ? 4 : failed('notes', 'when') ? 3 : failed('area', 'area_text') ? 2 : failed('category') ? 1 : 1;
+const bad = (field: string) => (errors[field as keyof typeof errors] ? 'true' : undefined);
+const note = (field: string) => errorText[field];
+---
+
+<div
+  class="wz"
+  data-wz
+  data-start={start}
+  data-next={r.wizardNext}
+  data-skip={r.wizardSkip}
+  data-change={r.wizardChange}
+>
+  <div class="wz-top">
+    <button type="button" class="wz-back" data-wz-back aria-label={r.wizardBack} hidden>
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </button>
+    <p class="wz-count" aria-live="polite" data-wz-count data-template={r.wizardStep}>{fill(r.wizardStep, { n: start, total: TOTAL })}</p>
+    <ol class="wz-progress" aria-hidden="true">
+      {Array.from({ length: TOTAL }, (_, i) => <li data-wz-dot={i + 1}></li>)}
+    </ol>
+  </div>
+
+  <section class="wz-step" data-wz-step="1" aria-labelledby="wz-h1">
+    <h2 id="wz-h1" tabindex="-1">{r.stepOne}</h2>
+    <p class="wz-sub">{r.wizardWhatSub}</p>
+    <div class="wz-cards" id="category" role="radiogroup" aria-labelledby="wz-h1">
+      {
+        view.categories.map((c) => {
+          const img = scene(photoFor(c.slug, c.name));
+          return (
+            <label class="wz-card" for={`category-${c.id}`}>
+              <input type="radio" id={`category-${c.id}`} name="category" value={String(c.id)} checked={values.category === String(c.id)} data-wz-pick data-label={c.name} />
+              <img src={img.src} srcset={img.srcset} sizes="(min-width: 40rem) 12rem, 45vw" width={img.width} height={img.height} alt="" loading="lazy" decoding="async" />
+              <span class="wz-card__name">{c.name}</span>
+            </label>
+          );
+        })
+      }
+      <label class="wz-card wz-card--plain" for="category-none">
+        <input type="radio" id="category-none" name="category" value="" checked={!values.category} data-wz-pick data-label="" />
+        <span class="wz-card__q" aria-hidden="true">?</span>
+        <span class="wz-card__name">{r.notSure}</span>
+      </label>
+    </div>
+    {note('category') && <p class="error" id="category-error">{note('category')}</p>}
+  </section>
+
+  <section class="wz-step" data-wz-step="2" aria-labelledby="wz-h2">
+    <h2 id="wz-h2" tabindex="-1">{r.wizardWhereTitle}</h2>
+    <p class="wz-sub">{r.wizardWhereSub}</p>
+    <div class="wz-chips" id="area" role="radiogroup" aria-labelledby="wz-h2">
+      {
+        view.areas.map((a) => (
+          <label class="wz-chip" for={`area-${a.id}`}>
+            <input type="radio" id={`area-${a.id}`} name="area" value={String(a.id)} checked={values.area === String(a.id)} data-label={a.name} />
+            <span>{a.name}</span>
+          </label>
+        ))
+      }
+      <label class="wz-chip" for="area-other">
+        <input type="radio" id="area-other" name="area" value="other" checked={values.area === 'other'} data-label={r.areaOther} />
+        <span>{r.areaOther}</span>
+      </label>
+      <label class="wz-chip" for="area-none">
+        <input type="radio" id="area-none" name="area" value="" checked={!values.area} data-label="" />
+        <span>{r.notSure}</span>
+      </label>
+    </div>
+    {note('area') && <p class="error" id="area-error">{note('area')}</p>}
+    <div class="wz-field">
+      <label for="area_text">{r.areaText}</label>
+      <p class="wz-hint" id="area_text-hint">{r.areaHint}</p>
+      <input type="text" id="area_text" name="area_text" value={values.area_text} maxlength="100" autocomplete="off" aria-describedby="area_text-hint" aria-invalid={bad('area_text')} />
+      {note('area_text') && <p class="error" id="area_text-error">{note('area_text')}</p>}
+    </div>
+  </section>
+
+  <section class="wz-step" data-wz-step="3" aria-labelledby="wz-h3">
+    <h2 id="wz-h3" tabindex="-1">{r.wizardWhenTitle}</h2>
+    <p class="wz-sub">{r.whenHint}</p>
+    <div class="wz-rows" id="when_pick" role="radiogroup" aria-labelledby="wz-h3">
+      {
+        whens.map(([value, text]) => (
+          <label class="wz-row" for={`when-${value}`}>
+            <input type="radio" id={`when-${value}`} name="when_pick" value={value} checked={values.when === text} data-wz-pick data-label={text} />
+            <span>{text}</span>
+          </label>
+        ))
+      }
+    </div>
+    <div class="wz-field">
+      <label for="notes">{r.notes}</label>
+      <textarea id="notes" name="notes" rows="3" maxlength="1000" aria-invalid={bad('notes')}>{values.notes}</textarea>
+      {note('notes') && <p class="error" id="notes-error">{note('notes')}</p>}
+    </div>
+  </section>
+
+  <section class="wz-step" data-wz-step="4" aria-labelledby="wz-h4">
+    <h2 id="wz-h4" tabindex="-1">{r.stepTwo}</h2>
+    <ul class="wz-summary" data-wz-summary aria-label={r.wizardAnswers} hidden></ul>
+    <div class="wz-field">
+      <label for="name">{r.name}</label>
+      <input type="text" id="name" name="name" value={values.name} autocomplete="name" maxlength="100" required aria-invalid={bad('name')} aria-describedby={note('name') ? 'name-error' : undefined} />
+      {note('name') && <p class="error" id="name-error">{note('name')}</p>}
+    </div>
+    <div class="wz-field">
+      <label for="phone">{r.phone}</label>
+      <p class="wz-hint" id="phone-hint">{r.phoneHint}</p>
+      <input type="tel" inputmode="tel" id="phone" name="phone" value={values.phone} autocomplete="tel" maxlength="40" required aria-invalid={bad('phone')} aria-describedby={note('phone') ? 'phone-hint phone-error' : 'phone-hint'} />
+      {note('phone') && <p class="error" id="phone-error">{note('phone')}</p>}
+    </div>
+    <fieldset class="wz-field" id="channel" aria-describedby={note('channel') ? 'channel-error' : undefined}>
+      <legend>{r.channel}</legend>
+      <div class="wz-chips">
+        {
+          channels.map(([value, text]) => (
+            <label class="wz-chip" for={`channel-${value}`}>
+              <input type="radio" id={`channel-${value}`} name="channel" value={value} checked={(values.channel || 'either') === value} required />
+              <span>{text}</span>
+            </label>
+          ))
+        }
+      </div>
+      {note('channel') && <p class="error" id="channel-error">{note('channel')}</p>}
+    </fieldset>
+    <label class="wz-consent" for="consent">
+      <input type="checkbox" id="consent" name="consent" value="yes" required aria-invalid={bad('consent')} aria-describedby={note('consent') ? 'consent-error' : undefined} />
+      <span>{r.consent} <a href={privacyHref}>{r.privacyLink}</a></span>
+    </label>
+    {note('consent') && <p class="error" id="consent-error">{note('consent')}</p>}
+    <p class="wz-note" role="note">{r.notBooking}</p>
+  </section>
+
+  <div class="wz-bar">
+    <button type="button" class="wz-next" data-wz-next hidden>{r.wizardNext}</button>
+    <button type="submit" class="wz-send" data-wz-send>{r.submit}</button>
+  </div>
+</div>
+
+<script>
+  import '../scripts/request-wizard';
+</script>
+
+<style is:global>
+  .legacy .request .wz {
+    --wz-ink: #1d1914;
+    --wz-paper: #f9f4ea;
+    --wz-card: #fff;
+    --wz-line: #d9d2c3;
+    --wz-green: #3d5a33;
+    --wz-clay: #a45f44;
+    color: var(--wz-ink);
+    margin: 0 -0.25rem;
+  }
+  .legacy .request .wz-top { display: flex; flex-wrap: wrap; align-items: center; gap: 0 0.5rem; margin-bottom: 1.25rem; }
+  .legacy .request .wz-back[hidden] { display: none; }
+  .legacy .request .wz-back { all: unset; grid-row: 1; box-sizing: border-box; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%; cursor: pointer; color: var(--wz-ink); }
+  .legacy .request .wz-back:focus-visible { outline: 3px solid #0b57d0; outline-offset: 2px; }
+  .legacy .request .wz-count { margin: 0; line-height: 2.75rem; font: 600 0.85rem/1 system-ui, sans-serif; letter-spacing: 0.02em; color: #5c5446; }
+  .legacy .request .wz-progress { flex: 1 0 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 0.6rem 0 0; padding: 0; list-style: none; }
+  .legacy .request .wz-progress li { height: 6px; border-radius: 3px; background: var(--wz-line); }
+  .legacy .request .wz-progress li[data-on] { background: var(--wz-green); }
+  .legacy .request .wz-step h2 { margin: 0 0 0.25rem; font-size: 1.7rem; line-height: 1.15; }
+  .legacy .request .wz-step h2:focus { outline: none; }
+  .legacy .request .wz-sub { margin: 0 0 1.1rem; color: #5c5446; font-size: 1rem; }
+  .legacy .request .wz-opt { font-weight: 400; color: #6b6354; }
+  .legacy .request .wz-hint { margin: 0.1rem 0 0.4rem; color: #5c5446; font-size: 0.9rem; }
+
+  .legacy .request .wz-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+  .legacy .request .wz-card { position: relative; display: flex; flex-direction: column; overflow: hidden; border: 2px solid transparent; border-radius: 1.1rem; background: var(--wz-card); box-shadow: 0 1px 3px rgb(29 25 20 / 14%); cursor: pointer; }
+  .legacy .request .wz-card input,
+  .legacy .request .wz-chip input,
+  .legacy .request .wz-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .legacy .request .wz-card img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .legacy .request .wz-card__name { padding: 0.65rem 0.8rem 0.8rem; font: 700 0.98rem/1.2 system-ui, sans-serif; }
+  .legacy .request .wz-card--plain { justify-content: center; align-items: center; min-height: 100%; background: #efe8d8; }
+  .legacy .request .wz-card__q { display: grid; place-items: center; width: 3.2rem; height: 3.2rem; margin-top: 1.1rem; border-radius: 50%; background: var(--wz-card); font: 700 1.6rem/1 Georgia, serif; color: var(--wz-green); }
+  .legacy .request .wz-card:has(input:checked) { border-color: var(--wz-green); box-shadow: 0 0 0 1px var(--wz-green), 0 4px 14px rgb(61 90 51 / 25%); }
+  .legacy .request .wz-card:has(input:checked)::after { content: '✓'; position: absolute; top: 0.5rem; right: 0.5rem; display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--wz-green); color: #fff; font: 700 1.1rem/1 system-ui, sans-serif; }
+  .legacy .request .wz-card:has(input:focus-visible),
+  .legacy .request .wz-chip:has(input:focus-visible),
+  .legacy .request .wz-row:has(input:focus-visible) { outline: 3px solid #0b57d0; outline-offset: 2px; }
+
+  .legacy .request .wz-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .legacy .request .wz-chip { position: relative; display: inline-flex; align-items: center; min-height: 3rem; padding: 0 1.15rem; border: 2px solid var(--wz-line); border-radius: 999px; background: var(--wz-card); font: 600 1rem/1 system-ui, sans-serif; cursor: pointer; }
+  .legacy .request .wz-chip:has(input:checked) { border-color: var(--wz-green); background: var(--wz-green); color: #fff; }
+  .legacy .request .wz-chip:has(input:checked) span::before { content: '✓ '; }
+
+  .legacy .request .wz-rows { display: grid; gap: 0.7rem; }
+  .legacy .request .wz-row { position: relative; display: flex; align-items: center; min-height: 3.6rem; padding: 0 1.1rem; border: 2px solid var(--wz-line); border-radius: 1rem; background: var(--wz-card); font: 600 1.05rem/1.2 system-ui, sans-serif; cursor: pointer; }
+  .legacy .request .wz-row:has(input:checked) { border-color: var(--wz-green); box-shadow: 0 0 0 1px var(--wz-green); }
+  .legacy .request .wz-row:has(input:checked)::after { content: '✓'; margin-left: auto; color: var(--wz-green); font-weight: 800; }
+
+  .legacy .request .wz-field { margin: 1.2rem 0 0; padding: 0; border: 0; }
+  .legacy .request .wz-field label,
+  .legacy .request .wz-field legend { display: block; margin: 0 0 0.35rem; padding: 0; font: 700 1rem/1.25 system-ui, sans-serif; }
+  .legacy .request .wz-field input[type='text'],
+  .legacy .request .wz-field input[type='tel'],
+  .legacy .request .wz-field textarea { box-sizing: border-box; width: 100%; min-height: 3.2rem; padding: 0.7rem 0.9rem; border: 2px solid var(--wz-line); border-radius: 0.8rem; background: var(--wz-card); color: var(--wz-ink); font: 1.05rem/1.3 system-ui, sans-serif; }
+  .legacy .request .wz-field input:focus,
+  .legacy .request .wz-field textarea:focus { outline: 3px solid #0b57d0; outline-offset: 1px; border-color: var(--wz-green); }
+  .legacy .request .wz-field input[aria-invalid='true'] { border-color: #9a2f2f; }
+  .legacy .request .wz .error { margin: 0.35rem 0 0; color: #8a1f1f; font-weight: 600; }
+  .legacy .request .wz-summary { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.1rem 0 0.4rem; padding: 0; list-style: none; }
+  .legacy .request .wz-summary button { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; min-height: 2.5rem; padding: 0 0.9rem; border-radius: 999px; background: #efe8d8; font: 600 0.9rem/1 system-ui, sans-serif; cursor: pointer; }
+  .legacy .request .wz-summary button:focus-visible { outline: 3px solid #0b57d0; outline-offset: 2px; }
+  .legacy .request .wz-consent { display: grid; grid-template-columns: 1.7rem 1fr; gap: 0.7rem; align-items: start; margin: 1.3rem 0 0; font: 0.95rem/1.4 system-ui, sans-serif; cursor: pointer; }
+  .legacy .request .wz-consent input { width: 1.7rem; height: 1.7rem; margin: 0; accent-color: var(--wz-green); }
+  .legacy .request .wz-consent a, .legacy .request .wz-note a { text-decoration: underline; text-underline-offset: 0.15em; }
+  .legacy .request .wz-note { margin: 1rem 0 0; padding: 0.8rem 1rem; border-left: 4px solid var(--wz-clay); background: #f1ede2; font: 0.92rem/1.4 system-ui, sans-serif; }
+
+  .legacy .request .wz-bar { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+  .legacy .request .wz-next,
+  .legacy .request .wz-send { all: unset; box-sizing: border-box; display: grid; place-items: center; flex: 1; min-height: 3.5rem; border-radius: 999px; background: var(--wz-green); color: #fff; font: 700 1.1rem/1 system-ui, sans-serif; cursor: pointer; }
+  .legacy .request .wz-send { background: var(--wz-clay); }
+  .legacy .request .wz-next:focus-visible,
+  .legacy .request .wz-send:focus-visible { outline: 3px solid #0b57d0; outline-offset: 3px; }
+  .legacy .request .wz-next[hidden],
+  .legacy .request .wz-send[hidden] { display: none; }
+
+  /* With JavaScript: one step at a time, the button pinned to the bottom of the screen. */
+  .legacy .request .wz-js { display: flex; flex-direction: column; min-height: calc(100svh - 7.5rem); }
+  .legacy .request .wz-js .wz-step { flex: 1 0 auto; }
+  .legacy .request .wz-js .wz-step[hidden] { display: none; }
+  .legacy .request .wz-js .wz-bar { position: sticky; bottom: 0; z-index: 3; margin: 1rem -0.75rem 0; padding: 0.75rem 0.75rem calc(0.75rem + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to bottom, rgb(249 244 234 / 0%), var(--wz-paper) 28%); }
+  @media (prefers-reduced-motion: no-preference) {
+    .legacy .request .wz-js .wz-step:not([hidden]) { animation: wz-in 0.22s ease-out; }
+    @keyframes wz-in { from { transform: translateX(14px); } to { transform: none; } }
+  }
+  @media (min-width: 40rem) {
+    .legacy .request .wz { max-width: 34rem; margin-inline: auto; }
+    .legacy .request .wz-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>
