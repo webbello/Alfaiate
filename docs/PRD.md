@@ -122,7 +122,7 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-ENQ-01 | Form collects only: name, phone or WhatsApp number (and which it is), requested garment/service, general neighbourhood/area plus an optional street, landmark or 'near' note (max 100, never coordinates), preferred date/time (optional; tap choices as soon as possible, this week, flexible, or typed text), notes (optional), consent. Optional preselected tailor when started from a profile, or up to three tailors from the visitor's request list (the first is the preferred tailor, the others are named in the notes), or up to ten published shop items (`?product=` with `qty_<slug>`, quantity 1 to 99, FR-SHP-04; named in the notes as "Name × 2", source `shop`). | Must |
+| FR-ENQ-01 | (Since 2026-10-25 the four-step form does not ask for the typed preferred day or the free-text "in a few words"; the handler still accepts them.) Form collects only: name, phone or WhatsApp number (and which it is), requested garment/service, general neighbourhood/area plus an optional street, landmark or 'near' note (max 100, never coordinates), preferred date/time (optional; tap choices as soon as possible, this week, flexible, or typed text), notes (optional), consent. Optional preselected tailor when started from a profile, or up to three tailors from the visitor's request list (the first is the preferred tailor, the others are named in the notes), or up to ten published shop items (`?product=` with `qty_<slug>`, quantity 1 to 99, FR-SHP-04; named in the notes as "Name × 2", source `shop`). | Must |
 | FR-ENQ-02 | Submission requires an explicit, unticked-by-default consent checkbox stating that the details will be shared with a suitable partner tailor, linking to the privacy notice. | Must |
 | FR-ENQ-03 | Form and acknowledgement state that submitting is a request, **not** a confirmed appointment, and that the tailor must confirm availability directly. | Must |
 | FR-ENQ-04 | On success, show an acknowledgement with a reference code and next steps. No promise of timing beyond what the owner has approved (OQ-05). | Must |
@@ -173,8 +173,8 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 | FR-ADM-13 | WhatsApp buttons on a request (customer) and a referral (tailor), prefilled with the reference code only. | Should |
 | FR-ADM-14 | One admin search box finds requests, tailors and shop orders within the signed-in role's rights. | Should |
 | FR-ADM-15 | On a phone, a bottom bar: Enquiries, Shop orders, Tailors, More. | Should |
-| FR-ADM-16 | On a phone a request is a card with four large buttons (WhatsApp, status, assign, note). | Should |
-| FR-ADM-17 | Only publish or unpublish, switching a tailor sign-in off and anonymise ask for confirmation. | Should |
+| FR-ADM-16 | On a phone a request is a card with four large buttons (WhatsApp, status, assign, note); the assign button appears in phase C. | Should |
+| FR-ADM-17 | Only publish or unpublish, switching a tailor sign-in off and anonymise ask for confirmation (anonymise already requires typing the reference, so it keeps that stronger check). | Should |
 | FR-ADM-18 | "Keep me signed in on this device": a 30-day session when ticked; the current limits otherwise; password change and switch-off end all sessions. | Should |
 | FR-ADM-19 | The admin can be added to a phone's home screen ("Alfaiate Admin", scope /admin, no offline). | Should |
 | FR-ADM-20 | Owner alerts also for new shop orders, each alert type with its own title; never customer details. | Should |

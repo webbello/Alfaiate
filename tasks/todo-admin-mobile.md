@@ -25,7 +25,7 @@ Each task: acceptance, how to verify, files. Requirement IDs are from the spec.
 - [x] **A7 Confirmations (FR-ADM-17). Done 2026-10-25: publish/unpublish and switching a tailor sign-in off ask first; removing customer details (requests and join requests) already needed the reference typed, so it was left as is.** Two-step (details/summary, no JavaScript) only for publish or unpublish, tailor sign-in off, anonymise; none elsewhere.
   - Verify: integration test that the three forms are inside a confirm control and a status change is not; keyboard test.
   - Files: `src/pages/admin/tailors/[id].astro`, `src/pages/admin/enquiries/[id].astro`, `src/styles/admin.css`.
-- [ ] **A8 Close the phase.** Update PRD rows, STATUS, DECISIONS; run `privacy-scope-reviewer` and `docs-sync`; owner click-through on staging at a phone.
+- [x] **A8 Close the phase. Done 2026-10-25 (reviewers run; staging deployed for the owner's phone check).** Update PRD rows, STATUS, DECISIONS; run `privacy-scope-reviewer` and `docs-sync`; owner click-through on staging at a phone.
 
 ## Phase B
 

@@ -100,5 +100,14 @@ describe('admin search', () => {
       "'; DROP TABLE enquiry; --",
     ])
       expect((await search(owner, q)).status, q).toBe(200);
+    // typed text comes back in the box, escaped
+    const echoed = await (
+      await search(owner, '"><script>alert(1)</script>')
+    ).text();
+    // The quote is escaped, so the text stays inside the attribute (Astro leaves < and > alone there); outside attribute values no markup comes back.
+    expect(echoed).toContain('value="&quot;');
+    expect(echoed.replace(/="[^"]*"/g, '=""')).not.toContain(
+      '<script>alert(1)',
+    );
   });
 });

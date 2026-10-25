@@ -1,6 +1,6 @@
 # Spec: Admin on the phone (owner request 2026-10-25)
 
-Status: **Approved by the owner 2026-10-25 (draft answers to OQ-A1..A4 accepted; phone model still unknown). Plan: [tasks/plan-admin-mobile.md](../tasks/plan-admin-mobile.md). Nothing is built yet.** · Source: the owner's grill session of 2026-10-25 (questions Q1 to Q19 of the admin round, all answered) · Builds on [SPEC-admin-redesign.md](SPEC-admin-redesign.md), FR-ADM-01..09, SEC-01 · Requirement IDs below are new and continue the numbering; none is renumbered.
+Status: **Approved by the owner 2026-10-25 (draft answers to OQ-A1..A4 accepted; phone model still unknown). Plan: [tasks/plan-admin-mobile.md](../tasks/plan-admin-mobile.md). Phase A built 2026-10-25 (A1 to A7; FR-ADM-11 was already met by M8); phases B, C and D not built.** · Source: the owner's grill session of 2026-10-25 (questions Q1 to Q19 of the admin round, all answered) · Builds on [SPEC-admin-redesign.md](SPEC-admin-redesign.md), FR-ADM-01..09, SEC-01 · Requirement IDs below are new and continue the numbering; none is renumbered.
 
 ## Objective
 
