@@ -1,6 +1,6 @@
 # Spec: Admin on the phone (owner request 2026-10-25)
 
-Status: **Draft for the owner's approval. Nothing is built.** · Source: the owner's grill session of 2026-10-25 (questions Q1 to Q19 of the admin round, all answered) · Builds on [SPEC-admin-redesign.md](SPEC-admin-redesign.md), FR-ADM-01..09, SEC-01 · Requirement IDs below are new and continue the numbering; none is renumbered.
+Status: **Approved by the owner 2026-10-25 (draft answers to OQ-A1..A4 accepted; phone model still unknown). Plan: [tasks/plan-admin-mobile.md](../tasks/plan-admin-mobile.md). Nothing is built yet.** · Source: the owner's grill session of 2026-10-25 (questions Q1 to Q19 of the admin round, all answered) · Builds on [SPEC-admin-redesign.md](SPEC-admin-redesign.md), FR-ADM-01..09, SEC-01 · Requirement IDs below are new and continue the numbering; none is renumbered.
 
 ## Objective
 
@@ -36,7 +36,7 @@ Build order: A and B, then **go live** (owner alone), then C and D before any he
 
 - **FR-ADM-18** Sign-in has a "Keep me signed in on this device" tick. Ticked: a 30-day session (renewed on use). Not ticked: the current 30-minute idle and 12-hour limits (SEC-01). Switching an account off or "Sign out everywhere" ends every session; a password change ends all other sessions.
 - **FR-ADM-19** The admin can be added to a phone's home screen: a web app manifest named "Alfaiate Admin", an icon, standalone display, scoped to `/admin` only; no service worker and no offline mode. The public site is unchanged.
-- **FR-ADM-20** Owner alerts (the existing notifier channel, reference or name plus a link, never customer details) are sent for new requests (exists), new shop orders, new join requests and "tailor says the page is ready", each with its own title.
+- **FR-ADM-20** Owner alerts (the existing notifier channel, reference or name plus a link, never customer details): new requests, new join requests and "tailor says the page is ready" already exist; this adds new shop orders. Each has its own title.
 
 ### Phase C, admin-team
 

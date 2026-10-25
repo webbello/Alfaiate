@@ -167,6 +167,21 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 | FR-ADM-07 | Manually update enquiry status among the values in §7.2. Status changes are logged with time. | Must |
 | FR-ADM-08 | Add internal notes to enquiries and tailors (never public). | Must |
 | FR-ADM-09 | Delete or anonymise an enquiry on request or per retention policy (PRV-04). | Should |
+| FR-ADM-10 | The dashboard opens with four counters, each linking to its list: new requests, join requests waiting, tailors ready to publish, shop orders opened today (SPEC-admin-mobile.md). | Should |
+| FR-ADM-11 | The dashboard shows the average time to first reply over the chosen period. | Should |
+| FR-ADM-12 | A request still New after 24 hours shows a "waiting 24h+" flag and the New list shows the oldest first. | Should |
+| FR-ADM-13 | WhatsApp buttons on a request (customer) and a referral (tailor), prefilled with the reference code only. | Should |
+| FR-ADM-14 | One admin search box finds requests, tailors and shop orders within the signed-in role's rights. | Should |
+| FR-ADM-15 | On a phone, a bottom bar: Enquiries, Shop orders, Tailors, More. | Should |
+| FR-ADM-16 | On a phone a request is a card with four large buttons (WhatsApp, status, assign, note). | Should |
+| FR-ADM-17 | Only publish or unpublish, switching a tailor sign-in off and anonymise ask for confirmation. | Should |
+| FR-ADM-18 | "Keep me signed in on this device": a 30-day session when ticked; the current limits otherwise; password change and switch-off end all sessions. | Should |
+| FR-ADM-19 | The admin can be added to a phone's home screen ("Alfaiate Admin", scope /admin, no offline). | Should |
+| FR-ADM-20 | Owner alerts also for new shop orders, each alert type with its own title; never customer details. | Should |
+| FR-ADM-21 | A Helper role: requests, referrals and orders as set out in the spec; no publish, fees, deletion or user management. | Could |
+| FR-ADM-22 | A request has one optional assignee; list filters Mine, Unassigned and per person; audited. | Could |
+| FR-ADM-23 | Only active users can be assigned; a switched-off user's requests stay visible to the owner. | Could |
+| FR-ADM-24 | Two-step sign-in (authenticator code, recovery codes) for owner and manager. | Could |
 
 #### Referral tracking
 
