@@ -166,3 +166,7 @@ New lines in `src/i18n/public/tet.ts` (unreviewed): `footer.tailorSignIn` ("Alfa
 ## Request page steps (2026-10-25)
 
 New lines in `src/i18n/public/tet.ts` under `request` (unreviewed, written by the developer): `wizardStep` ("Pasu {n} husi {total}"), `wizardNext` ("Tuir mai"), `wizardSkip` ("Liu"), `wizardBack` ("Fila fali"), `wizardChange` ("troka"), `wizardAnswers`, `wizardWhatSub`, `wizardWhereTitle` ("Ita iha nebé?"), `wizardWhereSub`, `wizardWhenTitle`.
+
+## Confirmation and join pages (2026-10-25)
+
+New or changed lines in `src/i18n/public/tet.ts` (unreviewed): `request.keepCode`, `request.thanksWhatsApp`, `request.thanksWhatsAppMessage`, and under `join`: `heading`, `intro`, `howLabel`, `how1` to `how3`, `alreadyApproved`.

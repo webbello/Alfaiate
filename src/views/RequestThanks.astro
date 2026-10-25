@@ -1,6 +1,7 @@
 ---
 import { env } from 'cloudflare:workers';
-import { responseWindow } from '../modules/config';
+import { orderWhatsapp, responseWindow, siteWhatsapp } from '../modules/config';
+import { whatsappLink } from '../modules/contact-links/whatsapp';
 import { fill } from '../i18n/public';
 import ThemePage from '../layouts/ThemePage.astro';
 import { dictionary } from '../i18n/public';
@@ -17,6 +18,13 @@ const when = responseWindow(
   lang,
 );
 const r = t.request;
+// "Message us your code": the site's WhatsApp number (else the shop order number), the message holding only the reference code. No number set, no button.
+const number =
+  siteWhatsapp(env as { SITE_WHATSAPP?: string }) ??
+  orderWhatsapp(env as { ORDER_WHATSAPP?: string; SITE_WHATSAPP?: string });
+const waHref = number
+  ? whatsappLink(number, fill(r.thanksWhatsAppMessage, { code: reference }))
+  : null;
 ---
 
 <ThemePage
@@ -42,8 +50,15 @@ const r = t.request;
     <li>{r.next3}</li>
   </ol>
   {when && <p>{fill(t.request.responseLine, { when })}</p>}
-  <p>
-    <a class="button" href={pathFor(lang, '/tailors')}>
+  <p class="thanks-actions">
+    {
+      waHref && (
+        <a class="button" href={waHref} target="_blank" rel="noopener noreferrer">
+          {r.thanksWhatsApp}
+        </a>
+      )
+    }
+    <a class={waHref ? 'button button--secondary' : 'button'} href={pathFor(lang, '/tailors')}>
       {r.browse}
     </a>
   </p>

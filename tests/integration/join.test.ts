@@ -44,7 +44,7 @@ describe('GET /join', () => {
     expect(r.status).toBe(200);
     expect(r.headers.get('cache-control')).toBe('no-store');
     expect(html).toContain('name="robots" content="noindex,follow"');
-    expect(html).toContain('This is not a sign-up');
+    expect(html).toContain('does not create an account');
     for (const name of [
       'name',
       'business',

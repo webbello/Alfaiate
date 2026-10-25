@@ -81,6 +81,11 @@ const text = [
       <>
         <h1>{j.heading}</h1>
         <p class="lead">{j.intro}</p>
+        <ol class="how request__next" aria-label={j.howLabel}>
+          <li>{j.how1}</li>
+          <li>{j.how2}</li>
+          <li>{j.how3}</li>
+        </ol>
         {(failing.length > 0 || view.formError) && (
           <div class="error-summary" role="alert" tabindex="-1" autofocus>
             <h2>{r.summaryHeading}</h2>
@@ -220,6 +225,10 @@ const text = [
             </button>
           </p>
         </form>
+        <p class="join__signin">
+          {j.alreadyApproved}{' '}
+          <a href="/portal/login">{t.footer.tailorSignIn}</a>
+        </p>
       </>
     )
   )}

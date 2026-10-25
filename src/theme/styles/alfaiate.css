@@ -525,3 +525,7 @@ html { scroll-padding-bottom: 5rem; }
   .auth__side { padding: 2.5rem 2rem; display: flex; flex-direction: column; justify-content: center; }
   .auth__card { padding: 2.5rem 2.25rem 2rem; }
 }
+
+/* Request confirmation: the WhatsApp button and the browse link, spaced apart from the list above */
+.thanks-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+.join__signin { margin-top: 1.25rem; }

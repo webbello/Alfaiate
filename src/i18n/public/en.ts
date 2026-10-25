@@ -470,9 +470,14 @@ export const en = {
   },
   join: {
     title: 'Join as a tailor',
-    heading: 'Are you a tailor?',
+    heading: 'Join Alfaiate TL as a tailor',
     intro:
-      'Leave your details and we will call you to talk. This is not a sign-up: it does not create an account and does not put you on this site.',
+      'Leave your name and number and we will call you to talk. Sending this does not create an account or put you on this site yet.',
+    howLabel: 'What happens next',
+    how1: 'You send your details.',
+    how2: 'We call you to talk.',
+    how3: 'If we approve you, we send a sign-in link on WhatsApp and you set up your page.',
+    alreadyApproved: 'Already approved by us?',
     contactName: 'Your name',
     business: 'Shop or business name (optional)',
     phone: 'Phone or WhatsApp number',
@@ -590,7 +595,10 @@ export const en = {
     thanksTitle: 'Request received',
     thanksHeading: 'Request received',
     reference: 'Your reference code',
-    keepCode: 'Please keep this code.',
+    keepCode:
+      'Please keep this code. Take a screenshot or write it down: you need it if you contact us about this request.',
+    thanksWhatsApp: 'Message us your code on WhatsApp',
+    thanksWhatsAppMessage: 'Hello Alfaiate TL, my request code is {code}.',
     thanksBody:
       'We will contact you using the number you gave. We cannot promise when.',
     responseLine:

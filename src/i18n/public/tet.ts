@@ -476,9 +476,14 @@ export const tet: Dictionary = {
   },
   join: {
     title: 'Hakbesik hanesan alfaiate',
-    heading: 'Ita alfaiate?',
+    heading: 'Tama hanesan alfaiate iha Alfaiate TL',
     intro:
-      'Husik ita-nia detalle no ami sei telefone ita atu koalia. Ne’e la’ós rejistu: la kria konta no la hatama ita iha sítiu ne’e.',
+      'Husik ita-nia naran no númeru, no ami sei telefone ita atu koalia. Haruka ne’e seidauk kria konta no seidauk hatama ita iha sítiu ne’e.',
+    howLabel: 'Saida mak akontese tuir mai',
+    how1: 'Ita haruka ita-nia detalle.',
+    how2: 'Ami telefone ita atu koalia.',
+    how3: 'Se ami aprova ita, ami haruka link atu tama liuhusi WhatsApp, no ita prepara ita-nia pájina.',
+    alreadyApproved: 'Ami aprova ona ita?',
     contactName: 'Ita-nia naran',
     business: 'Loja ka negósiu-nia naran (opsionál)',
     phone: 'Númeru telefone ka WhatsApp',
@@ -596,7 +601,11 @@ export const tet: Dictionary = {
     thanksTitle: 'Pedidu simu ona',
     thanksHeading: 'Pedidu simu ona',
     reference: 'Ita-nia kódigu referénsia',
-    keepCode: "Favór rai kódigu ne'e.",
+    keepCode:
+      "Favór rai kódigu ne'e. Foto ka hakerek: ita presiza se ita kontaktu ami kona-ba pedidu ne'e.",
+    thanksWhatsApp: 'Haruka ita-nia kódigu ba ami iha WhatsApp',
+    thanksWhatsAppMessage:
+      'Olá Alfaiate TL, ha’u-nia kódigu pedidu mak {code}.',
     thanksBody:
       "Ami sei kontaktu ita liuhusi númeru ne'ebé ita fó. Ami la bele promete oras.",
     responseLine:
