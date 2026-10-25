@@ -31,11 +31,7 @@
     "setup:local": "node scripts/setup-local.mjs",
     "db:demo": "node scripts/demo.mjs add",
     "db:demo:remove": "node scripts/demo.mjs remove",
-    "preview": "npm run build && wrangler dev --port 4322",
-    "theme:install": "npm --prefix handspark install",
-    "theme:dev": "npm --prefix handspark run dev -- --port 4331",
-    "theme:build": "npm --prefix handspark run build",
-    "theme:preview": "npm --prefix handspark run preview -- --port 4331"
+    "preview": "npm run build && wrangler dev --port 4322"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.4.2",

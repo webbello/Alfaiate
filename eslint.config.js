@@ -10,7 +10,6 @@ export default [
       '.astro/',
       '.wrangler/',
       'node_modules/',
-      'handspark/',
       // the Handspark theme's own scripts and templates (vendor code, linted by its own rules); our edits there are covered by the tests
       'src/theme/',
     ],

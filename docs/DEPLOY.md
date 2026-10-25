@@ -439,7 +439,6 @@ Give these to whoever runs the deployment, or do them yourself. Each says where 
 - [ ] Whether to switch on the tailor **Join us** form (`JOIN_ENABLED`) and the newsletter (`NEWSLETTER_ENABLED`; the newsletter also needs a sender, OQ-06) → C1, only after the Privacy text covers them.
 - [ ] Who may approve tailors and how you send sign-in links (WhatsApp from your own number).
 - [ ] Whether the "Alfaiate TL" wordmark is acceptable or a real logo will be supplied.
-- [ ] Whether to delete the unused `handspark/` demo-theme folder from the project (it is not part of the website).
 
 **Approvals**
 - [ ] Legal text: the Privacy and Terms wording, reviewed by someone qualified (OQ-08), starting from [DRAFT-privacy-and-terms.md](DRAFT-privacy-and-terms.md) → put into the pages, then set their `reviewed` flag in `src/modules/seo/pages.ts` and redeploy.

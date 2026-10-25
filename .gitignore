@@ -15,15 +15,6 @@ playwright-report/
 
 .DS_Store
 
-# Handspark theme (handspark/): the code is tracked, its Freepik demo photos and videos are not (see handspark/README-ALFAIATE.md)
-handspark/src/assets/images/*.webp
-handspark/src/assets/images/*.avif
-handspark/src/assets/images/*.jpg
-handspark/src/assets/images/*.jpeg
-handspark/src/assets/images/*.png
-handspark/public/*.jpg
-handspark/public/*.png
-handspark/public/videos/
 src/theme/assets/images/*.webp
 src/theme/assets/images/*.avif
 src/theme/assets/images/*.jpg
