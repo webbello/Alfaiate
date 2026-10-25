@@ -143,6 +143,11 @@ Reported figures are tailor-reported and manually recorded; they must be labelle
 | FR-TPO-06 | The portal shows what is still to do and lets the tailor say the page is ready; the owner is told by the notification channel (reference and link only). | Should |
 | FR-TPO-07 | The tailor's permission to show their page is recorded (wording version and time) when they accept the invite; publishing and approval stay with staff (`tailor.publish`). | Should |
 | FR-TPO-08 | Tailor actions are audited with the tailor account as actor; no customer data is logged. | Should |
+| FR-TPO-09 | (SPEC-tailor-inbox.md, approved 2026-10-25; **amends FR-TPO-03 and BR-08**: a tailor sees only referrals addressed to them that staff sent to their inbox, and customer contact details only after that tailor accepts.) A referral has the staff actions Send to the tailor's inbox and Take back from the inbox (`referral.edit`, audited). Until sent, the tailor sees nothing. | Should |
+| FR-TPO-10 | The portal has Requests for you. Before accepting, an item shows only the reference code, type of clothing, neighbourhood name and preferred time: no name, number, street, landmark or notes. | Should |
+| FR-TPO-11 | The tailor can Accept or Decline (Decline with an optional reason from a fixed list); one answer, stored on the referral and audited with the tailor as actor; only staff can change it. The referral is found by the signed-in tailor's id. | Should |
+| FR-TPO-12 | After Accept the item shows what the customer agreed to share (name, number and channel, street or landmark, notes) with WhatsApp and call links. After Decline, or when the request is anonymised, cancelled, not converted or taken back, the details are not shown. | Should |
+| FR-TPO-13 | Staff see the tailor's answer on the referral without retyping, the existing waiting count updates, and the owner gets a reference-only alert; the tailor is nudged by staff with the WhatsApp tailor button (the site sends no message itself). | Should |
 | FR-SHP-01 | (Shop, owner request 2026-10-23, SPEC-shop.md; built in S1) Staff with `product.edit` add and edit products: name, type, price in US dollars (optional, with a note), description, availability. A new product is a draft. | Must |
 | FR-SHP-02 | (Built in S1) Only staff with `product.publish` (manager, owner) publish or unpublish a product, and edit a published one; a published product always has a description (checked in code and by the database). Every change is audited by ids only. | Must |
 | FR-SHP-03 | (Built in S2) Public shop pages (`/shop`, `/shop/[slug]`, categories, both languages) list only published products, with a seller label; they are noindex until the owner approves them. | Must |
@@ -227,7 +232,7 @@ Further languages beyond English and Tetum (English and Tetum ship at launch, Te
 | BR-05 | Only participating, approved tailors may be publicly listed. |
 | BR-06 | Tailors must give permission before their photographs, business details and work samples are published; permission is recorded per tailor (and per image). |
 | BR-07 | Customer contact details and enquiry content are never publicly exposed. |
-| BR-08 | Customer information is shared with a tailor only after disclosure and the customer's consent, and only the necessary fields. |
+| BR-08 | Customer information is shared with a tailor only after disclosure and the customer's consent, and only the necessary fields. (Since 2026-10-25 also through the tailor's portal inbox, FR-TPO-09..13: only on a staff action, and contact details only after the tailor accepts.) |
 | BR-09 | Referral fees and payment terms are agreed with each tailor before any fee is recorded as due. |
 | BR-10 | Referral completion and revenue reporting are manual. Completion is tailor-reported unless the owner independently confirms it. |
 | BR-11 | Every public fact is either verified by the owner or labelled as supplied by the tailor; unverified prices, ratings, credentials and service claims are not published as fact. |

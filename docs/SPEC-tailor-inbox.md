@@ -1,6 +1,6 @@
 # Spec: Tailor inbox in the portal (owner request 2026-10-25)
 
-Status: **Draft for the owner's approval. Nothing is built.** · Source: the owner, after referring a request to tailor Zeb on staging: "the tailor didn't get any notification or any enquiry section" · Builds on [SPEC-tailor-portal.md](SPEC-tailor-portal.md) (FR-TPO-01..08) and the referral workflow (FR-REF-*, BR-08) · **Amends** FR-TPO-03 and BR-08 (see "Rule changes"). Requirement IDs continue the numbering; none is renumbered.
+Status: **Approved by the owner 2026-10-25 (the draft answers to OQ-I1..I4 accepted). Plan: [tasks/plan-tailor-inbox.md](../tasks/plan-tailor-inbox.md).** · Source: the owner, after referring a request to tailor Zeb on staging: "the tailor didn't get any notification or any enquiry section" · Builds on [SPEC-tailor-portal.md](SPEC-tailor-portal.md) (FR-TPO-01..08) and the referral workflow (FR-REF-*, BR-08) · **Amends** FR-TPO-03 and BR-08 (see "Rule changes"). Requirement IDs continue the numbering; none is renumbered.
 
 ## Objective
 
