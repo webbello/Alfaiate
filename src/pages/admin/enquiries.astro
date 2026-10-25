@@ -14,6 +14,7 @@ import PageHeader from '../../components/admin/PageHeader.astro';
 import EmptyState from '../../components/admin/EmptyState.astro';
 import StatusChip from '../../components/admin/StatusChip.astro';
 import { toneFor } from '../../modules/admin-ui/tone';
+import { waitingTooLong } from '../../modules/enquiry/waiting';
 
 const auth = await requirePermission(Astro, 'enquiry.view');
 if (auth instanceof Response) return auth;
@@ -38,6 +39,7 @@ const chipHref = (value?: string) => {
 };
 const filtered = Boolean(status || q || spam);
 const text = en.enquiry;
+const now = new Date();
 ---
 
 <AdminLayout title={text.heading} description={text.heading} auth={auth}>
@@ -122,7 +124,12 @@ const text = en.enquiry;
           <tr>
             <td>
               <a href={`/admin/enquiries/${r.id}`}>{r.reference_code}</a>
-              {r.source === 'shop' && <> <StatusChip state="referred" label="Shop" /></>}
+              {r.source === 'shop' && (
+                <>
+                  {' '}
+                  <StatusChip state="referred" label="Shop" />
+                </>
+              )}
               {r.is_spam ? ` (${text.spamMark})` : ''}
             </td>
             <td>{r.created_at.slice(0, 10)}</td>
@@ -130,6 +137,12 @@ const text = en.enquiry;
             <td>{r.contact_number_e164 ?? text.anonymised}</td>
             <td>
               <StatusChip state={r.status} label={text.statuses[r.status]} />
+              {waitingTooLong(r, now) && (
+                <>
+                  {' '}
+                  <StatusChip state="overdue" label={text.waiting} />
+                </>
+              )}
             </td>
             <td>
               {r.referral_state ? (

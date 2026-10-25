@@ -4,6 +4,7 @@ export type Tone = 'neutral' | 'info' | 'success' | 'warn' | 'danger';
 const TONES: Record<string, Tone> = {
   // enquiry
   new: 'info',
+  overdue: 'warn',
   contacted: 'info',
   referred: 'info',
   accepted_by_tailor: 'success',

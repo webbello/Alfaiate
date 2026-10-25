@@ -24,7 +24,7 @@ Build order: A and B, then **go live** (owner alone), then C and D before any he
 ### Phase A, admin-phone
 
 - **FR-ADM-10** The dashboard opens with four counters, each linking to its list: new requests waiting, join requests waiting, tailors ready to publish (page marked ready, not yet published), shop orders opened today. Below: the status chart and period filter (7, 30, 90 days) as today.
-- **FR-ADM-11** The dashboard shows "average time to first reply": the mean time from a request arriving to its first status change away from New, over the chosen period; "no replies yet" when none.
+- **FR-ADM-11** (already met by M8, "Time to first contact (reported)", first move to contacted or referred) The dashboard shows "average time to first reply": the mean time from a request arriving to its first status change away from New, over the chosen period; "no replies yet" when none.
 - **FR-ADM-12** A request still New after 24 hours shows a visible "waiting 24h+" flag (text, not colour alone), and the New list shows the oldest first.
 - **FR-ADM-13** A request has a "WhatsApp customer" button and a referral has a "WhatsApp tailor" button, opening WhatsApp with the saved number and a prefilled message containing the reference code only (no name, address or notes; FR-PRO-04 stands). With no number the button is replaced by a plain line saying so.
 - **FR-ADM-14** One search box in the top bar finds requests, tailors and shop orders by reference, name or phone, returning only what the signed-in role may see (enquiry.view for requests and orders, tailor.edit or higher for tailors). Phone numbers are matched as typed or normalised; nothing is logged (PRV rules).

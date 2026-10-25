@@ -7,7 +7,7 @@ Each task: acceptance, how to verify, files. Requirement IDs are from the spec.
 - [x] **A1 Dashboard counters (FR-ADM-10). Done 2026-10-25.** Four large counters at the top, each a link: new requests, join requests waiting, tailors ready to publish, orders opened today; a role sees only counters it may open.
   - Verify: unit test of the counter query per role; integration test of the page for owner and viewer; at 375 px all four visible without scrolling (e2e).
   - Files: `src/modules/admin-ui/counters.ts` (new), `src/pages/admin/index.astro`, `src/styles/admin.css`, `src/i18n/en.ts`, tests.
-- [ ] **A2 Reply time and the 24h flag (FR-ADM-11, FR-ADM-12).** "Average time to first reply" in the figures; New requests older than 24 h show "waiting 24h+" (text) and sort oldest first.
+- [x] **A2 Reply time and the 24h flag (FR-ADM-11, FR-ADM-12). Done 2026-10-25: the reply-time figure already existed as M8 "Time to first contact (reported)" (first move to contacted or referred), so only the flag and the order were built.** "Average time to first reply" in the figures; New requests older than 24 h show "waiting 24h+" (text) and sort oldest first.
   - Verify: unit tests with fixed dates (exactly 24 h, none replied, one replied); list order test.
   - Files: `src/modules/reporting/metrics.ts`, `src/modules/enquiry/queries.ts`, `src/pages/admin/enquiries.astro`, tests.
 - [ ] **A3 WhatsApp buttons (FR-ADM-13).** "WhatsApp customer" on a request, "WhatsApp tailor" on a referral; message has the reference only; plain line when no number.

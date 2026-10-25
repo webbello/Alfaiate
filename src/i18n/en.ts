@@ -642,6 +642,7 @@ export const en = {
     anonymiseLabel: 'Type the reference code ({reference}) to confirm',
     anonymiseButton: 'Anonymise permanently',
     spamMark: 'spam',
+    waiting: 'Waiting 24h+',
     statuses: {
       new: 'New',
       contacted: 'Contacted',

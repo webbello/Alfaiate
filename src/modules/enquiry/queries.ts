@@ -67,7 +67,7 @@ export type EnquiryRow = {
   referral_state: 'pending' | 'accepted' | 'declined' | 'no_response' | null;
 };
 
-/** Admin inbox (FR-ADM-06): newest first, spam hidden unless asked, optional status and search (reference, name or phone). */
+/** Admin inbox (FR-ADM-06): New requests first and oldest first (FR-ADM-12), then the rest newest first, spam hidden unless asked, optional status and search (reference, name or phone). */
 export async function listEnquiries(
   db: D1Database,
   filters: { status?: string; q?: string; spam?: boolean } = {},
@@ -100,7 +100,7 @@ export async function listEnquiries(
               (SELECT r.tailor_response FROM referral r WHERE r.enquiry_id = enquiry.id
                ORDER BY (r.tailor_response IN ('pending', 'accepted')) DESC, r.id DESC LIMIT 1) AS referral_state
        FROM enquiry
-       ${where.length ? `WHERE ${where.join(' AND ')}` : ''} ORDER BY (status = 'new') DESC, created_at DESC, id DESC LIMIT ${LIST_CAP + 1}`,
+       ${where.length ? `WHERE ${where.join(' AND ')}` : ''} ORDER BY (status = 'new') DESC, CASE WHEN status = 'new' THEN created_at END ASC, created_at DESC, id DESC LIMIT ${LIST_CAP + 1}`,
     )
     .bind(...binds)
     .all<EnquiryRow>();

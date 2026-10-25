@@ -41,8 +41,14 @@ const refs = async (filters: Parameters<typeof listEnquiries>[1] = {}) =>
 
 describe('listEnquiries (FR-ADM-06)', () => {
   it('lists newest first and hides spam unless asked', async () => {
-    const old = await add({ at: '2026-01-01T00:00:00.000Z' });
-    const recent = await add({ at: '2026-07-01T00:00:00.000Z' });
+    const old = await add({
+      status: 'contacted',
+      at: '2026-01-01T00:00:00.000Z',
+    });
+    const recent = await add({
+      status: 'contacted',
+      at: '2026-07-01T00:00:00.000Z',
+    });
     const spam = await add({ spam: true, at: '2026-08-01T00:00:00.000Z' });
     const shown = await refs();
     expect(shown.indexOf(recent)).toBeLessThan(shown.indexOf(old));
@@ -142,7 +148,7 @@ describe('inbox order and referral state (Phase 7b T4)', () => {
       .run();
   };
 
-  it('lists new enquiries first, then the others, each group newest first', async () => {
+  it('lists new enquiries first and oldest first (FR-ADM-12), then the others newest first', async () => {
     const oldNew = await add({ status: 'new', at: '2030-01-01T00:00:00.000Z' });
     const recentContacted = await add({
       status: 'contacted',
@@ -159,7 +165,7 @@ describe('inbox order and referral state (Phase 7b T4)', () => {
     const order = (await refs({ q: 'Fake Person' })).filter((r) =>
       [oldNew, recentContacted, recentNew, oldContacted].includes(r),
     );
-    expect(order).toEqual([recentNew, oldNew, recentContacted, oldContacted]);
+    expect(order).toEqual([oldNew, recentNew, recentContacted, oldContacted]);
   });
 
   it('shows the referral state: the active one if there is one, otherwise the latest outcome, otherwise none', async () => {
