@@ -1,0 +1,127 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import PageHeader from '../../components/admin/PageHeader.astro';
+import StatusChip from '../../components/admin/StatusChip.astro';
+import { requireBindings } from '../../modules/config';
+import { requirePermission } from '../../modules/auth/require';
+import { verifyCsrf } from '../../modules/auth/csrf';
+import { SESSION_COOKIE } from '../../modules/auth/session';
+import { readForm } from '../../modules/http/body';
+import { adminSearch } from '../../modules/admin-ui/search';
+import { en } from '../../i18n/en';
+
+// One search for requests, tailors and shop orders (FR-ADM-14). It is a POST, so what is typed (a name or a phone number) never sits in an address; each
+// source is searched only if the role may open that list (see adminSearch). Reached from the top bar of every admin page.
+const auth = await requirePermission(Astro, 'dashboard.view');
+if (auth instanceof Response) return auth;
+let query = '';
+let results = null;
+if (Astro.request.method === 'POST') {
+  const form = (await readForm(Astro.request)).form;
+  if (
+    !(await verifyCsrf(
+      Astro.cookies.get(SESSION_COOKIE)?.value ?? '',
+      form.get('csrf')?.toString(),
+    ))
+  )
+    return new Response('Forbidden', { status: 403 });
+  query = (form.get('q')?.toString() ?? '').trim().slice(0, 100);
+  results = await adminSearch(requireBindings(env).DB, auth.role, query);
+}
+Astro.response.headers.set('Cache-Control', 'no-store');
+const text = en.enquiry;
+const none = (list: unknown[] | null) => list !== null && list.length === 0;
+---
+
+<AdminLayout title="Search" description="Search" auth={auth}>
+  <PageHeader
+    title="Search"
+    sub="Find a request, a tailor or a shop order by reference, name or phone number."
+  />
+  <form method="post" action="/admin/search" role="search">
+    <input type="hidden" name="csrf" value={auth.csrfToken} />
+    <p>
+      <label for="search-q">Search</label>
+      <input
+        type="search"
+        id="search-q"
+        name="q"
+        value={query}
+        maxlength="100"
+        autofocus
+      />
+    </p>
+    <p>
+      <button type="submit">Search</button>
+    </p>
+  </form>
+  {results && query === '' && (
+    <p>Type a reference, a name or a phone number.</p>
+  )}
+  {results &&
+    query !== '' &&
+    results.requests === null &&
+    results.tailors === null && (
+      <p>Your role cannot search requests, tailors or orders.</p>
+    )}
+  {results && query !== '' && results.requests !== null && (
+    <section aria-labelledby="res-requests">
+      <h2 id="res-requests">Requests</h2>
+      {none(results.requests) ? (
+        <p>No requests match.</p>
+      ) : (
+        <ul>
+          {results.requests.map((r) => (
+            <li>
+              <a href={`/admin/enquiries/${r.id}`}>{r.reference}</a>{' '}
+              {r.name ?? text.anonymised}{' '}
+              <StatusChip
+                state={r.status}
+                label={
+                  text.statuses[r.status as keyof typeof text.statuses] ??
+                  r.status
+                }
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )}
+  {results && query !== '' && results.tailors !== null && (
+    <section aria-labelledby="res-tailors">
+      <h2 id="res-tailors">Tailors</h2>
+      {none(results.tailors) ? (
+        <p>No tailors match.</p>
+      ) : (
+        <ul>
+          {results.tailors.map((t) => (
+            <li>
+              <a href={`/admin/tailors/${t.id}`}>{t.name}</a>{' '}
+              <StatusChip state={t.status} label={t.status} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )}
+  {results && query !== '' && results.orders !== null && (
+    <section aria-labelledby="res-orders">
+      <h2 id="res-orders">Shop orders</h2>
+      {none(results.orders) ? (
+        <p>No orders match.</p>
+      ) : (
+        <ul>
+          {results.orders.map((o) => (
+            <li>
+              <a href="/admin/orders">{o.reference}</a>{' '}
+              {o.createdAt.slice(0, 16).replace('T', ' ')}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )}
+</AdminLayout>

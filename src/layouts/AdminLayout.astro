@@ -18,7 +18,9 @@ const { title, description = title, auth } = Astro.props;
 const current = currentKey(Astro.url.pathname);
 const links = auth ? navLinks(auth.role) : [];
 const dark = Astro.cookies.get('admin_theme')?.value === 'dark';
-const canSearch = auth ? can(auth.role, 'enquiry.view') : false;
+const canSearch = auth
+  ? can(auth.role, 'enquiry.view') || can(auth.role, 'tailor.edit')
+  : false;
 // The bell counts enquiries still marked New (spam left out), for roles that may read enquiries.
 const newCount = canSearch
   ? (await countByStatus(requireBindings(env).DB)).byStatus.new
@@ -85,17 +87,18 @@ const newCount = canSearch
           {canSearch && (
             <form
               class="admin-search"
-              method="get"
-              action="/admin/enquiries"
+              method="post"
+              action="/admin/search"
               role="search"
             >
+              <input type="hidden" name="csrf" value={auth.csrfToken} />
               <AdminIcon name="search" />
               <input
                 type="search"
                 name="q"
                 maxlength="100"
-                aria-label="Search enquiries"
-                placeholder="Search enquiries by reference, name or phone"
+                aria-label="Search requests, tailors and orders"
+                placeholder="Search requests, tailors, orders"
               />
             </form>
           )}

@@ -46,6 +46,7 @@ const csrfOf = async (cookie: string) => {
 // A valid request for each POST route, so a role that IS allowed gets a non-403 answer.
 const validForm: Record<string, (csrf: string) => Record<string, string>> = {
   '/admin/logout': (csrf) => ({ csrf }),
+  '/admin/search': (csrf) => ({ csrf, q: 'matrix' }),
   '/admin/account': (csrf) => ({
     csrf,
     current_password: 'wrong-but-well-formed',

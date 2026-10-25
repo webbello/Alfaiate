@@ -42,6 +42,12 @@ export const ADMIN_ROUTES: readonly {
     methods: ['GET', 'POST'],
   },
   {
+    file: 'search.astro',
+    path: '/admin/search',
+    permission: 'dashboard.view',
+    methods: ['GET', 'POST'],
+  },
+  {
     file: 'interest.astro',
     path: '/admin/interest',
     permission: 'enquiry.view',

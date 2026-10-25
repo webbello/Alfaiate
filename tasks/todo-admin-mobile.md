@@ -13,7 +13,7 @@ Each task: acceptance, how to verify, files. Requirement IDs are from the spec.
 - [x] **A3 WhatsApp buttons (FR-ADM-13). Done 2026-10-25 (a customer who asked for phone calls gets "Call customer" instead).** "WhatsApp customer" on a request, "WhatsApp tailor" on a referral; message has the reference only; plain line when no number.
   - Verify: unit test that the message contains the reference and nothing else of the request; integration test of both pages.
   - Files: `src/modules/contact-links/whatsapp.ts` (reuse), `src/pages/admin/enquiries/[id].astro`, tests.
-- [ ] **A4 Global search (FR-ADM-14).** Search box in the top bar; `/admin/search?q=` returns requests, tailors and orders by reference, name or phone within the role's rights; nothing logged; query not kept in analytics.
+- [x] **A4 Global search (FR-ADM-14). Done 2026-10-25 (a POST, so the typed text is never in an address).** Search box in the top bar; `/admin/search?q=` returns requests, tailors and orders by reference, name or phone within the role's rights; nothing logged; query not kept in analytics.
   - Verify: matrix test (owner, manager, editor, viewer x three sources); `%`, emoji and backslash input (D1 pattern limit, lesson 2026-10-19); route inventory and contract baseline updated.
   - Files: `src/pages/admin/search.astro` (new), `src/modules/admin-ui/search.ts` (new), `src/layouts/AdminLayout.astro`, tests.
 - [ ] **A5 Bottom bar and phone layout (FR-ADM-15).** Below the mobile breakpoint a bottom bar: Enquiries, Shop orders, Tailors, More; sidebar unchanged above it.
