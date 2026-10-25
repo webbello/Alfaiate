@@ -211,7 +211,7 @@ npx wrangler d1 execute DB --remote --env staging --file=seeds/launch.sql
 The build must be told which environment it is for:
 
 ```bash
-CLOUDFLARE_ENV=staging npm run build && npx wrangler deploy
+npm run deploy:staging
 ```
 
 The last lines show an address like `https://alfaiate-tl-staging.<your-name>.workers.dev`. Put exactly that address (https, no slash at the end) as `SITE_URL` in the `staging` section of `wrangler.jsonc`, then run the command above once more. Open the address in your browser: the home page appears.
@@ -249,14 +249,14 @@ npx wrangler d1 execute DB --remote --env production --file=seeds/launch.sql
 5. Build and deploy:
 
 ```bash
-CLOUDFLARE_ENV=production npm run build && npx wrangler deploy
+npm run deploy:production
 ```
 
 6. First owner (see F3).
 
 Never run `npm run db:demo` against production. It only works on your Mac's practice database, but double-check that no demo rows are on the site.
 
-> Always build with `CLOUDFLARE_ENV=staging` or `CLOUDFLARE_ENV=production` right before `npx wrangler deploy`. A build without it targets the practice database and will not deploy. Keep the two in one command, and do not run `npm run check` or the tests in between: they rebuild for the practice database, and a deploy after that fails with "R2 bucket ... not found" or the wrong worker name `alfaiate-tl`.
+> Always deploy with `npm run deploy:staging` or `npm run deploy:production`. It builds for that environment and deploys in one go, and stops without deploying if the build is for another one. Do not use a bare `npx wrangler deploy`: after `npm run check` or the tests, `dist/` is built for the practice database, and that deploy fails with "R2 bucket ... not found" or the wrong worker name `alfaiate-tl`.
 
 ---
 
