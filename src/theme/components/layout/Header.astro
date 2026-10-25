@@ -1,5 +1,6 @@
 ---
 import CartDrawer from './CartDrawer.astro';
+import LangSwitch from './LangSwitch.astro';
 import Icon from '../ui/Icon.astro';
 import { SITE } from '../../config/site';
 import type { Link } from '../../config/nav';
@@ -45,8 +46,6 @@ interface Props {
 }
 
 const { overlay = false, twin = null, nav, mega, homeHref, labels, list, requestHref, orderHref } = Astro.props;
-const here = twin?.lang === 'tet' ? 'en' : 'tet';
-const code = (lang: string) => (lang === 'tet' ? 'TET' : 'EN');
 
 const path = Astro.url.pathname;
 /** The overlay menu spells two links out in full; the top row keeps them short. */
@@ -108,23 +107,6 @@ const isCurrent = (href: string) => path === href;
             </div>
           </div>
         </div>
-        {
-          twin && (
-            <span class="lang-switch" role="group" aria-label="Language">
-              <span aria-current="true" lang={here === 'tet' ? 'tet' : 'en'}>
-                {code(here === 'tet' ? 'tet' : 'en')}
-              </span>
-              <a
-                href={twin.path}
-                lang={twin.lang}
-                hreflang={twin.lang}
-                aria-label={twin.lang === 'tet' ? 'TET (Tetun)' : 'EN (English)'}
-              >
-                {code(twin.lang)}
-              </a>
-            </span>
-          )
-        }
 
       </div>
     </nav>
@@ -173,29 +155,14 @@ const isCurrent = (href: string) => path === href;
           </div>
         </div>
 
-        {
-          twin && (
-            <span class="lang-switch" role="group" aria-label="Language">
-              <span aria-current="true" lang={here === 'tet' ? 'tet' : 'en'}>
-                {code(here === 'tet' ? 'tet' : 'en')}
-              </span>
-              <a
-                href={twin.path}
-                lang={twin.lang}
-                hreflang={twin.lang}
-                aria-label={twin.lang === 'tet' ? 'TET (Tetun)' : 'EN (English)'}
-              >
-                {code(twin.lang)}
-              </a>
-            </span>
-          )
-        }
+        {twin && <LangSwitch {twin} />}
 
         <CartDrawer id="cart-desktop" {list} {requestHref} {orderHref} />
       </div>
     </div>
 
     <div class="header-wrap-block">
+      {twin && <LangSwitch {twin} class="is-compact" />}
       <CartDrawer id="cart-mobile" {list} {requestHref} {orderHref} />
 
       <button

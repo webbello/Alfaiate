@@ -1,6 +1,7 @@
 import { defineMiddleware } from 'astro:middleware';
 import { env, waitUntil } from 'cloudflare:workers';
 import { isEnabled, parsePath } from './i18n/lang';
+import { tetumRedirect } from './i18n/preference';
 import {
   recordPageView,
   referrerBucket,
@@ -24,6 +25,19 @@ export const onRequest = defineMiddleware(async (context, next) => {
       pathname,
       indexable,
     );
+  }
+  // A first visit from a browser that prefers Tetum lands on the Tetum page (src/i18n/preference.ts).
+  const toTetum = tetumRedirect(context.request, context.url, languages);
+  if (toTetum) {
+    const redirect = new Response(null, {
+      status: 302,
+      headers: {
+        Location: toTetum,
+        Vary: 'Accept-Language, Sec-Fetch-Site, Sec-Fetch-Dest',
+        'Cache-Control': 'private, no-store',
+      },
+    });
+    return applySecurityHeaders(redirect, pathname, indexable);
   }
   const response = await next();
   // Cookie-free visit count (ANA-01): after the response, never blocks or breaks a page.

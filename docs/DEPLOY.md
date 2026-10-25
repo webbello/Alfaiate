@@ -148,7 +148,7 @@ Each environment (`staging`, `production`) has its own `"vars": { ... }` line. V
 | `SITE_URL` | **Required** | The web address with `https://` and no slash at the end, for example `https://yourdomain.tl`. Used for links, the sitemap and search engines. For staging, use the `workers.dev` address you will see after the first deploy (step D3), then redeploy. |
 | `PASSWORD_ITERATIONS` | Free plan: already set to `100000` | How slow the password check is. `100000` fits the free plan; delete it (or set `600000`) on Workers Paid. Passwords are upgraded automatically at their next sign-in. The owner commands (`npm run owner:create`) read the same value, so the first owner can sign in. |
 | `SITE_INDEXABLE` | Required | `true` in production only; `false` in staging. `true` lets Google list the site. |
-| `PUBLIC_LANGUAGES` | Required | `en` for production until a Tetum speaker has reviewed the text; `en,tet` shows both (staging). |
+| `PUBLIC_LANGUAGES` | Required | `en,tet` shows English and Tetun (owner's choice 2026-10-25: Tetun stays on although a native speaker has not reviewed it yet). `en` hides Tetun. A first visit from a browser that prefers Tetun is sent to the Tetun page; everyone else gets English, and the EN | TET switch (also in the phone bar) always works. |
 | `ORDER_WHATSAPP` | Needed for shop orders | Your WhatsApp number with country code, like `+670XXXXXXXX` (any country allowed). Shop orders open WhatsApp to this number. If unset, ordering says it is not set up. |
 | `SITE_WHATSAPP` | Optional | The WhatsApp number shown in the phone quick-action bar. If it is empty, the button is simply not shown. Also the fallback for shop orders. |
 | `JOIN_ENABLED` | Optional | `true` shows the "Join us" form for tailors. Leave unset until the Privacy text covers it. |
@@ -232,7 +232,7 @@ Open `<staging address>/admin/login` and sign in. Do the smoke test (section G) 
 
 Repeat the same steps with the production names. In order:
 
-1. Check `wrangler.jsonc` → `production`: `SITE_URL` (your real domain, or the `workers.dev` address for now), `SITE_INDEXABLE` `true`, `PUBLIC_LANGUAGES` `en`, plus any optional variables from C1.
+1. Check `wrangler.jsonc` → `production`: `SITE_URL` (your real domain, or the `workers.dev` address for now), `SITE_INDEXABLE` `true`, `PUBLIC_LANGUAGES` `en,tet`, plus any optional variables from C1.
 2. Secrets already set in C2 (`--env production`).
 3. Tables:
 
@@ -436,7 +436,7 @@ Give these to whoever runs the deployment, or do them yourself. Each says where 
 - [ ] Legal text: the Privacy and Terms wording, reviewed by someone qualified (OQ-08), starting from [DRAFT-privacy-and-terms.md](DRAFT-privacy-and-terms.md) → put into the pages, then set their `reviewed` flag in `src/modules/seo/pages.ts` and redeploy.
 - [ ] Read and approve: How it works, About, FAQ, Gallery, Journal, Shop pages → their `reviewed` flags in `src/modules/seo/pages.ts`. Until then they stay hidden from search engines and the sitemap.
 - [ ] The consent wording on the request, business, join and newsletter forms.
-- [ ] A native Tetum speaker's review of [TETUN-REVIEW.md](TETUN-REVIEW.md) (OQ-07) before `PUBLIC_LANGUAGES` becomes `en,tet`.
+- [ ] A native Tetum speaker's review of [TETUN-REVIEW.md](TETUN-REVIEW.md) (OQ-07). Tetun is already on (owner's choice); the review is still open and the Tetun pages stay out of search results until their flags in `src/modules/seo/pages.ts` are flipped.
 - [ ] The tailor permission wording `consent-tailor-2026-10-v1`.
 
 **Content**

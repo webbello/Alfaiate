@@ -1,0 +1,19 @@
+---
+/** The EN | TET switch: the page's own language as a marker, the other language as the link. Used in the desktop menu row and in the phone bar. */
+interface Props {
+  twin: { path: string; lang: 'en' | 'tet' };
+  class?: string;
+}
+const { twin, class: className } = Astro.props;
+const here = twin.lang === 'tet' ? 'en' : 'tet';
+const code = (lang: string) => (lang === 'tet' ? 'TET' : 'EN');
+---
+
+<span class:list={['lang-switch', className]} role="group" aria-label="Language">
+  <span aria-current="true" lang={here === 'tet' ? 'tet' : 'en'}>
+    {code(here === 'tet' ? 'tet' : 'en')}
+  </span>
+  <a href={twin.path} lang={twin.lang} hreflang={twin.lang} aria-label={twin.lang === 'tet' ? 'TET (Tetun)' : 'EN (English)'}>
+    {code(twin.lang)}
+  </a>
+</span>

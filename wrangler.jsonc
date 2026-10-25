@@ -32,7 +32,7 @@
     },
     "production": {
       "name": "alfaiate-tl-production",
-      "vars": { "SITE_URL": "https://alfaiate-tl.example", "PUBLIC_LANGUAGES": "en", "SITE_INDEXABLE": "true", "PASSWORD_ITERATIONS": "100000", "ORDER_WHATSAPP": "+918864812200" },
+      "vars": { "SITE_URL": "https://alfaiate-tl.example", "PUBLIC_LANGUAGES": "en,tet", "SITE_INDEXABLE": "true", "PASSWORD_ITERATIONS": "100000", "ORDER_WHATSAPP": "+918864812200" },
       "d1_databases": [
         { "binding": "DB", "database_name": "alfaiate-tl-prod", "database_id": "20563516-3d15-4352-8b79-a5052d23cf4c", "migrations_dir": "migrations" }
       ]
