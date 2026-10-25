@@ -11,6 +11,7 @@ import {
   progressMessage,
 } from '../../modules/portal/checklist';
 import { getAccountState } from '../../modules/portal/account';
+import { waitingCount } from '../../modules/referral/inbox';
 
 const auth = await requireTailor(Astro);
 if (auth instanceof Response) return auth;
@@ -31,6 +32,7 @@ const tailor = await requireBindings(env)
 if (!tailor) return new Response('Not found', { status: 404 });
 const items = await portalChecklist(requireBindings(env).DB, auth.tailorId);
 const account = await getAccountState(requireBindings(env).DB, auth.tailorId);
+const waiting = await waitingCount(requireBindings(env).DB, auth.tailorId);
 const doneCount = items.filter((i) => i.done).length;
 const ready = items.every((i) => !i.required || i.done);
 const code = Astro.url.searchParams.get('msg') ?? '';
@@ -53,6 +55,16 @@ const status =
 ---
 
 <PortalLayout title={p.title} auth={auth}>
+  {waiting > 0 && (
+    <div class="req-alert" role="status">
+      <p>
+        {waiting === 1
+          ? 'You have 1 request waiting for your answer.'
+          : `You have ${waiting} requests waiting for your answer.`}
+      </p>
+      <a href="/portal/requests">See requests</a>
+    </div>
+  )}
   <section class="portal-hero" aria-labelledby="hero-heading">
     <div class={`ring ring--${doneCount}`} aria-hidden="true">
       <span>

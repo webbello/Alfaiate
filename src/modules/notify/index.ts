@@ -4,7 +4,12 @@ export type NewEnquiryNotice = {
   reference: string;
   adminUrl: string;
   /** What arrived; an enquiry unless said otherwise. */
-  kind?: 'enquiry' | 'interest' | 'tailor-ready';
+  kind?:
+    | 'enquiry'
+    | 'interest'
+    | 'tailor-ready'
+    | 'tailor-accepted'
+    | 'tailor-declined';
 };
 export type Notifier = (notice: NewEnquiryNotice) => Promise<void>;
 
@@ -13,7 +18,7 @@ export const notificationText = ({
   adminUrl,
   kind = 'enquiry',
 }: NewEnquiryNotice) =>
-  `${{ enquiry: 'New enquiry', interest: 'New tailor interest', 'tailor-ready': 'Tailor page ready for review' }[kind]} ${reference}. Open it: ${adminUrl}`;
+  `${{ enquiry: 'New enquiry', interest: 'New tailor interest', 'tailor-ready': 'Tailor page ready for review', 'tailor-accepted': 'Tailor accepted request', 'tailor-declined': 'Tailor declined request' }[kind]} ${reference}. Open it: ${adminUrl}`;
 
 /** Best effort: a failing sender is logged without details and never affects the stored enquiry. */
 export async function notifyNewEnquiry(

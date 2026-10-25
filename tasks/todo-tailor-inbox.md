@@ -9,10 +9,10 @@
 - [x] **T3 Staff buttons (FR-TPO-09, FR-TPO-13). Done 2026-10-25 (a new staff route `/admin/enquiries/[id]/referrals/[rid]/inbox`, `referral.edit`).** "Send to the tailor's inbox" and "Take back" on each referral card; "WhatsApp tailor" message points at the portal; the tailor's answer shown on the referral.
   - Verify: integration test of the buttons and permission; message holds the reference only.
   - Files: referral card in `src/pages/admin/enquiries/[id].astro`, `src/modules/referral/update.ts` or inbox actions, `src/modules/contact-links/admin-links.ts`.
-- [ ] **T4 Portal inbox (FR-TPO-10..12).** "Requests for you" tab, list with the count on the overview, item page with Accept and Decline (+ reason), contact details after Accept.
+- [x] **T4 Portal inbox (FR-TPO-10..12). Done 2026-10-25 (also fixed the published-tailor link contrast on the overview).** "Requests for you" tab, list with the count on the overview, item page with Accept and Decline (+ reason), contact details after Accept.
   - Verify: integration per state; e2e and axe at 375 px; portal route inventory and isolation tests.
   - Files: `src/pages/portal/requests.astro`, `src/pages/portal/requests/[id].astro`, `src/modules/portal/routes.ts`, `src/layouts/PortalLayout.astro`, `src/pages/portal/index.astro`.
-- [ ] **T5 Owner alert (FR-TPO-13).** Best-effort alert "Tailor accepted / declined AT-XXXX" with a link; reference only.
+- [x] **T5 Owner alert (FR-TPO-13). Done 2026-10-25.** Best-effort alert "Tailor accepted / declined AT-XXXX" with a link; reference only.
   - Verify: unit test of the text; a failing sender never breaks the answer.
   - Files: `src/modules/notify/index.ts`, inbox answer path.
-- [ ] **T6 Close.** Isolation + privacy matrix, mutation checks seen failing, e2e, STATUS, DECISIONS, DEPLOY note for the staging ALTER, run `privacy-scope-reviewer` and `docs-sync`, deploy staging.
+- [x] **T6 Close. Done 2026-10-25 (isolation and privacy tests, mutation checks seen failing, e2e at 375 px, reviewers, staging deployed).** Isolation + privacy matrix, mutation checks seen failing, e2e, STATUS, DECISIONS, DEPLOY note for the staging ALTER, run `privacy-scope-reviewer` and `docs-sync`, deploy staging.

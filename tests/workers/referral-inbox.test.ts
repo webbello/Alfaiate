@@ -8,6 +8,10 @@ import {
   takeBackFromInbox,
   waitingCount,
 } from '../../src/modules/referral/inbox';
+import {
+  notificationText,
+  type NewEnquiryNotice,
+} from '../../src/modules/notify';
 
 // FR-TPO-09..12: a tailor sees only referrals staff sent to them, what is asked before accepting, the customer's details only after accepting and only while the request is open.
 const db = env.DB;
@@ -286,5 +290,91 @@ describe('tailor inbox', () => {
         userId: c.userId,
       }),
     ).toBe('closed');
+  });
+
+  it('tells the owner when a tailor answers, with the reference and an admin link only, and a failing sender never breaks the answer', async () => {
+    const w = await world();
+    await sendToInbox(db, {
+      enquiryId: w.enquiry,
+      referralId: w.referral,
+      userId: w.userId,
+    });
+    const seen: NewEnquiryNotice[] = [];
+    const session = { tailorId: w.a.tailorId, accountId: w.a.accountId };
+    expect(
+      await answerReferral(
+        db,
+        session,
+        w.referral,
+        { answer: 'accept' },
+        new Date(),
+        {
+          siteUrl: 'https://site.test',
+          notify: async (notice) => void seen.push(notice),
+        },
+      ),
+    ).toBe('ok');
+    expect(seen).toEqual([
+      {
+        reference: `AT-I${String(n).padStart(6, '0')}`,
+        adminUrl: `https://site.test/admin/enquiries/${w.enquiry}`,
+        kind: 'tailor-accepted',
+      },
+    ]);
+    const text = notificationText(seen[0]!);
+    expect(text).toBe(
+      `Tailor accepted request AT-I${String(n).padStart(6, '0')}. Open it: https://site.test/admin/enquiries/${w.enquiry}`,
+    );
+    for (const secret of SECRETS) expect(text, secret).not.toContain(secret);
+
+    const d = await world();
+    await sendToInbox(db, {
+      enquiryId: d.enquiry,
+      referralId: d.referral,
+      userId: d.userId,
+    });
+    const result = await answerReferral(
+      db,
+      { tailorId: d.a.tailorId, accountId: d.a.accountId },
+      d.referral,
+      { answer: 'decline' },
+      new Date(),
+      {
+        siteUrl: 'https://site.test',
+        notify: async () => {
+          throw new Error('sender down');
+        },
+      },
+    );
+    expect(result).toBe('ok');
+    expect(
+      notificationText({
+        reference: 'AT-X',
+        adminUrl: 'u',
+        kind: 'tailor-declined',
+      }),
+    ).toContain('Tailor declined request');
+  });
+
+  it('shows nothing to a tailor who is no longer approved (suspended after the request was sent)', async () => {
+    const w = await world();
+    await sendToInbox(db, {
+      enquiryId: w.enquiry,
+      referralId: w.referral,
+      userId: w.userId,
+    });
+    const session = { tailorId: w.a.tailorId, accountId: w.a.accountId };
+    await answerReferral(db, session, w.referral, { answer: 'accept' });
+    expect(await getInboxItem(db, w.a.tailorId, w.referral)).not.toBeNull();
+    await run(
+      "UPDATE tailor SET status = 'suspended' WHERE id = ?",
+      w.a.tailorId,
+    );
+    expect(await getInboxItem(db, w.a.tailorId, w.referral)).toBeNull();
+    expect(await listInbox(db, w.a.tailorId)).toEqual([]);
+    expect(await waitingCount(db, w.a.tailorId)).toBe(0);
+    expect(
+      await answerReferral(db, session, w.referral, { answer: 'decline' }),
+    ).toBe('not_found');
   });
 });

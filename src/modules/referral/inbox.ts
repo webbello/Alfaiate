@@ -1,4 +1,5 @@
 import { audit } from '../auth/audit';
+import { notifyNewEnquiry, type Notifier } from '../notify';
 import { diliDay } from './dates';
 
 /**
@@ -66,6 +67,7 @@ const SELECT = `SELECT r.id, r.tailor_response, r.decline_reason, r.shared_to_in
     CASE WHEN ${open} THEN e.area_text END AS area_text,
     CASE WHEN ${open} THEN e.notes END AS notes
   FROM referral r JOIN enquiry e ON e.id = r.enquiry_id
+  JOIN tailor tl ON tl.id = r.tailor_id AND tl.status = 'approved'
   LEFT JOIN garment_category c ON c.id = e.garment_category_id
   LEFT JOIN service_area a ON a.id = e.area_id
   WHERE r.tailor_id = ? AND r.shared_to_inbox_at IS NOT NULL`;
@@ -135,6 +137,7 @@ export async function waitingCount(
   const row = await db
     .prepare(
       `SELECT count(*) AS n FROM referral r JOIN enquiry e ON e.id = r.enquiry_id
+       JOIN tailor tl ON tl.id = r.tailor_id AND tl.status = 'approved'
        WHERE r.tailor_id = ? AND r.shared_to_inbox_at IS NOT NULL AND r.tailor_response IN ('pending', 'no_response') AND NOT ${closedSql}`,
     )
     .bind(tailorId)
@@ -155,6 +158,12 @@ export async function answerReferral(
   referralId: number,
   input: { answer: string; reason?: string },
   now = new Date(),
+  /** Best-effort owner alert (FR-TPO-13): the reference and an admin link only, never customer data. */
+  alert?: {
+    notify?: Notifier;
+    siteUrl: string;
+    waitUntil?: (p: Promise<unknown>) => void;
+  },
 ): Promise<AnswerResult> {
   const item = await getInboxItem(db, session.tailorId, referralId);
   if (!item) return 'not_found';
@@ -185,6 +194,27 @@ export async function answerReferral(
     entityType: 'referral',
     entityId: referralId,
   });
+  if (alert?.notify) {
+    const e = await db
+      .prepare(
+        'SELECT e.id, e.reference_code FROM referral r JOIN enquiry e ON e.id = r.enquiry_id WHERE r.id = ?',
+      )
+      .bind(referralId)
+      .first<{ id: number; reference_code: string }>();
+    if (e) {
+      const sent = notifyNewEnquiry(
+        {
+          reference: e.reference_code,
+          adminUrl: `${alert.siteUrl}/admin/enquiries/${e.id}`,
+          kind:
+            input.answer === 'accept' ? 'tailor-accepted' : 'tailor-declined',
+        },
+        alert.notify,
+      );
+      if (alert.waitUntil) alert.waitUntil(sent);
+      else await sent;
+    }
+  }
   return 'ok';
 }
 

@@ -25,6 +25,23 @@ export function customerReach(e: {
   };
 }
 
+/** What a tailor sees after accepting (FR-TPO-12): WhatsApp, or a call link when the customer asked for phone calls. The opening line holds the reference code only. */
+export function customerContactForTailor(c: {
+  reference: string;
+  number: string | null;
+  channel: string | null;
+}): Reach | null {
+  if (!c.number || !E164.test(c.number)) return null;
+  if (c.channel === 'phone') return { kind: 'call', href: telLink(c.number) };
+  return {
+    kind: 'whatsapp',
+    href: whatsappLink(
+      c.number,
+      `Hello, I am the tailor Alfaiate TL asked to contact you about your request ${c.reference}.`,
+    ),
+  };
+}
+
 export function tailorWhatsapp(
   number: string | null,
   reference: string,

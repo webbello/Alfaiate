@@ -1,0 +1,215 @@
+---
+export const prerender = false;
+import { env, waitUntil } from 'cloudflare:workers';
+import Flash from '../../../components/portal/Flash.astro';
+import PortalLayout from '../../../layouts/PortalLayout.astro';
+import { requireBindings, siteConfig } from '../../../modules/config';
+import { webhookNotifier } from '../../../modules/notify/webhook';
+import { customerContactForTailor } from '../../../modules/contact-links/admin-links';
+import { verifyCsrf } from '../../../modules/auth/csrf';
+import { hit } from '../../../modules/auth/rate-limit';
+import { parseId, readForm } from '../../../modules/http/body';
+import { TAILOR_COOKIE } from '../../../modules/portal/session';
+import { requireTailor } from '../../../modules/portal/require';
+import { answerReferral, getInboxItem } from '../../../modules/referral/inbox';
+
+// One request sent to this tailor (FR-TPO-10..12). Found by the signed-in tailor's id and only if staff sent it; anything else is "not found", whoever asks.
+const auth = await requireTailor(Astro);
+if (auth instanceof Response) return auth;
+const { DB } = requireBindings(env);
+const ANSWERS_PER_HOUR = 30;
+const id = parseId(Astro.params.id);
+if (!Number.isInteger(id)) return new Response('Not found', { status: 404 });
+Astro.response.headers.set('Cache-Control', 'no-store');
+
+if (Astro.request.method === 'POST') {
+  const { form, tooLarge } = await readForm(Astro.request);
+  if (tooLarge) return new Response('Payload too large', { status: 413 });
+  if (
+    !(await verifyCsrf(
+      Astro.cookies.get(TAILOR_COOKIE)?.value ?? '',
+      form.get('csrf')?.toString(),
+    ))
+  )
+    return new Response('Forbidden', { status: 403 });
+  // like the other portal posts: a limit per tailor account, counted before anything is read
+  if (
+    (await hit(DB, `portal:answer:${auth.accountId}`, 3600)) > ANSWERS_PER_HOUR
+  )
+    return Astro.redirect(`/portal/requests/${id}?msg=limited`, 303);
+  const result = await answerReferral(
+    DB,
+    auth,
+    id,
+    {
+      answer: form.get('answer')?.toString() ?? '',
+      reason: form.get('reason')?.toString() ?? '',
+    },
+    new Date(),
+    {
+      siteUrl: siteConfig(env).siteUrl,
+      notify: webhookNotifier(
+        (env as { NOTIFY_WEBHOOK_URL?: string }).NOTIFY_WEBHOOK_URL,
+      ),
+      waitUntil,
+    },
+  );
+  if (result === 'not_found') return new Response('Not found', { status: 404 });
+  const code =
+    result === 'ok'
+      ? form.get('answer')?.toString() === 'accept'
+        ? 'accepted'
+        : 'declined'
+      : result;
+  return Astro.redirect(`/portal/requests/${id}?msg=${code}`, 303);
+}
+
+const item = await getInboxItem(DB, auth.tailorId, id);
+if (!item) return new Response('Not found', { status: 404 });
+const messages: Record<string, { text: string; kind: 'success' | 'problem' }> =
+  {
+    accepted: {
+      text: 'You accepted. The customer’s details are below.',
+      kind: 'success',
+    },
+    declined: {
+      text: 'You declined. Thank you for answering.',
+      kind: 'success',
+    },
+    already_answered: {
+      text: 'This request was already answered.',
+      kind: 'problem',
+    },
+    closed: { text: 'This request is closed.', kind: 'problem' },
+    limited: {
+      text: 'Too many answers in an hour. Please try again later.',
+      kind: 'problem',
+    },
+    invalid: {
+      text: 'Please choose Accept, or Decline with a reason from the list.',
+      kind: 'problem',
+    },
+  };
+const code = Astro.url.searchParams.get('msg') ?? '';
+const note = Object.hasOwn(messages, code) ? messages[code] : null;
+const contact = item.contact;
+const reach = contact
+  ? customerContactForTailor({
+      reference: item.reference,
+      number: contact.number,
+      channel: contact.channel,
+    })
+  : null;
+const reasons = [
+  ['too_far', 'Too far for me'],
+  ['too_busy', 'I am too busy'],
+  ['not_my_work', 'Not my kind of work'],
+  ['other', 'Another reason'],
+] as const;
+---
+
+<PortalLayout title={`Request ${item.reference}`} auth={auth}>
+  <p>
+    <a href="/portal/requests">← All requests</a>
+  </p>
+  <h1>{item.reference}</h1>
+  {note && <Flash message={note.text} kind={note.kind} />}
+  <dl class="req-facts">
+    <dt>Clothing</dt>
+    <dd>{item.category ?? 'Not chosen'}</dd>
+    <dt>Area</dt>
+    <dd>{item.area ?? 'Not chosen'}</dd>
+    <dt>When</dt>
+    <dd>{item.preferredTime ?? 'Not said'}</dd>
+  </dl>
+
+  {item.state === 'waiting' && (
+    <section class="req-answer" aria-labelledby="answer-h">
+      <h2 id="answer-h">Can you take this request?</h2>
+      <p>
+        If you accept, you see the customer’s name and number so you can contact
+        them and agree the price.
+      </p>
+      <form method="post">
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <input type="hidden" name="answer" value="accept" />
+        <button type="submit" class="req-yes">
+          Accept
+        </button>
+      </form>
+      <form method="post" class="req-no">
+        <input type="hidden" name="csrf" value={auth.csrfToken} />
+        <input type="hidden" name="answer" value="decline" />
+        <p>
+          <label for="reason">Or decline. Why? (optional)</label>
+          <select id="reason" name="reason">
+            <option value="">No reason</option>
+            {reasons.map(([value, text]) => (
+              <option value={value}>{text}</option>
+            ))}
+          </select>
+        </p>
+        <button type="submit" class="secondary">
+          Decline
+        </button>
+      </form>
+    </section>
+  )}
+
+  {item.state === 'accepted' && contact && (
+    <section class="req-contact" aria-labelledby="contact-h">
+      <h2 id="contact-h">The customer</h2>
+      <p>
+        The customer agreed to share these details with you so you can contact
+        them. Please use them only for this request.
+      </p>
+      <dl class="req-facts">
+        <dt>Name</dt>
+        <dd>{contact.name}</dd>
+        <dt>Number</dt>
+        <dd>
+          {contact.number}
+          {contact.channel
+            ? ` (${contact.channel === 'phone' ? 'phone calls' : contact.channel === 'whatsapp' ? 'WhatsApp' : 'WhatsApp or phone calls'})`
+            : ''}
+        </dd>
+        {contact.areaText && (
+          <>
+            <dt>Street or landmark</dt>
+            <dd>{contact.areaText}</dd>
+          </>
+        )}
+        {contact.notes && (
+          <>
+            <dt>Notes</dt>
+            <dd>{contact.notes}</dd>
+          </>
+        )}
+      </dl>
+      {reach && (
+        <p>
+          <a
+            class="req-contact__go"
+            href={reach.href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {reach.kind === 'call'
+              ? 'Call the customer'
+              : 'WhatsApp the customer'}
+          </a>
+        </p>
+      )}
+    </section>
+  )}
+
+  {item.state === 'declined' && (
+    <p>
+      You declined this request. Thank you for answering; Alfaiate TL may ask
+      another tailor.
+    </p>
+  )}
+  {item.state === 'closed' && (
+    <p>This request is closed. The customer’s details are no longer shown.</p>
+  )}
+</PortalLayout>

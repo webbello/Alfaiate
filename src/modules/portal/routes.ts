@@ -88,6 +88,18 @@ export const PORTAL_ROUTES: readonly {
     methods: ['POST'],
   },
   {
+    file: 'requests.astro',
+    path: '/portal/requests',
+    access: 'tailor',
+    methods: ['GET'],
+  },
+  {
+    file: 'requests/[id].astro',
+    path: '/portal/requests/[id]',
+    access: 'tailor',
+    methods: ['GET', 'POST'],
+  },
+  {
     file: 'media/[...key].ts',
     path: '/portal/media/[...key]',
     access: 'tailor',

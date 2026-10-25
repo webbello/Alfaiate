@@ -57,3 +57,8 @@ Success: staff press **Send to the tailor's inbox** on a referral; the tailor op
 - OQ-I2 Draft: Decline reasons are a short fixed list (too far, too busy, not my kind of work, other). Keep, or no reason?
 - OQ-I3 Draft: a tailor cannot change their answer; staff can. Agreed?
 - OQ-I4 Draft: after **Accept** the details stay visible until the request is closed, cancelled, anonymised or taken back. Should they also disappear after a fixed time (for example 30 days)?
+
+## Notes from the build and review (2026-10-25)
+
+- Answering is rate limited per tailor account (30 an hour) and refused for a tailor who is no longer approved (reviewer findings 1 and 3).
+- Staff can record a tailor's acceptance by hand on the referral form (`tailor_response` = accepted); for a referral that is already in the inbox the tailor then sees the customer's details. That is deliberate and needs `referral.edit`.

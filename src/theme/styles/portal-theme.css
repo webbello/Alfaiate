@@ -509,3 +509,28 @@
 .pt .portal-timeline li.is-done::before { content: '\2713 '; }
 .pt .portal-timeline li.is-now { color: var(--ink); background: #fff; border: 2px solid var(--accent); font-weight: 650; }
 .pt .portal-live { background: #e4eedd; border-color: #a9c79b; }
+
+/* ---- Requests for you (FR-TPO-10..12): cards, facts, one big answer button ---- */
+.pt .req-list { display: grid; gap: 1rem; max-width: 40rem; margin: 1rem 0 1.5rem; padding: 0; list-style: none; }
+.pt .req-item { display: grid; gap: 0.4rem; margin: 0; padding: 1rem 1.1rem; background: #fff; border: 1px solid var(--line); border-radius: 0.75rem; box-shadow: var(--shadow-sm); }
+.pt .req-item p { margin: 0; }
+.pt .req-item__top { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.75rem; }
+.pt .req-item__ref { font-size: 1.1rem; font-weight: 700; }
+.pt .req-item__what { font-weight: 600; }
+.pt .req-item__when { color: #5c5446; }
+.pt .req-item__open { display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; margin-top: 0.25rem; padding: 0 1.25rem; border-radius: 0.6rem; background: #3d5a33; color: #fff; font-weight: 700; text-decoration: none; }
+.pt .req-item--waiting { border-color: #3d5a33; }
+.pt .req-none { max-width: 40rem; }
+.pt .req-facts { display: grid; grid-template-columns: max-content 1fr; gap: 0.35rem 1rem; max-width: 40rem; margin: 1rem 0; }
+.pt .req-facts dt { font-weight: 700; }
+.pt .req-facts dd { margin: 0; overflow-wrap: anywhere; }
+.pt .req-answer, .pt .req-contact { max-width: 40rem; margin: 1.5rem 0; padding: 1rem 1.1rem; background: #fff; border: 1px solid var(--line); border-radius: 0.75rem; }
+.pt .req-answer form { margin: 0.75rem 0 0; }
+.pt .req-yes { width: 100%; min-height: 3.25rem; font-size: 1.1rem; }
+.pt .req-contact__go { display: inline-flex; align-items: center; justify-content: center; min-height: 3.25rem; padding: 0 1.5rem; border-radius: 0.6rem; background: #3d5a33; color: #fff; font-weight: 700; text-decoration: none; }
+.pt .req-alert { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; max-width: 56rem; margin: 0 0 1rem; padding: 0.9rem 1.1rem; background: #f1f7ec; border: 2px solid #3d5a33; border-radius: 0.75rem; }
+.pt .req-alert p { margin: 0; font-weight: 700; }
+.pt .req-alert a { display: inline-flex; align-items: center; min-height: 3rem; padding: 0 1.25rem; border-radius: 0.6rem; background: #3d5a33; color: #fff; font-weight: 700; text-decoration: none; }
+
+/* The "View your public page" link on the overview of a published tailor: dark enough on the card (axe contrast). */
+.pt .portal-live a.button--secondary { color: #2e4727; border-color: #2e4727; background: #fff; }

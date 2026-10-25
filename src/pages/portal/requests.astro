@@ -1,0 +1,61 @@
+---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
+import PortalLayout from '../../layouts/PortalLayout.astro';
+import { requireBindings } from '../../modules/config';
+import { requireTailor } from '../../modules/portal/require';
+import { listInbox, type InboxState } from '../../modules/referral/inbox';
+
+// Requests Alfaiate TL sent to this tailor (FR-TPO-10). The tailor id comes from the session only; a request shows what is asked and, only after the tailor accepts, who asks (see inbox.ts).
+const auth = await requireTailor(Astro);
+if (auth instanceof Response) return auth;
+Astro.response.headers.set('Cache-Control', 'no-store');
+const items = await listInbox(requireBindings(env).DB, auth.tailorId);
+const label: Record<InboxState, string> = {
+  waiting: 'Waiting for your answer',
+  accepted: 'You accepted',
+  declined: 'You declined',
+  closed: 'Closed',
+};
+---
+
+<PortalLayout title="Requests for you" auth={auth}>
+  <h1>Requests for you</h1>
+  <p>
+    Alfaiate TL sends you a request when a customer needs a tailor like you. You
+    see what is asked first. If you accept, you see the customer's name and
+    number so you can contact them. Alfaiate TL does not take payment: you agree
+    the price with the customer.
+  </p>
+  {items.length === 0 ? (
+    <p class="req-none">
+      No requests yet. When Alfaiate TL sends you one, it appears here and we
+      tell you on WhatsApp.
+    </p>
+  ) : (
+    <ul class="req-list">
+      {items.map((i) => (
+        <li class={`req-item req-item--${i.state}`}>
+          <p class="req-item__top">
+            <a class="req-item__ref" href={`/portal/requests/${i.id}`}>
+              {i.reference}
+            </a>
+            <span class={i.state === 'waiting' ? 'badge badge--ok' : 'badge'}>
+              {label[i.state]}
+            </span>
+          </p>
+          <p class="req-item__what">
+            {[i.category, i.area].filter(Boolean).join(' · ') ||
+              'No clothing or area chosen'}
+          </p>
+          {i.preferredTime && (
+            <p class="req-item__when">When: {i.preferredTime}</p>
+          )}
+          <a class="req-item__open" href={`/portal/requests/${i.id}`}>
+            {i.state === 'waiting' ? 'Open and answer' : 'Open'}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+</PortalLayout>
