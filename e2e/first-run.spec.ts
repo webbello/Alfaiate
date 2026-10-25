@@ -79,7 +79,8 @@ test('the checklist leads from a new draft to a published tailor', async ({
     .click();
   await expect(page.locator('#checklist')).toContainText('Ready to publish');
 
-  await page.getByRole('button', { name: 'Publish', exact: true }).click();
+  await page.locator('.confirm > summary', { hasText: /^Publish$/ }).click(); // publishing asks first
+  await page.getByRole('button', { name: 'Yes, publish' }).click();
   await expect(page.locator('#live')).toContainText('This tailor is live');
   await expect(page.locator('#checklist')).toHaveCount(0);
 });

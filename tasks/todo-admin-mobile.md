@@ -22,7 +22,7 @@ Each task: acceptance, how to verify, files. Requirement IDs are from the spec.
 - [x] **A6 Request card on a phone (FR-ADM-16). Done 2026-10-25 (list cards with a message button; the request opens with large actions and one-tap status chips; the assign button waits for phase C).** Card with reference, area, garment, waiting time; four large buttons (WhatsApp, status chips, assign placeholder hidden until phase C, note); details below; 44 px targets.
   - Verify: e2e at 375 px; status change by one tap works without JavaScript; axe.
   - Files: `src/pages/admin/enquiries.astro`, `src/pages/admin/enquiries/[id].astro`, `src/components/admin/StatusChip.astro`, `src/styles/admin.css`.
-- [ ] **A7 Confirmations (FR-ADM-17).** Two-step (details/summary, no JavaScript) only for publish or unpublish, tailor sign-in off, anonymise; none elsewhere.
+- [x] **A7 Confirmations (FR-ADM-17). Done 2026-10-25: publish/unpublish and switching a tailor sign-in off ask first; removing customer details (requests and join requests) already needed the reference typed, so it was left as is.** Two-step (details/summary, no JavaScript) only for publish or unpublish, tailor sign-in off, anonymise; none elsewhere.
   - Verify: integration test that the three forms are inside a confirm control and a status change is not; keyboard test.
   - Files: `src/pages/admin/tailors/[id].astro`, `src/pages/admin/enquiries/[id].astro`, `src/styles/admin.css`.
 - [ ] **A8 Close the phase.** Update PRD rows, STATUS, DECISIONS; run `privacy-scope-reviewer` and `docs-sync`; owner click-through on staging at a phone.

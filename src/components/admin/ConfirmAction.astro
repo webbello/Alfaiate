@@ -1,0 +1,39 @@
+---
+// "Are you sure?" for an action that is hard to undo (FR-ADM-17), without JavaScript: the first button only opens a short question, the second one sends the form.
+// Put it inside the form that carries the action. A disabled action (for example publishing while something is still missing) stays a plain disabled button.
+interface Props {
+  label: string;
+  question: string;
+  yes: string;
+  danger?: boolean;
+  disabled?: boolean;
+  describedBy?: string;
+}
+const {
+  label,
+  question,
+  yes,
+  danger = false,
+  disabled = false,
+  describedBy,
+} = Astro.props;
+---
+
+{disabled ? (
+  <button type="submit" disabled aria-describedby={describedBy}>
+    {label}
+  </button>
+) : (
+  <details class="confirm">
+    <summary class:list={['confirm__open', danger && 'confirm__open--danger']}>
+      {label}
+    </summary>
+    <div class="confirm__body">
+      <p class="confirm__q">{question}</p>
+      <button type="submit" class:list={[danger && 'danger']}>
+        {yes}
+      </button>
+      <p class="confirm__cancel">To cancel, press “{label}” again.</p>
+    </div>
+  </details>
+)}

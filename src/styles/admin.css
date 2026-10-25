@@ -2134,3 +2134,55 @@ a.icon-button:hover {
 .status-chip[aria-pressed='true']::before {
   content: '✓ ';
 }
+
+/* ---- Confirm before a hard-to-undo action (FR-ADM-17): the first button opens a question, the second sends the form. No script. ---- */
+.confirm {
+  margin: 0;
+}
+.confirm > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.confirm > summary::-webkit-details-marker {
+  display: none;
+}
+.confirm > summary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.confirm__open--danger {
+  border-color: var(--bad-line);
+  color: var(--bad-text);
+}
+.confirm[open] > summary {
+  background: var(--band);
+}
+.confirm__body {
+  display: grid;
+  gap: 0.6rem;
+  max-width: 32rem;
+  margin: 0.6rem 0 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+}
+.confirm__body p {
+  margin: 0;
+}
+.confirm__q {
+  font-weight: 600;
+}
+.confirm__cancel {
+  color: var(--muted);
+  font-size: 0.9rem;
+}

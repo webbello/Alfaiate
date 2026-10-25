@@ -25,6 +25,7 @@ import { MAX_IMAGES } from '../../../modules/media/store';
 import { messageFrom } from '../../../modules/tailors/messages';
 import Card from '../../../components/admin/Card.astro';
 import FormGrid from '../../../components/admin/FormGrid.astro';
+import ConfirmAction from '../../../components/admin/ConfirmAction.astro';
 import {
   missingItems,
   publishChecklist,
@@ -770,13 +771,19 @@ const action = `/admin/tailors/${id}/actions`;
                   ; the “Ready to publish?” checklist above shows each one.
                 </p>
               )}
-              <button
-                type="submit"
-                class={tailor.is_published ? 'danger' : undefined}
+              <ConfirmAction
+                label={
+                  tailor.is_published ? en.publishUnpublish : en.publishNow
+                }
+                question={
+                  tailor.is_published
+                    ? 'Take this tailor’s page off the public site now?'
+                    : 'Put this tailor’s page on the public site now?'
+                }
+                yes={tailor.is_published ? 'Yes, unpublish' : 'Yes, publish'}
+                danger={Boolean(tailor.is_published)}
                 disabled={!tailor.is_published && missingCount > 0}
-              >
-                {tailor.is_published ? en.publishUnpublish : en.publishNow}
-              </button>
+              />
             </form>
             {tailor.permission_recorded ? (
               <details>
@@ -831,11 +838,16 @@ const action = `/admin/tailors/${id}/actions`;
                     name="action"
                     value={account.isActive ? 'deactivate' : 'activate'}
                   />
-                  <button type="submit">
-                    {account.isActive
-                      ? 'Switch the sign-in off (ends their sessions)'
-                      : 'Switch the sign-in back on'}
-                  </button>
+                  {account.isActive ? (
+                    <ConfirmAction
+                      label="Switch the sign-in off (ends their sessions)"
+                      question="This signs the tailor out everywhere and blocks sign-in until you switch it back on. Continue?"
+                      yes="Yes, switch it off"
+                      danger
+                    />
+                  ) : (
+                    <button type="submit">Switch the sign-in back on</button>
+                  )}
                 </form>
               </>
             )}
