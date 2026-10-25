@@ -270,6 +270,12 @@ export const ADMIN_ROUTES: readonly {
     methods: ['POST'],
   },
   {
+    file: 'enquiries/[id]/referrals/[rid]/inbox.ts',
+    path: '/admin/enquiries/[id]/referrals/[rid]/inbox',
+    permission: 'referral.edit',
+    methods: ['POST'],
+  },
+  {
     file: 'enquiries/[id]/referrals/[rid]/fee.ts',
     path: '/admin/enquiries/[id]/referrals/[rid]/fee',
     permission: 'fee.view',

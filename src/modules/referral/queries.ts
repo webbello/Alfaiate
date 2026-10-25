@@ -12,6 +12,9 @@ export type Referral = {
   completion_reported_at: string | null;
   completion_reported_by: string | null;
   closed_reason: string | null;
+  /** When staff sent it to the tailor's portal inbox (null = not sent) and the reason a tailor gave on declining. */
+  shared_to_inbox_at: string | null;
+  decline_reason: string | null;
   created_at: string;
 };
 /** Present only for a caller who holds `fee.view` (owner): managers never receive these columns (BR-09, BR-10). */
@@ -24,7 +27,7 @@ export type ReferralFees = {
 };
 
 const BASE = `r.id, r.tailor_id, t.display_name AS tailor_name, COALESCE(t.whatsapp_e164, t.private_phone, t.phone_e164) AS tailor_number, r.forwarded_at, r.forwarded_via, r.fields_shared_note, r.tailor_response,
-  r.responded_at, r.completion_reported_at, r.completion_reported_by, r.closed_reason, r.created_at`;
+  r.responded_at, r.completion_reported_at, r.completion_reported_by, r.closed_reason, r.shared_to_inbox_at, r.decline_reason, r.created_at`;
 const FEES =
   'r.order_value_note, r.fee_basis_note, r.fee_amount, r.fee_status, r.fee_paid_at';
 

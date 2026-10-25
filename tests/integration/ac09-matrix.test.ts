@@ -83,6 +83,10 @@ const validForm: Record<string, (csrf: string) => Record<string, string>> = {
     csrf,
     tailor_response: 'pending',
   }),
+  '/admin/enquiries/[id]/referrals/[rid]/inbox': (csrf) => ({
+    csrf,
+    action: 'take_back',
+  }),
   '/admin/enquiries/[id]/referrals/[rid]/fee': (csrf) => ({
     csrf,
     fee_status: 'not_due',

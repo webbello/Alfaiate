@@ -22,6 +22,7 @@ import {
   customerReach,
   tailorWhatsapp,
 } from '../../../modules/contact-links/admin-links';
+import { siteConfig } from '../../../modules/config';
 import {
   approvedTailors,
   listReferrals,
@@ -57,6 +58,23 @@ const tailors =
     : [];
 const forward = forwardingText(e);
 const reach = customerReach(e);
+const portalUrl = `${siteConfig(env).siteUrl}/portal/login`;
+const declineReasons: Record<string, string> = {
+  too_far: 'too far',
+  too_busy: 'too busy',
+  not_my_work: 'not their kind of work',
+  other: 'another reason',
+};
+const inboxLine = (r: (typeof referrals)[number]) =>
+  !r.shared_to_inbox_at
+    ? 'Not in the tailor’s portal inbox.'
+    : `In the tailor’s portal inbox since ${r.shared_to_inbox_at.slice(0, 10)}. ${
+        r.tailor_response === 'accepted'
+          ? 'The tailor accepted.'
+          : r.tailor_response === 'declined'
+            ? `The tailor declined${r.decline_reason ? ` (${declineReasons[r.decline_reason] ?? r.decline_reason})` : ''}.`
+            : 'Waiting for their answer.'
+      }`;
 const step = nextStep({
   status: e.status,
   anonymised: Boolean(e.anonymised_at),
@@ -307,10 +325,18 @@ const action = `/admin/enquiries/${id}/actions`;
             })}
           </h3>
           <p>
-            {tailorWhatsapp(r.tailor_number, e.reference_code) ? (
+            {tailorWhatsapp(
+              r.tailor_number,
+              e.reference_code,
+              r.shared_to_inbox_at ? portalUrl : undefined,
+            ) ? (
               <a
                 class="button-link"
-                href={tailorWhatsapp(r.tailor_number, e.reference_code)!}
+                href={tailorWhatsapp(
+                  r.tailor_number,
+                  e.reference_code,
+                  r.shared_to_inbox_at ? portalUrl : undefined,
+                )!}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -320,6 +346,29 @@ const action = `/admin/enquiries/${id}/actions`;
               <small>{ref.noTailorNumber}</small>
             )}
           </p>
+          <p class="inbox-state">{inboxLine(r)}</p>
+          {canReferral && !e.anonymised_at && (
+            <form
+              method="post"
+              action={`/admin/enquiries/${id}/referrals/${r.id}/inbox`}
+            >
+              <input type="hidden" name="csrf" value={auth.csrfToken} />
+              {!r.shared_to_inbox_at ? (
+                <button type="submit" name="action" value="send">
+                  Send to the tailor’s inbox
+                </button>
+              ) : r.tailor_response === 'accepted' ? null : (
+                <button
+                  type="submit"
+                  name="action"
+                  value="take_back"
+                  class="secondary"
+                >
+                  Take back from the inbox
+                </button>
+              )}
+            </form>
+          )}
           {canReferral ? (
             <form
               method="post"

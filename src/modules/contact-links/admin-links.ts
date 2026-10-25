@@ -28,10 +28,14 @@ export function customerReach(e: {
 export function tailorWhatsapp(
   number: string | null,
   reference: string,
+  /** Set when the referral is in the tailor's portal inbox: the message then points at the portal sign-in (a link, no customer data). */
+  portalUrl?: string,
 ): string | null {
   if (!number || !E164.test(number)) return null;
   return whatsappLink(
     number,
-    `Hello, Alfaiate TL has a customer request for you: ${reference}. Can you take it?`,
+    portalUrl
+      ? `Hello, Alfaiate TL has a new request for you in your portal: ${reference}. Sign in: ${portalUrl}`
+      : `Hello, Alfaiate TL has a customer request for you: ${reference}. Can you take it?`,
   );
 }

@@ -550,6 +550,13 @@ export const en = {
     messages: {
       referral_created: 'Referral created.',
       referral_saved: 'Referral saved.',
+      inbox_sent: 'Sent to the tailor’s inbox. Tell them on WhatsApp to look.',
+      inbox_taken_back: 'Taken back from the tailor’s inbox.',
+      inbox_unchanged: 'Nothing changed: it was already that way.',
+      inbox_accepted:
+        'The tailor has already accepted and holds the details, so it cannot be taken back here.',
+      inbox_closed:
+        'This request is closed, cancelled, spam or anonymised, so it cannot be sent to a tailor.',
       fee_saved: 'Fee saved.',
       no_consent:
         'This enquiry cannot be shared: it has no sharing consent or has been anonymised.',

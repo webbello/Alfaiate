@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { env } from 'cloudflare:workers';
-import { get, signIn, unique } from './helpers';
+import { csrfOf, get, post, signIn, unique } from './helpers';
 
 // FR-ADM-13: WhatsApp buttons on a request (customer) and a referral (tailor), the message holding the reference code only.
 const run = (sql: string, ...args: (string | number | null)[]) =>
@@ -75,5 +75,73 @@ describe('reach buttons on a request', () => {
     expect(links(html)).toEqual([
       { href: 'tel:+67070004567', label: 'Call customer' },
     ]);
+  });
+});
+
+describe('send to the tailor inbox (FR-TPO-09)', () => {
+  it('shows Send, then Take back and the portal message once sent; refuses without referral.edit and when closed', async () => {
+    const n = String(unique()).padStart(7, '0');
+    const id = await enquiry(`AT-N${n}`, 'whatsapp');
+    const tailorId = await tailor(`${n}c`, '+67070009010');
+    const referral = (
+      await run(
+        'INSERT INTO referral (enquiry_id, tailor_id) VALUES (?, ?)',
+        id,
+        tailorId,
+      )
+    ).meta.last_row_id;
+    const manager = await signIn('manager');
+    const before = await (await get(`/admin/enquiries/${id}`, manager)).text();
+    expect(before).toContain('Not in the tailor’s portal inbox.');
+    expect(before).toContain('Send to the tailor’s inbox');
+    expect(before).not.toContain('Take back from the inbox');
+    const sent = await post(
+      `/admin/enquiries/${id}/referrals/${referral}/inbox`,
+      manager,
+      {
+        csrf: await csrfOf(manager),
+        action: 'send',
+      },
+    );
+    expect(sent.status).toBe(303);
+    expect(sent.headers.get('location')).toContain('msg=inbox_sent');
+    const after = await (await get(`/admin/enquiries/${id}`, manager)).text();
+    expect(after).toContain('In the tailor’s portal inbox since');
+    expect(after).toContain('Take back from the inbox');
+    const wa = decodeURIComponent(
+      /href="(https:\/\/wa\.me\/67070009010\?text=[^"]+)"/
+        .exec(after.replaceAll('&#38;', '&'))![1]!
+        .split('text=')[1]!,
+    );
+    expect(wa).toMatch(
+      /^Hello, Alfaiate TL has a new request for you in your portal: AT-N\d+\. Sign in: https?:\/\/\S+\/portal\/login$/,
+    );
+    expect(wa).not.toContain('Reach Fake');
+    // a viewer-level role cannot (editor has no referral.edit)
+    const editor = await signIn('editor');
+    const refused = await post(
+      `/admin/enquiries/${id}/referrals/${referral}/inbox`,
+      editor,
+      {
+        csrf: await csrfOf(editor),
+        action: 'take_back',
+      },
+    );
+    expect(refused.status).toBe(403);
+    // a closed request cannot be sent
+    await run("UPDATE enquiry SET status = 'cancelled' WHERE id = ?", id);
+    await run(
+      'UPDATE referral SET shared_to_inbox_at = NULL WHERE id = ?',
+      referral,
+    );
+    const closed = await post(
+      `/admin/enquiries/${id}/referrals/${referral}/inbox`,
+      manager,
+      {
+        csrf: await csrfOf(manager),
+        action: 'send',
+      },
+    );
+    expect(closed.headers.get('location')).toContain('msg=inbox_closed');
   });
 });

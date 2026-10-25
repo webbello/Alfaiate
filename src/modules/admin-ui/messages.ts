@@ -23,10 +23,15 @@ export const SUCCESS_CODES: readonly string[] = [
   'interest_already_anonymised',
   'referral_created',
   'referral_saved',
+  'inbox_sent',
+  'inbox_taken_back',
+  'inbox_unchanged',
   'fee_saved',
 ];
 
 export const PROBLEM_CODES: readonly string[] = [
+  'inbox_accepted',
+  'inbox_closed',
   'locked',
   'not_confirmed',
   'seller_not_published',

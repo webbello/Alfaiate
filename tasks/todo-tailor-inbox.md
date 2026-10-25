@@ -6,7 +6,7 @@
 - [x] **T2 Inbox module (FR-TPO-09..12). Done 2026-10-25.** `src/modules/referral/inbox.ts`: send and take back (staff), list and get for a tailor with the privacy states, accept and decline (tailor), audit.
   - Verify: unit/integration tests for every state (not sent, sent, accepted, declined, closed, anonymised, taken back) and for another tailor's id.
   - Files: `src/modules/referral/inbox.ts`, `tests/workers/referral-inbox.test.ts`.
-- [ ] **T3 Staff buttons (FR-TPO-09, FR-TPO-13).** "Send to the tailor's inbox" and "Take back" on each referral card; "WhatsApp tailor" message points at the portal; the tailor's answer shown on the referral.
+- [x] **T3 Staff buttons (FR-TPO-09, FR-TPO-13). Done 2026-10-25 (a new staff route `/admin/enquiries/[id]/referrals/[rid]/inbox`, `referral.edit`).** "Send to the tailor's inbox" and "Take back" on each referral card; "WhatsApp tailor" message points at the portal; the tailor's answer shown on the referral.
   - Verify: integration test of the buttons and permission; message holds the reference only.
   - Files: referral card in `src/pages/admin/enquiries/[id].astro`, `src/modules/referral/update.ts` or inbox actions, `src/modules/contact-links/admin-links.ts`.
 - [ ] **T4 Portal inbox (FR-TPO-10..12).** "Requests for you" tab, list with the count on the overview, item page with Accept and Decline (+ reason), contact details after Accept.
