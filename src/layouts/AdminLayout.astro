@@ -6,7 +6,7 @@ import { requireBindings } from '../modules/config';
 import { can } from '../modules/auth/permissions';
 import { countByStatus } from '../modules/enquiry/queries';
 import { en } from '../i18n/en';
-import { currentKey, navLinks } from '../modules/admin-ui/nav';
+import { currentKey, navLinks, tabLinks } from '../modules/admin-ui/nav';
 
 interface Props {
   title: string;
@@ -17,6 +17,7 @@ interface Props {
 const { title, description = title, auth } = Astro.props;
 const current = currentKey(Astro.url.pathname);
 const links = auth ? navLinks(auth.role) : [];
+const tabs = auth ? tabLinks(auth.role) : [];
 const dark = Astro.cookies.get('admin_theme')?.value === 'dark';
 const canSearch = auth
   ? can(auth.role, 'enquiry.view') || can(auth.role, 'tailor.edit')
@@ -81,6 +82,23 @@ const newCount = canSearch
                 ))}
               </nav>
             </div>
+            {tabs.length > 0 && (
+              <nav class="admin-tabbar" aria-label="Shortcuts">
+                {tabs.map((tab) => (
+                  <a
+                    href={tab.href}
+                    aria-current={tab.key === current ? 'page' : undefined}
+                  >
+                    <AdminIcon name={tab.key} />
+                    {tab.label}
+                  </a>
+                ))}
+                <label for="admin-menu" aria-hidden="true">
+                  <AdminIcon name="more" />
+                  More
+                </label>
+              </nav>
+            )}
           </div>
         </header>
         <div class="admin-topbar">
@@ -98,7 +116,7 @@ const newCount = canSearch
                 name="q"
                 maxlength="100"
                 aria-label="Search requests, tailors and orders"
-                placeholder="Search requests, tailors, orders"
+                placeholder="Search"
               />
             </form>
           )}

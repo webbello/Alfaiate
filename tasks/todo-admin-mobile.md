@@ -16,7 +16,7 @@ Each task: acceptance, how to verify, files. Requirement IDs are from the spec.
 - [x] **A4 Global search (FR-ADM-14). Done 2026-10-25 (a POST, so the typed text is never in an address).** Search box in the top bar; `/admin/search?q=` returns requests, tailors and orders by reference, name or phone within the role's rights; nothing logged; query not kept in analytics.
   - Verify: matrix test (owner, manager, editor, viewer x three sources); `%`, emoji and backslash input (D1 pattern limit, lesson 2026-10-19); route inventory and contract baseline updated.
   - Files: `src/pages/admin/search.astro` (new), `src/modules/admin-ui/search.ts` (new), `src/layouts/AdminLayout.astro`, tests.
-- [ ] **A5 Bottom bar and phone layout (FR-ADM-15).** Below the mobile breakpoint a bottom bar: Enquiries, Shop orders, Tailors, More; sidebar unchanged above it.
+- [x] **A5 Bottom bar and phone layout (FR-ADM-15). Done 2026-10-25.** Below the mobile breakpoint a bottom bar: Enquiries, Shop orders, Tailors, More; sidebar unchanged above it.
   - Verify: e2e at 375 and 320 px (no sideways scroll, bar does not cover the last content or focus, keyboard order); axe; contrast test.
   - Files: `src/layouts/AdminLayout.astro`, `src/modules/admin-ui/nav.ts`, `src/styles/admin.css`.
 - [ ] **A6 Request card on a phone (FR-ADM-16).** Card with reference, area, garment, waiting time; four large buttons (WhatsApp, status chips, assign placeholder hidden until phase C, note); details below; 44 px targets.

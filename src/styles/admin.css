@@ -1930,3 +1930,73 @@ a.icon-button:hover {
     font-size: 0.85rem;
   }
 }
+
+/* ---- Phone bottom bar (FR-ADM-15): Enquiries, Orders, Tailors and More, below the width where the sidebar appears. More is the label of the menu checkbox,
+   so it opens the same menu without JavaScript. The page keeps room under it so nothing is hidden behind the bar. ---- */
+.admin-tabbar {
+  display: none;
+}
+@media (max-width: 63.99rem) {
+  :root {
+    --tabbar-h: 3.5rem;
+  }
+  html {
+    scroll-padding-bottom: calc(var(--tabbar-h) + 1rem);
+  }
+  .admin-tabbar {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 6;
+    display: flex;
+    height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--side-bg);
+    border-top: 1px solid var(--line-strong);
+  }
+  .admin-tabbar a,
+  .admin-tabbar label {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    min-width: 0;
+    margin: 0;
+    border-top: 3px solid transparent;
+    color: var(--side-ink);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .admin-tabbar .icon {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+  .admin-tabbar a[aria-current='page'] {
+    border-top-color: var(--accent);
+    color: var(--link);
+    background: var(--accent-soft);
+  }
+  .admin-menu-toggle:checked ~ .admin-tabbar label {
+    background: var(--side-active);
+    border-top-color: var(--accent);
+  }
+  .admin-menu-toggle:focus-visible ~ .admin-tabbar label {
+    outline: 3px solid var(--focus);
+    outline-offset: -3px;
+  }
+  .admin-tabbar a:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: -3px;
+  }
+  .admin-main {
+    padding-bottom: calc(
+      var(--tabbar-h) + 2rem + env(safe-area-inset-bottom, 0px)
+    );
+  }
+  .sticky-bar {
+    bottom: calc(var(--tabbar-h) + 0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+}

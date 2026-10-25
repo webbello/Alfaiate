@@ -113,6 +113,18 @@ const ALL: NavLink[] = [
 export const navLinks = (role: string): NavLink[] =>
   ALL.filter((link) => can(role, link.permission));
 
+/** The phone's bottom bar (FR-ADM-15): the three lists used most, with short labels, only those the role may open. The fourth button, More, opens the full menu. */
+const TAB_KEYS: readonly { key: NavKey; label: string }[] = [
+  { key: 'enquiries', label: 'Enquiries' },
+  { key: 'orders', label: 'Orders' },
+  { key: 'tailors', label: 'Tailors' },
+];
+export const tabLinks = (role: string) =>
+  TAB_KEYS.flatMap(({ key, label }) => {
+    const link = navLinks(role).find((l) => l.key === key);
+    return link ? [{ key, href: link.href, label }] : [];
+  });
+
 /** Which link is the current page: the page itself and everything beneath it (`/admin/tailors/7` is "tailors"). */
 export function currentKey(pathname: string): NavKey | null {
   const path = pathname.replace(/\/+$/, '') || '/';

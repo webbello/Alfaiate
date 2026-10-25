@@ -6,7 +6,10 @@ import { ORIGIN } from './helpers';
 
 // Phase 7b T1: one header bar on every admin page, with the links this role may use and the current page marked.
 const headerOf = (html: string) =>
-  html.match(/<header class="admin-header">[\s\S]*?<\/header>/)?.[0] ?? '';
+  // the phone bottom bar sits in the header but has its own test (admin-tabbar.test.ts)
+  (
+    html.match(/<header class="admin-header">[\s\S]*?<\/header>/)?.[0] ?? ''
+  ).replace(/<nav class="admin-tabbar"[\s\S]*?<\/nav>/, '');
 const linksIn = (html: string) =>
   [...html.matchAll(/<a\b([^>]*)\bhref="([^"]+)"([^>]*)>([\s\S]*?)<\/a>/g)].map(
     (m) => ({
