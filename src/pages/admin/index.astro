@@ -13,6 +13,7 @@ import { PERIODS, parsePeriod } from '../../modules/reporting/period';
 import { isSystemEmpty } from '../../modules/admin-ui/system';
 import AdminIcon from '../../components/admin/AdminIcon.astro';
 import { todoItems } from '../../modules/admin-ui/todo';
+import { dashboardCounters } from '../../modules/admin-ui/counters';
 import PageHeader from '../../components/admin/PageHeader.astro';
 import EmptyState from '../../components/admin/EmptyState.astro';
 import Card from '../../components/admin/Card.astro';
@@ -40,6 +41,7 @@ const ratio = (r: Ratio) =>
         pct: Math.round(r.value * 100),
       });
 const todo = await todoItems(requireBindings(env).DB, auth.role);
+const counters = await dashboardCounters(requireBindings(env).DB, auth.role);
 const gettingStarted =
   can(auth.role, 'tailor.edit') &&
   (await isSystemEmpty(requireBindings(env).DB));
@@ -70,6 +72,16 @@ const segments = (() => {
     title={en.adminDashboardHeading}
     sub="What needs attention and how enquiries are going."
   />
+  {counters.length > 0 && (
+    <section class="counters" aria-label="At a glance">
+      {counters.map((c) => (
+        <a class="counter" href={c.href} data-counter={c.key}>
+          <span class="counter__value">{c.count}</span>
+          <span class="counter__label">{c.label}</span>
+        </a>
+      ))}
+    </section>
+  )}
   <section class="card todo" aria-labelledby="todo-heading">
     <h2 id="todo-heading">What needs you now</h2>
     {todo.length === 0 ? (

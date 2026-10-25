@@ -4,7 +4,7 @@ Each task: acceptance, how to verify, files. Requirement IDs are from the spec.
 
 ## Phase A
 
-- [ ] **A1 Dashboard counters (FR-ADM-10).** Four large counters at the top, each a link: new requests, join requests waiting, tailors ready to publish, orders opened today; a role sees only counters it may open.
+- [x] **A1 Dashboard counters (FR-ADM-10). Done 2026-10-25.** Four large counters at the top, each a link: new requests, join requests waiting, tailors ready to publish, orders opened today; a role sees only counters it may open.
   - Verify: unit test of the counter query per role; integration test of the page for owner and viewer; at 375 px all four visible without scrolling (e2e).
   - Files: `src/modules/admin-ui/counters.ts` (new), `src/pages/admin/index.astro`, `src/styles/admin.css`, `src/i18n/en.ts`, tests.
 - [ ] **A2 Reply time and the 24h flag (FR-ADM-11, FR-ADM-12).** "Average time to first reply" in the figures; New requests older than 24 h show "waiting 24h+" (text) and sort oldest first.
