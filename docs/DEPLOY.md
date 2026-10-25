@@ -207,6 +207,15 @@ npx wrangler d1 execute DB --remote --env staging --file=seeds/launch.sql
 
 (Running it twice does no harm: it skips what exists.)
 
+### D2b. Load the sample shop (staging only, optional)
+The free plan has no photo storage, so the shop would be empty. This loads 10 made-up products (Timor-style woven cloth, shirts, a blazer, fabric, a sewing kit) that use the site's own licensed photos. Prices are samples. **Staging only: never run this on production.**
+
+```bash
+npx wrangler d1 execute DB --remote --env staging --file=seeds/staging-shop.sql
+```
+
+Remove them again with `--file=seeds/staging-shop-remove.sql`. Running the first command twice does no harm.
+
 ### D3. Build and deploy staging
 The build must be told which environment it is for:
 

@@ -1,7 +1,8 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
-import { requireBindings } from '../../../modules/config';
+import { photosEnabled, requireBindings } from '../../../modules/config';
+import { standInUrl } from '../../../modules/media/stand-in';
 import { parseProductKey } from '../../../modules/media/keys';
 
 const notFound = () => new Response('Not found', { status: 404 });
@@ -17,6 +18,16 @@ export const GET: APIRoute = async ({ params }) => {
     .bind(parsed.productId, parsed.imageKey)
     .first();
   if (!allowed) return notFound();
+  // No photo storage: the sample shop's photos are the site's own scene photos (src/modules/media/stand-in.ts).
+  if (!photosEnabled(env)) {
+    const stand = await standInUrl(parsed.imageKey, parsed.variant);
+    return stand
+      ? new Response(null, {
+          status: 302,
+          headers: { Location: stand, 'Cache-Control': 'public, max-age=60' },
+        })
+      : notFound();
+  }
   const object = await MEDIA_PUBLIC.get(params.key as string);
   if (!object) return notFound();
   return new Response(object.body, {

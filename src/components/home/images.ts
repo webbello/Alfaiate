@@ -1,7 +1,7 @@
 // Every scene photo on the home page, in one place (files and credits: public/images/site/CREDITS.md). Replace a photo by
 // dropping new files with the same name and widths there and updating its credit; nothing else needs to change.
 // These are licensed stock scenes: they are never shown as, or next to, a listed tailor's own work (BR-06, BR-11).
-const SCENES = {
+export const SCENES = {
   hero: { widths: [800, 1600], ratio: [2, 3] },
   custom: { widths: [400, 800], ratio: [5, 4] },
   traditional: { widths: [400, 800], ratio: [5, 4] },
