@@ -39,7 +39,10 @@ export type AuditAction =
   | 'portal_login'
   | 'portal_login_failed'
   | 'portal_account_activated'
-  | 'portal_submitted';
+  | 'portal_submitted'
+  | 'referral_inbox_sent'
+  | 'referral_inbox_taken_back'
+  | 'referral_tailor_answered';
 
 type Entry = {
   userId: number | null;

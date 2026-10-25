@@ -18,6 +18,9 @@ CREATE TABLE referral (
   fee_status TEXT NOT NULL DEFAULT 'not_due' CHECK (fee_status IN ('not_due', 'due', 'paid', 'waived', 'disputed')),
   fee_paid_at TEXT,
   closed_reason TEXT,
+  -- The tailor's inbox (FR-TPO-09..12): when staff sent this referral to the tailor's portal (NULL = the tailor sees nothing), and the reason a tailor gave on declining.
+  shared_to_inbox_at TEXT,
+  decline_reason TEXT CHECK (decline_reason IS NULL OR decline_reason IN ('too_far', 'too_busy', 'not_my_work', 'other')),
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   CHECK (completion_reported_at IS NULL OR completion_reported_by IS NOT NULL),

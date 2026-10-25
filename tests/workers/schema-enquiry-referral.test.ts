@@ -324,6 +324,31 @@ describe('referral', () => {
   });
 });
 
+describe('referral inbox columns (FR-TPO-09..12)', () => {
+  it('starts hidden from the tailor and keeps only the fixed decline reasons', async () => {
+    const e = await addEnquiry();
+    const t = await addTailor('approved');
+    const r = (await addReferral(e, t)).meta.last_row_id;
+    const row = await first<{
+      shared_to_inbox_at: string | null;
+      decline_reason: string | null;
+    }>(
+      'SELECT shared_to_inbox_at, decline_reason FROM referral WHERE id = ?',
+      r,
+    );
+    expect(row).toEqual({ shared_to_inbox_at: null, decline_reason: null });
+    for (const reason of ['too_far', 'too_busy', 'not_my_work', 'other'])
+      await run(
+        'UPDATE referral SET decline_reason = ? WHERE id = ?',
+        reason,
+        r,
+      );
+    await expect(
+      run("UPDATE referral SET decline_reason = 'because' WHERE id = ?", r),
+    ).rejects.toThrow();
+  });
+});
+
 describe('internal_note', () => {
   it('belongs to exactly one of enquiry, tailor or referral', async () => {
     const user = await addUser();
