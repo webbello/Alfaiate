@@ -2,6 +2,8 @@ export type Referral = {
   id: number;
   tailor_id: number;
   tailor_name: string;
+  /** The tailor's own number for a WhatsApp message: public WhatsApp, else private phone, else public phone (admin pages only). */
+  tailor_number: string | null;
   forwarded_at: string | null;
   forwarded_via: string | null;
   fields_shared_note: string | null;
@@ -21,7 +23,7 @@ export type ReferralFees = {
   fee_paid_at: string | null;
 };
 
-const BASE = `r.id, r.tailor_id, t.display_name AS tailor_name, r.forwarded_at, r.forwarded_via, r.fields_shared_note, r.tailor_response,
+const BASE = `r.id, r.tailor_id, t.display_name AS tailor_name, COALESCE(t.whatsapp_e164, t.private_phone, t.phone_e164) AS tailor_number, r.forwarded_at, r.forwarded_via, r.fields_shared_note, r.tailor_response,
   r.responded_at, r.completion_reported_at, r.completion_reported_by, r.closed_reason, r.created_at`;
 const FEES =
   'r.order_value_note, r.fee_basis_note, r.fee_amount, r.fee_status, r.fee_paid_at';

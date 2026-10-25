@@ -10,7 +10,7 @@ Each task: acceptance, how to verify, files. Requirement IDs are from the spec.
 - [x] **A2 Reply time and the 24h flag (FR-ADM-11, FR-ADM-12). Done 2026-10-25: the reply-time figure already existed as M8 "Time to first contact (reported)" (first move to contacted or referred), so only the flag and the order were built.** "Average time to first reply" in the figures; New requests older than 24 h show "waiting 24h+" (text) and sort oldest first.
   - Verify: unit tests with fixed dates (exactly 24 h, none replied, one replied); list order test.
   - Files: `src/modules/reporting/metrics.ts`, `src/modules/enquiry/queries.ts`, `src/pages/admin/enquiries.astro`, tests.
-- [ ] **A3 WhatsApp buttons (FR-ADM-13).** "WhatsApp customer" on a request, "WhatsApp tailor" on a referral; message has the reference only; plain line when no number.
+- [x] **A3 WhatsApp buttons (FR-ADM-13). Done 2026-10-25 (a customer who asked for phone calls gets "Call customer" instead).** "WhatsApp customer" on a request, "WhatsApp tailor" on a referral; message has the reference only; plain line when no number.
   - Verify: unit test that the message contains the reference and nothing else of the request; integration test of both pages.
   - Files: `src/modules/contact-links/whatsapp.ts` (reuse), `src/pages/admin/enquiries/[id].astro`, tests.
 - [ ] **A4 Global search (FR-ADM-14).** Search box in the top bar; `/admin/search?q=` returns requests, tailors and orders by reference, name or phone within the role's rights; nothing logged; query not kept in analytics.

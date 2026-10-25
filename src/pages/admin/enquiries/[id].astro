@@ -19,6 +19,10 @@ import {
 } from '../../../modules/enquiry/status';
 import { forwardingText } from '../../../modules/enquiry/forwarding';
 import {
+  customerReach,
+  tailorWhatsapp,
+} from '../../../modules/contact-links/admin-links';
+import {
   approvedTailors,
   listReferrals,
 } from '../../../modules/referral/queries';
@@ -51,6 +55,7 @@ const tailors =
     ? await approvedTailors(DB, e.preferred_tailor_id)
     : [];
 const forward = forwardingText(e);
+const reach = customerReach(e);
 const step = nextStep({
   status: e.status,
   anonymised: Boolean(e.anonymised_at),
@@ -103,7 +108,24 @@ const action = `/admin/enquiries/${id}/actions`;
             </>
           )}
           <dt>{text.number}</dt>
-          <dd>{e.contact_number_e164 ?? text.anonymised}</dd>
+          <dd>
+            {e.contact_number_e164 ?? text.anonymised}
+            {reach && (
+              <>
+                {' '}
+                <a
+                  class="button-link"
+                  href={reach.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {reach.kind === 'call'
+                    ? text.callCustomer
+                    : text.whatsappCustomer}
+                </a>
+              </>
+            )}
+          </dd>
           {e.contact_channel && (
             <>
               <dt>{text.channel}</dt>
@@ -270,6 +292,20 @@ const action = `/admin/enquiries/${id}/actions`;
               date: r.created_at.slice(0, 10),
             })}
           </h3>
+          <p>
+            {tailorWhatsapp(r.tailor_number, e.reference_code) ? (
+              <a
+                class="button-link"
+                href={tailorWhatsapp(r.tailor_number, e.reference_code)!}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {ref.whatsappTailor}
+              </a>
+            ) : (
+              <small>{ref.noTailorNumber}</small>
+            )}
+          </p>
           {canReferral ? (
             <form
               method="post"

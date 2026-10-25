@@ -498,6 +498,8 @@ export const en = {
     tailor: 'Approved tailor',
     createButton: 'Create referral',
     refLabel: 'Referral to {name} (created {date})',
+    whatsappTailor: 'WhatsApp tailor',
+    noTailorNumber: 'No number is saved for this tailor.',
     forwardedAt: 'Forwarded on',
     forwardedVia: 'Forwarded by',
     via: {
@@ -643,6 +645,8 @@ export const en = {
     anonymiseButton: 'Anonymise permanently',
     spamMark: 'spam',
     waiting: 'Waiting 24h+',
+    whatsappCustomer: 'WhatsApp customer',
+    callCustomer: 'Call customer',
     statuses: {
       new: 'New',
       contacted: 'Contacted',
