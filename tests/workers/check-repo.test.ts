@@ -131,6 +131,20 @@ describe('check:repo licensed scene photos', () => {
   });
 });
 
+describe('check:repo admin app icons', () => {
+  it('accepts exactly the three generated admin icons and nothing else of that kind', () => {
+    for (const size of [180, 192, 512])
+      expect(problems(file(`public/admin-icon-${size}.png`, null))).toEqual([]);
+    for (const bad of [
+      'public/admin-icon-256.png',
+      'public/admin-icon-512.jpg',
+      'public/other-512.png',
+      'public/images/admin-icon-512.png',
+    ])
+      expect(problems(file(bad, null)).length, bad).toBeGreaterThanOrEqual(1);
+  });
+});
+
 describe('check:repo credits are read from the first column only', () => {
   it('does not credit a file whose name appears only in another column', () => {
     const credits = file(

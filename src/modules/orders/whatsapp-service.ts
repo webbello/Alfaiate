@@ -1,4 +1,5 @@
 import { hit } from '../auth/rate-limit';
+import { notifyNewEnquiry, type Notifier } from '../notify';
 import { whatsappLink } from '../contact-links/whatsapp';
 import { REFERENCE_ALPHABET } from '../enquiry/reference';
 import { orderMessage } from './messages';
@@ -45,6 +46,9 @@ export function whatsappOrderService(deps: {
   db: D1Database;
   adminNumber: string | null;
   siteName: string;
+  /** Best-effort owner alert for each new order (FR-ADM-20): the reference and an admin link only, never what was ordered. */
+  notify?: Notifier;
+  waitUntil?: (p: Promise<unknown>) => void;
 }): OrderService {
   return {
     async place({ lines, siteUrl, clientKey }): Promise<PlaceResult> {
@@ -180,6 +184,14 @@ export function whatsappOrderService(deps: {
           ),
         )
         .run();
+      if (deps.notify) {
+        const sent = notifyNewEnquiry(
+          { reference, adminUrl: `${siteUrl}/admin/orders`, kind: 'order' },
+          deps.notify,
+        );
+        if (deps.waitUntil) deps.waitUntil(sent);
+        else await sent;
+      }
       return { ok: true, order: { reference, groups: built, skipped } };
     },
   };

@@ -28,6 +28,8 @@ const CONTENT_RULES = [
 // `public/images/site/CREDITS.md` as `| <name> |`. Tailor and customer photos never go here: they live in R2.
 const SITE_PHOTO = /^public\/images\/site\/([a-z0-9-]+?)-\d+\.webp$/;
 const CREDITS = 'public/images/site/CREDITS.md';
+// The three home-screen icons of the admin (FR-ADM-19) are drawn by scripts/make-admin-icons.mjs (a letter and a line, no photograph): exactly these names are allowed.
+const APP_ICON = /^public\/admin-icon-(180|192|512)\.png$/;
 function creditedPhotos(files) {
   const text = files.find((f) => f.path === CREDITS)?.text ?? '';
   // only the first column of a table row is a name; a lowercase word anywhere else must not credit a file
@@ -36,7 +38,7 @@ function creditedPhotos(files) {
   );
   return (path) => {
     const m = SITE_PHOTO.exec(path);
-    return m !== null && names.has(m[1]);
+    return (m !== null && names.has(m[1])) || APP_ICON.test(path);
   };
 }
 

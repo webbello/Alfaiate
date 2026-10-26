@@ -6,6 +6,10 @@ import {
   MAX_ORDER_LINES,
   whatsappOrderService,
 } from '../../src/modules/orders/whatsapp-service';
+import {
+  notificationText,
+  type NewEnquiryNotice,
+} from '../../src/modules/notify';
 
 // Shop S6: the cart becomes a WhatsApp order. Prices and sellers come from the database, and staff decide where each part goes.
 const db = env.DB;
@@ -353,5 +357,57 @@ describe('the WhatsApp order service', () => {
     for (let i = 0; i < 30; i++)
       last = await place([{ slug: a.slug, quantity: 1 }], ADMIN, key);
     expect(last).toEqual({ ok: false, error: 'limited' });
+  });
+
+  it('tells the owner about a new order with the reference and an admin link only, never what was ordered, and a failing sender never breaks the order (FR-ADM-20)', async () => {
+    const a = await product({ name: 'Alert Secret Shirt Fake' });
+    const seen: NewEnquiryNotice[] = [];
+    const notifying = whatsappOrderService({
+      db,
+      adminNumber: ADMIN,
+      siteName: 'Alfaiate TL',
+      notify: async (notice) => void seen.push(notice),
+    });
+    const placed = await notifying.place({
+      lines: [{ slug: a.slug, quantity: 2 }],
+      lang: 'en',
+      siteUrl: SITE,
+    });
+    expect(placed.ok).toBe(true);
+    const reference = placed.ok ? placed.order.reference : '';
+    expect(seen).toEqual([
+      { reference, adminUrl: `${SITE}/admin/orders`, kind: 'order' },
+    ]);
+    const text = notificationText(seen[0]!);
+    expect(text).toBe(
+      `New shop order ${reference}. Open it: ${SITE}/admin/orders`,
+    );
+    expect(text).not.toContain('Alert Secret Shirt Fake');
+
+    const failing = whatsappOrderService({
+      db,
+      adminNumber: ADMIN,
+      siteName: 'Alfaiate TL',
+      notify: async () => {
+        throw new Error('sender down');
+      },
+    });
+    expect(
+      (
+        await failing.place({
+          lines: [{ slug: a.slug, quantity: 1 }],
+          lang: 'en',
+          siteUrl: SITE,
+        })
+      ).ok,
+    ).toBe(true);
+    // no alert when nothing was ordered
+    const none = await notifying.place({
+      lines: [],
+      lang: 'en',
+      siteUrl: SITE,
+    });
+    expect(none.ok).toBe(false);
+    expect(seen).toHaveLength(1);
   });
 });

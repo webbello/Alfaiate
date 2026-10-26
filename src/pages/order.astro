@@ -1,7 +1,8 @@
 ---
 export const prerender = false;
 import Order from '../theme/views/Order.astro';
-import { env } from 'cloudflare:workers';
+import { env, waitUntil } from 'cloudflare:workers';
+import { webhookNotifier } from '../modules/notify/webhook';
 import { requireBindings, siteConfig } from '../modules/config';
 import { orderService } from '../modules/orders';
 import { productParams, productQuantities } from '../modules/enquiry/schema';
@@ -30,6 +31,12 @@ const result = await orderService(
     SITE_WHATSAPP: (env as { SITE_WHATSAPP?: string }).SITE_WHATSAPP,
   },
   dictionary('en').siteName,
+  {
+    notify: webhookNotifier(
+      (env as { NOTIFY_WEBHOOK_URL?: string }).NOTIFY_WEBHOOK_URL,
+    ),
+    waitUntil,
+  },
 ).place({
   lines: slugs.map((slug) => ({ slug, quantity: qty[slug] ?? 1 })),
   lang: 'en',

@@ -1,5 +1,6 @@
 import { orderWhatsapp } from '../config';
 import { whatsappOrderService } from './whatsapp-service';
+import type { Notifier } from '../notify';
 import type { OrderService } from './types';
 
 /**
@@ -10,11 +11,13 @@ import type { OrderService } from './types';
 export function orderService(
   env: { DB: D1Database; ORDER_WHATSAPP?: string; SITE_WHATSAPP?: string },
   siteName: string,
+  alert?: { notify?: Notifier; waitUntil?: (p: Promise<unknown>) => void },
 ): OrderService {
   return whatsappOrderService({
     db: env.DB,
     adminNumber: orderWhatsapp(env),
     siteName,
+    ...alert,
   });
 }
 

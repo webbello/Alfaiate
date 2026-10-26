@@ -33,10 +33,10 @@ Each task: acceptance, how to verify, files. Requirement IDs are from the spec.
   - Verify: unit tests with a fake clock (29 days kept, 30 ended, unticked ends at 30 minutes idle); integration test of the cookie lifetime and of switch-off.
   - Ask first: a column on the session table (owner approves the migration wording).
   - Files: `src/modules/auth/session.ts`, `src/modules/auth/login.ts`, `src/pages/admin/login.astro`, `src/pages/admin/account.astro`, tests.
-- [ ] **B2 Add to home screen (FR-ADM-19).** Manifest "Alfaiate Admin", icon (wordmark tile, draft OQ-A3), standalone, scope `/admin`; linked only from admin pages; no service worker.
+- [x] **B2 Add to home screen (FR-ADM-19). Done 2026-10-26 (manifest, three icons, links on admin pages only, no service worker).** Manifest "Alfaiate Admin", icon (wordmark tile, draft OQ-A3), standalone, scope `/admin`; linked only from admin pages; no service worker.
   - Verify: integration test of the manifest and its link; the public pages do not link it; CSP unchanged.
   - Files: `public/admin.webmanifest`, `public/images/admin-icon-*.png`, `src/layouts/AdminLayout.astro`.
-- [ ] **B3 Order alert (FR-ADM-20).** New notice kind `order`; sent best-effort after an order is recorded; text has the reference and an admin link only.
+- [x] **B3 Order alert (FR-ADM-20). Done 2026-10-26.** New notice kind `order`; sent best-effort after an order is recorded; text has the reference and an admin link only.
   - Verify: unit test of `notificationText`; test that a failing sender does not break the order; no item or customer text in the notice.
   - Files: `src/modules/notify/index.ts`, `src/modules/orders/whatsapp-service.ts`, `src/pages/order.astro` and `src/pages/tet/order.astro`, tests.
 - [ ] **B4 Go-live gate.** Deploy staging, test on the owner's phone (install, 30-day sign-in, alerts, WhatsApp buttons, search), then production per `docs/DEPLOY.md` section E.
