@@ -3,24 +3,37 @@ import type { Entry } from '../modules/catalog';
 import { en } from '../i18n/en';
 import Flash from './admin/Flash.astro';
 import EmptyState from './admin/EmptyState.astro';
+import PageHeader from './admin/PageHeader.astro';
+import ConfirmAction from './admin/ConfirmAction.astro';
 
 interface Props {
   action: string;
   heading: string;
+  /** One line under the title: what this list is for. */
+  sub: string;
   entries: Entry[];
+  /** How many tailors use each entry. */
+  usage: Map<number, number>;
   csrf: string;
   message: string;
   kind: 'success' | 'problem';
   withDescription: boolean;
 }
-const { action, heading, entries, csrf, message, kind, withDescription } =
-  Astro.props;
+const {
+  action,
+  heading,
+  sub,
+  entries,
+  usage,
+  csrf,
+  message,
+  kind,
+  withDescription,
+} = Astro.props;
+const active = entries.filter((e) => e.is_active).length;
 ---
 
-<h1>{heading}</h1>
-<p>
-  <a href="/admin">{en.adminDashboardHeading}</a>
-</p>
+<PageHeader title={heading} {sub} />
 {message && <Flash message={message} kind={kind} />}
 {entries.length === 0 && (
   <EmptyState title={`No ${heading.toLowerCase()} yet`}>
@@ -28,58 +41,66 @@ const { action, heading, entries, csrf, message, kind, withDescription } =
   </EmptyState>
 )}
 {entries.length > 0 && (
-  <table>
-    <thead>
-      <tr>
-        <th>{en.catalogName}</th>
-        {withDescription && <th>{en.catalogDescription}</th>}
-        <th>{en.catalogOrder}</th>
-        <th>{en.adminUsersStatus}</th>
-      </tr>
-    </thead>
-    <tbody>
+  <>
+    <p class="catalog-count">
+      {entries.length} in all, {active} in use.
+    </p>
+    <ul class="catalog-list" aria-label={heading}>
       {entries.map((entry) => (
-        <tr>
-          <td colspan={withDescription ? 2 : 1}>
-            <form method="post" action={action}>
-              <input type="hidden" name="csrf" value={csrf} />
-              <input type="hidden" name="action" value="rename" />
-              <input type="hidden" name="id" value={entry.id} />
+        <li
+          class:list={['catalog-row', !entry.is_active && 'catalog-row--off']}
+        >
+          <form method="post" action={action} class="catalog-row__edit">
+            <input type="hidden" name="csrf" value={csrf} />
+            <input type="hidden" name="action" value="update" />
+            <input type="hidden" name="id" value={entry.id} />
+            <p class="catalog-row__field catalog-row__field--name">
+              <label for={`name-${entry.id}`}>{en.catalogName}</label>
               <input
+                id={`name-${entry.id}`}
                 name="name"
                 value={entry.name}
                 maxlength="80"
                 required
-                aria-label={en.catalogName}
               />
-              {withDescription && (
+            </p>
+            {withDescription && (
+              <p class="catalog-row__field catalog-row__field--desc">
+                <label for={`desc-${entry.id}`}>{en.catalogDescription}</label>
                 <input
+                  id={`desc-${entry.id}`}
                   name="description"
                   value={entry.description ?? ''}
                   maxlength="300"
-                  aria-label={en.catalogDescription}
                 />
-              )}
-              <button type="submit">{en.catalogSave}</button>
-            </form>
-          </td>
-          <td>
-            <form method="post" action={action}>
-              <input type="hidden" name="csrf" value={csrf} />
-              <input type="hidden" name="action" value="set_order" />
-              <input type="hidden" name="id" value={entry.id} />
+              </p>
+            )}
+            <p class="catalog-row__field catalog-row__field--order">
+              <label for={`order-${entry.id}`}>{en.catalogOrder}</label>
               <input
+                id={`order-${entry.id}`}
                 name="sort_order"
                 type="number"
                 value={entry.sort_order}
                 required
-                aria-label={en.catalogOrder}
               />
-              <button type="submit">{en.catalogSave}</button>
-            </form>
-          </td>
-          <td>
-            <form method="post" action={action}>
+            </p>
+            <button type="submit">{en.catalogSave}</button>
+          </form>
+          <div class="catalog-row__meta">
+            <span
+              class={
+                entry.is_active ? 'chip chip--success' : 'chip chip--neutral'
+              }
+            >
+              {entry.is_active ? en.adminUsersActive : en.adminUsersInactive}
+            </span>
+            <span class="catalog-row__used">
+              {(usage.get(entry.id) ?? 0) === 0
+                ? 'Not used by any tailor yet'
+                : `Used by ${usage.get(entry.id)} ${usage.get(entry.id) === 1 ? 'tailor' : 'tailors'}`}
+            </span>
+            <form method="post" action={action} class="catalog-row__toggle">
               <input type="hidden" name="csrf" value={csrf} />
               <input type="hidden" name="action" value="set_active" />
               <input type="hidden" name="id" value={entry.id} />
@@ -88,33 +109,35 @@ const { action, heading, entries, csrf, message, kind, withDescription } =
                 name="active"
                 value={entry.is_active ? '0' : '1'}
               />
-              {entry.is_active ? en.adminUsersActive : en.adminUsersInactive}
-              <button type="submit">
-                {entry.is_active
-                  ? en.adminUsersDeactivate
-                  : en.adminUsersReactivate}
-              </button>
+              {entry.is_active ? (
+                <ConfirmAction
+                  label={en.adminUsersDeactivate}
+                  question="Hide this from the request form and from tailors' pick lists? Tailors that already use it keep it."
+                  yes={`Yes, ${en.adminUsersDeactivate.toLowerCase()}`}
+                  danger
+                />
+              ) : (
+                <button type="submit">{en.adminUsersReactivate}</button>
+              )}
             </form>
-          </td>
-        </tr>
+          </div>
+        </li>
       ))}
-    </tbody>
-  </table>
+    </ul>
+  </>
 )}
 
 <h2>{en.catalogAdd}</h2>
-<form method="post" action={action}>
+<form method="post" action={action} class="catalog-add">
   <input type="hidden" name="csrf" value={csrf} />
   <input type="hidden" name="action" value="create" />
   <p>
     <label for="new-name">{en.catalogName}</label>
-    <br />
     <input id="new-name" name="name" maxlength="80" required />
   </p>
   {withDescription && (
     <p>
       <label for="new-description">{en.catalogDescription}</label>
-      <br />
       <input id="new-description" name="description" maxlength="300" />
     </p>
   )}

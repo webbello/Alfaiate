@@ -46,6 +46,19 @@ export async function listEntries(
   return results;
 }
 
+/** How many tailors use each entry (a type or an area), so staff see what a change touches before they make it. */
+export async function usageCounts(
+  db: D1Database,
+  kind: Kind,
+): Promise<Map<number, number>> {
+  const sql =
+    kind === 'category'
+      ? 'SELECT category_id AS id, count(DISTINCT tailor_id) AS n FROM tailor_category GROUP BY category_id'
+      : 'SELECT area_id AS id, count(DISTINCT tailor_id) AS n FROM tailor_area GROUP BY area_id';
+  const { results } = await db.prepare(sql).all<{ id: number; n: number }>();
+  return new Map(results.map((r) => [r.id, r.n]));
+}
+
 export async function createEntry(
   db: D1Database,
   actorId: number,

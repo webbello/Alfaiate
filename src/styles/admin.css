@@ -2296,3 +2296,111 @@ a.icon-button:hover {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
+
+/* ---- Garment types and areas (shared list): one row per entry with one Save, a use count, and the active switch ---- */
+.catalog-count {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+}
+.catalog-list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+.catalog-row {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(16 24 40 / 6%);
+}
+.catalog-row--off {
+  background: var(--surface-2);
+}
+.catalog-row form {
+  margin: 0;
+}
+.catalog-row__edit {
+  display: grid;
+  gap: 0.6rem 0.75rem;
+  align-items: end;
+}
+.catalog-row__edit p {
+  margin: 0;
+}
+.catalog-row__field label {
+  display: block;
+  margin: 0 0 0.2rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.catalog-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+}
+.catalog-row__used {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.catalog-row__toggle {
+  margin-left: auto;
+}
+@media (min-width: 48rem) {
+  .catalog-row__edit {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) 6rem auto;
+  }
+  .catalog-row__edit:not(:has(.catalog-row__field--desc)) {
+    grid-template-columns: minmax(0, 1fr) 6rem auto;
+  }
+}
+.catalog-add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.catalog-add p {
+  margin: 0;
+}
+.catalog-add label {
+  display: block;
+  margin: 0 0 0.2rem;
+}
+
+/* The optional text boxes of a product (details, features, returns) fold under one line, open when they hold something. */
+.more-fields {
+  margin: 0.25rem 0;
+}
+.more-fields > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+.more-fields > summary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.more-fields[open] > summary {
+  margin-bottom: 0.75rem;
+  background: var(--band);
+}
+.more-fields > p {
+  margin: 0 0 0.75rem;
+}

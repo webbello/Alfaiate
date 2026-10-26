@@ -13,7 +13,25 @@ import { listProducts, priceInput } from '../../modules/shop/products';
 
 const auth = await requirePermission(Astro, 'product.edit');
 if (auth instanceof Response) return auth;
-const products = await listProducts(requireBindings(env).DB);
+const params = Astro.url.searchParams;
+const q = (params.get('q') ?? '').trim().slice(0, 60);
+const status =
+  params.get('status') === 'published'
+    ? 'published'
+    : params.get('status') === 'draft'
+      ? 'draft'
+      : '';
+const everything = await listProducts(requireBindings(env).DB);
+const needle = q.toLowerCase();
+const products = everything.filter(
+  (p) =>
+    (status === '' || Boolean(p.is_published) === (status === 'published')) &&
+    (needle === '' ||
+      p.name.toLowerCase().includes(needle) ||
+      (p.seller_name ?? 'alfaiate tl').toLowerCase().includes(needle) ||
+      (p.category_name ?? '').toLowerCase().includes(needle)),
+);
+const live = everything.filter((p) => p.is_published).length;
 ---
 
 <AdminLayout
@@ -29,7 +47,39 @@ const products = await listProducts(requireBindings(env).DB);
       Add a product
     </a>
   </PageHeader>
-  {products.length === 0 && (
+  {everything.length > 0 && (
+    <p class="catalog-count">
+      {everything.length} in all: {live} published, {everything.length - live}{' '}
+      draft.
+    </p>
+  )}
+  {everything.length > 0 && (
+    <form method="get" action="/admin/products" class="searchbar" role="search">
+      <p>
+        <label for="product-q">Find a product by name, type or seller</label>
+        <input type="search" id="product-q" name="q" value={q} maxlength="60" />
+      </p>
+      <p>
+        <label for="product-status">Show</label>
+        <select id="product-status" name="status">
+          <option value="" selected={status === ''}>
+            All
+          </option>
+          <option value="published" selected={status === 'published'}>
+            Published
+          </option>
+          <option value="draft" selected={status === 'draft'}>
+            Drafts
+          </option>
+        </select>
+      </p>
+      <p>
+        <button type="submit">Search</button>
+        {(q || status) && <a href="/admin/products">Clear</a>}
+      </p>
+    </form>
+  )}
+  {everything.length === 0 && (
     <EmptyState title="No products yet">
       <p>
         Add the first product. It stays hidden until someone with publish rights
@@ -37,42 +87,80 @@ const products = await listProducts(requireBindings(env).DB);
       </p>
     </EmptyState>
   )}
+  {everything.length > 0 && products.length === 0 && (
+    <EmptyState title="No product matches">
+      <p>Try a different word, or clear the search.</p>
+      <p>
+        <a class="button-link" href="/admin/products">
+          Show every product
+        </a>
+      </p>
+    </EmptyState>
+  )}
   {products.length > 0 && (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Product</th>
-          <th scope="col">Type</th>
-          <th scope="col">Seller</th>
-          <th scope="col">Price (USD)</th>
-          <th scope="col">Status</th>
-        </tr>
-      </thead>
-      <tbody>
+    <>
+      <ul class="req-cards" aria-label={en.adminNavProducts}>
         {products.map((p) => (
-          <tr>
-            <td>
-              <a href={`/admin/products/${p.id}`}>{p.name}</a>
-            </td>
-            <td>{p.category_name ?? '–'}</td>
-            <td>{p.seller_name ?? 'Alfaiate TL'}</td>
-            <td>{priceInput(p) || '–'}</td>
-            <td>
+          <li class="req-card">
+            <p class="req-card__top">
+              <a class="req-card__ref" href={`/admin/products/${p.id}`}>
+                {p.name}
+              </a>
               <StatusChip
                 state={p.is_published ? 'published' : 'draft'}
                 label={p.is_published ? 'Published' : 'Draft'}
               />
               {p.availability === 'unavailable' && (
-                <>
-                  {' '}
-                  <StatusChip state="suspended" label="Unavailable" />
-                </>
+                <StatusChip state="suspended" label="Unavailable" />
               )}
-            </td>
-          </tr>
+            </p>
+            <p class="req-card__wants">
+              {[p.category_name, p.seller_name ?? 'Alfaiate TL']
+                .filter(Boolean)
+                .join(' · ')}
+            </p>
+            <p class="req-card__time">
+              {priceInput(p) ? `US$ ${priceInput(p)}` : 'No price'}
+            </p>
+          </li>
         ))}
-      </tbody>
-    </table>
+      </ul>
+      <table class="req-table">
+        <thead>
+          <tr>
+            <th scope="col">Product</th>
+            <th scope="col">Type</th>
+            <th scope="col">Seller</th>
+            <th scope="col">Price (USD)</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((p) => (
+            <tr>
+              <td>
+                <a href={`/admin/products/${p.id}`}>{p.name}</a>
+              </td>
+              <td>{p.category_name ?? '–'}</td>
+              <td>{p.seller_name ?? 'Alfaiate TL'}</td>
+              <td>{priceInput(p) || '–'}</td>
+              <td>
+                <StatusChip
+                  state={p.is_published ? 'published' : 'draft'}
+                  label={p.is_published ? 'Published' : 'Draft'}
+                />
+                {p.availability === 'unavailable' && (
+                  <>
+                    {' '}
+                    <StatusChip state="suspended" label="Unavailable" />
+                  </>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   )}
   {!can(auth.role, 'product.publish') && (
     <p class="hint">

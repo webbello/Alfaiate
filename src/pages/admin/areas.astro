@@ -10,7 +10,7 @@ import { requireBindings } from '../../modules/config';
 import { requirePermission } from '../../modules/auth/require';
 import { verifyCsrf } from '../../modules/auth/csrf';
 import { SESSION_COOKIE } from '../../modules/auth/session';
-import { listEntries } from '../../modules/catalog';
+import { listEntries, usageCounts } from '../../modules/catalog';
 import { applyCatalogForm } from '../../modules/catalog/admin-actions';
 
 const auth = await requirePermission(Astro, 'tailor.edit');
@@ -43,6 +43,8 @@ const message = Object.hasOwn(en.adminMessages, code)
     action="/admin/areas"
     heading={en.adminNavAreas}
     entries={await listEntries(DB, 'area')}
+    usage={await usageCounts(DB, 'area')}
+    sub="Neighbourhoods customers and tailors pick from. The order here is the order on the request form."
     csrf={auth.csrfToken}
     message={message}
     kind={messageKind(code)}

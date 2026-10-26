@@ -17,17 +17,50 @@ import {
 const auth = await requirePermission(Astro, 'tailor.edit');
 if (auth instanceof Response) return auth;
 
-const published = Astro.url.searchParams.get('published');
-const tailors = await listTailors(
-  requireBindings(env).DB,
-  published === '1' || published === '0'
-    ? { published: published === '1' }
-    : {},
-);
-const notReady = tailors.filter(
+const params = Astro.url.searchParams;
+const published = params.get('published');
+const q = (params.get('q') ?? '').trim().slice(0, 60);
+const sort = params.get('sort') === 'updated' ? 'updated' : 'name';
+const everyone = await listTailors(requireBindings(env).DB, {});
+const needle = q.toLowerCase();
+const digits = q.replace(/\D/g, '');
+const tailors = everyone
+  .filter(
+    (t) =>
+      (published !== '1' && published !== '0') ||
+      Boolean(t.is_published) === (published === '1'),
+  )
+  .filter(
+    (t) =>
+      needle === '' ||
+      t.display_name.toLowerCase().includes(needle) ||
+      t.slug.includes(needle) ||
+      (digits.length >= 3 &&
+        [t.whatsapp_e164, t.phone_e164].some((n) => n?.includes(digits))),
+  )
+  .sort((x, y) =>
+    sort === 'updated'
+      ? y.updated_at.localeCompare(x.updated_at)
+      : x.display_name.localeCompare(y.display_name),
+  );
+const live = everyone.filter((t) => t.is_published).length;
+const notReady = everyone.filter(
   (t) => !t.is_published && publishChecklist(t).some((i) => !i.done),
 ).length;
+const ready = everyone.length - live - notReady;
 const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const keep = (extra: Record<string, string>) => {
+  const next = new URLSearchParams();
+  if (published === '0' || published === '1') next.set('published', published);
+  if (q) next.set('q', q);
+  if (sort === 'updated') next.set('sort', 'updated');
+  for (const [k, v] of Object.entries(extra)) {
+    if (v) next.set(k, v);
+    else next.delete(k);
+  }
+  const text = next.toString();
+  return `/admin/tailors${text ? `?${text}` : ''}`;
+};
 ---
 
 <AdminLayout
@@ -50,7 +83,41 @@ const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
       <a href="/admin/tailors?published=0">{en.tailorNotPublished}</a>
     </nav>
   </div>
-  {tailors.length === 0 && (
+  {everyone.length > 0 && (
+    <p class="catalog-count">
+      {everyone.length} in all: {live} published, {ready} ready to publish. Not
+      ready to publish: {notReady}
+    </p>
+  )}
+  {everyone.length > 0 && (
+    <form method="get" action="/admin/tailors" class="searchbar" role="search">
+      {(published === '0' || published === '1') && (
+        <input type="hidden" name="published" value={published} />
+      )}
+      <p>
+        <label for="tailor-q">Find a tailor by name or phone</label>
+        <input type="search" id="tailor-q" name="q" value={q} maxlength="60" />
+      </p>
+      <p>
+        <label for="tailor-sort">Sort by</label>
+        <select id="tailor-sort" name="sort">
+          <option value="name" selected={sort === 'name'}>
+            Name
+          </option>
+          <option value="updated" selected={sort === 'updated'}>
+            Recently changed
+          </option>
+        </select>
+      </p>
+      <p>
+        <button type="submit">Search</button>
+        {(q || sort === 'updated') && (
+          <a href={keep({ q: '', sort: '' })}>Clear</a>
+        )}
+      </p>
+    </form>
+  )}
+  {everyone.length === 0 && (
     <EmptyState title="No tailors yet">
       <p>
         Add the first tailor, then follow the checklist on their page to
@@ -63,15 +130,45 @@ const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
       </p>
     </EmptyState>
   )}
+  {everyone.length > 0 && tailors.length === 0 && (
+    <EmptyState title="No tailor matches">
+      <p>Try a different name or number, or clear the search.</p>
+      <p>
+        <a class="button-link" href="/admin/tailors">
+          Show every tailor
+        </a>
+      </p>
+    </EmptyState>
+  )}
   {tailors.length > 0 && (
     <>
-      <p>Not ready to publish: {notReady}</p>
-      <table>
+      <ul class="req-cards" aria-label={en.tailorListHeading}>
+        {tailors.map((t) => (
+          <li class="req-card">
+            <p class="req-card__top">
+              <a class="req-card__ref" href={`/admin/tailors/${t.id}`}>
+                {t.display_name}
+              </a>
+              <StatusChip state={t.status} label={label(t.status)} />
+              {t.is_published ? (
+                <StatusChip state="published" label={en.tailorPublished} />
+              ) : null}
+            </p>
+            {!t.is_published && (
+              <p class="req-card__wants">{missingSummary(t)}</p>
+            )}
+            <p class="req-card__time">Changed {t.updated_at.slice(0, 10)}</p>
+          </li>
+        ))}
+      </ul>
+      <table class="req-table">
         <thead>
           <tr>
             <th>{en.tailorFields.display_name}</th>
             <th>{en.tailorStatus}</th>
             <th>Publishing</th>
+            <th>Contact</th>
+            <th>Changed</th>
           </tr>
         </thead>
         <tbody>
@@ -90,6 +187,16 @@ const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
                   <small>{missingSummary(t)}</small>
                 )}
               </td>
+              <td>
+                {t.whatsapp_e164 ? (
+                  'WhatsApp'
+                ) : t.phone_e164 ? (
+                  'Phone'
+                ) : (
+                  <small>No number</small>
+                )}
+              </td>
+              <td>{t.updated_at.slice(0, 10)}</td>
             </tr>
           ))}
         </tbody>
