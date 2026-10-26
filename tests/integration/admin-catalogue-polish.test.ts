@@ -207,3 +207,84 @@ describe('one page header on every admin list page', () => {
     }
   });
 });
+
+// Batch C: Join requests (filter, contact buttons), Orders (search, cards), Enquiries (source and waiting filters).
+describe('join requests, orders and enquiries lists', () => {
+  it('Join requests: chips filter by decision, waiting ones come first and carry Call and WhatsApp with the reference only', async () => {
+    const n = unique();
+    const owner = await signIn('owner');
+    await run(
+      "INSERT INTO tailor_interest (reference_code, contact_name, phone_e164, consent_contact, consent_text_version, consent_at, decision) VALUES (?, 'Polish Fake Waiting', '+67070009101', 1, 'v1', '2026-01-01T00:00:00Z', 'pending')",
+      `JN-${n}A`,
+    );
+    await run(
+      "INSERT INTO tailor_interest (reference_code, contact_name, phone_e164, consent_contact, consent_text_version, consent_at, decision, decided_at) VALUES (?, 'Polish Fake Declined', '+67070009102', 1, 'v1', '2026-01-02T00:00:00Z', 'declined', '2026-01-03T00:00:00Z')",
+      `JN-${n}B`,
+    );
+    const all = await (await get('/admin/interest', owner)).text();
+    expect(all).toMatch(/Waiting for you \d+/);
+    expect(all.indexOf('Polish Fake Waiting')).toBeLessThan(
+      all.indexOf('Polish Fake Declined'),
+    );
+    expect(all).toContain('href="tel:+67070009101"');
+    expect(all).toContain('https://wa.me/67070009101?text=');
+    expect(all).not.toContain('tel:+67070009102'); // decided rows get no contact buttons
+    expect(
+      decodeURIComponent(/wa\.me\/67070009101\?text=([^"]+)"/.exec(all)![1]!),
+    ).not.toContain('Polish');
+    const declined = await (
+      await get('/admin/interest?show=declined', owner)
+    ).text();
+    expect(declined).toContain('Polish Fake Declined');
+    expect(declined).not.toContain('Polish Fake Waiting');
+  });
+
+  it('Orders: search by reference, with phone cards beside the table', async () => {
+    const n = unique();
+    const owner = await signIn('owner');
+    await run(
+      'INSERT INTO shop_order (reference_code, total_cents, items_json, routes_json) VALUES (?, 1500, \'[{"name":"Polish Cloth","quantity":2}]\', \'[]\')',
+      `OR-ZP${String(n).padStart(6, '0')}`,
+    );
+    const hit = await (
+      await get(`/admin/orders?q=ZP${String(n).padStart(6, '0')}`, owner)
+    ).text();
+    expect(hit).toContain(`OR-ZP${String(n).padStart(6, '0')}`);
+    expect(hit).toContain('Polish Cloth × 2');
+    expect(hit).toContain('class="req-cards"');
+    const miss = await (await get('/admin/orders?q=zzzznomatch', owner)).text();
+    expect(miss).toContain('No order matches');
+    const wild = await (
+      await get('/admin/orders?q=%25%5C%F0%9F%98%80', owner)
+    ).text();
+    expect(wild).toContain('No order matches'); // % \ and emoji do not break the LIKE
+  });
+
+  it('Enquiries: filter by where it came from and by waiting over 24 hours', async () => {
+    const n = unique();
+    const owner = await signIn('owner');
+    const mk = (ref: string, source: string, created: string) =>
+      run(
+        "INSERT INTO enquiry (reference_code, customer_name, contact_number_e164, contact_channel, consent_shared_with_tailor, consent_text_version, consent_at, status, source, created_at) VALUES (?, 'Polish Fake Customer', '+67070009103', 'phone', 1, 'v1', '2026-01-01T00:00:00Z', 'new', ?, ?)",
+        ref,
+        source,
+        created,
+      );
+    await mk(`AT-PS${n}`, 'shop', '2020-01-01T00:00:00.000Z');
+    await mk(`AT-PF${n}`, 'form', new Date().toISOString());
+    const shop = await (
+      await get(`/admin/enquiries?source=shop&q=P${'S'}${n}`, owner)
+    ).text();
+    expect(shop).toContain(`AT-PS${n}`);
+    const formOnly = await (
+      await get(`/admin/enquiries?source=form&q=PS${n}`, owner)
+    ).text();
+    expect(formOnly).not.toContain(`AT-PS${n}`);
+    const waiting = await (
+      await get('/admin/enquiries?waiting=1', owner)
+    ).text();
+    expect(waiting).toContain(`AT-PS${n}`);
+    expect(waiting).not.toContain(`AT-PF${n}`);
+    expect(waiting).toContain('<option value="" selected>Anywhere</option>');
+  });
+});

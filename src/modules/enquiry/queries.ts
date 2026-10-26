@@ -1,4 +1,5 @@
 import { fitLike, likeAnywhere } from '../db/like';
+import { REPLY_WITHIN_HOURS } from './waiting';
 export type Choice = { id: number; name: string };
 
 /** Active categories and areas for the request form (ids, because the form posts ids and the server re-checks them). */
@@ -74,7 +75,15 @@ export type EnquiryRow = {
 /** Admin inbox (FR-ADM-06): New requests first and oldest first (FR-ADM-12), then the rest newest first, spam hidden unless asked, optional status and search (reference, name or phone). */
 export async function listEnquiries(
   db: D1Database,
-  filters: { status?: string; q?: string; spam?: boolean } = {},
+  filters: {
+    status?: string;
+    q?: string;
+    spam?: boolean;
+    /** 'shop' = asked from a shop item; 'form' = every other way in. */
+    source?: string;
+    /** Still New after the reply window (FR-ADM-12). */
+    waiting?: boolean;
+  } = {},
 ): Promise<{ rows: EnquiryRow[]; truncated: boolean }> {
   const where: string[] = [];
   const binds: (string | number)[] = [];
@@ -84,6 +93,13 @@ export async function listEnquiries(
     where.push('status = ?');
     binds.push(status);
   }
+  if (filters.source === 'shop') where.push("source = 'shop'");
+  if (filters.source === 'form')
+    where.push("(source IS NULL OR source != 'shop')");
+  if (filters.waiting)
+    where.push(
+      `status = 'new' AND created_at <= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-${REPLY_WITHIN_HOURS} hours')`,
+    );
   const q = fitLike(filters.q ?? '');
   if (q) {
     const digits = q.replace(/\D/g, '');

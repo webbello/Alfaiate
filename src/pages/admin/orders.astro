@@ -8,6 +8,7 @@ import { en } from '../../i18n/en';
 import { requireBindings } from '../../modules/config';
 import { requirePermission } from '../../modules/auth/require';
 import { formatMoney } from '../../modules/directory/format';
+import { fitLike, likeAnywhere } from '../../modules/db/like';
 
 const auth = await requirePermission(Astro, 'enquiry.view');
 if (auth instanceof Response) return auth;
@@ -17,10 +18,13 @@ type Route = {
   label: string;
   items: number;
 };
+const q = (Astro.url.searchParams.get('q') ?? '').trim().slice(0, 40);
+const term = fitLike(q);
 const { results } = await requireBindings(env)
   .DB.prepare(
-    'SELECT reference_code, total_cents, items_json, routes_json, created_at FROM shop_order ORDER BY id DESC LIMIT 200',
+    `SELECT reference_code, total_cents, items_json, routes_json, created_at FROM shop_order ${term ? "WHERE reference_code LIKE ? ESCAPE '\\'" : ''} ORDER BY id DESC LIMIT 200`,
   )
+  .bind(...(term ? [likeAnywhere(term)] : []))
   .all<{
     reference_code: string;
     total_cents: number;
@@ -65,7 +69,24 @@ const where = {
     <strong>{counts.total}</strong> orders so far: {counts.today} today,{' '}
     {counts.week} in the last 7 days, {counts.month} in the last 30 days.
   </p>
-  {results.length === 0 && (
+  {counts.total > 0 && (
+    <form method="get" action="/admin/orders" class="searchbar" role="search">
+      <p>
+        <label for="order-q">Find an order by reference</label>
+        <input type="search" id="order-q" name="q" value={q} maxlength="40" />
+      </p>
+      <p>
+        <button type="submit">Search</button>
+        {q && <a href="/admin/orders">Clear</a>}
+      </p>
+    </form>
+  )}
+  {results.length === 0 && counts.total > 0 && (
+    <EmptyState title="No order matches">
+      <p>Check the reference, or clear the search.</p>
+    </EmptyState>
+  )}
+  {results.length === 0 && counts.total === 0 && (
     <EmptyState title="No orders yet">
       <p>
         When a customer presses "Order on WhatsApp" in the cart, the order
@@ -74,7 +95,27 @@ const where = {
     </EmptyState>
   )}
   {results.length > 0 && (
-    <table>
+    <ul class="req-cards" aria-label={en.adminNavOrders}>
+      {results.map((o) => (
+        <li class="req-card">
+          <p class="req-card__top">
+            <strong class="req-card__ref">{o.reference_code}</strong>
+            <span>{formatMoney(o.total_cents)}</span>
+          </p>
+          <p class="req-card__wants">
+            {safe<Item>(o.items_json)
+              .map((i) => `${i.name} × ${i.quantity}`)
+              .join(', ')}
+          </p>
+          <p class="req-card__time">
+            {o.created_at.slice(0, 16).replace('T', ' ')}
+          </p>
+        </li>
+      ))}
+    </ul>
+  )}
+  {results.length > 0 && (
+    <table class="req-table">
       <thead>
         <tr>
           <th scope="col">Reference</th>

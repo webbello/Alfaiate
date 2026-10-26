@@ -12,11 +12,35 @@ import { requireBindings } from '../../modules/config';
 import { requirePermission } from '../../modules/auth/require';
 import { can } from '../../modules/auth/permissions';
 import { listInterest } from '../../modules/interest/queries';
+import { E164, telLink } from '../../modules/contact-links/tel';
+import { whatsappLink } from '../../modules/contact-links/whatsapp';
 
 const auth = await requirePermission(Astro, 'enquiry.view');
 if (auth instanceof Response) return auth;
 
-const rows = await listInterest(requireBindings(env).DB);
+const everyone = await listInterest(requireBindings(env).DB);
+const stateOf = (r: (typeof everyone)[number]) =>
+  r.decision === 'approved'
+    ? 'approved'
+    : r.decision === 'declined'
+      ? 'declined'
+      : r.anonymised_at
+        ? 'removed'
+        : 'waiting';
+const SHOWN = ['waiting', 'approved', 'declined'] as const;
+const show = SHOWN.find((s) => s === Astro.url.searchParams.get('show'));
+const tally = { waiting: 0, approved: 0, declined: 0 };
+for (const r of everyone) {
+  const s = stateOf(r);
+  if (s in tally) tally[s as keyof typeof tally]++;
+}
+// Waiting ones first so nobody is missed; the list is already newest first.
+const rows = everyone
+  .filter((r) => !show || stateOf(r) === show)
+  .sort(
+    (a, b) =>
+      Number(stateOf(b) === 'waiting') - Number(stateOf(a) === 'waiting'),
+  );
 const mayRemove = can(auth.role, 'enquiry.delete');
 const mayDecide = can(auth.role, 'tailor.publish');
 const code = Astro.url.searchParams.get('msg') ?? '';
@@ -50,14 +74,55 @@ const message = Object.hasOwn(en.adminMessages, code)
     public until you publish.
   </p>
   {message && <Flash message={message} kind={messageKind(code)} />}
-  {rows.length === 0 ? (
+  {everyone.length > 0 && (
+    <nav class="chips" aria-label="Show">
+      <a
+        class="chip chip--neutral"
+        href="/admin/interest"
+        aria-current={show ? undefined : 'page'}
+      >
+        All {everyone.length}
+      </a>
+      <a
+        class="chip chip--draft"
+        href="/admin/interest?show=waiting"
+        aria-current={show === 'waiting' ? 'page' : undefined}
+      >
+        Waiting for you {tally.waiting}
+      </a>
+      <a
+        class="chip chip--published"
+        href="/admin/interest?show=approved"
+        aria-current={show === 'approved' ? 'page' : undefined}
+      >
+        Approved {tally.approved}
+      </a>
+      <a
+        class="chip chip--declined"
+        href="/admin/interest?show=declined"
+        aria-current={show === 'declined' ? 'page' : undefined}
+      >
+        Declined {tally.declined}
+      </a>
+    </nav>
+  )}
+  {everyone.length > 0 && rows.length === 0 && (
+    <EmptyState title="No one in this list" icon="interest">
+      <p>
+        <a class="button-link" href="/admin/interest">
+          Show everyone
+        </a>
+      </p>
+    </EmptyState>
+  )}
+  {everyone.length === 0 ? (
     <EmptyState title="No one yet" icon="interest">
       <p>
         When a tailor sends their details on the public Join page, they appear
         here with the newest first.
       </p>
     </EmptyState>
-  ) : (
+  ) : rows.length === 0 ? null : (
     <div class="request-list">
       {rows.map((r) => (
         <article class="card request">
@@ -94,6 +159,26 @@ const message = Object.hasOwn(en.adminMessages, code)
             <blockquote class="request__message">{r.message}</blockquote>
           )}
           <div class="request__actions">
+            {stateOf(r) === 'waiting' &&
+              r.phone_e164 &&
+              E164.test(r.phone_e164) && (
+                <>
+                  <a class="button-link" href={telLink(r.phone_e164)}>
+                    Call
+                  </a>
+                  <a
+                    class="button-link"
+                    href={whatsappLink(
+                      r.phone_e164,
+                      `Hello, this is Alfaiate TL about your request to be listed (${r.reference_code}).`,
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    WhatsApp
+                  </a>
+                </>
+              )}
             {r.decision === 'approved' ? (
               r.tailor_id && (
                 <a class="button-link" href={`/admin/tailors/${r.tailor_id}`}>

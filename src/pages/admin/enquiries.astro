@@ -24,9 +24,14 @@ const params = Astro.url.searchParams;
 const status = STATUSES.find((s) => s === params.get('status'));
 const q = (params.get('q') ?? '').slice(0, 100);
 const spam = params.get('spam') === '1';
+const source =
+  params.get('source') === 'shop' || params.get('source') === 'form'
+    ? (params.get('source') as 'shop' | 'form')
+    : undefined;
+const waiting = params.get('waiting') === '1';
 const DB = requireBindings(env).DB;
 const [{ rows, truncated }, counts] = await Promise.all([
-  listEnquiries(DB, { status, q, spam }),
+  listEnquiries(DB, { status, q, spam, source, waiting }),
   countByStatus(DB),
 ]);
 // A chip keeps the current search and the spam switch, and changes only the status.
@@ -35,10 +40,12 @@ const chipHref = (value?: string) => {
   if (value) query.set('status', value);
   if (q) query.set('q', q);
   if (spam) query.set('spam', '1');
+  if (source) query.set('source', source);
+  if (waiting) query.set('waiting', '1');
   const text = query.toString();
   return `/admin/enquiries${text ? `?${text}` : ''}`;
 };
-const filtered = Boolean(status || q || spam);
+const filtered = Boolean(status || q || spam || source || waiting);
 const text = en.enquiry;
 const now = new Date();
 ---
@@ -76,6 +83,26 @@ const now = new Date();
     <p>
       <label for="q">{text.search}</label>
       <input type="search" id="q" name="q" value={q} maxlength="100" />
+    </p>
+    <p>
+      <label for="source">Came from</label>
+      <select id="source" name="source">
+        <option value="" selected={!source}>
+          Anywhere
+        </option>
+        <option value="form" selected={source === 'form'}>
+          Request form
+        </option>
+        <option value="shop" selected={source === 'shop'}>
+          Shop item
+        </option>
+      </select>
+    </p>
+    <p>
+      <label>
+        <input type="checkbox" name="waiting" value="1" checked={waiting} />
+        Only those waiting over 24 hours
+      </label>
     </p>
     <p>
       <label>
