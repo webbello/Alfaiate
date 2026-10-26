@@ -2,6 +2,7 @@
 export const prerender = false;
 import { env } from 'cloudflare:workers';
 import StatCard from '../../components/admin/StatCard.astro';
+import PageHeader from '../../components/admin/PageHeader.astro';
 import EmptyState from '../../components/admin/EmptyState.astro';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { en } from '../../i18n/en';
@@ -42,14 +43,10 @@ const rate = t.views > 0 ? ((enquiryCount / t.views) * 100).toFixed(1) : null;
   description={en.adminNavTraffic}
   auth={auth}
 >
-  <h1>{en.adminNavTraffic}</h1>
-  <p>
-    Visits to public pages in the last {days} days. The site sets no cookies and
-    stores no address or device details: it only counts visits by day, page and
-    the site the visitor came from. Visitors who send Do Not Track or Global
-    Privacy Control, and known bots, are not counted, so real numbers are a
-    little higher.
-  </p>
+  <PageHeader
+    title={en.adminNavTraffic}
+    sub={`Visits to public pages in the last ${days} days. The site sets no cookies and stores no address or device details: it only counts visits by day, page and the site the visitor came from. Visitors who send Do Not Track or Global Privacy Control, and known bots, are not counted, so real numbers are a little higher.`}
+  />
   {t.views === 0 ? (
     <EmptyState title="No visits yet">
       <p>Visits appear here once people open the public pages.</p>

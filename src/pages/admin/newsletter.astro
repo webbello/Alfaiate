@@ -2,6 +2,7 @@
 export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Flash from '../../components/admin/Flash.astro';
+import PageHeader from '../../components/admin/PageHeader.astro';
 import EmptyState from '../../components/admin/EmptyState.astro';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { messageKind } from '../../modules/admin-ui/messages';
@@ -26,11 +27,10 @@ const message = Object.hasOwn(en.adminMessages, code)
   description={en.adminNavNewsletter}
   auth={auth}
 >
-  <h1>{en.adminNavNewsletter}</h1>
-  <p>
-    Addresses left in the footer "Stay updated" form, newest first. Nothing is
-    sent automatically. Remove an address when someone asks.
-  </p>
+  <PageHeader
+    title={en.adminNavNewsletter}
+    sub="Addresses left in the footer 'Stay updated' form, newest first. Nothing is sent automatically. Remove an address when someone asks."
+  />
   {message && <Flash message={message} kind={messageKind(code)} />}
   <form method="get" action="/admin/newsletter" class="searchbar">
     <p>

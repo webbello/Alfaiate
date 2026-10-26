@@ -3,6 +3,7 @@ export const prerender = false;
 import { readForm } from '../../modules/http/body';
 import { env } from 'cloudflare:workers';
 import Flash from '../../components/admin/Flash.astro';
+import PageHeader from '../../components/admin/PageHeader.astro';
 import ConfirmAction from '../../components/admin/ConfirmAction.astro';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { messageKind } from '../../modules/admin-ui/messages';
@@ -59,56 +60,58 @@ const message = Object.hasOwn(en.adminMessages, code)
   description={en.adminAccountHeading}
   auth={auth}
 >
-  <h1>{en.adminAccountHeading}</h1>
-  <p>
-    <a href="/admin">{en.adminDashboardHeading}</a>
-  </p>
-  <p>
-    {auth.email} ({auth.role})
-  </p>
+  <PageHeader
+    title={en.adminAccountHeading}
+    sub={`${auth.email} (${auth.role})`}
+  />
   {message && <Flash message={message} kind={messageKind(code)} />}
-  <form method="post">
-    <input type="hidden" name="csrf" value={auth.csrfToken} />
-    <p>
-      <label for="current">{en.adminCurrentPassword}</label>
-      <br />
-      <input
-        id="current"
-        name="current_password"
-        type="password"
-        autocomplete="current-password"
-        required
-      />
-    </p>
-    <p>
-      <label for="next">{en.adminNewPassword}</label>
-      <br />
-      <input
-        id="next"
-        name="new_password"
-        type="password"
-        autocomplete="new-password"
-        required
-        minlength="12"
-      />
-    </p>
-    <button type="submit">{en.adminChangePassword}</button>
-  </form>
+  <section class="card">
+    <h2>Change your password</h2>
+    <form method="post">
+      <input type="hidden" name="csrf" value={auth.csrfToken} />
+      <p>
+        <label for="current">{en.adminCurrentPassword}</label>
+        <br />
+        <input
+          id="current"
+          name="current_password"
+          type="password"
+          autocomplete="current-password"
+          required
+        />
+      </p>
+      <p>
+        <label for="next">{en.adminNewPassword}</label>
+        <br />
+        <input
+          id="next"
+          name="new_password"
+          type="password"
+          autocomplete="new-password"
+          required
+          minlength="12"
+        />
+      </p>
+      <button type="submit">{en.adminChangePassword}</button>
+    </form>
+  </section>
 
-  <h2>Signed in on other devices</h2>
-  <p>
-    If you ticked “Keep me signed in” on a phone, it stays signed in for 30 days
-    from its last use. If a phone is lost or lent, sign out everywhere: this
-    ends every sign-in of yours, including this one.
-  </p>
-  <form method="post">
-    <input type="hidden" name="csrf" value={auth.csrfToken} />
-    <input type="hidden" name="action" value="signout_all" />
-    <ConfirmAction
-      label="Sign out everywhere"
-      question="This signs you out on every device, this one too. Continue?"
-      yes="Yes, sign out everywhere"
-      danger
-    />
-  </form>
+  <section class="card">
+    <h2>Signed in on other devices</h2>
+    <p>
+      If you ticked “Keep me signed in” on a phone, it stays signed in for 30
+      days from its last use. If a phone is lost or lent, sign out everywhere:
+      this ends every sign-in of yours, including this one.
+    </p>
+    <form method="post">
+      <input type="hidden" name="csrf" value={auth.csrfToken} />
+      <input type="hidden" name="action" value="signout_all" />
+      <ConfirmAction
+        label="Sign out everywhere"
+        question="This signs you out on every device, this one too. Continue?"
+        yes="Yes, sign out everywhere"
+        danger
+      />
+    </form>
+  </section>
 </AdminLayout>

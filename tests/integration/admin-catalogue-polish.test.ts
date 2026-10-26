@@ -181,3 +181,29 @@ describe('products list and form', () => {
       expect(form).toContain(`name="${name}"`);
   });
 });
+
+describe('one page header on every admin list page', () => {
+  it('has a single h1 inside .page-head and no loose Dashboard link', async () => {
+    const owner = await signIn('owner');
+    for (const path of [
+      '/admin',
+      '/admin/enquiries',
+      '/admin/orders',
+      '/admin/tailors',
+      '/admin/categories',
+      '/admin/areas',
+      '/admin/products',
+      '/admin/interest',
+      '/admin/traffic',
+      '/admin/newsletter',
+      '/admin/users',
+      '/admin/account',
+    ]) {
+      const html = await (await get(path, owner)).text();
+      expect(html.match(/<h1[ >]/g), path).toHaveLength(1);
+      expect(html, path).toContain('class="page-head"');
+      const main = html.slice(html.indexOf('<main'));
+      expect(main, path).not.toMatch(/<p>\s*<a href="\/admin">Dashboard<\/a>/);
+    }
+  });
+});

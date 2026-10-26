@@ -2,6 +2,7 @@
 export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Flash from '../../components/admin/Flash.astro';
+import PageHeader from '../../components/admin/PageHeader.astro';
 import EmptyState from '../../components/admin/EmptyState.astro';
 import StatusChip from '../../components/admin/StatusChip.astro';
 import AdminLayout from '../../layouts/AdminLayout.astro';
@@ -29,8 +30,10 @@ const message = Object.hasOwn(en.adminMessages, code)
   description={en.adminNavInterest}
   auth={auth}
 >
-  <h1>{en.adminNavInterest}</h1>
-  <p>Tailors who want to be listed. How it works:</p>
+  <PageHeader
+    title={en.adminNavInterest}
+    sub="Tailors who want to be listed. How it works:"
+  />
   <ol class="steps-inline">
     <li>Call the tailor.</li>
     <li>
