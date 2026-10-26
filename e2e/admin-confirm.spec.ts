@@ -9,6 +9,7 @@ test('Unpublish asks first, by keyboard and by tap, and cancelling sends nothing
   await signIn(page);
   await page.goto('/admin/tailors');
   await page.getByRole('link', { name: 'E2E Fake Tailor' }).first().click();
+  await page.getByRole('link', { name: 'Publishing' }).click(); // the page shows one section at a time
   const summary = page.locator('.confirm > summary', {
     hasText: /^Unpublish$/,
   });
@@ -26,5 +27,5 @@ test('Unpublish asks first, by keyboard and by tap, and cancelling sends nothing
   await expect(yes).toBeFocused();
   await summary.click(); // pressing the first button again cancels
   await expect(yes).toBeHidden();
-  expect(page.url()).toMatch(/\/admin\/tailors\/\d+$/);
+  expect(page.url()).toMatch(/\/admin\/tailors\/\d+(#.*)?$/); // nothing was sent: still this page
 });

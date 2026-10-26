@@ -1,4 +1,5 @@
 export const prerender = false;
+import { rememberTab } from '../../../../modules/admin-ui/tabs';
 import { readForm, UPLOAD_LIMIT, parseId } from '../../../../modules/http/body';
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
@@ -26,6 +27,7 @@ export const POST: APIRoute = async (context) => {
   }
   const id = parseId(context.params.id);
   if (!Number.isInteger(id)) return new Response('Not found', { status: 404 });
+  rememberTab(context.cookies, 'photos');
   const back = (code: string) =>
     context.redirect(`/admin/tailors/${id}?msg=${code}`, 303);
 

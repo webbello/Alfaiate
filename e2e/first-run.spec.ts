@@ -72,6 +72,7 @@ test('the checklist leads from a new draft to a published tailor', async ({
   await page.getByRole('button', { name: 'Record permission' }).click();
   await expect(card.locator('.check--missing')).toHaveCount(1);
   await expect(card).toContainText('A WhatsApp or phone number on the profile');
+  await page.getByRole('link', { name: 'Details' }).click(); // the page shows one section at a time
   await page.locator('#whatsapp').fill('+67070000099');
   await page
     .locator('form:has(#whatsapp)')
@@ -79,6 +80,7 @@ test('the checklist leads from a new draft to a published tailor', async ({
     .click();
   await expect(page.locator('#checklist')).toContainText('Ready to publish');
 
+  await page.getByRole('link', { name: 'Publishing' }).click();
   await page.locator('.confirm > summary', { hasText: /^Publish$/ }).click(); // publishing asks first
   await page.getByRole('button', { name: 'Yes, publish' }).click();
   await expect(page.locator('#live')).toContainText('This tailor is live');

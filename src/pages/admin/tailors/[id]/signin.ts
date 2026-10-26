@@ -1,4 +1,5 @@
 export const prerender = false;
+import { rememberTab } from '../../../../modules/admin-ui/tabs';
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { requireBindings } from '../../../../modules/config';
@@ -23,6 +24,7 @@ export const POST: APIRoute = async (context) => {
   const id = parseId(context.params.id);
   if (!Number.isInteger(id) || id < 1)
     return new Response('Not found', { status: 404 });
+  rememberTab(context.cookies, 'more');
   const action = form.get('action')?.toString();
   if (action !== 'deactivate' && action !== 'activate')
     return context.redirect(`/admin/tailors/${id}?msg=invalid`, 303);

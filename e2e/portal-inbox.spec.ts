@@ -27,6 +27,7 @@ test('a request goes from the admin to the tailor inbox, and the customer is sho
 
   await page.goto('/admin/tailors');
   await page.getByRole('link', { name: 'E2E Fake Tailor' }).first().click();
+  await page.getByRole('link', { name: 'More' }).click(); // the page shows one section at a time
   await page
     .getByRole('button', {
       name: /Create a sign-in link|Make a new sign-in link/,

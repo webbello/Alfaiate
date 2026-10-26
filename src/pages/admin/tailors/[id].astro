@@ -26,6 +26,7 @@ import { messageFrom } from '../../../modules/tailors/messages';
 import Card from '../../../components/admin/Card.astro';
 import FormGrid from '../../../components/admin/FormGrid.astro';
 import ConfirmAction from '../../../components/admin/ConfirmAction.astro';
+import { takeTab } from '../../../modules/admin-ui/tabs';
 import {
   missingItems,
   publishChecklist,
@@ -81,6 +82,8 @@ const verified = new Set<string>(
 );
 const publishAction = `/admin/tailors/${id}/publish`;
 const action = `/admin/tailors/${id}/actions`;
+// the tab a save came from (read once; a link or anchor in the address wins, see the .tabs styles)
+const openTab = takeTab(Astro.cookies);
 ---
 
 <AdminLayout
@@ -147,8 +150,59 @@ const action = `/admin/tailors/${id}/actions`;
   )}
   {!editable && <p role="note">{en.tailorLocked}</p>}
 
-  <div class="split">
-    <div class="split__main">
+  <div class="tailor-status">
+    {tailor.is_published ? (
+      <Card title="Published" level={2} id="live">
+        <p>
+          This tailor is live.{' '}
+          <a href={`/tailors/${tailor.slug}`}>View the public page</a>
+        </p>
+      </Card>
+    ) : (
+      <Card
+        title="Ready to publish?"
+        level={2}
+        id="checklist"
+        warning={missingCount > 0}
+      >
+        <p>
+          {missingCount === 0
+            ? 'Ready to publish'
+            : `Not ready to publish: ${missingCount} ${missingCount === 1 ? 'thing is' : 'things are'} still missing`}
+        </p>
+        <ul class="checks">
+          {checklist.map((i) => (
+            <li class={`check check--${i.done ? 'done' : 'missing'}`}>
+              <div>
+                <strong>{i.done ? 'Done' : 'Missing'}:</strong> {i.label}
+                {!i.done && (
+                  <>
+                    <span class="check__detail">{i.detail}</span>
+                    {canFix(i.key) ? (
+                      <a class="check__fix" href={i.fixHref}>
+                        {i.fixLabel}
+                      </a>
+                    ) : (
+                      <span class="check__detail">A manager does this.</span>
+                    )}
+                  </>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    )}
+  </div>
+  <div class="tabset" data-open={openTab ?? undefined}>
+    <nav class="tabs__nav" aria-label="Sections of this tailor">
+      <a href="#tab-details">Details</a>
+      <a href="#tab-work">Work and areas</a>
+      <a href="#tab-photos">Photos</a>
+      <a href="#tab-publish">Publishing</a>
+      <a href="#tab-more">More</a>
+    </nav>
+    <div class="tabs__panel" id="tab-details">
       {editable && (
         <>
           <section class="card">
@@ -167,6 +221,12 @@ const action = `/admin/tailors/${id}/actions`;
               <button type="submit">{en.tailorSave}</button>
             </form>
           </section>
+        </>
+      )}
+    </div>
+    <div class="tabs__panel" id="tab-work">
+      {editable && (
+        <div class="tabs__cols">
           <section class="card">
             <h2>{en.tailorCategoriesHeading}</h2>
             {categories.length === 0 && <p>{en.tailorNoCategories}</p>}
@@ -306,85 +366,10 @@ const action = `/admin/tailors/${id}/actions`;
               <button type="submit">{en.tailorSave}</button>
             </form>
           </section>
-        </>
+        </div>
       )}
-
-      <section class="card" id="orders">
-        <h2>Shop orders</h2>
-        <p>
-          When someone orders this tailor's products from the shop, the order
-          message opens in WhatsApp for the person you choose here. Only staff
-          can change this; the tailor cannot see or change it. If the chosen
-          number is missing, the order goes to the admin number.
-        </p>
-        {mayVerify ? (
-          <form method="post" action={`/admin/tailors/${id}/orders`}>
-            <input type="hidden" name="csrf" value={auth.csrfToken} />
-            <p>
-              <label>
-                <input
-                  type="radio"
-                  name="order_route"
-                  value="admin"
-                  checked={tailor.order_route === 'admin'}
-                />{' '}
-                The admin first (recommended): I pass it on
-              </label>
-              <br />
-              <label>
-                <input
-                  type="radio"
-                  name="order_route"
-                  value="tailor"
-                  checked={tailor.order_route === 'tailor'}
-                />{' '}
-                The tailor's own WhatsApp (
-                {tailor.whatsapp_e164 ?? 'no number set'}
-                {tailor.contact_publish_consent
-                  ? ''
-                  : ', not shown publicly yet'}
-                )
-              </label>
-              <br />
-              <label>
-                <input
-                  type="radio"
-                  name="order_route"
-                  value="number"
-                  checked={tailor.order_route === 'number'}
-                />{' '}
-                Another number (for example the shop owner)
-              </label>
-            </p>
-            <p>
-              <label for="order_number">
-                Number for "another number" (with country code, for example +670
-                77000000)
-              </label>
-              <br />
-              <input
-                id="order_number"
-                name="order_number"
-                value={tailor.order_number_e164 ?? ''}
-                maxlength="20"
-                inputmode="tel"
-              />
-            </p>
-            <button type="submit">Save order route</button>
-          </form>
-        ) : (
-          <p>
-            Orders go to:{' '}
-            {tailor.order_route === 'admin'
-              ? 'the admin first'
-              : tailor.order_route === 'tailor'
-                ? "the tailor's WhatsApp"
-                : tailor.order_number_e164}
-            . A manager or owner can change this.
-          </p>
-        )}
-      </section>
-
+    </div>
+    <div class="tabs__panel" id="tab-photos">
       <section class="card">
         <h2>{en.photosHeading}</h2>
         <p>{en.photosPrivateNote}</p>
@@ -562,83 +547,8 @@ const action = `/admin/tailors/${id}/actions`;
         )}
         {editable && images.length >= MAX_IMAGES && <p>{en.photosLimit}</p>}
       </section>
-
-      {can(auth.role, 'fee.view') && (
-        <>
-          <section class="card">
-            <h2>{en.feeHeading}</h2>
-            <form method="post" action={`/admin/tailors/${id}/fees`}>
-              <input type="hidden" name="csrf" value={auth.csrfToken} />
-              <p>
-                <label for="fee_terms_text">{en.feeTerms}</label>
-                <br />
-                <textarea
-                  id="fee_terms_text"
-                  name="fee_terms_text"
-                  maxlength="2000"
-                  rows="3"
-                >{tailor.fee_terms_text ?? ''}</textarea>
-              </p>
-              <p>
-                <label for="fee_terms_agreed_on">{en.feeAgreedOn}</label>
-                <br />
-                <input
-                  id="fee_terms_agreed_on"
-                  name="fee_terms_agreed_on"
-                  type="date"
-                  value={tailor.fee_terms_agreed_on ?? ''}
-                />
-              </p>
-              <button type="submit">{en.feeSave}</button>
-            </form>
-          </section>
-        </>
-      )}
     </div>
-    <aside class="split__side" aria-label="Status and publishing">
-      {tailor.is_published ? (
-        <Card title="Published" level={2} id="live">
-          <p>
-            This tailor is live.{' '}
-            <a href={`/tailors/${tailor.slug}`}>View the public page</a>
-          </p>
-        </Card>
-      ) : (
-        <Card
-          title="Ready to publish?"
-          level={2}
-          id="checklist"
-          warning={missingCount > 0}
-        >
-          <p>
-            {missingCount === 0
-              ? 'Ready to publish'
-              : `Not ready to publish: ${missingCount} ${missingCount === 1 ? 'thing is' : 'things are'} still missing`}
-          </p>
-          <ul class="checks">
-            {checklist.map((i) => (
-              <li class={`check check--${i.done ? 'done' : 'missing'}`}>
-                <div>
-                  <strong>{i.done ? 'Done' : 'Missing'}:</strong> {i.label}
-                  {!i.done && (
-                    <>
-                      <span class="check__detail">{i.detail}</span>
-                      {canFix(i.key) ? (
-                        <a class="check__fix" href={i.fixHref}>
-                          {i.fixLabel}
-                        </a>
-                      ) : (
-                        <span class="check__detail">A manager does this.</span>
-                      )}
-                    </>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      )}
-
+    <div class="tabs__panel" id="tab-publish">
       {mayVerify && (
         <>
           <section class="card">
@@ -805,7 +715,8 @@ const action = `/admin/tailors/${id}/actions`;
           </section>
         </>
       )}
-
+    </div>
+    <div class="tabs__panel" id="tab-more">
       {mayVerify && (
         <>
           <section class="card">
@@ -855,6 +766,113 @@ const action = `/admin/tailors/${id}/actions`;
         </>
       )}
 
+      <section class="card" id="orders">
+        <h2>Shop orders</h2>
+        <p>
+          When someone orders this tailor's products from the shop, the order
+          message opens in WhatsApp for the person you choose here. Only staff
+          can change this; the tailor cannot see or change it. If the chosen
+          number is missing, the order goes to the admin number.
+        </p>
+        {mayVerify ? (
+          <form method="post" action={`/admin/tailors/${id}/orders`}>
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <p>
+              <label>
+                <input
+                  type="radio"
+                  name="order_route"
+                  value="admin"
+                  checked={tailor.order_route === 'admin'}
+                />{' '}
+                The admin first (recommended): I pass it on
+              </label>
+              <br />
+              <label>
+                <input
+                  type="radio"
+                  name="order_route"
+                  value="tailor"
+                  checked={tailor.order_route === 'tailor'}
+                />{' '}
+                The tailor's own WhatsApp (
+                {tailor.whatsapp_e164 ?? 'no number set'}
+                {tailor.contact_publish_consent
+                  ? ''
+                  : ', not shown publicly yet'}
+                )
+              </label>
+              <br />
+              <label>
+                <input
+                  type="radio"
+                  name="order_route"
+                  value="number"
+                  checked={tailor.order_route === 'number'}
+                />{' '}
+                Another number (for example the shop owner)
+              </label>
+            </p>
+            <p>
+              <label for="order_number">
+                Number for "another number" (with country code, for example +670
+                77000000)
+              </label>
+              <br />
+              <input
+                id="order_number"
+                name="order_number"
+                value={tailor.order_number_e164 ?? ''}
+                maxlength="20"
+                inputmode="tel"
+              />
+            </p>
+            <button type="submit">Save order route</button>
+          </form>
+        ) : (
+          <p>
+            Orders go to:{' '}
+            {tailor.order_route === 'admin'
+              ? 'the admin first'
+              : tailor.order_route === 'tailor'
+                ? "the tailor's WhatsApp"
+                : tailor.order_number_e164}
+            . A manager or owner can change this.
+          </p>
+        )}
+      </section>
+
+      {can(auth.role, 'fee.view') && (
+        <>
+          <section class="card">
+            <h2>{en.feeHeading}</h2>
+            <form method="post" action={`/admin/tailors/${id}/fees`}>
+              <input type="hidden" name="csrf" value={auth.csrfToken} />
+              <p>
+                <label for="fee_terms_text">{en.feeTerms}</label>
+                <br />
+                <textarea
+                  id="fee_terms_text"
+                  name="fee_terms_text"
+                  maxlength="2000"
+                  rows="3"
+                >{tailor.fee_terms_text ?? ''}</textarea>
+              </p>
+              <p>
+                <label for="fee_terms_agreed_on">{en.feeAgreedOn}</label>
+                <br />
+                <input
+                  id="fee_terms_agreed_on"
+                  name="fee_terms_agreed_on"
+                  type="date"
+                  value={tailor.fee_terms_agreed_on ?? ''}
+                />
+              </p>
+              <button type="submit">{en.feeSave}</button>
+            </form>
+          </section>
+        </>
+      )}
       <section class="card">
         <h2>{en.tailorNotesHeading}</h2>
         <form method="post" action={action}>
@@ -881,6 +899,6 @@ const action = `/admin/tailors/${id}/actions`;
           ))}
         </ul>
       </section>
-    </aside>
+    </div>
   </div>
 </AdminLayout>

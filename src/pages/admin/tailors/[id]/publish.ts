@@ -1,4 +1,5 @@
 export const prerender = false;
+import { rememberTab } from '../../../../modules/admin-ui/tabs';
 import { readForm, parseId } from '../../../../modules/http/body';
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
@@ -35,6 +36,10 @@ export const POST: APIRoute = async (context) => {
   if (!Number.isInteger(id)) return new Response('Not found', { status: 404 });
   const bindings = requireBindings(env);
   const field = (name: string) => form.get(name)?.toString() ?? '';
+  rememberTab(
+    context.cookies,
+    field('action') === 'image_permission' ? 'photos' : 'publish',
+  );
   const back = (query: string) =>
     context.redirect(`/admin/tailors/${id}?${query}`, 303);
   const answer = (r: PublishResult, success: string) => {

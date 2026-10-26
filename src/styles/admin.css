@@ -2186,3 +2186,100 @@ a.icon-button:hover {
   color: var(--muted);
   font-size: 0.9rem;
 }
+
+/* ---- Tabs on a tailor's page: one section at a time instead of one very long page. No script: a tab is an in-page link, the panel that holds the target shows,
+   and without a target the first one shows. A link to a field inside a panel (the checklist's "fix this") opens that panel. ---- */
+.tabs__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0 0 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.tabs__nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0 1rem;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: none;
+}
+.tabs__nav a:hover {
+  color: var(--ink);
+}
+.tabs__panel {
+  display: none;
+  scroll-margin-top: 8rem;
+}
+/* Which panel shows: the one a link or anchor points at; else the one a save came from (data-open); else the first. */
+.tabs__panel:target,
+.tabs__panel:has(:target),
+.tabset:not([data-open], :has(.tabs__panel:target, .tabs__panel :target))
+  > #tab-details,
+.tabset[data-open='details']:not(
+    :has(.tabs__panel:target, .tabs__panel :target)
+  )
+  > #tab-details,
+.tabset[data-open='work']:not(:has(.tabs__panel:target, .tabs__panel :target))
+  > #tab-work,
+.tabset[data-open='photos']:not(:has(.tabs__panel:target, .tabs__panel :target))
+  > #tab-photos,
+.tabset[data-open='publish']:not(
+    :has(.tabs__panel:target, .tabs__panel :target)
+  )
+  > #tab-publish,
+.tabset[data-open='more']:not(:has(.tabs__panel:target, .tabs__panel :target))
+  > #tab-more {
+  display: block;
+}
+.tabset:not([data-open], :has(.tabs__panel:target, .tabs__panel :target))
+  .tabs__nav
+  a[href='#tab-details'],
+.tabset[data-open='details']:not(
+    :has(.tabs__panel:target, .tabs__panel :target)
+  )
+  .tabs__nav
+  a[href='#tab-details'],
+.tabset[data-open='work']:not(:has(.tabs__panel:target, .tabs__panel :target))
+  .tabs__nav
+  a[href='#tab-work'],
+.tabset[data-open='photos']:not(:has(.tabs__panel:target, .tabs__panel :target))
+  .tabs__nav
+  a[href='#tab-photos'],
+.tabset[data-open='publish']:not(
+    :has(.tabs__panel:target, .tabs__panel :target)
+  )
+  .tabs__nav
+  a[href='#tab-publish'],
+.tabset[data-open='more']:not(:has(.tabs__panel:target, .tabs__panel :target))
+  .tabs__nav
+  a[href='#tab-more'],
+.tabset:has(#tab-details:target, #tab-details :target)
+  .tabs__nav
+  a[href='#tab-details'],
+.tabset:has(#tab-work:target, #tab-work :target) .tabs__nav a[href='#tab-work'],
+.tabset:has(#tab-photos:target, #tab-photos :target)
+  .tabs__nav
+  a[href='#tab-photos'],
+.tabset:has(#tab-publish:target, #tab-publish :target)
+  .tabs__nav
+  a[href='#tab-publish'],
+.tabset:has(#tab-more:target, #tab-more :target)
+  .tabs__nav
+  a[href='#tab-more'] {
+  border-bottom-color: var(--accent);
+  color: var(--link);
+}
+.tabs__cols {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+@media (min-width: 64rem) {
+  .tabs__cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
