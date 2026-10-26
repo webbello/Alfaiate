@@ -1,4 +1,6 @@
 ---
+// One rail for the five page steps. The position and the count sit on one line above it, each
+// fact once: the old version repeated the current step's name under the rail as a second sentence.
 import type { PortalItem } from '../../modules/portal/checklist';
 
 interface Props {
@@ -10,15 +12,29 @@ const at = items.findIndex((i) => i.key === current);
 const done = items.filter((i) => i.done).length;
 ---
 
-<nav class="stepbar" aria-label="Your steps">
-  <ol>
+<nav class="steprail" aria-label="Your steps">
+  <div class="steprail__meta">
+    <p class="steprail__now">
+      Step {at + 1} of {items.length}
+    </p>
+    <p class="steprail__count">
+      {done} of {items.length} done
+    </p>
+  </div>
+  <ol class="steprail__list">
     {items.map((i, n) => (
-      <li class={i.done ? 'is-done' : undefined}>
+      <li
+        class:list={[
+          'steprail__item',
+          i.done && 'is-done',
+          i.key === current && 'is-now',
+        ]}
+      >
         <a href={i.href} aria-current={i.key === current ? 'step' : undefined}>
-          <span class="stepbar__dot" aria-hidden="true">
-            {i.done ? '✓' : n + 1}
+          <span class="steprail__dot" aria-hidden="true">
+            {i.done ? '\u2713' : n + 1}
           </span>
-          <span class="stepbar__name">
+          <span class="steprail__name">
             {i.short}
             <span class="sr-only">{i.done ? ' (done)' : ''}</span>
           </span>
@@ -26,11 +42,4 @@ const done = items.filter((i) => i.done).length;
       </li>
     ))}
   </ol>
-  <p class="stepbar__now">
-    Step {at + 1} of {items.length}: <strong>{items[at]?.label}</strong>
-    <span>
-      {' '}
-      · {done} of {items.length} done
-    </span>
-  </p>
 </nav>

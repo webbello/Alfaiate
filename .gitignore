@@ -10,8 +10,12 @@ dist/
 uploads/
 .claude/settings.local.json
 .astro/
+.archify/
 test-results/
 playwright-report/
+
+# Hallmark's local build record: screenshots, before/after records, rotation log
+.hallmark/
 
 .DS_Store
 

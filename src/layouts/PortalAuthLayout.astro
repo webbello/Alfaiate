@@ -1,26 +1,31 @@
 ---
-// The tailor sign-in and invite pages in the site's own frame (header, footer, fonts, colours) instead of the plain admin card.
-// English only, never indexed, and with no Tetun twin, so the language switch is left out (`realPage={false}`).
-import ThemePage from './ThemePage.astro';
-import '../theme/styles/portal-theme.css'; // for the notice box
+// The tailor sign-in and invite pages in the portal's own frame: the brand panel and the form card,
+// with no shop header, cart or newsletter around them.
+// English only, never indexed, no Tetun twin.
+import PortalShell from './PortalShell.astro';
 import { en } from '../i18n/en';
 
 interface Props {
   title: string;
-  rest: string;
+  description?: string;
+  /** Kept for the pages that still pass their route; the portal shell is never indexed. */
+  rest?: string;
 }
-const { title, rest } = Astro.props;
+const { title, description = title } = Astro.props;
 const a = en.portal.auth;
 ---
 
-<ThemePage
-  lang="en"
-  title={`${title} · Alfaiate TL`}
-  description={title}
-  rest={rest}
-  noindex
-  realPage={false}
->
+<PortalShell title={`${title} · Alfaiate TL`} description={description}>
+  <header class="pt-bar pt-bar--auth" slot="bar">
+    <div class="pt-bar__inner">
+      <a class="pt-brand" href="/" aria-label="Alfaiate TL">
+        <span class="brand-mark">
+          <span class="brand-name">Alfaiate</span>{' '}
+          <span class="brand-tl">TL</span>
+        </span>
+      </a>
+    </div>
+  </header>
   <div class="auth">
     <aside class="auth__side" aria-label={a.sideLabel}>
       <span class="brand-mark brand-mark--footer" aria-hidden="true">
@@ -39,4 +44,4 @@ const a = en.portal.auth;
       <p class="auth__help">{a.help}</p>
     </section>
   </div>
-</ThemePage>
+</PortalShell>

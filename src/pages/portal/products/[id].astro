@@ -84,20 +84,23 @@ const live = product.is_published === 1;
   <p>Photos stay private until the product is published.</p>
   {images.length === 0 && <p>No photos yet.</p>}
   <ul class="portal-photos">
-    {images.map((image) => (
+    {images.map((image, i) => (
       <li class="card">
         <img
           src={`/portal/media/product/${id}/${image.file_key}/thumb.jpg`}
           alt={image.alt_text}
           width="160"
-          loading="lazy"
+          loading={i === 0 ? 'eager' : 'lazy'}
+          fetchpriority={i === 0 ? 'high' : undefined}
         />
         <p>{image.alt_text}</p>
         {!live && (
           <form method="post" action={`/portal/products/${id}/photo-remove`}>
             <input type="hidden" name="csrf" value={auth.csrfToken} />
             <input type="hidden" name="image_id" value={image.id} />
-            <button type="submit">Remove photo</button>
+            <button type="submit" class="secondary">
+              Remove photo
+            </button>
           </form>
         )}
       </li>

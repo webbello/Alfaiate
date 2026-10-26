@@ -20,20 +20,36 @@ export function purgeThemeCss(root = process.cwd()) {
     apply: 'build',
     enforce: 'post',
     async generateBundle(_options, bundle) {
-      const source = [...walk(join(root, 'src')), join(root, 'src/theme/styles/global.css')]
+      const source = [
+        ...walk(join(root, 'src')),
+        join(root, 'src/theme/styles/global.css'),
+      ]
         .map((f) => readFileSync(f, 'utf8'))
         .join('\n');
-      const known = (name) => /^(is-|w-|w--)/.test(name) || source.includes(name);
+      const known = (name) =>
+        /^(is-|w-|w--)/.test(name) || source.includes(name);
       const deadPart = (part) => {
-        const bare = part.replace(/:(not|is|where|has)\((?:[^()]|\([^()]*\))*\)/g, '');
-        return [...bare.matchAll(/\.((?:\\.|[A-Za-z0-9_-])+)/g)].some((m) => !known(m[1].replace(/\\/g, '')));
+        const bare = part.replace(
+          /:(not|is|where|has)\((?:[^()]|\([^()]*\))*\)/g,
+          '',
+        );
+        return [...bare.matchAll(/\.((?:\\.|[A-Za-z0-9_-])+)/g)].some(
+          (m) => !known(m[1].replace(/\\/g, '')),
+        );
       };
       for (const [file, asset] of Object.entries(bundle)) {
-        if (!/ThemeLayout[^/]*\.css$/.test(file) || asset.type !== 'asset') continue;
+        // The theme stylesheet's chunk name follows whichever layout imports it first (ThemeLayout on the shop, `site` once the
+        // portal shares the same bundle), so find it by its token block rather than by file name.
+        if (asset.type !== 'asset' || !/\.css$/.test(file)) continue;
+        if (!/--color-ivory\s*:/.test(String(asset.source))) continue;
         const root = postcss.parse(String(asset.source));
         let removed = 0;
         root.walkRules((rule) => {
-          if (rule.parent?.type === 'atrule' && /keyframes$/.test(rule.parent.name)) return;
+          if (
+            rule.parent?.type === 'atrule' &&
+            /keyframes$/.test(rule.parent.name)
+          )
+            return;
           const parts = rule.selectors;
           if (parts.length && parts.every(deadPart)) {
             removed += rule.toString().length;
@@ -41,7 +57,14 @@ export function purgeThemeCss(root = process.cwd()) {
           }
         });
         root.walkAtRules((at) => {
-          if (/^(media|supports|layer|container)$/.test(at.name) && at.nodes && at.nodes.length === 0 && at.params !== undefined && !(at.name === 'layer' && !at.params)) at.remove();
+          if (
+            /^(media|supports|layer|container)$/.test(at.name) &&
+            at.nodes &&
+            at.nodes.length === 0 &&
+            at.params !== undefined &&
+            !(at.name === 'layer' && !at.params)
+          )
+            at.remove();
         });
         asset.source = root.toString();
         this.info(`purge-theme-css: removed ${removed} bytes from ${file}`);

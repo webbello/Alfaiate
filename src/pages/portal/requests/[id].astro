@@ -109,8 +109,8 @@ const reasons = [
 ---
 
 <PortalLayout title={`Request ${item.reference}`} auth={auth}>
-  <p>
-    <a href="/portal/requests">← All requests</a>
+  <p class="pt-back">
+    <a href="/portal/requests">All requests</a>
   </p>
   <h1>{item.reference}</h1>
   {note && <Flash message={note.text} kind={note.kind} />}

@@ -84,7 +84,9 @@ const good = ['uploaded', 'removed', 'saved'].includes(code);
                 maxlength="200"
               />
             </div>
-            <button type="submit">{p.photoSaveDetails}</button>
+            <button type="submit" class="secondary">
+              {p.photoSaveDetails}
+            </button>
           </form>
         </details>
         <form method="post" action="/portal/photos/save">
@@ -99,7 +101,7 @@ const good = ['uploaded', 'removed', 'saved'].includes(code);
     ))}
   </ul>
   <p class="portal-actions">
-    <a class="button" href="/portal">
+    <a class="button button--secondary" href="/portal">
       Back to my overview
     </a>
   </p>

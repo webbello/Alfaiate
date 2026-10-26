@@ -1,8 +1,7 @@
 ---
-// The signed-in tailor portal in the site's own frame (header, footer, fonts, colours). English only, never indexed, no Tetun twin.
-// Styles are scoped under `.pt` in src/theme/styles/portal-theme.css, which only these pages load.
-import ThemePage from './ThemePage.astro';
-import '../theme/styles/portal-theme.css';
+// The signed-in tailor portal: one bar, four tabs, the account, one column of work.
+// English only, never indexed, no Tetun twin.
+import PortalShell from './PortalShell.astro';
 import { en } from '../i18n/en';
 
 interface Props {
@@ -22,42 +21,41 @@ const tabs = [
   },
   {
     href: '/portal/products',
-    label: 'Products',
+    label: p.productsTab,
     here: /^\/portal\/products/.test(path),
   },
   {
     href: '/portal/requests',
-    label: 'Requests',
+    label: p.requestsTab,
     here: /^\/portal\/requests/.test(path),
   },
 ];
 ---
 
-<ThemePage
-  lang="en"
-  title={`${title} · ${p.brand}`}
-  description={description}
-  rest={path}
-  noindex
-  realPage={false}
->
-  <div class="pt">
-    <div class="pt__bar">
-      <nav class="pt__tabs" aria-label="Portal">
+<PortalShell title={`${title} · ${p.brand}`} description={description}>
+  <header class="pt-bar" slot="bar">
+    <div class="pt-bar__inner">
+      <a class="pt-brand" href="/" aria-label="Alfaiate TL">
+        <span class="brand-mark">
+          <span class="brand-name">Alfaiate</span>{' '}
+          <span class="brand-tl">TL</span>
+        </span>
+      </a>
+      <nav class="pt-tabs" aria-label={p.portalLabel}>
         {tabs.map((t) => (
           <a href={t.href} aria-current={t.here ? 'page' : undefined}>
             {t.label}
           </a>
         ))}
       </nav>
-      <form class="pt__user" method="post" action="/portal/logout">
-        <input type="hidden" name="csrf" value={auth.csrfToken} />
-        <span>{auth.email}</span>
-        <button type="submit" class="secondary">
-          {p.signOut}
-        </button>
-      </form>
+      <div class="pt-account">
+        <span class="pt-account__email">{auth.email}</span>
+        <form class="pt-account__out" method="post" action="/portal/logout">
+          <input type="hidden" name="csrf" value={auth.csrfToken} />
+          <button type="submit">{p.signOut}</button>
+        </form>
+      </div>
     </div>
-    <slot />
-  </div>
-</ThemePage>
+  </header>
+  <slot />
+</PortalShell>

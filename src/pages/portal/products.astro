@@ -70,7 +70,7 @@ const categories = await listProductCategories(DB);
     {products.length} of {MAX_OWN_PRODUCTS} products
   </p>
   <ul class="portal-products">
-    {products.map((p) => (
+    {products.map((p, i) => (
       <li class="portal-product">
         <a href={`/portal/products/${p.id}`}>
           {p.cover_key ? (
@@ -80,13 +80,14 @@ const categories = await listProductCategories(DB);
               alt=""
               width="320"
               height="240"
-              loading="lazy"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : undefined}
             />
           ) : (
             <span class="portal-product__none">No photo yet</span>
           )}
           <span class="portal-product__body">
-            <h3>{p.name}</h3>
+            <h2>{p.name}</h2>
             <span class={p.is_published ? 'badge badge--ok' : 'badge'}>
               {p.is_published
                 ? 'Published on the shop'

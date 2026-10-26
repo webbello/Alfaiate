@@ -65,36 +65,28 @@ const status =
       <a href="/portal/requests">See requests</a>
     </div>
   )}
-  <section class="portal-hero" aria-labelledby="hero-heading">
-    <div class={`ring ring--${doneCount}`} aria-hidden="true">
-      <span>
-        {doneCount}
-        <small>/{items.length}</small>
-      </span>
-    </div>
-    <div class="portal-hero__text">
-      <h1 id="hero-heading" tabindex="-1" data-step-heading>
-        {p.welcome}, {tailor.display_name}
-      </h1>
-      <p>
-        <strong>
-          {doneCount} of {items.length} steps done.
-        </strong>
-        {tailor.is_published === 1 ? '' : ` ${status}`}
+  <header class="pt-head">
+    <h1 id="hero-heading" tabindex="-1" data-step-heading>
+      {p.welcome}, {tailor.display_name}
+    </h1>
+    <p class="pt-head__lead">
+      <strong>
+        {doneCount} of {items.length} steps done.
+      </strong>
+      {tailor.is_published === 1 ? '' : ` ${status}`}
+    </p>
+    <progress class="progress" max={items.length} value={doneCount}>
+      {doneCount} of {items.length}
+    </progress>
+    {tailor.is_published !== 1 && !sent && next && (
+      <p class="pt-head__next">
+        <a class="button button--secondary" href={next.href}>
+          {g.nextUp}: {next.short}
+        </a>
+        <span>{g.minutes.replace('{n}', String(next.minutes))}</span>
       </p>
-      <progress class="progress" max={items.length} value={doneCount}>
-        {doneCount} of {items.length}
-      </progress>
-      {tailor.is_published !== 1 && !sent && next && (
-        <p class="portal-hero__cta">
-          <a class="button" href={next.href}>
-            {g.nextUp}: {next.short}
-          </a>
-          <span>{g.minutes.replace('{n}', String(next.minutes))}</span>
-        </p>
-      )}
-    </div>
-  </section>
+    )}
+  </header>
   {note && (
     <Flash
       message={note}
@@ -102,8 +94,8 @@ const status =
     />
   )}
   {tailor.is_published === 1 && (
-    <section class="card portal-live">
-      <h2>{g.liveHeading}</h2>
+    <section class="pt-live card" aria-labelledby="live-heading">
+      <h2 id="live-heading">{g.liveHeading}</h2>
       <p>{g.liveText}</p>
       <p>
         <a class="button button--secondary" href={`/tailors/${tailor.slug}`}>
@@ -116,6 +108,7 @@ const status =
   <ol class="portal-steplist" aria-labelledby="steps-heading">
     {items.map((i, n) => {
       const isNext = !i.done && i === next;
+      const act = i.done ? 'Change' : 'Fill in';
       return (
         <li
           class={`portal-step${i.done ? ' portal-step--done' : ''}${isNext ? ' portal-step--next' : ''}`}
@@ -144,11 +137,11 @@ const status =
             </span>
           </span>
           <a
-            class={isNext ? 'button' : 'button button--secondary'}
+            class="button button--secondary"
             href={i.href}
+            aria-label={`${act}: ${i.short}`}
           >
-            {i.done ? 'Change' : 'Fill in'}
-            <span class="sr-only">: {i.short}</span>
+            {act}
           </a>
         </li>
       );
