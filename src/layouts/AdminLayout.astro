@@ -36,6 +36,13 @@ const newCount = canSearch
     <title>{title} · {en.adminTitle}</title>
     <meta name="description" content={description} />
     <meta name="robots" content="noindex,nofollow" />
+    {/* Add to home screen (FR-ADM-19): admin pages only; no service worker, so nothing is stored for offline use. */}
+    <link rel="manifest" href="/admin.webmanifest" />
+    <link rel="apple-touch-icon" href="/admin-icon-180.png" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Alfaiate Admin" />
   </head>
   <body>
     {auth ? (
