@@ -45,8 +45,14 @@ const rate = t.views > 0 ? ((enquiryCount / t.views) * 100).toFixed(1) : null;
 >
   <PageHeader
     title={en.adminNavTraffic}
-    sub={`Visits to public pages in the last ${days} days. The site sets no cookies and stores no address or device details: it only counts visits by day, page and the site the visitor came from. Visitors who send Do Not Track or Global Privacy Control, and known bots, are not counted, so real numbers are a little higher.`}
+    sub={`Visits to public pages in the last ${days} days.`}
   />
+  <p class="hint">
+    The site sets no cookies and stores no address or device details: it only
+    counts visits by day, page and the site the visitor came from. Visitors who
+    send Do Not Track or Global Privacy Control, and known bots, are not
+    counted, so real numbers are a little higher.
+  </p>
   {t.views === 0 ? (
     <EmptyState title="No visits yet">
       <p>Visits appear here once people open the public pages.</p>
@@ -59,57 +65,65 @@ const rate = t.views > 0 ? ((enquiryCount / t.views) * 100).toFixed(1) : null;
         <StatCard label="Contact taps" value={String(tapCount)} />
         <StatCard label="Requests per 100 views" value={rate ?? '–'} />
       </div>
-      <h2>Where visitors came from</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Source</th>
-            <th>Views</th>
-          </tr>
-        </thead>
-        <tbody>
-          {t.sources.map((s) => (
+      <div class="traffic-grid">
+        <section>
+          <h2>Where visitors came from</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Views</th>
+              </tr>
+            </thead>
+            <tbody>
+              {t.sources.map((s) => (
+                <tr>
+                  <td>{s.source}</td>
+                  <td>{s.views}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+        <section>
+          <h2>Most viewed pages</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Page</th>
+                <th>Views</th>
+              </tr>
+            </thead>
+            <tbody>
+              {t.topPages.map((p) => (
+                <tr>
+                  <td>{p.path}</td>
+                  <td>{p.views}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      </div>
+      <details class="more-fields">
+        <summary>Views day by day</summary>
+        <table>
+          <thead>
             <tr>
-              <td>{s.source}</td>
-              <td>{s.views}</td>
+              <th>Day</th>
+              <th>Views</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <h2>Most viewed pages</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Page</th>
-            <th>Views</th>
-          </tr>
-        </thead>
-        <tbody>
-          {t.topPages.map((p) => (
-            <tr>
-              <td>{p.path}</td>
-              <td>{p.views}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <h2>By day</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Day</th>
-            <th>Views</th>
-          </tr>
-        </thead>
-        <tbody>
-          {t.daily.map((d) => (
-            <tr>
-              <td>{d.day}</td>
-              <td>{d.views}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {t.daily.map((d) => (
+              <tr>
+                <td>{d.day}</td>
+                <td>{d.views}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </details>
     </>
   )}
 </AdminLayout>

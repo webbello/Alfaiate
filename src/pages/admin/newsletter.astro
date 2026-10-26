@@ -4,6 +4,7 @@ import { env } from 'cloudflare:workers';
 import Flash from '../../components/admin/Flash.astro';
 import PageHeader from '../../components/admin/PageHeader.astro';
 import EmptyState from '../../components/admin/EmptyState.astro';
+import ConfirmAction from '../../components/admin/ConfirmAction.astro';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { messageKind } from '../../modules/admin-ui/messages';
 import { en } from '../../i18n/en';
@@ -32,6 +33,13 @@ const message = Object.hasOwn(en.adminMessages, code)
     sub="Addresses left in the footer 'Stay updated' form, newest first. Nothing is sent automatically. Remove an address when someone asks."
   />
   {message && <Flash message={message} kind={messageKind(code)} />}
+  {rows.length > 0 && (
+    <p class="catalog-count">
+      {search
+        ? `${rows.length} found.`
+        : `${rows.length} address${rows.length === 1 ? '' : 'es'}${truncated ? ' (newest shown)' : ''}.`}
+    </p>
+  )}
   <form method="get" action="/admin/newsletter" class="searchbar">
     <p>
       <label for="email">Find one address</label>
@@ -75,13 +83,12 @@ const message = Object.hasOwn(en.adminMessages, code)
             <td>
               <form method="post" action={`/admin/newsletter/${r.id}/remove`}>
                 <input type="hidden" name="csrf" value={auth.csrfToken} />
-                <button
-                  type="submit"
-                  class="danger"
-                  aria-label={`Remove ${r.email}`}
-                >
-                  Remove
-                </button>
+                <ConfirmAction
+                  label="Remove"
+                  question={`Remove ${r.email} from the list? This cannot be undone.`}
+                  yes="Yes, remove"
+                  danger
+                />
               </form>
             </td>
           </tr>

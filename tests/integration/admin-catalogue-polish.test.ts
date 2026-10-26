@@ -288,3 +288,39 @@ describe('join requests, orders and enquiries lists', () => {
     expect(waiting).toContain('<option value="" selected>Anywhere</option>');
   });
 });
+
+// Batch D: Newsletter asks before removing an address; Traffic keeps the privacy note short in the header and lays the tables out in a grid.
+describe('newsletter and traffic pages', () => {
+  it('Newsletter: a count line, and Remove asks first', async () => {
+    const n = unique();
+    const owner = await signIn('owner');
+    await run(
+      "INSERT INTO newsletter_signup (email, consent_text_version, consent_at) VALUES (?, 'v', '2026-01-01T00:00:00Z')",
+      `polish${n}@example.test`,
+    );
+    const html = await (
+      await get(`/admin/newsletter?email=polish${n}@`, owner)
+    ).text();
+    expect(html).toContain('1 found.');
+    const row =
+      /<tr>(?:(?!<\/tr>)[\s\S])*polish\d+@example\.test(?:(?!<\/tr>)[\s\S])*<\/tr>/.exec(
+        html,
+      )![0];
+    expect(row).toContain('<details class="confirm">');
+    expect(row).toContain('Yes, remove');
+  });
+
+  it('Traffic: short subtitle, privacy note under it, two tables side by side, days folded', async () => {
+    const owner = await signIn('owner');
+    await run(
+      "INSERT INTO page_view_daily (day, path, referrer, count) VALUES (date('now'), '/polish-d', 'direct', 3) ON CONFLICT DO NOTHING",
+    );
+    const html = await (await get('/admin/traffic', owner)).text();
+    expect(html).toContain('class="traffic-grid"');
+    expect(html).toMatch(
+      /<details class="more-fields">\s*<summary>Views day by day/,
+    );
+    expect(html).toMatch(/<p class="hint">\s*The site sets no cookies/);
+    expect(html).not.toMatch(/page-head__sub">[^<]*sets no cookies/);
+  });
+});
