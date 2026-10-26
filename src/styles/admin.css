@@ -817,7 +817,7 @@ small {
 .stat-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
   margin: 0 0 1rem;
 }
 .stat-grid--hero {
@@ -828,7 +828,7 @@ small {
   grid-template-columns: 1fr auto;
   align-content: start;
   gap: 0.15rem 0.75rem;
-  padding: 1rem 1.1rem;
+  padding: 0.85rem 1rem;
 }
 .stat__icon {
   grid-column: 2;
@@ -862,6 +862,12 @@ small {
   font-size: 0.8rem;
   line-height: 1.4;
   color: var(--muted);
+  /* two lines at most; the whole sentence is in the tooltip (title) */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .stat--hero .stat__value {
   font-size: 2rem;
@@ -2281,5 +2287,12 @@ a.icon-button:hover {
 @media (min-width: 64rem) {
   .tabs__cols {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---- Request page, two columns from 80rem (about 1200 px): the customer and the notes on the left, the referrals and what follows on the right. ---- */
+@media (min-width: 80rem) {
+  .split--request {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }

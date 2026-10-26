@@ -21,5 +21,9 @@ const { label, value, help, icon, hero = false } = Astro.props;
     </span>
   )}
   <p class="stat__value">{value}</p>
-  {help && <p class="stat__help">{help}</p>}
+  {help && (
+    <p class="stat__help" title={help}>
+      {help}
+    </p>
+  )}
 </div>
