@@ -3,6 +3,7 @@ import { env } from 'cloudflare:workers';
 import {
   ABSOLUTE_MS,
   IDLE_MS,
+  KEEP_MS,
   createSession,
   revokeSession,
   revokeUserSessions,
@@ -143,6 +144,67 @@ describe('revocation', () => {
         .bind(editor)
         .first(),
     ).toBeNull();
+    expect(await validateSession(db, token, after(MIN))).toBeNull();
+  });
+});
+
+describe('keep me signed in (FR-ADM-18)', () => {
+  const DAY = 24 * 60 * MIN;
+  it('lasts 30 days idle, ends after that, and an ordinary session still ends after 30 idle minutes', async () => {
+    expect(KEEP_MS).toBe(30 * DAY);
+    const user = await addUser();
+    const keep = await createSession(db, user, T0, { keep: true });
+    expect(keep.expiresAt.getTime()).toBe(T0.getTime() + 30 * DAY);
+    expect(
+      await validateSession(db, keep.token, after(29 * DAY)),
+    ).not.toBeNull();
+    const dropped = await createSession(db, user, T0, { keep: true });
+    expect(
+      await validateSession(db, dropped.token, after(31 * DAY)),
+    ).toBeNull();
+    const plain = await createSession(db, user, T0);
+    expect(await validateSession(db, plain.token, after(31 * MIN))).toBeNull();
+    const plain2 = await createSession(db, user, T0);
+    expect(
+      await validateSession(db, plain2.token, after(13 * 60 * MIN)),
+    ).toBeNull(); // the 12 hour limit
+  });
+
+  it('renews on every use: still signed in after 60 days if used every 20', async () => {
+    const user = await addUser();
+    const { token } = await createSession(db, user, T0, { keep: true });
+    for (let day = 20; day <= 60; day += 20)
+      expect(
+        await validateSession(db, token, after(day * DAY)),
+        `day ${day}`,
+      ).not.toBeNull();
+    expect(await validateSession(db, token, after(91 * DAY))).toBeNull();
+  });
+
+  it('asks for a fresh cookie only for a keep session used more than a day after its last renewal', async () => {
+    const user = await addUser();
+    const keep = await createSession(db, user, T0, { keep: true });
+    expect(
+      (await validateSession(db, keep.token, after(2 * MIN)))?.renewCookieUntil,
+    ).toBeUndefined();
+    const later = await validateSession(db, keep.token, after(2 * DAY));
+    expect(later?.renewCookieUntil?.getTime()).toBe(
+      after(2 * DAY).getTime() + 30 * DAY,
+    );
+    const plain = await createSession(db, user, T0);
+    expect(
+      (await validateSession(db, plain.token, after(10 * MIN)))
+        ?.renewCookieUntil,
+    ).toBeUndefined();
+  });
+
+  it('ends when the account is switched off, whatever the session length', async () => {
+    const user = await addUser();
+    const { token } = await createSession(db, user, T0, { keep: true });
+    await db
+      .prepare('UPDATE admin_user SET is_active = 0 WHERE id = ?')
+      .bind(user)
+      .run();
     expect(await validateSession(db, token, after(MIN))).toBeNull();
   });
 });

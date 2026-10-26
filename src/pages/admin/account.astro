@@ -3,6 +3,7 @@ export const prerender = false;
 import { readForm } from '../../modules/http/body';
 import { env } from 'cloudflare:workers';
 import Flash from '../../components/admin/Flash.astro';
+import ConfirmAction from '../../components/admin/ConfirmAction.astro';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { messageKind } from '../../modules/admin-ui/messages';
 import { en } from '../../i18n/en';
@@ -11,6 +12,8 @@ import { requirePermission } from '../../modules/auth/require';
 import { verifyCsrf } from '../../modules/auth/csrf';
 import { SESSION_COOKIE } from '../../modules/auth/session';
 import { changeOwnPassword } from '../../modules/auth/admin-users';
+import { revokeUserSessions } from '../../modules/auth/session';
+import { audit } from '../../modules/auth/audit';
 
 const auth = await requirePermission(Astro, 'dashboard.view');
 if (auth instanceof Response) return auth;
@@ -21,6 +24,19 @@ if (Astro.request.method === 'POST') {
   const token = Astro.cookies.get(SESSION_COOKIE)?.value ?? '';
   if (!(await verifyCsrf(token, form.get('csrf')?.toString())))
     return new Response('Forbidden', { status: 403 });
+  if (form.get('action')?.toString() === 'signout_all') {
+    // every sign-in of this person ends, this one included (a lost or lent phone)
+    const { DB } = requireBindings(env);
+    await revokeUserSessions(DB, auth.userId);
+    await audit(DB, {
+      userId: auth.userId,
+      action: 'signed_out_everywhere',
+      entityType: 'admin_user',
+      entityId: auth.userId,
+    });
+    Astro.cookies.delete(SESSION_COOKIE, { path: '/' });
+    return Astro.redirect('/admin/login', 303);
+  }
   const result = await changeOwnPassword(
     requireBindings(env).DB,
     auth.userId,
@@ -77,5 +93,22 @@ const message = Object.hasOwn(en.adminMessages, code)
       />
     </p>
     <button type="submit">{en.adminChangePassword}</button>
+  </form>
+
+  <h2>Signed in on other devices</h2>
+  <p>
+    If you ticked “Keep me signed in” on a phone, it stays signed in for 30 days
+    from its last use. If a phone is lost or lent, sign out everywhere: this
+    ends every sign-in of yours, including this one.
+  </p>
+  <form method="post">
+    <input type="hidden" name="csrf" value={auth.csrfToken} />
+    <input type="hidden" name="action" value="signout_all" />
+    <ConfirmAction
+      label="Sign out everywhere"
+      question="This signs you out on every device, this one too. Continue?"
+      yes="Yes, sign out everywhere"
+      danger
+    />
   </form>
 </AdminLayout>

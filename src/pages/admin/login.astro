@@ -14,6 +14,7 @@ import { SESSION_COOKIE } from '../../modules/auth/session';
 const schema = z.object({
   email: z.string().trim().max(254),
   password: z.string().max(1024),
+  keep: z.string().optional(),
 });
 
 let email = '';
@@ -25,7 +26,9 @@ if (Astro.request.method === 'POST') {
   email = parsed.success ? parsed.data.email : '';
   const result = parsed.success
     ? await login(requireBindings(env).DB, {
-        ...parsed.data,
+        email: parsed.data.email,
+        password: parsed.data.password,
+        keep: parsed.data.keep === 'yes',
         ip: Astro.request.headers.get('cf-connecting-ip') ?? undefined,
         previousToken: Astro.cookies.get(SESSION_COOKIE)?.value,
       })
@@ -79,6 +82,12 @@ if (Astro.request.method === 'POST') {
           autocomplete="current-password"
           required
         />
+      </p>
+      <p>
+        <label class="choice" for="keep">
+          <input id="keep" name="keep" type="checkbox" value="yes" />
+          Keep me signed in on this device (30 days)
+        </label>
       </p>
       <button type="submit">{en.adminSignIn}</button>
     </form>

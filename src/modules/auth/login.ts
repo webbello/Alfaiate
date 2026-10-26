@@ -22,6 +22,8 @@ type Credentials = {
   password: string;
   ip?: string;
   previousToken?: string;
+  /** "Keep me signed in on this device": a 30-day session that renews on use (FR-ADM-18). */
+  keep?: boolean;
 };
 type UserRow = { id: number; password_hash: string; is_active: number };
 
@@ -33,7 +35,7 @@ type UserRow = { id: number; password_hash: string; is_active: number };
  */
 export async function login(
   db: D1Database,
-  { email, password, ip, previousToken }: Credentials,
+  { email, password, ip, previousToken, keep }: Credentials,
   now = new Date(),
 ): Promise<LoginResult> {
   const normalised = email.trim().toLowerCase();
@@ -79,7 +81,7 @@ export async function login(
     .bind(now.toISOString(), user.id)
     .run();
   if (previousToken) await revokeSession(db, previousToken);
-  const session = await createSession(db, user.id, now);
+  const session = await createSession(db, user.id, now, { keep });
   await audit(db, { userId: user.id, action: 'login' });
   return {
     ok: true,

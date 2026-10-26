@@ -40,6 +40,7 @@ export type AuditAction =
   | 'portal_login_failed'
   | 'portal_account_activated'
   | 'portal_submitted'
+  | 'signed_out_everywhere'
   | 'referral_inbox_sent'
   | 'referral_inbox_taken_back'
   | 'referral_tailor_answered';

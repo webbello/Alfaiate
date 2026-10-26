@@ -21,7 +21,18 @@ export async function requirePermission(
     ctx.cookies.get(SESSION_COOKIE)?.value,
     permission,
   );
-  if (result.status === 'ok') return result.session;
+  if (result.status === 'ok') {
+    // a keep-me-signed-in session stays on the phone for 30 days from the last use: re-issue the cookie with the renewed date
+    if (result.session.renewCookieUntil)
+      ctx.cookies.set(SESSION_COOKIE, ctx.cookies.get(SESSION_COOKIE)!.value, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        path: '/',
+        expires: result.session.renewCookieUntil,
+      });
+    return result.session;
+  }
   if (result.status === 'anonymous') return ctx.redirect('/admin/login', 302);
   return new Response('Forbidden', { status: 403 });
 }

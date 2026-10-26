@@ -29,7 +29,7 @@ Each task: acceptance, how to verify, files. Requirement IDs are from the spec.
 
 ## Phase B
 
-- [ ] **B1 Keep me signed in (FR-ADM-18).** Tick at sign-in; 30-day renewing session when ticked, current limits when not; password change and account switch-off end all sessions; "Sign out everywhere" button on My account.
+- [x] **B1 Keep me signed in (FR-ADM-18). Done 2026-10-26 (a `keep_signed_in` column in the admin_session file, a one-off ALTER on staging; Sign out everywhere on My account).** Tick at sign-in; 30-day renewing session when ticked, current limits when not; password change and account switch-off end all sessions; "Sign out everywhere" button on My account.
   - Verify: unit tests with a fake clock (29 days kept, 30 ended, unticked ends at 30 minutes idle); integration test of the cookie lifetime and of switch-off.
   - Ask first: a column on the session table (owner approves the migration wording).
   - Files: `src/modules/auth/session.ts`, `src/modules/auth/login.ts`, `src/pages/admin/login.astro`, `src/pages/admin/account.astro`, tests.
