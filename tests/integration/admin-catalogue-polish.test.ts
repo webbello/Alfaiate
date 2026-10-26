@@ -98,6 +98,14 @@ describe('garment types and areas', () => {
       name: 'x',
     });
     expect(noOrder.headers.get('location')).toContain('msg=invalid');
+    const badOrder = await post('/admin/categories', owner, {
+      csrf: await csrfOf(owner),
+      action: 'update',
+      id: String(cat),
+      name: 'Half Saved',
+      sort_order: 'abc',
+    });
+    expect(badOrder.headers.get('location')).toContain('msg=invalid');
     const after = await env.DB.prepare(
       'SELECT name FROM garment_category WHERE id = ?',
     )

@@ -2144,6 +2144,10 @@ a.icon-button:hover {
 /* ---- Confirm before a hard-to-undo action (FR-ADM-17): the first button opens a question, the second sends the form. No script. ---- */
 .confirm {
   margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
 }
 .confirm > summary {
   display: inline-flex;
@@ -2165,12 +2169,14 @@ a.icon-button:hover {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
-.confirm__open--danger {
+.confirm > .confirm__open--danger {
   border-color: var(--bad-line);
   color: var(--bad-text);
 }
 .confirm[open] > summary {
   background: var(--band);
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--line-strong);
 }
 .confirm__body {
   display: grid;
@@ -2379,7 +2385,11 @@ a.icon-button:hover {
 
 /* The optional text boxes of a product (details, features, returns) fold under one line, open when they hold something. */
 .more-fields {
-  margin: 0.25rem 0;
+  margin: 1rem 0 0.25rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
 }
 .more-fields > summary {
   display: inline-flex;
@@ -2400,6 +2410,7 @@ a.icon-button:hover {
 .more-fields[open] > summary {
   margin-bottom: 0.75rem;
   background: var(--band);
+  border-bottom: 1px solid var(--line-strong);
 }
 .more-fields > p {
   margin: 0 0 0.75rem;

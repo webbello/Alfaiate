@@ -33,7 +33,13 @@ export async function applyCatalogForm(
         : 'invalid';
     // one Save for a whole row: the name (and description) and the order together; the single-purpose actions below stay for older forms
     case 'update': {
-      if (!Number.isInteger(id) || field('sort_order') === '') return 'invalid';
+      // check the order first, so a bad one cannot leave the rename saved
+      if (
+        !Number.isInteger(id) ||
+        field('sort_order') === '' ||
+        !Number.isInteger(Number(field('sort_order')))
+      )
+        return 'invalid';
       const renamed = await renameEntry(db, actorId, kind, id, data);
       if (!renamed.ok) return renamed.error;
       return done(
