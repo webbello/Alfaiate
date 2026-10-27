@@ -2,11 +2,11 @@
 export const prerender = false;
 import { env } from 'cloudflare:workers';
 import JournalPost from '../../theme/views/JournalPost.astro';
-import { testimonialPlaceholders } from '../../modules/config';
+import { draftPosts } from '../../modules/config';
 import { visiblePosts } from '../../modules/journal/posts';
 
-// Samples exist only when the development flag is on; otherwise an unknown or sample address is a plain 404.
-const post = visiblePosts(testimonialPlaceholders(env as { SHOW_TESTIMONIAL_PLACEHOLDERS?: string })).find((p) => p.slug === Astro.params.slug);
+// Drafts exist only when the preview flag is on; otherwise an unknown or draft address is a plain 404.
+const post = visiblePosts(draftPosts(env as { SHOW_DRAFT_POSTS?: string }), 'en').find((p) => p.slug === Astro.params.slug);
 if (!post) return Astro.rewrite('/404');
 ---
 

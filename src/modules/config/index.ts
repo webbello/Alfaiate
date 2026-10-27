@@ -121,6 +121,10 @@ export const testimonialPlaceholders = (env: {
   SHOW_TESTIMONIAL_PLACEHOLDERS?: string;
 }) => env.SHOW_TESTIMONIAL_PLACEHOLDERS === 'true';
 
+/** Staging preview of journal articles that are still drafts in the content editor. Exactly "true" turns it on; production never sets it (BR-11). */
+export const draftPosts = (env: { SHOW_DRAFT_POSTS?: string }) =>
+  env.SHOW_DRAFT_POSTS === 'true';
+
 const SOCIAL_HOSTS = {
   facebook: /^(www\.)?(facebook\.com|fb\.com)$/,
   instagram: /^(www\.)?instagram\.com$/,

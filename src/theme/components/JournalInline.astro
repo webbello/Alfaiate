@@ -1,0 +1,22 @@
+---
+// One run of article text: plain, bold, italic or a link. Rendered as elements, never as HTML (src/modules/journal/markdown.ts).
+import type { Inline } from '../../modules/journal/markdown';
+interface Props {
+  parts: Inline[];
+}
+const { parts } = Astro.props;
+---
+
+{
+  parts.map((i) =>
+    i.href ? (
+      <a href={i.href} rel="noopener noreferrer">{i.text}</a>
+    ) : i.strong ? (
+      <strong>{i.text}</strong>
+    ) : i.em ? (
+      <em>{i.text}</em>
+    ) : (
+      i.text
+    ),
+  )
+}

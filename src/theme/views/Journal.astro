@@ -1,11 +1,11 @@
 ---
-// The journal list, or one category of it (docs/SPEC-handspark-theme.md, step 6). Owner-written articles only; samples show in development and are labelled.
+// The journal list, or one category of it (docs/SPEC-handspark-theme.md, step 6). Articles come from the content editor (docs/SPEC-sveltia-cms.md); drafts show only in the staging preview and are labelled.
 import { env } from 'cloudflare:workers';
 import ThemeLayout from '../../layouts/ThemeLayout.astro';
 import Hero from '../components/sections/Hero.astro';
 import { dictionary } from '../../i18n/public';
 import { pathFor, type Lang } from '../../i18n/lang';
-import { testimonialPlaceholders } from '../../modules/config';
+import { draftPosts } from '../../modules/config';
 import { CATEGORIES, categoryOf, visiblePosts } from '../../modules/journal/posts';
 import { initials } from '../../components/story/variant';
 import { isIndexable } from '../../modules/seo/pages';
@@ -17,8 +17,8 @@ interface Props {
 const { lang, category } = Astro.props;
 const t = dictionary(lang);
 const j = t.journal;
-const showSamples = testimonialPlaceholders(env as { SHOW_TESTIMONIAL_PLACEHOLDERS?: string });
-const all = visiblePosts(showSamples);
+const showDrafts = draftPosts(env as { SHOW_DRAFT_POSTS?: string });
+const all = visiblePosts(showDrafts, lang);
 const posts = category ? all.filter((p) => p.category === category) : all;
 const current = category ? categoryOf(category) : undefined;
 const title = current ? current.name[lang] : j.heading;
@@ -31,7 +31,7 @@ import MotionScript from '../components/layout/MotionScript.astro';
   title={`${title} · ${t.siteName}`}
   description={j.intro}
   rest={current ? `/journal/category/${category}` : '/journal'}
-  noindex={!isIndexable('journal') || posts.length === 0 || posts.some((p) => p.sample)}
+  noindex={!isIndexable('journal') || posts.length === 0 || posts.some((p) => p.draft)}
 >
   <Hero parent={{ label: j.heading, href: pathFor(lang, '/journal') }} variant="cms" tag={j.heading} title={title} />
   <section class="global-section">
@@ -50,12 +50,16 @@ import MotionScript from '../components/layout/MotionScript.astro';
               <div class="blog-item" data-anim="fade">
                 <a class="blog-card w-inline-block" href={pathFor(lang, `/journal/${post.slug}`)}>
                   <div class="blog-thumb-card">
-                    <div class="blog-thumb shop-thumb--initials" data-initials={initials(categoryOf(post.category)?.name[lang] ?? post.title[lang])} aria-hidden="true"></div>
+                    {post.cover ? (
+                      <img class="blog-thumb blog-thumb--photo" src={post.cover.src} alt={post.cover.alt[lang] || post.cover.alt.en} width="800" height="600" loading="lazy" />
+                    ) : (
+                      <div class="blog-thumb shop-thumb--initials" data-initials={initials(categoryOf(post.category)?.name[lang] ?? post.title[lang])} aria-hidden="true"></div>
+                    )}
                   </div>
                   <div class="blog-details-card is-main-blog">
                     <div class="blog-date"><time datetime={post.date}>{date(post.date)}</time></div>
                     <div class="blog-name">{post.title[lang]}</div>
-                    {post.sample && <div class="blog-date">{j.sample}</div>}
+                    {post.draft && <div class="blog-date">{j.draft}</div>}
                   </div>
                 </a>
               </div>

@@ -16,6 +16,7 @@ export default defineConfig({
           JOIN_ENABLED: 'true',
           NEWSLETTER_ENABLED: 'true',
           SHOW_TESTIMONIAL_PLACEHOLDERS: 'false',
+          SHOW_DRAFT_POSTS: 'false',
           SOCIAL_FACEBOOK: 'https://www.facebook.com/alfaiate.test',
           SOCIAL_INSTAGRAM: 'https://www.instagram.com/alfaiate.test',
           SOCIAL_YOUTUBE: 'https://evil.example/not-youtube',

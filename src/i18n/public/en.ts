@@ -126,8 +126,9 @@ export const en = {
     back: 'Back to the journal',
     categories: 'Categories',
     all: 'All articles',
-    sample:
-      'Sample article for reviewing the layout only. It is not real advice.',
+    draft:
+      'Draft: this article is not published yet. Only people with the preview can see it.',
+    writtenBy: 'Written by',
     related: 'More from the journal',
     rss: 'RSS feed',
     published: 'Published',

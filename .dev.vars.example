@@ -18,6 +18,8 @@ JOIN_ENABLED=false
 NEWSLETTER_ENABLED=false
 # Development only: labelled sample testimonials so the section layout can be reviewed. Production never sets this (BR-11).
 SHOW_TESTIMONIAL_PLACEHOLDERS=false
+# Preview of journal articles that are still drafts in the content editor (/cms). Staging sets it to true; production never does (BR-11).
+SHOW_DRAFT_POSTS=false
 # Footer social icons: https addresses on the platform own domain only; WhatsApp uses SITE_WHATSAPP.
 # SOCIAL_FACEBOOK=https://www.facebook.com/your-page
 # SOCIAL_INSTAGRAM=https://www.instagram.com/your-account

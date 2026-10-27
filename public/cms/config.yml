@@ -39,6 +39,8 @@ collections:
     description: "Journal articles. Turn Draft off to publish. Tetun is optional: switch the Tetun tab off for a post that has none."
     icon: article
     folder: content/posts
+    media_folder: /public/photos/posts
+    public_folder: /photos/posts
     i18n: true
     slug: "{{slug}}"
     summary: "{{title}} · {{date | date('MMM D, YYYY')}}"
@@ -96,6 +98,11 @@ collections:
       - name: cover
         label: Cover Image
         widget: image
+        required: false
+        i18n: duplicate
+      - name: cover_credit
+        label: Photo credit
+        hint: Shown under the cover picture. Fill it for a stock photo whose licence asks for credit.
         required: false
         i18n: duplicate
       - name: cover_alt

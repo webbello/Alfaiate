@@ -1,11 +1,12 @@
 ---
-// One journal article. Text only, written by the owner (no author byline, no images), so nothing needs a permission record.
+// One journal article from the content editor (docs/SPEC-sveltia-cms.md). Stock or owner pictures only, never a photo of a tailor or customer (that needs a permission record, BR-06).
 import ThemeLayout from '../../layouts/ThemeLayout.astro';
 import Hero from '../components/sections/Hero.astro';
 import { dictionary } from '../../i18n/public';
 import { pathFor, type Lang } from '../../i18n/lang';
 import { categoryOf, type Post } from '../../modules/journal/posts';
 import { isIndexable } from '../../modules/seo/pages';
+import JournalInline from '../components/JournalInline.astro';
 
 interface Props {
   lang: Lang;
@@ -23,18 +24,24 @@ const date = new Intl.DateTimeFormat(lang === 'tet' ? 'pt-PT' : 'en-GB', { dateS
   title={`${post.title[lang]} · ${t.siteName}`}
   description={post.excerpt[lang]}
   rest={`/journal/${post.slug}`}
-  noindex={!isIndexable('journal') || post.sample === true}
+  noindex={!isIndexable('journal') || post.draft === true}
 >
   <Hero parent={{ label: j.heading, href: pathFor(lang, '/journal') }} variant="cms" tag={cat?.name[lang] ?? j.heading} title={post.title[lang]} />
   <section class="global-section">
     <div class="w-layout-blockcontainer main-container w-container">
       <article class="blog-details-block">
-        {post.sample && <p class="dir-note" role="note">{j.sample}</p>}
+        {post.draft && <p class="dir-note" role="note">{j.draft}</p>}
         <div class="blog-wrapper-block">
           <div class="blog-wrapper">
             <div class="blog-info">{j.published}</div>
             <div class="blog-text"><time datetime={post.date}>{date}</time></div>
           </div>
+          {post.author && (
+            <div class="blog-wrapper">
+              <div class="blog-info">{j.writtenBy}</div>
+              <div class="blog-text">{post.author.name}</div>
+            </div>
+          )}
           {cat && (
             <div class="blog-wrapper">
               <div class="blog-info">{j.categories}</div>
@@ -42,8 +49,30 @@ const date = new Intl.DateTimeFormat(lang === 'tet' ? 'pt-PT' : 'en-GB', { dateS
             </div>
           )}
         </div>
+        {post.cover && (
+          <figure class="journal-cover">
+            <img src={post.cover.src} alt={post.cover.alt[lang] || post.cover.alt.en} width="1200" height="800" />
+            {post.cover.credit && <figcaption>{post.cover.credit}</figcaption>}
+          </figure>
+        )}
         <div class="blog-richtext-block w-richtext">
-          {post.body[lang].map((p) => <p>{p}</p>)}
+          {post.body[lang].map((b) =>
+            b.kind === 'ul' ? (
+              <ul>{b.items.map((i) => <li><JournalInline parts={i} /></li>)}</ul>
+            ) : b.kind === 'ol' ? (
+              <ol>{b.items.map((i) => <li><JournalInline parts={i} /></li>)}</ol>
+            ) : b.kind === 'img' ? (
+              <img src={b.src} alt={b.alt} loading="lazy" />
+            ) : b.kind === 'h2' ? (
+              <h2><JournalInline parts={b.inline} /></h2>
+            ) : b.kind === 'h3' ? (
+              <h3><JournalInline parts={b.inline} /></h3>
+            ) : b.kind === 'quote' ? (
+              <blockquote><JournalInline parts={b.inline} /></blockquote>
+            ) : b.kind === 'p' ? (
+              <p><JournalInline parts={b.inline} /></p>
+            ) : null,
+          )}
         </div>
         <p><a href={pathFor(lang, '/journal')}>{j.back}</a></p>
       </article>

@@ -170,3 +170,9 @@ New lines in `src/i18n/public/tet.ts` under `request` (unreviewed, written by th
 ## Confirmation and join pages (2026-10-25)
 
 New or changed lines in `src/i18n/public/tet.ts` (unreviewed): `request.keepCode`, `request.thanksWhatsApp`, `request.thanksWhatsAppMessage`, and under `join`: `heading`, `intro`, `howLabel`, `how1` to `how3`, `alreadyApproved`.
+
+## Journal labels (content editor, 2026-10-27)
+
+- `journal.draft` Rascunhu: artigu ne’e seidauk publika. Ema ne’ebé iha previsaun deit bele haree.
+- `journal.writtenBy` Hakerek husi
+

@@ -132,7 +132,9 @@ export const tet: Dictionary = {
     back: 'Fila ba jornál',
     categories: 'Kategoria',
     all: 'Artigu hotu',
-    sample: 'Artigu amostra hodi haree layout deit. Ne’e la’ós konsellu loos.',
+    draft:
+      'Rascunhu: artigu ne’e seidauk publika. Ema ne’ebé iha previsaun deit bele haree.',
+    writtenBy: 'Hakerek husi',
     related: 'Liu tan husi jornál',
     rss: 'Feed RSS',
     published: 'Publika iha',

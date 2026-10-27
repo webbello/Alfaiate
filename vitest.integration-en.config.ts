@@ -18,6 +18,7 @@ export default defineConfig({
           ORDER_WHATSAPP: '+67077000001',
           JOIN_ENABLED: 'false',
           NEWSLETTER_ENABLED: 'false',
+          SHOW_DRAFT_POSTS: 'false',
           SHOW_TESTIMONIAL_PLACEHOLDERS: 'false', // pinned: a developer's .dev.vars must not change what the tests see
         },
       },

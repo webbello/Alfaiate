@@ -16,6 +16,7 @@ export default defineConfig({
           JOIN_ENABLED: 'false',
           NEWSLETTER_ENABLED: 'false',
           SHOW_TESTIMONIAL_PLACEHOLDERS: 'true',
+          SHOW_DRAFT_POSTS: 'true',
           RESPONSE_WINDOW_EN: 'within one working day',
           RESPONSE_WINDOW_TET: 'iha loron serbisu ida laran', // pinned: a developer's .dev.vars must not change what the tests see
           SITE_WHATSAPP: '',

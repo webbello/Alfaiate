@@ -157,6 +157,7 @@ Each environment (`staging`, `production`) has its own `"vars": { ... }` line. V
 | `RESPONSE_WINDOW_EN`, `RESPONSE_WINDOW_TET` | Optional | The sentence after "We aim to contact you", for example `within one working day`. Set only what you can keep. Unset promises nothing. |
 | `GOOGLE_SITE_VERIFICATION` | Optional | The code Google Search Console gives you for the "HTML tag" method (letters, digits, `-`, `_`). |
 | `SHOW_TESTIMONIAL_PLACEHOLDERS` | **Never set** | For developers only. |
+| `SHOW_DRAFT_POSTS` | Staging: `true`. Production: **never set** | Shows journal articles that are still drafts in the content editor, labelled and never indexed, so the owner can read them before approving. Turn Draft off in `/cms` to publish. |
 
 ### C2. Secrets (typed into Cloudflare)
 Make a strong random value:
