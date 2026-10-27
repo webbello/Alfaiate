@@ -1,0 +1,264 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+#
+# Alfaiate TL content editor (docs/SPEC-sveltia-cms.md). Sveltia holds photos, journal posts, authors and site settings.
+# Tailor and product text, prices, status and permissions stay in /admin (D1): the only link between the two is the slug.
+#
+# `test-repo` keeps everything in the browser (nothing is sent anywhere): good for trying the editor. The GitHub backend replaces it in phase C5.
+
+backend:
+  name: test-repo
+
+app_title: Alfaiate TL content
+media_folder: public/photos
+public_folder: /photos
+
+media_libraries:
+  default:
+    config:
+      max_file_size: 1572864
+      slugify_filename: true
+      transformations:
+        raster_image:
+          format: webp
+          quality: 85
+          width: 2048
+          height: 2048
+
+output:
+  omit_empty_optional_fields: true
+
+i18n:
+  structure: multiple_folders
+  locales: [en, tet]
+  default_locale: en
+
+collections:
+  - name: posts
+    label: Posts
+    label_singular: Post
+    description: "Journal articles. Turn Draft off to publish. Tetun is optional: switch the Tetun tab off for a post that has none."
+    icon: article
+    folder: content/posts
+    i18n: true
+    slug: "{{slug}}"
+    summary: "{{title}} · {{date | date('MMM D, YYYY')}}"
+    thumbnail: cover
+    sortable_fields:
+      fields: [title, date, author]
+      default:
+        field: date
+        direction: descending
+    view_filters:
+      filters:
+        - name: published
+          label: Published
+          field: draft
+          pattern: false
+        - name: drafts
+          label: Drafts
+          field: draft
+          pattern: true
+    table_columns:
+      - title
+      - { field: "{{date | date('MMM D, YYYY')}}", label: Date }
+      - author
+      - tags
+      - draft
+    fields:
+      - name: title
+        label: Title
+        i18n: true
+      - name: date
+        label: Published Date
+        widget: datetime
+        i18n: duplicate
+      - name: draft
+        label: Draft
+        widget: boolean
+        default: true
+        hint: Only an approved article goes public. Leave on until the owner has read it.
+        i18n: duplicate
+      - name: author
+        label: Author
+        widget: relation
+        collection: authors
+        value_field: "{{slug}}"
+        search_fields: [name]
+        display_fields: [name]
+        required: false
+        i18n: duplicate
+      - name: tags
+        label: Category
+        widget: select
+        options: [Tailoring tips, Care and repair]
+        required: false
+        i18n: duplicate
+      - name: cover
+        label: Cover Image
+        widget: image
+        required: false
+        i18n: duplicate
+      - name: cover_alt
+        label: Cover image description
+        hint: One sentence for people who cannot see the picture, and the photo credit if the licence asks for one.
+        required: false
+        i18n: true
+      - name: description
+        label: Description
+        widget: text
+        hint: A short summary shown in the journal list and in search results.
+        required: false
+        i18n: true
+      - name: body
+        label: Body
+        widget: richtext
+        i18n: true
+
+  - name: authors
+    label: Authors
+    label_singular: Author
+    icon: group
+    folder: content/authors
+    extension: yml
+    identifier_field: name
+    summary: "{{name}} – {{role}}"
+    thumbnail: avatar
+    media_folder: /public/photos/authors
+    public_folder: /photos/authors
+    fields:
+      - name: name
+        label: Name
+      - name: role
+        label: Role
+        required: false
+      - name: avatar
+        label: Avatar
+        widget: image
+        required: false
+      - name: bio
+        label: Bio
+        widget: text
+        required: false
+      - name: links
+        label: Links
+        widget: list
+        summary: "{{label}}"
+        required: false
+        fields:
+          - name: label
+            label: Label
+          - name: url
+            label: URL
+            pattern: ["^https?://", Enter a URL starting with https://]
+
+  - divider: true
+
+  - name: tailor_photos
+    label: Tailor photos
+    label_singular: Tailor photo
+    description: One entry per tailor. The file name must be the tailor's slug exactly as /admin shows it (the address of their page). Only text and publishing are changed in /admin.
+    icon: photo_camera
+    folder: content/photos/tailors
+    extension: yml
+    identifier_field: slug
+    slug: "{{slug}}"
+    summary: "{{slug}}"
+    thumbnail: profile
+    media_folder: /public/photos/tailors
+    public_folder: /photos/tailors
+    fields:
+      - name: slug
+        label: Tailor slug
+        hint: Copy it from the tailor's address in /admin, for example zeb-tailor. Lower case, numbers and dashes only.
+        pattern: ["^[a-z0-9]+(-[a-z0-9]+)*$", "Use lower case letters, numbers and dashes only"]
+      - name: profile
+        label: Profile photo
+        widget: image
+        required: false
+      - name: profile_alt
+        label: Profile photo description
+        required: false
+      - name: gallery
+        label: Gallery
+        widget: image
+        multiple: true
+        max: 6
+        required: false
+      - name: gallery_alt
+        label: Gallery descriptions
+        hint: One line per gallery picture, in the same order.
+        widget: text
+        required: false
+
+  - name: product_photos
+    label: Product photos
+    label_singular: Product photo
+    description: One entry per product. The file name must be the product's slug exactly as /admin shows it.
+    icon: shopping_bag
+    folder: content/photos/products
+    extension: yml
+    identifier_field: slug
+    slug: "{{slug}}"
+    summary: "{{slug}}"
+    thumbnail: main
+    media_folder: /public/photos/products
+    public_folder: /photos/products
+    fields:
+      - name: slug
+        label: Product slug
+        hint: Copy it from the product's address in /admin. Lower case, numbers and dashes only.
+        pattern: ["^[a-z0-9]+(-[a-z0-9]+)*$", "Use lower case letters, numbers and dashes only"]
+      - name: main
+        label: Main photo
+        widget: image
+        required: false
+      - name: main_alt
+        label: Main photo description
+        required: false
+      - name: gallery
+        label: Gallery
+        widget: image
+        multiple: true
+        max: 6
+        required: false
+      - name: gallery_alt
+        label: Gallery descriptions
+        hint: One line per gallery picture, in the same order.
+        widget: text
+        required: false
+
+singletons:
+  - name: site
+    label: Site settings
+    icon: settings
+    file: content/settings/site.yml
+    media_folder: /public/photos/site
+    public_folder: /photos/site
+    fields:
+      - name: site_name
+        label: Site name
+        required: false
+      - name: tagline
+        label: Tagline
+        hint: One short line under the site name. Empty keeps the site's own wording.
+        required: false
+      - name: contact_line
+        label: Contact line
+        hint: Shown in the footer. Empty keeps the site's own wording.
+        required: false
+      - name: social_links
+        label: Social links
+        widget: list
+        summary: "{{label}}"
+        required: false
+        fields:
+          - name: label
+            label: Label
+          - name: url
+            label: URL
+            pattern: ["^https?://", Enter a URL starting with https://]
+      - name: share_image
+        label: Default share image
+        widget: image
+        required: false
+        hint: Shown when a page without its own picture is shared.

@@ -1,0 +1,9 @@
+# Static files are served before the Worker runs, so the editor page gets its own headers here (FR-CMS-01).
+# The sign-in popup needs same-origin-allow-popups; the page is never indexed or cached.
+/cms/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY

@@ -160,3 +160,24 @@ describe('check:repo credits are read from the first column only', () => {
     ).toEqual([]);
   });
 });
+
+describe('check:repo photos edited in the content editor (FR-CMS-07)', () => {
+  it('allows web photos under public/photos only', () => {
+    expect(
+      problems(
+        file('public/photos/tailors/zeb-1.webp', null),
+        file('public/photos/site/hero.jpg', null),
+        file('public/photos/authors/ana.PNG', null),
+      ),
+    ).toEqual([]);
+    for (const bad of [
+      'public/photos/x.heic',
+      'public/photos/x.gif',
+      'public/other/x.webp',
+      'src/photos/x.jpg',
+      'content/photos/x.jpg',
+      'public/photos.webp',
+    ])
+      expect(problems(file(bad, null)), bad).toHaveLength(1);
+  });
+});
