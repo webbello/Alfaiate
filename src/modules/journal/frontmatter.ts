@@ -1,9 +1,9 @@
 /**
  * The small slice of YAML that Sveltia CMS writes at the top of a journal article or author file (docs/SPEC-sveltia-cms.md): `key: value` lines with plain, quoted
- * or block (`|`, `>`) text, and true/false. A key with nothing after it (a list or an object) is read as null and its indented lines are skipped.
+ * or block (`|`, `>`) text, true/false, and lists of plain items. A key with an object or a list of objects after it is read as null and its indented lines are skipped.
  * Not a YAML parser: anything else is kept as plain text, never run.
  */
-export type Scalar = string | boolean | null;
+export type Scalar = string | boolean | null | string[];
 export type Frontmatter = { data: Record<string, Scalar>; body: string };
 
 const unquote = (raw: string): string => {
@@ -35,7 +35,12 @@ export function parseMapping(lines: string[]): Record<string, Scalar> {
       const text = rest.map((l) => l.replace(/^\s+/, ''));
       data[key] = block[1] === '|' ? text.join('\n') : text.join(' ').trim();
     } else if (value === '') {
-      data[key] = null; // nested list or object: not read here
+      // a list of plain items ("- text") is read; any other nested list or object is not (null)
+      const items = rest.map((l) => l.trim()).filter((l) => l !== '');
+      data[key] =
+        items.length > 0 && items.every((l) => /^-\s+[^:]*$/.test(l))
+          ? items.map((l) => unquote(l.replace(/^-\s+/, '').trim()))
+          : null;
     } else {
       const whole = [value, ...rest.map((l) => l.trim())].join(' ').trim();
       data[key] =

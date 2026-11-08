@@ -1,6 +1,7 @@
 ---
 // One product in the shop grid or a slider, in the theme's card (docs/SPEC-shop.md). The bag button adds the product to the cart (price and quantity, like the
 // theme); without JavaScript it opens the request form with this item named. The seller is always named; nothing is paid here (BR-13).
+import { photoUrl, photoSrcset } from '../../../modules/media/urls';
 import Icon from '../ui/Icon.astro';
 import { fill } from '../../../i18n/public';
 import { pathFor, type Lang } from '../../../i18n/lang';
@@ -18,7 +19,7 @@ const { lang, t, product, sizes = '(max-width: 767px) 92vw, (max-width: 991px) 4
 const s = t.shop;
 const href = pathFor(lang, `/shop/${product.slug}`);
 const price = product.price_cents !== null ? product.price_cents / 100 : null;
-const cartImage = product.photo ? `/media/shop/${product.photo.base}/thumb.jpg` : '';
+const cartImage = product.photo ? photoUrl(product.photo.base, 'thumb', 'shop/') : '';
 const seller = product.seller_name ? fill(s.soldByTailor, { name: product.seller_name }) : fill(s.sold, { name: s.platform });
 ---
 
@@ -28,8 +29,8 @@ const seller = product.seller_name ? fill(s.soldByTailor, { name: product.seller
       product.photo ? (
         <img
           class="shop-thumb"
-          src={`/media/shop/${product.photo.base}/medium.jpg`}
-          srcset={`/media/shop/${product.photo.base}/thumb.jpg 320w, /media/shop/${product.photo.base}/medium.jpg 800w`}
+          src={photoUrl(product.photo.base, 'medium', 'shop/')}
+          srcset={photoSrcset(product.photo.base, [['thumb', 320], ['medium', 800]], 'shop/')}
           {sizes}
           alt={product.photo.alt}
           loading="lazy"

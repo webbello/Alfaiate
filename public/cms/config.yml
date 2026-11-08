@@ -3,10 +3,14 @@
 # Alfaiate TL content editor (docs/SPEC-sveltia-cms.md). Sveltia holds photos, journal posts, authors and site settings.
 # Tailor and product text, prices, status and permissions stay in /admin (D1): the only link between the two is the slug.
 #
-# `test-repo` keeps everything in the browser (nothing is sent anywhere): good for trying the editor. The GitHub backend replaces it in phase C5.
+# GitHub backend (docs/SPEC-sveltia-cms.md, phase C5). To edit the files on this computer without signing in: open /cms in Chrome, Edge or Brave and choose
+# "Work with Local Repository", then pick the project folder. Saved changes are written into content/ and public/photos/ here; commit and push them as usual.
+# Signing in with GitHub (for staff on other computers) needs the OAuth helper from phase C5. The branch is the one the content lives on; C5 moves it to staging-content.
 
 backend:
-  name: test-repo
+  name: github
+  repo: webbello/Alfaiate
+  branch: handspark-theme
 
 app_title: Alfaiate TL content
 media_folder: public/photos
@@ -163,7 +167,7 @@ collections:
   - name: tailor_photos
     label: Tailor photos
     label_singular: Tailor photo
-    description: One entry per tailor. The file name must be the tailor's slug exactly as /admin shows it (the address of their page). Only text and publishing are changed in /admin.
+    description: "One entry per tailor. The slug must match the one shown on the tailor's Photos tab in /admin. Only photos are changed here; text and publishing stay in /admin. The entry named example-tailor (or example-product) is used by the site's tests: leave it as it is."
     icon: photo_camera
     folder: content/photos/tailors
     extension: yml
@@ -200,7 +204,7 @@ collections:
   - name: product_photos
     label: Product photos
     label_singular: Product photo
-    description: One entry per product. The file name must be the product's slug exactly as /admin shows it.
+    description: "One entry per product. The slug must match the one shown on the product's page in /admin. The entry named example-tailor (or example-product) is used by the site's tests: leave it as it is."
     icon: shopping_bag
     folder: content/photos/products
     extension: yml

@@ -1,0 +1,34 @@
+---
+// Where this tailor's or product's photos from the content editor come from (FR-CMS-04, FR-CMS-08): the slug to type there, and whether any are set. Read only: /admin never writes them.
+import {
+  cmsProductPhotos,
+  cmsTailorPhotos,
+} from '../../modules/media/cms-photos';
+interface Props {
+  kind: 'tailors' | 'products';
+  slug: string;
+}
+const { kind, slug } = Astro.props;
+const found =
+  kind === 'tailors' ? cmsTailorPhotos(slug) : cmsProductPhotos(slug);
+const count = (found.main ? 1 : 0) + found.gallery.length;
+const collection = kind === 'tailors' ? 'Tailor photos' : 'Product photos';
+---
+
+<section class="card">
+  <h2>Photos from the content editor</h2>
+  <p>
+    {count > 0
+      ? `${count} photo${count === 1 ? '' : 's'} set. They show on the public page only while there is no photo uploaded here.`
+      : 'No photo set yet.'}
+  </p>
+  <p>
+    To add or change them, open the <a href="/cms/">content editor</a>, choose{' '}
+    <strong>{collection}</strong> and use this slug exactly:
+    <code>{slug}</code>
+  </p>
+  <p class="hint">
+    Changing the slug of this {kind === 'tailors' ? 'tailor' : 'product'} here
+    unlinks its photos, and the public address changes too.
+  </p>
+</section>

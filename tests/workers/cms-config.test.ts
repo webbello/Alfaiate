@@ -66,7 +66,9 @@ describe('/cms config', () => {
   it('new posts start as drafts (BR-11)', () => {
     expect(config).toMatch(/- name: draft[\s\S]*?default: true/);
   });
-  it('uses the test backend until GitHub is connected (phase C5)', () => {
-    expect(config).toMatch(/^backend:\n {2}name: (test-repo|github)$/m);
+  it('names the GitHub repository (local-folder editing works without signing in)', () => {
+    expect(config).toMatch(
+      /^backend:\n {2}name: github\n {2}repo: webbello\/Alfaiate$/m,
+    );
   });
 });

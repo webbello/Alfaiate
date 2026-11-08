@@ -1,4 +1,5 @@
 ---
+import { photoUrl, photoSrcset } from '../modules/media/urls';
 import Source from './Source.astro';
 import { dictionary, fill } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
@@ -40,8 +41,8 @@ const whatsapp = (() => {
   {photo && (
     <img
       class="card__photo"
-      src={`/media/${photo.base}/medium.jpg`}
-      srcset={`/media/${photo.base}/thumb.jpg 320w, /media/${photo.base}/medium.jpg 800w`}
+      src={photoUrl(photo.base, 'medium')}
+      srcset={photoSrcset(photo.base, [['thumb', 320], ['medium', 800]])}
       sizes="(min-width: 48rem) 20rem, 100vw"
       alt={photo.alt}
       loading="lazy"

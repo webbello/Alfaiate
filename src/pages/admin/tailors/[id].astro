@@ -24,6 +24,7 @@ import { listImages } from '../../../modules/media/list';
 import { MAX_IMAGES } from '../../../modules/media/store';
 import { messageFrom } from '../../../modules/tailors/messages';
 import Card from '../../../components/admin/Card.astro';
+import CmsPhotoNote from '../../../components/admin/CmsPhotoNote.astro';
 import FormGrid from '../../../components/admin/FormGrid.astro';
 import ConfirmAction from '../../../components/admin/ConfirmAction.astro';
 import { takeTab } from '../../../modules/admin-ui/tabs';
@@ -370,6 +371,7 @@ const openTab = takeTab(Astro.cookies);
       )}
     </div>
     <div class="tabs__panel" id="tab-photos">
+      <CmsPhotoNote kind="tailors" slug={tailor.slug} />
       <section class="card">
         <h2>{en.photosHeading}</h2>
         <p>{en.photosPrivateNote}</p>

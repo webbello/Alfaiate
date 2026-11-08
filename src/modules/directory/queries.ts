@@ -7,6 +7,7 @@ import {
 import { isVerifiable } from '../tailors/verification';
 import type { DirectoryFilters } from './filters';
 import type { CardView, Choice, PhotoView, Price, ProfileView } from './view';
+import { cmsBase, cmsTailorPhotos } from '../media/cms-photos';
 
 // Every statement here names its columns. There is deliberately no `SELECT *` and no join to notes, fees or permission data.
 export const MAX_CARDS = 200;
@@ -21,6 +22,17 @@ const photoView = (
   alt: row.alt_text,
   caption: row.caption ?? null,
 });
+
+// A tailor's photos from the content editor (FR-CMS-04): used only when the tailor has no R2 photo of their own. Only published, consenting tailors reach this code.
+const cmsView = (p: { src: string; alt: string }, name: string): PhotoView => ({
+  base: cmsBase(p),
+  alt: p.alt || name,
+  caption: null,
+});
+const cmsProfile = (slug: string, name: string): PhotoView | null => {
+  const main = cmsTailorPhotos(slug).main;
+  return main ? cmsView(main, name) : null;
+};
 
 function verifiedSet(json: string): Set<string> {
   try {
@@ -193,7 +205,9 @@ export async function listPublished(
       return {
         slug: r.slug,
         name: r.display_name,
-        photo: photo ? photoView(r.id, photo) : null,
+        photo: photo
+          ? photoView(r.id, photo)
+          : cmsProfile(r.slug, r.display_name),
         specialties: own.map((c) => c.name),
         // shop first, each place once, even when a tailor both has a shop and serves there
         areas: [
@@ -303,8 +317,15 @@ export async function getPublishedBySlug(
       verified: c.price_source === 'verified',
     })),
     areas: areas.map((a) => ({ slug: a.slug, name: a.name, kind: a.kind })),
-    photos: gallery,
-    profilePhoto: profilePhoto ? photoView(t.id, profilePhoto) : null,
+    photos:
+      gallery.length > 0
+        ? gallery
+        : cmsTailorPhotos(t.slug).gallery.map((p) =>
+            cmsView(p, t.display_name),
+          ),
+    profilePhoto: profilePhoto
+      ? photoView(t.id, profilePhoto)
+      : cmsProfile(t.slug, t.display_name),
     priceHint: priceHint(cats),
   };
 }

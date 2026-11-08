@@ -1,5 +1,6 @@
 ---
 // A listed tailor in the theme's product-card style (classes shop-card, shop-thumb, shop-name). Used by the home page slider now and by the directory in step 4.
+import { photoUrl, photoSrcset } from '../../../modules/media/urls';
 import Icon from '../ui/Icon.astro';
 import { fill } from '../../../i18n/public';
 import { initials } from '../../../components/story/variant';
@@ -40,8 +41,8 @@ const priceLine =
       tailor.photo ? (
         <img
           class="shop-thumb"
-          src={`/media/${tailor.photo.base}/medium.jpg`}
-          srcset={`/media/${tailor.photo.base}/thumb.jpg 320w, /media/${tailor.photo.base}/medium.jpg 800w`}
+          src={photoUrl(tailor.photo.base, 'medium')}
+          srcset={photoSrcset(tailor.photo.base, [['thumb', 320], ['medium', 800]])}
           sizes={sizes}
           alt={tailor.photo.alt}
           loading="lazy"
@@ -71,7 +72,7 @@ const priceLine =
       data-add-to-cart
       data-name={tailor.name}
       data-url={href}
-      data-image={tailor.photo ? `/media/${tailor.photo.base}/thumb.jpg` : ''}
+      data-image={tailor.photo ? photoUrl(tailor.photo.base, 'thumb') : ''}
     >
       <input type="hidden" name="tailor" value={tailor.slug} />
       <button type="submit" aria-label={fill(t.requestList.add, { name: tailor.name })} title={t.requestList.addLabel}>

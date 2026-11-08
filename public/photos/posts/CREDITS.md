@@ -14,3 +14,7 @@ Stock photographs for the ten sample journal articles (FR-CMS-06), downloaded 20
 | mending-a-button-and-small-tears.webp | The Metropolitan Museum of Art | https://commons.wikimedia.org/wiki/File:Sewing_Kit_MET_DP226409.jpg | CC0 | sample article cover |
 | alteration-or-a-new-garment.webp | Kris Atomic krisatomic | https://commons.wikimedia.org/wiki/File:Seamstress_at_work_(Unsplash).jpg | CC0 | sample article cover |
 | why-a-tailor-asks-to-measure-again.webp | Sonia Sevilla | https://commons.wikimedia.org/wiki/File:Tailor_men_Behind_the_Sewing_Machine_Fingers_on_his_chin.jpg | CC0 | sample article cover |
+
+## Example photo entries
+
+`public/photos/tailors/example-tailor*.webp` and `public/photos/products/example-product.webp` are copies of two of the CC0 photos above (the tape measure with scissors, and the sewing kit). They belong to the example entries `example-tailor` and `example-product` in the content editor, which the site's tests use. They show how an entry looks. A real tailor or product is never called `example-...`, so they never appear on the site. Do not delete them.

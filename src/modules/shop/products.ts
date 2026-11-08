@@ -2,6 +2,7 @@ import { audit, who, type Actor } from '../auth/audit';
 import { can } from '../auth/permissions';
 import { uniqueSlug } from '../db/unique-slug';
 import { centsToDollars, dollarsToCents } from '../tailors/links';
+import { cmsBase, cmsProductPhotos } from '../media/cms-photos';
 
 /**
  * The shop's products (docs/SPEC-shop.md, S1). The platform's own items today; `seller_tailor_id` is reserved for tailors' products (S4).
@@ -359,6 +360,12 @@ const PUBLIC_SELECT = `SELECT p.id, p.slug, p.name, p.description, p.price_cents
   LEFT JOIN tailor st ON st.id = p.seller_tailor_id
   WHERE p.is_published = 1 AND (p.seller_tailor_id IS NULL OR (st.is_published = 1 AND st.permission_recorded = 1))`;
 
+// A product's photos from the content editor (FR-CMS-04): used only when the product has no R2 photo of its own. Only published products reach this code.
+const cmsMain = (slug: string, name: string) => {
+  const main = cmsProductPhotos(slug).main;
+  return main ? { base: cmsBase(main), alt: main.alt || name } : null;
+};
+
 async function withPhotos(
   db: D1Database,
   rows: PublicRow[],
@@ -385,7 +392,7 @@ async function withPhotos(
       features: lines(features),
       returns: lines(returns),
       featured: is_featured === 1,
-      photo: first.get(id) ?? null,
+      photo: first.get(id) ?? cmsMain(rest.slug, rest.name),
     }),
   );
 }
@@ -453,10 +460,18 @@ export async function getPublishedProduct(
     )
     .bind(row.id)
     .all<{ file_key: string; alt_text: string }>();
-  const photos = results.map((r) => ({
+  const own = results.map((r) => ({
     base: `product/${row.id}/${r.file_key}`,
     alt: r.alt_text,
   }));
+  const cms = cmsProductPhotos(row.slug);
+  const photos =
+    own.length > 0
+      ? own
+      : [...(cms.main ? [cms.main] : []), ...cms.gallery].map((p) => ({
+          base: cmsBase(p),
+          alt: p.alt || row.name,
+        }));
   return {
     slug: row.slug,
     name: row.name,

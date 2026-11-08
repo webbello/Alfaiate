@@ -1,6 +1,7 @@
 ---
 // One published product in the theme's product page: image tabs, title, price, add to cart with a quantity, and the Details, Features and Returns & Exchanges panels,
 // then related products. The seller is named, price and terms are the seller's (BR-13), and nothing is paid on the site.
+import { photoUrl, photoSrcset } from '../../modules/media/urls';
 import { env } from 'cloudflare:workers';
 import ThemeLayout from '../../layouts/ThemeLayout.astro';
 import Icon from '../components/ui/Icon.astro';
@@ -31,7 +32,8 @@ const askWhatsapp = owner ? whatsappLink(owner, fill(s.askMessage, { name: produ
 const description = metaText(product.description ?? '', 155) || s.intro;
 const { siteUrl } = siteConfig(env);
 const href = pathFor(lang, `/shop/${product.slug}`);
-const image = (base: string, size: 'thumb' | 'medium' | 'large') => `/media/shop/${base}/${size}.jpg`;
+const image = (base: string, size: 'thumb' | 'medium' | 'large') => photoUrl(base, size, 'shop/');
+const imageSet = (base: string, sizes: ['thumb' | 'medium' | 'large', number][]) => photoSrcset(base, sizes, 'shop/');
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Product',
@@ -104,7 +106,7 @@ import MotionScript from '../components/layout/MotionScript.astro';
                       <div class:list={['product-tab-pane', 'w-tab-pane', index === 0 && 'is-tab-active']} data-tab-pane data-active={index === 0 ? '' : undefined}>
                         <img
                           src={image(p.base, 'medium')}
-                          srcset={`${image(p.base, 'medium')} 800w, ${image(p.base, 'large')} 1600w`}
+                          srcset={imageSet(p.base, [['medium', 800], ['large', 1600]])}
                           sizes="(max-width: 991px) 92vw, 45vw"
                           alt={p.alt}
                           class="product-thumb"

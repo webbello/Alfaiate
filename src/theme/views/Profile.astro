@@ -1,6 +1,7 @@
 ---
 // A tailor's page in the theme's product layout (docs/SPEC-handspark-theme.md, step 4): the facts we hold, each labelled verified or supplied (BR-11),
 // only photos with recorded permission (BR-06), contact buttons only for consented numbers, and the request list button in place of "add to cart".
+import { photoUrl, photoSrcset } from '../../modules/media/urls';
 import { env } from 'cloudflare:workers';
 import ThemeLayout from '../../layouts/ThemeLayout.astro';
 import Hero from '../components/sections/Hero.astro';
@@ -39,7 +40,8 @@ const serves = tailor.areas.filter((a) => a.kind === 'serves');
 const description = metaText(tailor.description?.value ?? '', 155) || fill(t.profile.metaDescription, { name: tailor.name });
 const requestHref = `${pathFor(lang, '/request')}?tailor=${tailor.slug}`;
 const url = pathFor(lang, `/tailors/${tailor.slug}`);
-const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') => `/media/${base}/${size}.jpg`;
+const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') => photoUrl(base, size);
+const imageSet = (base: string, sizes: ['thumb' | 'medium' | 'large', number][]) => photoSrcset(base, sizes);
 ---
 
 <ThemeLayout
@@ -63,7 +65,7 @@ const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') => `/media/$
             tailor.profilePhoto ? (
               <img
                 src={imageSrc(tailor.profilePhoto.base, 'medium')}
-                srcset={`${imageSrc(tailor.profilePhoto.base, 'medium')} 800w, ${imageSrc(tailor.profilePhoto.base, 'large')} 1600w`}
+                srcset={imageSet(tailor.profilePhoto.base, [['medium', 800], ['large', 1600]])}
                 sizes="(min-width: 48rem) 40rem, 100vw"
                 alt={tailor.profilePhoto.alt}
               />
@@ -234,7 +236,7 @@ const imageSrc = (base: string, size: 'thumb' | 'medium' | 'large') => `/media/$
                   <figure>
                     <img
                       src={imageSrc(p.base, 'medium')}
-                      srcset={`${imageSrc(p.base, 'thumb')} 320w, ${imageSrc(p.base, 'medium')} 800w, ${imageSrc(p.base, 'large')} 1600w`}
+                      srcset={imageSet(p.base, [['thumb', 320], ['medium', 800], ['large', 1600]])}
                       sizes="(min-width: 48rem) 20rem, 100vw"
                       alt={p.alt}
                       loading="lazy"

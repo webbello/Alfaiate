@@ -8,6 +8,7 @@ import Flash from '../../../components/admin/Flash.astro';
 import FormGrid from '../../../components/admin/FormGrid.astro';
 import StickyBar from '../../../components/admin/StickyBar.astro';
 import StatusChip from '../../../components/admin/StatusChip.astro';
+import CmsPhotoNote from '../../../components/admin/CmsPhotoNote.astro';
 import ProductFields from '../../../components/admin/ProductFields.astro';
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { en } from '../../../i18n/en';
@@ -86,6 +87,7 @@ const mayEditPhotos = !product.is_published || mayPublish;
       label={product.is_published ? 'Published' : 'Draft'}
     />
   </PageHeader>
+  <CmsPhotoNote kind="products" slug={product.slug} />
   {message && (
     <Flash message={message} kind={kind}>
       {fields.length > 0 && <>Check: {fields.join(', ')}</>}
@@ -136,47 +138,49 @@ const mayEditPhotos = !product.is_published || mayPublish;
         </li>
       ))}
     </ul>
-    {mayEditPhotos && photosEnabled(env) && images.length < MAX_PRODUCT_IMAGES && (
-      <>
-        <h3>Add a photo</h3>
-        <form
-          method="post"
-          action={`/admin/products/${product.id}/images`}
-          enctype="multipart/form-data"
-          data-photo-upload
-          data-msg-choose={en.photosChoose}
-          data-msg-type={en.photosBadType}
-          data-msg-empty={en.photosEmpty}
-          data-msg-size={en.photosTooBig}
-          data-msg-working={en.photosWorking}
-          data-msg-failed={en.photosFailed}
-        >
-          <input type="hidden" name="csrf" value={auth.csrfToken} />
-          <p>
-            <label for="photo-file">{en.photosFile}</label>
-            <br />
-            <input
-              id="photo-file"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              required
-            />
-          </p>
-          <p>
-            <label for="photo-alt">
-              Describe the photo (for people who cannot see it)
-            </label>
-            <br />
-            <input id="photo-alt" name="alt_text" maxlength="200" required />
-          </p>
-          <p role="status" data-upload-status></p>
-          <button type="submit">{en.photosUpload}</button>
-        </form>
-        <script>
-          import '../../../scripts/image-upload';
-        </script>
-      </>
-    )}
+    {mayEditPhotos &&
+      photosEnabled(env) &&
+      images.length < MAX_PRODUCT_IMAGES && (
+        <>
+          <h3>Add a photo</h3>
+          <form
+            method="post"
+            action={`/admin/products/${product.id}/images`}
+            enctype="multipart/form-data"
+            data-photo-upload
+            data-msg-choose={en.photosChoose}
+            data-msg-type={en.photosBadType}
+            data-msg-empty={en.photosEmpty}
+            data-msg-size={en.photosTooBig}
+            data-msg-working={en.photosWorking}
+            data-msg-failed={en.photosFailed}
+          >
+            <input type="hidden" name="csrf" value={auth.csrfToken} />
+            <p>
+              <label for="photo-file">{en.photosFile}</label>
+              <br />
+              <input
+                id="photo-file"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                required
+              />
+            </p>
+            <p>
+              <label for="photo-alt">
+                Describe the photo (for people who cannot see it)
+              </label>
+              <br />
+              <input id="photo-alt" name="alt_text" maxlength="200" required />
+            </p>
+            <p role="status" data-upload-status></p>
+            <button type="submit">{en.photosUpload}</button>
+          </form>
+          <script>
+            import '../../../scripts/image-upload';
+          </script>
+        </>
+      )}
     {mayEditPhotos && images.length >= MAX_PRODUCT_IMAGES && (
       <p>A product can have up to {MAX_PRODUCT_IMAGES} photos.</p>
     )}

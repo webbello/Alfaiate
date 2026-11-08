@@ -1,0 +1,7 @@
+slug: example-tailor
+profile: /photos/tailors/example-tailor.webp
+profile_alt: "Example photo: a tape measure, thread and scissors"
+gallery:
+  - /photos/tailors/example-tailor-2.webp
+gallery_alt: |-
+  Example photo: a small sewing kit
