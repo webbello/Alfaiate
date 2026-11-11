@@ -1,9 +1,14 @@
 ---
 import { env } from 'cloudflare:workers';
 import ThemePage from '../layouts/ThemePage.astro';
-import { dictionary } from '../i18n/public';
+import { dictionary, fill } from '../i18n/public';
 import { pathFor, type Lang } from '../i18n/lang';
-import { joinEnabled, siteWhatsapp } from '../modules/config';
+import {
+  joinEnabled,
+  orderWhatsapp,
+  responseWindow,
+  siteWhatsapp,
+} from '../modules/config';
 import { whatsappLink } from '../modules/contact-links/whatsapp';
 
 interface Props {
@@ -12,8 +17,16 @@ interface Props {
 const { lang } = Astro.props;
 const t = dictionary(lang);
 const c = t.contactPage;
-const settings = env as { SITE_WHATSAPP?: string; JOIN_ENABLED?: string };
-const whatsapp = siteWhatsapp(settings);
+const settings = env as {
+  SITE_WHATSAPP?: string;
+  ORDER_WHATSAPP?: string;
+  JOIN_ENABLED?: string;
+  RESPONSE_WINDOW_EN?: string;
+  RESPONSE_WINDOW_TET?: string;
+};
+// A direct way to reach the business (UX audit P8): the site's WhatsApp number, else the shop order number, as on the request confirmation page.
+const whatsapp = siteWhatsapp(settings) ?? orderWhatsapp(settings);
+const when = responseWindow(settings, lang);
 ---
 
 <ThemePage
@@ -34,6 +47,7 @@ const whatsapp = siteWhatsapp(settings);
       <section aria-labelledby="contact-whatsapp">
         <h2 id="contact-whatsapp">{c.whatsappHeading}</h2>
         <p>{c.whatsappBody}</p>
+        {when && <p>{fill(t.request.responseLine, { when })}</p>}
         <p>
           <a
             class="button button--secondary"

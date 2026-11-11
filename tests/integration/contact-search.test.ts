@@ -9,7 +9,9 @@ describe('contact page', () => {
     expect(en).toMatch(/<h1>Contact us<\/h1>/);
     expect(en).toContain('href="/request"');
     expect(en).toContain('href="/join"'); // JOIN_ENABLED is true in this test project
-    expect(en).not.toContain('wa.me'); // no owner number configured here
+    // no site number here, so the shop order number is the direct way to reach the business (UX audit P8)
+    expect(en).toContain('https://wa.me/67077000001?text=');
+    expect(en).not.toContain('We aim to contact you'); // no reply time set: no promise
     expect(/<main[\s\S]*<\/main>/.exec(en)![0]).not.toMatch(/<form/); // the footer may hold the newsletter form
     const tet = await (await get('/tet/contact')).text();
     expect(tet).toContain('<html lang="tet">');
