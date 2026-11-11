@@ -552,3 +552,44 @@ html { scroll-padding-bottom: 5rem; }
   font-size: 0.85rem;
   color: var(--_theme---text-muted, #5b5b5b);
 }
+
+/* Profile: the request list is a quiet text action under the contact buttons (UX audit P1). Still a real button, at least 44 px tall. */
+.prof-list { margin: -0.25rem 0 1rem; }
+.prof-list__button {
+  min-height: 44px;
+  padding: 0.5rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.prof-list__button:focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
+
+/* Directory: the type, area and home-visit filters fold under one line (UX audit P2), and a tailor with no photo gets a short card, not a screen-high block. */
+.dir-more { grid-column: 1 / -1; }
+.dir-more > summary {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.dir-more > summary:focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
+.dir-more__fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem 1rem;
+  align-items: end;
+  padding-top: 0.5rem;
+}
+.dir-more__fields p { margin: 0; }
+.dir-grid .shop-thumb--initials { aspect-ratio: 16 / 7; }
+.dir-more > summary { list-style: none; gap: 0.5rem; }
+.dir-more > summary::-webkit-details-marker { display: none; }
+.dir-more > summary::after { content: '+'; font-size: 1.25rem; line-height: 1; }
+.dir-more[open] > summary::after { content: '−'; }
+/* A profile with no photo: a short initials band, so the contact buttons are on the first phone screen. */
+.prof-photo .shop-thumb--initials { aspect-ratio: 16 / 7; }

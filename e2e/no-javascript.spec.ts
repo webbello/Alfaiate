@@ -27,6 +27,7 @@ test('browse to a profile and find the contact links, with JavaScript off', asyn
 
 test('the directory filter works as a plain form', async ({ page }) => {
   await page.goto('/tailors');
+  await page.locator('.dir-more > summary').click(); // a details fold works without JavaScript
   await page
     .getByLabel('Garment or service')
     .selectOption({ label: '[Placeholder] Suits' });
@@ -97,6 +98,8 @@ test('the services section is a plain list, not a pinned reel, with JavaScript o
   await expect(titles).toHaveCount(5);
   for (let i = 0; i < 5; i++) await expect(titles.nth(i)).toBeVisible();
   expect(
-    await page.locator('.works-sticky').evaluate((e) => getComputedStyle(e).position),
+    await page
+      .locator('.works-sticky')
+      .evaluate((e) => getComputedStyle(e).position),
   ).toBe('static');
 });
