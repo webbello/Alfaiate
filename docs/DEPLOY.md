@@ -412,6 +412,41 @@ Do this when you have a card. Staging first, then production; each part is indep
 2. In `wrangler.jsonc`, delete `, "PASSWORD_ITERATIONS": "100000"` from the `vars` line of `staging` and `production`.
 3. Deploy again. Each person's password is re-hashed with 600000 rounds the next time they sign in; nothing else to do. If sign-in starts failing with a server error after this, you are not yet on Workers Paid: put the line back.
 
+## J. Content editor (`/cms`): sign in from your phone, and staging updates itself
+
+Photos and journal articles are edited at `/cms` (docs/SPEC-sveltia-cms.md). Every save there is a commit to the GitHub repository `webbello/Alfaiate`, branch `handspark-theme`. These steps make that work from any phone or computer, and make staging rebuild itself after each save. Do J1 and J2 once.
+
+**J1. Let Cloudflare deploy staging when GitHub changes** (about 5 minutes)
+1. Make sure the latest code is on GitHub: in the project folder run `git -c credential.helper= push origin handspark-theme`.
+2. Cloudflare dashboard → **Workers & Pages** → click **alfaiate-tl-staging** → **Settings** → **Build** → **Connect**.
+3. Choose **GitHub**. If asked, install the **Cloudflare Workers and Pages** GitHub app and give it access to **Only select repositories** → **webbello/Alfaiate**.
+4. Fill in:
+   - **Repository**: `webbello/Alfaiate`
+   - **Branch**: `handspark-theme`
+   - **Build command**: leave empty
+   - **Deploy command**: `npm run deploy:staging`
+   - **Root directory**: leave empty (`/`)
+   - **Build variables**: add `NODE_VERSION` = `24`
+5. Click **Connect** (or **Save**). Cloudflare starts a first build. Wait for **Success** in **Deployments** (a few minutes), then open https://alfaiate-tl-staging.md-irfan-tls.workers.dev and check the home page.
+
+From now on, **every push to `handspark-theme` deploys staging**, from `/cms` or from this computer. Production is never deployed this way: it still needs `npm run deploy:production` (section E). If a build fails, staging keeps the last good version; the build log is under **Deployments**.
+
+**J2. A sign-in key for `/cms`** (about 3 minutes, once per phone or computer)
+1. On github.com, signed in as `webbello`: your picture → **Settings** → **Developer settings** → **Personal access tokens** → **Fine-grained tokens** → **Generate new token**.
+2. Fill in:
+   - **Token name**: `Alfaiate CMS (phone)`
+   - **Expiration**: 1 year (put a reminder in your calendar)
+   - **Repository access**: **Only select repositories** → `webbello/Alfaiate`
+   - **Permissions** → **Repository permissions** → **Contents**: **Read and write** (leave everything else as it is)
+3. **Generate token** and copy it. GitHub shows it only once.
+4. On the phone, open https://alfaiate-tl-staging.md-irfan-tls.workers.dev/cms/ → **Sign In Using Access Token** → paste → sign in. The phone remembers it. Do not use **Sign in with GitHub**: that button needs a sign-in helper that is not set up.
+5. Never send the token in a chat or email. If a phone is lost: GitHub → the same page → **Delete** the token, and make a new one.
+
+**Daily use**
+- In `/admin`, open a tailor → **Photos** → **Add photos**. The editor opens with the tailor filled in. Add pictures, **Save**. About two minutes later the photo is on staging (only if the tailor is published).
+- Articles: `/cms` → **Posts**. Turn **Draft** off to publish one.
+- Before working on the code on this computer, run `git pull` first: `/cms` saves arrive on GitHub, not here.
+
 ---
 
 ## What I need from you
@@ -432,6 +467,8 @@ Give these to whoever runs the deployment, or do them yourself. Each says where 
 - [ ] Facebook, Instagram, YouTube page addresses, if you want the icons → `SOCIAL_*`, C1.
 - [ ] A Google Search Console verification code, once you have added the site there → `GOOGLE_SITE_VERIFICATION`, C1.
 - [ ] Your email for the first owner account and a strong password you type yourself → F3.
+
+- [ ] The GitHub account `webbello` (owner of `webbello/Alfaiate`) to connect Cloudflare builds and make the `/cms` sign-in key → J1, J2.
 
 **Decisions**
 - [ ] Final starting lists of garment types and areas (`seeds/launch.sql`) → D2 (they can be edited later in the admin).

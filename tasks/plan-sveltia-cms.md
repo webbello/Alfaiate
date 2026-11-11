@@ -8,4 +8,4 @@ Change from the spec: the image folder is `public/photos` (public path `/photos`
 - [x] **C2 Journal from files.** Posts and authors read from `content/`; drafts and samples hidden everywhere; 10 sample draft posts with stock images (licence recorded).
 - [x] **C3 Photos by slug.** Tailor and product photo lookup (R2 first, then Sveltia, then stand-in); `/admin` read-only line and slug warning.
 - [ ] **C4 Site settings.** Settings file read with today's text as the fallback.
-- [ ] **C5 GitHub and deploy.** Private repo, OAuth helper Worker, Cloudflare Git connection for staging, DEPLOY steps, one real test save.
+- [~] **C5 GitHub and deploy.** Private repo, OAuth helper Worker, Cloudflare Git connection for staging, DEPLOY steps, one real test save.
