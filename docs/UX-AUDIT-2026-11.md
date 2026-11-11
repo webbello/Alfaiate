@@ -20,7 +20,7 @@ Nothing here invents a figure, testimonial or partner: the sample testimonials a
 | P4 | Everywhere | **The same legal note in full on the home hero, the directory and every profile** ("Alfaiate TL introduces you to independent tailors..."). Necessary once, noise when repeated; on the hero it sits beside the main buttons in small grey text. | all |
 | P5 | Everywhere | **Five names for one action**: Find a Tailor, Find Your Tailor, Explore All Tailors, Browse tailors, Browse all tailors. And two for the other: Request a Tailor, Request this tailor. | all |
 | P6 | Shop and product pages | **The sticky "Request a Tailor" bar shows on shop pages**, where the visitor came to buy, and covers the product's own Add to cart area on a phone. The cart icon in the header holds both tailors and products, which mixes two ideas. | shop |
-| P7 | `/order` | **Same page as `/shop`** under a second address (two addresses for one page confuses sharing and search). | shop |
+| P7 | `/order` | ~~Same page as `/shop` under a second address.~~ Not a problem: a plain visit already redirects to `/shop` (checked in U5). | shop |
 | P8 | Contact | **No way to contact the business directly**: the page only offers the request form and Join. No WhatsApp number, hours or place, which costs trust. | trust |
 | P9 | Home hero (phone) | **No picture in the hero on a phone**, so the first screen is all text; the small line under the buttons has weak contrast. | J1, J2 |
 | P10 | Product page | The price note, "Sold by", the quantity box, Add to Cart and "Ask about this item" are stacked with little hierarchy; the legal note repeats a second time. | shop |

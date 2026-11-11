@@ -83,3 +83,18 @@ describe('U2 directory', () => {
     );
   });
 });
+
+describe('U5 shop', () => {
+  it('has no request bar on the shop list or a product page, but keeps it elsewhere', async () => {
+    for (const path of ['/shop', '/tet/shop'])
+      expect(await (await get(path)).text(), path).not.toContain(
+        'class="sticky-bar"',
+      );
+    expect(await (await get('/about')).text()).toContain('class="sticky-bar"');
+  });
+  it('sends a plain visit to /order back to the shop', async () => {
+    const response = await get('/order');
+    expect(response.status).toBe(303);
+    expect(response.headers.get('location')).toBe('/shop');
+  });
+});
