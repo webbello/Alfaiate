@@ -34,7 +34,7 @@ const name = area.name;
   <h1>{fill(t.area.heading, { name })}</h1>
   <p class="lead">{fill(t.area.intro, { name })}</p>
   <p class="notice" role="note">
-    <strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}
+    {t.disclaimer.line} <a href={pathFor(lang, '/how-it-works')}>{t.disclaimer.more}</a>
   </p>
   <p class="actions">
     <a class="button" href={pathFor(lang, '/request')}>

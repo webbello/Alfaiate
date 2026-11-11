@@ -76,7 +76,7 @@ const imageSet = (base: string, sizes: ['thumb' | 'medium' | 'large', number][])
 
         <section class="prof-contact" aria-labelledby="contact">
           <h2 id="contact">{t.profile.contact}</h2>
-          <p class="dir-note" role="note"><strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}</p>
+          <p class="dir-note" role="note">{t.disclaimer.line} <a href={pathFor(lang, '/how-it-works')}>{t.disclaimer.more}</a></p>
           {/* One primary action (WhatsApp, else Call, else a request through us); the request list is a quiet extra (UX audit P1). */}
           <div class="prof-actions">
             {

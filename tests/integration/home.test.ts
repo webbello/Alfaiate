@@ -26,12 +26,14 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
       html,
       '<h1 class="home-title" data-anim="hero">Find the Tailor Who Gets Your Style.</h1>',
     );
-    const disclaimer = index(html, 'introduces you to independent tailors');
+    // the one-line note (UX audit P4); the full note is in the footer of every page
+    const disclaimer = index(html, 'Tailors are independent: you agree the price');
     const cta = index(
       html,
       'class="button is-coffee w-inline-block" href="/request"',
     );
-    const company = index(html, 'class="company-section"');
+    // the second section since the UX audit (P3): the featured tailors
+    const company = index(html, 'class="best-sellers-section"');
     expect(h1).toBeLessThan(disclaimer);
     expect(disclaimer).toBeLessThan(company);
     expect(cta).toBeLessThan(company);
@@ -48,12 +50,13 @@ describe('home page (AC-01, FR-PUB-01/02/03)', () => {
       html,
       '<h1 class="home-title" data-anim="hero">Buka Alfaiate ne’ebé Komprende Ita-nia Estilu.</h1>',
     );
-    const disclaimer = index(html, 'aprezenta ita ba alfaiate independente');
+    const disclaimer = index(html, 'Alfaiate sira independente: ita konkorda folin');
     const cta = index(
       html,
       'class="button is-coffee w-inline-block" href="/tet/request"',
     );
-    const company = index(html, 'class="company-section"');
+    // the second section since the UX audit (P3): the featured tailors
+    const company = index(html, 'class="best-sellers-section"');
     expect(h1).toBeLessThan(disclaimer);
     expect(disclaimer).toBeLessThan(company);
     expect(cta).toBeLessThan(company);

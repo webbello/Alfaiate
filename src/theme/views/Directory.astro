@@ -141,7 +141,7 @@ import MotionScript from '../components/layout/MotionScript.astro';
           )
         }
         {truncated && <p class="dir-note">{d.truncated}</p>}
-        <p class="dir-note" role="note"><strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}</p>
+        <p class="dir-note" role="note">{t.disclaimer.line} <a href={pathFor(lang, '/how-it-works')}>{t.disclaimer.more}</a></p>
 
         {
           !variant && areas.length > 0 && (

@@ -109,7 +109,7 @@ import MotionScript from '../components/layout/MotionScript.astro';
               </div>
             </div>
             <p class="home-reassure" data-anim="hero">{h.hero.reassure}</p>
-            <p class="home-note" data-anim="hero"><strong>{h.noteLabel}:</strong> {t.disclaimer.short}</p>
+            <p class="home-note" data-anim="hero">{t.disclaimer.line} <a href={pathFor(lang, '/how-it-works')}>{t.disclaimer.more}</a></p>
           </div>
           <div class="home-line-block">
             <Icon name="hero-line" class="hero-line" />

@@ -37,13 +37,13 @@ describe('static page text is unchanged', () => {
     for (const path of PATHS)
       actual[path] = await sha(mainText(await (await get(path)).text()));
     expect(actual).toEqual({
-      '/about': '784ad8192b0e', // 2026-10-23: only the button label changed, "Request a tailor at home" to "Request a Tailor"
-      '/how-it-works': 'f38da827d8b3', // same button label
+      '/about': '2516a20c552c', // 2026-11-12 (owner-approved UX audit): only the button label "Browse tailors" became "Find a Tailor"
+      '/how-it-works': '45d25fcb96c9', // same button label
       '/no-such-page': '8f5778279c8a',
       '/privacy': '4696861fd35c',
       '/terms': '999b18f1a5eb',
-      '/tet/about': '49eda49fa345', // same button label (Husu Alfaiate)
-      '/tet/how-it-works': 'eee37ebe6055', // same button label
+      '/tet/about': '28e6adb649bc', // same button label (Buka Alfaiate)
+      '/tet/how-it-works': 'e29821000e08', // same button label
       '/tet/no-such-page': '3f2ef287e8f4',
       '/tet/privacy': 'b627894fff79',
       '/tet/terms': 'd7eb59fdd750',

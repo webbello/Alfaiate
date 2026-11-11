@@ -182,6 +182,9 @@ export const en = {
     confirmedOn: 'Confirmed {date}',
   },
   disclaimer: {
+    // One line for pages that also show the full note in the footer (UX audit P4); the full note stays on How it works, Terms, the request form and the footer.
+    line: 'Tailors are independent: you agree the price and dates with the tailor.',
+    more: 'How it works',
     short:
       "Alfaiate TL introduces you to independent tailors. The tailor, not Alfaiate TL, agrees the price, makes your clothes and sets the dates. We cannot guarantee a tailor's availability, quality or timing.",
   },
@@ -190,7 +193,7 @@ export const en = {
     description:
       'Find independent tailors in Dili and across Timor-Leste for custom clothing, suits, dresses, uniforms and alterations. See their work and contact them directly.',
     noteLabel: 'Please note',
-    browse: 'Browse tailors',
+    browse: 'Find a Tailor',
     hero: {
       eyebrow: 'Local craftsmanship. Personal service.',
       headingStart: 'Find the Tailor Who Gets',
@@ -233,7 +236,7 @@ export const en = {
       eyebrow: 'Featured tailors',
       heading: 'Meet Your Local Tailors.',
       intro: 'Discover talented tailors from across Timor-Leste.',
-      all: 'Explore All Tailors',
+      all: 'Find a Tailor',
       view: 'View Profile',
       whatsapp: 'WhatsApp {name}',
       previous: 'Previous tailors',
@@ -288,7 +291,7 @@ export const en = {
     final: {
       heading: 'Your Next Favourite Outfit Starts Here.',
       body: 'Discover local craftsmanship, find your tailor and bring your next clothing idea to life.',
-      find: 'Find Your Tailor',
+      find: 'Find a Tailor',
       request: 'Request a Tailor',
       script: 'Local talent, personal style, a stronger community',
     },
@@ -447,21 +450,21 @@ export const en = {
     heading: 'Tailoring services',
     intro:
       'Choose a type of clothing to see the tailors who make it, or browse all tailors.',
-    browse: 'Browse all tailors',
+    browse: 'Find a Tailor',
   },
   craftPage: {
     title: 'Our craft: tailoring in Timor-Leste',
     heading: 'Our craft',
     intro:
       'Tailors on Alfaiate TL are independent local businesses. Here is what we care about, and how to find the right one.',
-    browse: 'Browse all tailors',
+    browse: 'Find a Tailor',
   },
   contactPage: {
     title: 'Contact',
     heading: 'Contact us',
     intro:
       'The quickest way to reach us is a request: tell us what you need and where you are, and with your consent we pass it to a tailor.',
-    requestLink: 'Request a tailor',
+    requestLink: 'Request a Tailor',
     whatsappHeading: 'WhatsApp',
     whatsappBody: 'You can also send us a message on WhatsApp.',
     whatsappLink: 'WhatsApp us',
@@ -604,7 +607,7 @@ export const en = {
       'We will contact you using the number you gave. We cannot promise when.',
     responseLine:
       'We aim to contact you {when}. This is a goal, not a guarantee.',
-    browse: 'Browse tailors',
+    browse: 'Find a Tailor',
   },
   notFound: {
     title: 'Page not found',
