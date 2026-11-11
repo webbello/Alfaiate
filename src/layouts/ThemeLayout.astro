@@ -80,10 +80,11 @@ const showNewsletter =
   !['/newsletter', '/request', '/business', '/join'].some((p) =>
     rest.startsWith(p),
   );
-// The quick-action bar for phones: never on the home page (it has its own calls to action), the forms (it could cover them) or the legal pages.
+// The quick-action bar for phones: never on the home page (it has its own calls to action), the forms (it could cover them), the legal pages,
+// or the shop, where "Request a Tailor" is the wrong action and the bar covered Add to Cart (UX audit P6).
 const showBar =
   rest !== '/' &&
-  !['/request', '/business', '/join', '/privacy', '/terms'].some((p) => rest.startsWith(p));
+  !['/request', '/business', '/join', '/privacy', '/terms', '/shop'].some((p) => rest.startsWith(p));
 const ownerWhatsapp = siteWhatsapp(env as { SITE_WHATSAPP?: string });
 const social = [
   ...socialLinks(

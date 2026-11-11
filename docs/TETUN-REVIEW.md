@@ -176,3 +176,8 @@ New or changed lines in `src/i18n/public/tet.ts` (unreviewed): `request.keepCode
 - `journal.draft` Rascunhu: artigu ne’e seidauk publika. Ema ne’ebé iha previsaun deit bele haree.
 - `journal.writtenBy` Hakerek husi
 
+## One-line legal note and labels (UX audit, 2026-11-12)
+
+- `disclaimer.line` Alfaiate sira independente: ita konkorda folin no data ho alfaiate.
+- `disclaimer.more` Oinsá serbisu ne'e halo (same as the menu)
+- Links to the directory now all say `Buka Alfaiate`; the request link `Husu Alfaiate`.

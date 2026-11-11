@@ -17,7 +17,7 @@ describe('request confirmation page', () => {
     expect(link![1]).toMatch(/^https:\/\/wa\.me\/6707700000[01]\?text=/);
     const text = decodeURIComponent(link![1]!.split('text=')[1]!);
     expect(text).toBe('Hello Alfaiate TL, my request code is AT-ABCD2345.');
-    expect(html).toContain('Browse tailors');
+    expect(html).toContain('Find a Tailor'); // one label for this action since the UX audit (P5)
   });
 
   it('is in Tetun on the Tetun page', async () => {

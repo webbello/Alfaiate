@@ -5,7 +5,6 @@ import { photoUrl, photoSrcset } from '../../modules/media/urls';
 import { env } from 'cloudflare:workers';
 import ThemeLayout from '../../layouts/ThemeLayout.astro';
 import Hero from '../components/sections/Hero.astro';
-import Icon from '../components/ui/Icon.astro';
 import Source from '../../components/Source.astro';
 import { dictionary, fill } from '../../i18n/public';
 import { pathFor, type Lang } from '../../i18n/lang';
@@ -77,33 +76,12 @@ const imageSet = (base: string, sizes: ['thumb' | 'medium' | 'large', number][])
 
         <section class="prof-contact" aria-labelledby="contact">
           <h2 id="contact">{t.profile.contact}</h2>
-          <p class="dir-note" role="note"><strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}</p>
+          <p class="dir-note" role="note">{t.disclaimer.line} <a href={pathFor(lang, '/how-it-works')}>{t.disclaimer.more}</a></p>
+          {/* One primary action (WhatsApp, else Call, else a request through us); the request list is a quiet extra (UX audit P1). */}
           <div class="prof-actions">
-            <form
-              method="get"
-              action={pathFor(lang, '/request')}
-              data-add-to-cart
-              data-name={tailor.name}
-              data-url={url}
-              data-image={tailor.profilePhoto ? imageSrc(tailor.profilePhoto.base, 'thumb') : ''}
-            >
-              <input type="hidden" name="tailor" value={tailor.slug} />
-              <button type="submit" class="button w-inline-block">
-                <div class="button-bg"></div>
-                <div class="button-text">{t.requestList.addLabel}</div>
-                <div class="button-wrap">
-                  <Icon name="arrow-up-right" class="button-icon" />
-                  <Icon name="arrow-up-right" class="button-icon" />
-                </div>
-              </button>
-            </form>
-            <a class="button w-inline-block is-shop" href={requestHref}>
-              <div class="button-bg"></div>
-              <div class="button-text">{t.profile.requestThis}</div>
-            </a>
             {
               whatsapp && (
-                <a class="button w-inline-block is-shop" href={whatsapp} data-contact-channel="whatsapp" data-tailor={tailor.slug}>
+                <a class="button w-inline-block" href={whatsapp} data-contact-channel="whatsapp" data-tailor={tailor.slug}>
                   <div class="button-bg"></div>
                   <div class="button-text">{t.contact.whatsapp}</div>
                 </a>
@@ -111,13 +89,29 @@ const imageSet = (base: string, sizes: ['thumb' | 'medium' | 'large', number][])
             }
             {
               phone && (
-                <a class="button w-inline-block is-shop" href={phone} data-contact-channel="phone" data-tailor={tailor.slug}>
+                <a class:list={['button w-inline-block', whatsapp && 'is-shop']} href={phone} data-contact-channel="phone" data-tailor={tailor.slug}>
                   <div class="button-bg"></div>
                   <div class="button-text">{t.contact.call}</div>
                 </a>
               )
             }
+            <a class:list={['button w-inline-block', (whatsapp || phone) && 'is-shop']} href={requestHref}>
+              <div class="button-bg"></div>
+              <div class="button-text">{t.profile.requestThis}</div>
+            </a>
           </div>
+          <form
+            class="prof-list"
+            method="get"
+            action={pathFor(lang, '/request')}
+            data-add-to-cart
+            data-name={tailor.name}
+            data-url={url}
+            data-image={tailor.profilePhoto ? imageSrc(tailor.profilePhoto.base, 'thumb') : ''}
+          >
+            <input type="hidden" name="tailor" value={tailor.slug} />
+            <button type="submit" class="prof-list__button">{t.requestList.addLabel}</button>
+          </form>
           <p>{t.profile.contactNote}</p>
         </section>
       </div>

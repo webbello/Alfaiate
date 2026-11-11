@@ -42,6 +42,9 @@ test('the page does not scroll sideways at 375 px', async ({ page }) => {
 
 test('filters work with the keyboard only', async ({ page }) => {
   await page.goto('/tailors');
+  // the type, area and home-visit filters fold under "Narrow the list" (UX audit U2): open it from the keyboard
+  await page.locator('.dir-more > summary').focus();
+  await page.keyboard.press('Enter');
   await page.getByLabel('Garment or service').focus();
   await page
     .getByLabel('Garment or service')
@@ -84,6 +87,7 @@ test('the directory narrows as you type, shows a chip once a filter is applied t
   await expect(status).toHaveText('Tailors found: 0');
   await page.getByLabel('Tailor or shop name').press('Escape');
   await expect(status).not.toHaveText('Tailors found: 0');
+  await page.locator('.dir-more > summary').click();
   await page
     .getByLabel('Garment or service')
     .selectOption({ label: '[Placeholder] Suits' });

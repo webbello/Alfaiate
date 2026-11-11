@@ -38,6 +38,7 @@ const chips = (
   ] as (Chip | false | undefined | '')[]
 ).filter((c): c is Chip => Boolean(c));
 const variant = Astro.url.search !== '';
+const narrowed = [filters.category, filters.area, filters.homeVisit].filter(Boolean).length;
 const faq = [
   [t.faq.q1, t.faq.a1],
   [t.faq.q2, t.faq.a2],
@@ -54,7 +55,6 @@ import MotionScript from '../components/layout/MotionScript.astro';
     <div class="w-layout-blockcontainer main-container w-container">
       <div class="global-block">
         <p class="dir-intro" data-anim="hero">{d.intro}</p>
-        <p class="dir-note" role="note"><strong>{t.home.noteLabel}:</strong> {t.disclaimer.short}</p>
 
         <form class="dir-filters" method="get" action={action} id="search">
           <h2 class="sr-only">{d.filtersHeading}</h2>
@@ -62,6 +62,10 @@ import MotionScript from '../components/layout/MotionScript.astro';
             <label for="search-q">{d.search}</label>
             <input class="w-input" type="search" id="search-q" name="q" value={filters.q ?? ''} maxlength="60" autocomplete="off" />
           </p>
+          {/* Name search stays open; the other filters fold so the tailors start near the top of a phone screen (UX audit P2). */}
+          <details class="dir-more" open={narrowed > 0}>
+            <summary>{d.filtersHeading}{narrowed > 0 && ` (${narrowed})`}</summary>
+            <div class="dir-more__fields">
           <p>
             <label for="filter-category">{d.category}</label>
             <select class="w-input" id="filter-category" name="category">
@@ -82,6 +86,8 @@ import MotionScript from '../components/layout/MotionScript.astro';
               {d.homeVisit}
             </label>
           </p>
+            </div>
+          </details>
           <p class="dir-filters__actions">
             <button class="button w-inline-block" type="submit">
               <span class="button-bg"></span>
@@ -135,6 +141,7 @@ import MotionScript from '../components/layout/MotionScript.astro';
           )
         }
         {truncated && <p class="dir-note">{d.truncated}</p>}
+        <p class="dir-note" role="note">{t.disclaimer.line} <a href={pathFor(lang, '/how-it-works')}>{t.disclaimer.more}</a></p>
 
         {
           !variant && areas.length > 0 && (

@@ -188,6 +188,8 @@ export const tet: Dictionary = {
     confirmedOn: 'Konfirma iha {date}',
   },
   disclaimer: {
+    line: 'Alfaiate sira independente: ita konkorda folin no data ho alfaiate.',
+    more: "Oinsá serbisu ne'e halo",
     short:
       "Alfaiate TL aprezenta ita ba alfaiate independente sira. Alfaiate rasik, la'ós Alfaiate TL, konkorda ba folin, halo ita-nia roupa no hili data. Ami la bele garante alfaiate disponivel, kualidade ka tempu.",
   },
@@ -196,7 +198,7 @@ export const tet: Dictionary = {
     description:
       'Hetan alfaiate independente iha Dili no Timor-Leste tomak ba roupa tuir medida, fatu, vestidu, uniforme no hadi’a. Haree sira-nia serbisu no kontaktu sira diretamente.',
     noteLabel: 'Favór nota',
-    browse: 'Haree alfaiate sira',
+    browse: 'Buka Alfaiate',
     hero: {
       eyebrow: 'Kbiit lokál. Serbisu pesoál.',
       headingStart: 'Buka Alfaiate ne’ebé Komprende',
@@ -240,7 +242,7 @@ export const tet: Dictionary = {
       eyebrow: 'Alfaiate sira',
       heading: 'Hasoru Ita-nia Alfaiate Lokál.',
       intro: 'Hetan alfaiate ho talentu husi Timor-Leste tomak.',
-      all: 'Haree Alfaiate Hotu',
+      all: 'Buka Alfaiate',
       view: 'Haree Perfíl',
       whatsapp: 'WhatsApp {name}',
       previous: 'Alfaiate sira molok',
@@ -295,7 +297,7 @@ export const tet: Dictionary = {
     final: {
       heading: 'Ita-nia Roupa Favoritu Tuir Mai Hahú Iha Ne’e.',
       body: 'Hetan kbiit lokál, buka ita-nia alfaiate no halo ita-nia ideia roupa foun sai realidade.',
-      find: 'Buka Ita-nia Alfaiate',
+      find: 'Buka Alfaiate',
       request: 'Husu Alfaiate',
       script: 'Talentu lokál, estilu pesoál, komunidade forte liu',
     },
@@ -454,21 +456,21 @@ export const tet: Dictionary = {
     heading: 'Servisu alfaiate',
     intro:
       "Hili tipu ropa ida atu haree alfaiate sira ne'ebé halo, ka haree alfaiate hotu-hotu.",
-    browse: 'Haree alfaiate hotu-hotu',
+    browse: 'Buka Alfaiate',
   },
   craftPage: {
     title: 'Ami-nia ofísiu: alfaiate iha Timor-Leste',
     heading: 'Ami-nia ofísiu',
     intro:
       "Alfaiate sira iha Alfaiate TL mak negósiu lokál independente. Ne'e mak buat ne'ebé ami fó atensaun, no oinsá atu hetan alfaiate ne'ebé loos.",
-    browse: 'Haree alfaiate hotu-hotu',
+    browse: 'Buka Alfaiate',
   },
   contactPage: {
     title: 'Kontaktu',
     heading: 'Kontaktu ami',
     intro:
       'Dalan lais liu atu kontaktu ami mak haruka pedidu: hatete saida mak ita presiza no ita iha ne’ebé, no ho ita-nia konsentimentu ami haruka ba alfaiate ida.',
-    requestLink: 'Husu alfaiate',
+    requestLink: 'Husu Alfaiate',
     whatsappHeading: 'WhatsApp',
     whatsappBody: 'Ita mós bele haruka mensajen mai ami iha WhatsApp.',
     whatsappLink: 'WhatsApp ba ami',
@@ -612,7 +614,7 @@ export const tet: Dictionary = {
       "Ami sei kontaktu ita liuhusi númeru ne'ebé ita fó. Ami la bele promete oras.",
     responseLine:
       'Ami hakarak kontaktu ita {when}. Ne’e objetivu, la’ós garantia.',
-    browse: 'Haree alfaiate sira',
+    browse: 'Buka Alfaiate',
   },
   notFound: {
     title: 'Pájina la hetan',
