@@ -32,15 +32,16 @@ const sectionOf = (html: string, cls: string) =>
   '';
 
 describe('home page structure (Handspark theme)', () => {
-  it('has the sections in order: hero, about, featured tailors, our services, process, call to action', async () => {
+  // Order changed on purpose by the UX audit (2026-11-12, P3): tailors and how it works straight after the hero.
+  it('has the sections in order: hero, featured tailors, process, our services, about, call to action', async () => {
     await addTailor();
     const html = await home();
     const classes = [
       'home-section',
-      'company-section',
       'best-sellers-section',
-      'our-works-section',
       'process-section',
+      'our-works-section',
+      'company-section',
       'blog-section home-cta',
     ];
     const at = classes.map((c) => html.indexOf(`<section class="${c}"`));

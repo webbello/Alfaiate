@@ -366,6 +366,11 @@ html { scroll-padding-bottom: 5rem; }
 /* The shop link is for the plain list only; in the pinned reel the main button turns into it on the last slide */
 .works-shop-link { display: none; }
 
+/* Phones: a shorter services reel (UX audit P3); motion.ts steps the slides 0.55 screen apart to match. Before the plain-list rules below, which must win. */
+@media (max-width: 47.99rem) {
+  .works-height { height: 300vh; }
+}
+
 /* ---- Services section without the motion script: a plain list and stacked photos (reduced motion, or no JavaScript: the `scripting` media feature, since no `js` class is set any more), instead of one pinned slide ---- */
 @media (prefers-reduced-motion: reduce) {
   .works-height { height: auto; }

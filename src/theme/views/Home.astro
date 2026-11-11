@@ -1,6 +1,7 @@
 ---
-// The home page in the Handspark theme (docs/SPEC-handspark-theme.md, step 3). Sections: hero (image trail and ruler), about, featured tailors,
-// our work (pinned scroll), process, partners (hidden until real), stories (owner-approved quotes only), final call to action.
+// The home page in the Handspark theme (docs/SPEC-handspark-theme.md, step 3). Sections: hero (image trail and ruler), featured tailors, process,
+// our work (pinned scroll), about our craft, partners (hidden until real), stories (owner-approved quotes only), final call to action.
+// Tailors and how it works come straight after the hero so a phone reaches them in one or two screens (UX audit P3, 2026-11-12).
 // The journal section arrives with the journal in step 6.
 import { env } from 'cloudflare:workers';
 import ThemeLayout from '../../layouts/ThemeLayout.astro';
@@ -138,61 +139,6 @@ import MotionScript from '../components/layout/MotionScript.astro';
     </div>
   </section>
 
-  <section class="company-section">
-    <div class="section-space">
-      <div class="w-layout-blockcontainer main-container w-container">
-        <div class="company-block">
-          <div class="company-text-block">
-            <div class="company-info-block">
-              <div class="company-info" data-anim="fade">
-                <ul class="section-info" role="list">
-                  <li class="section-info-item">{h.craft.eyebrow}</li>
-                </ul>
-              </div>
-            </div>
-            <div class="company-title-block">
-              <h2 class="company-title is-display-show-for-desktop" data-anim="text-lines">{h.craft.heading}</h2>
-              <h2 class="company-title is-display-show-for-mobile" data-anim="text-lines">{h.craft.heading}</h2>
-            </div>
-          </div>
-          <div class="company-wrap-block">
-            <div class="company-thumb-block is-display-show-for-desktop">
-              <div class="company-thumb-wrap">
-                <img src={craft.src} srcset={craft.srcset} sizes="(min-width: 992px) 40vw, 90vw" width={craft.width} height={craft.height} alt={h.craft.imageAlt} class="company-thumb" loading="lazy" data-anim="image-zoom" />
-              </div>
-            </div>
-            <div class="company-details-block">
-              <div class="company-thumb-block">
-                <div class="company-thumb-wrap">
-                  <img src={suits.src} srcset={suits.srcset} sizes="(min-width: 992px) 30vw, 90vw" width={suits.width} height={suits.height} alt={h.how.imageAlt} class="company-thumb" loading="lazy" data-anim="image-zoom" />
-                </div>
-                <div class="company-thumb-wrap">
-                  <img src={rack.src} srcset={rack.srcset} sizes="(min-width: 992px) 30vw, 90vw" width={rack.width} height={rack.height} alt={h.how.imageAlt} class="company-thumb" loading="lazy" data-anim="image-zoom" />
-                </div>
-              </div>
-              <div class="company-except-block">
-                <div class="company-except" data-anim="fade">{h.craft.body}</div>
-                <div class="company-except" data-anim="fade">{h.visit.body}</div>
-              </div>
-              <div class="company-button-block">
-                <div class="company-button" data-anim="card">
-                  <a class="button w-inline-block" href={to('/craft')}>
-                    <div class="button-bg"></div>
-                    <div class="button-text">{h.craft.button}</div>
-                    <div class="button-wrap">
-                      <Icon name="arrow-up-right" class="button-icon" />
-                      <Icon name="arrow-up-right" class="button-icon" />
-                    </div>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <section class="best-sellers-section">
     <div class="section-space">
       <div class="w-layout-blockcontainer main-container w-container">
@@ -238,6 +184,39 @@ import MotionScript from '../components/layout/MotionScript.astro';
                 </div>
               </div>
             )
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="process-section">
+    <div class="w-layout-blockcontainer main-container w-container">
+      <div class="process-block">
+        <div class="process-text-block">
+          <div class="process-info-block">
+            <div class="process-info" data-anim="fade">
+              <ul class="section-info" role="list">
+                <li class="section-info-item">{h.how.eyebrow}</li>
+              </ul>
+            </div>
+          </div>
+          <div class="process-title-block">
+            <h2 class="process-title is-display-show-for-desktop" data-anim="text-lines">{h.how.heading}</h2>
+            <h2 class="process-title is-display-show-for-mobile" data-anim="text-lines">{h.how.heading}</h2>
+          </div>
+        </div>
+        <div class="process-card-block is-home">
+          {
+            steps.map((step, i) => (
+              <div class:list={['process-card', `is-${['one', 'two', 'three', 'four'][i]}`]}>
+                <div class="process-num">{pad(i + 1)}</div>
+                <div class="process-wrap">
+                  <div class="process-name">{step.name}</div>
+                  <div class="process-except">{step.text}</div>
+                </div>
+              </div>
+            ))
           }
         </div>
       </div>
@@ -302,34 +281,56 @@ import MotionScript from '../components/layout/MotionScript.astro';
     </div>
   </section>
 
-  <section class="process-section">
-    <div class="w-layout-blockcontainer main-container w-container">
-      <div class="process-block">
-        <div class="process-text-block">
-          <div class="process-info-block">
-            <div class="process-info" data-anim="fade">
-              <ul class="section-info" role="list">
-                <li class="section-info-item">{h.how.eyebrow}</li>
-              </ul>
+  <section class="company-section">
+    <div class="section-space">
+      <div class="w-layout-blockcontainer main-container w-container">
+        <div class="company-block">
+          <div class="company-text-block">
+            <div class="company-info-block">
+              <div class="company-info" data-anim="fade">
+                <ul class="section-info" role="list">
+                  <li class="section-info-item">{h.craft.eyebrow}</li>
+                </ul>
+              </div>
+            </div>
+            <div class="company-title-block">
+              <h2 class="company-title is-display-show-for-desktop" data-anim="text-lines">{h.craft.heading}</h2>
+              <h2 class="company-title is-display-show-for-mobile" data-anim="text-lines">{h.craft.heading}</h2>
             </div>
           </div>
-          <div class="process-title-block">
-            <h2 class="process-title is-display-show-for-desktop" data-anim="text-lines">{h.how.heading}</h2>
-            <h2 class="process-title is-display-show-for-mobile" data-anim="text-lines">{h.how.heading}</h2>
-          </div>
-        </div>
-        <div class="process-card-block is-home">
-          {
-            steps.map((step, i) => (
-              <div class:list={['process-card', `is-${['one', 'two', 'three', 'four'][i]}`]}>
-                <div class="process-num">{pad(i + 1)}</div>
-                <div class="process-wrap">
-                  <div class="process-name">{step.name}</div>
-                  <div class="process-except">{step.text}</div>
+          <div class="company-wrap-block">
+            <div class="company-thumb-block is-display-show-for-desktop">
+              <div class="company-thumb-wrap">
+                <img src={craft.src} srcset={craft.srcset} sizes="(min-width: 992px) 40vw, 90vw" width={craft.width} height={craft.height} alt={h.craft.imageAlt} class="company-thumb" loading="lazy" data-anim="image-zoom" />
+              </div>
+            </div>
+            <div class="company-details-block">
+              <div class="company-thumb-block">
+                <div class="company-thumb-wrap">
+                  <img src={suits.src} srcset={suits.srcset} sizes="(min-width: 992px) 30vw, 90vw" width={suits.width} height={suits.height} alt={h.how.imageAlt} class="company-thumb" loading="lazy" data-anim="image-zoom" />
+                </div>
+                <div class="company-thumb-wrap">
+                  <img src={rack.src} srcset={rack.srcset} sizes="(min-width: 992px) 30vw, 90vw" width={rack.width} height={rack.height} alt={h.how.imageAlt} class="company-thumb" loading="lazy" data-anim="image-zoom" />
                 </div>
               </div>
-            ))
-          }
+              <div class="company-except-block">
+                <div class="company-except" data-anim="fade">{h.craft.body}</div>
+                <div class="company-except" data-anim="fade">{h.visit.body}</div>
+              </div>
+              <div class="company-button-block">
+                <div class="company-button" data-anim="card">
+                  <a class="button w-inline-block" href={to('/craft')}>
+                    <div class="button-bg"></div>
+                    <div class="button-text">{h.craft.button}</div>
+                    <div class="button-wrap">
+                      <Icon name="arrow-up-right" class="button-icon" />
+                      <Icon name="arrow-up-right" class="button-icon" />
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

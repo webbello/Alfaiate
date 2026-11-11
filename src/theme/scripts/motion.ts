@@ -291,6 +291,8 @@ function initWorks(): void {
     let top = 0;
     let vh = 0;
     let ticking = false;
+    // Phones get a shorter reel (300vh in alfaiate.css, slides 0.55 screen apart, the last done before the pin ends) so the section is about three screens, not five (UX audit P3).
+    const step = matchMedia('(max-width: 47.99rem)').matches ? 0.55 : 1.2;
 
     // Long titles wrap to two lines, so every row gets the height of the tallest title and the heading steps one whole row at a time.
     const rows = [...titles.children] as HTMLElement[];
@@ -309,7 +311,7 @@ function initWorks(): void {
       const distance = window.scrollY - top;
       let done = 0;
       photos.forEach((photo, i) => {
-        const start = (0.03 + 1.2 * i) * vh;
+        const start = (0.03 + step * i) * vh;
         const t = Math.min(1, Math.max(0, (distance - start) / (0.25 * vh)));
         gsap.set(photo, { xPercent: -100 * t });
         done += t;
