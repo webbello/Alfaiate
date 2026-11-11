@@ -167,7 +167,7 @@ collections:
   - name: tailor_photos
     label: Tailor photos
     label_singular: Tailor photo
-    description: "One entry per tailor. The slug must match the one shown on the tailor's Photos tab in /admin. Only photos are changed here; text and publishing stay in /admin. The entry named example-tailor (or example-product) is used by the site's tests: leave it as it is."
+    description: "One entry per tailor. To add photos, open the tailor in /admin, go to Photos and press Add photos: that opens a new entry here with the tailor filled in. Only photos are changed here; text and publishing stay in /admin. The entry named example-tailor (or example-product) is used by the site's tests: leave it as it is."
     icon: photo_camera
     folder: content/photos/tailors
     extension: yml
@@ -180,13 +180,9 @@ collections:
     fields:
       - name: slug
         label: Tailor
-        widget: relation
-        collection: lists
-        file: tailors
-        value_field: "{{tailors.*.slug}}"
-        display_fields: ["{{tailors.*.name}} ({{tailors.*.slug}})"]
-        search_fields: ["{{tailors.*.name}}", "{{tailors.*.slug}}"]
-        hint: A tailor missing here was added after the list was last updated (npm run cms:lists).
+        readonly: true
+        hint: Filled in for you. Open this from the tailor's page in /admin ("Add photos"), never from the New button here.
+        pattern: ["^[a-z0-9]+(-[a-z0-9]+)*$", "Open this from the tailor's page in /admin"]
       - name: profile
         label: Profile photo
         widget: image
@@ -209,7 +205,7 @@ collections:
   - name: product_photos
     label: Product photos
     label_singular: Product photo
-    description: "One entry per product. The slug must match the one shown on the product's page in /admin. The entry named example-tailor (or example-product) is used by the site's tests: leave it as it is."
+    description: "One entry per product. To add photos, open the product in /admin and press Add photos: that opens a new entry here with the product filled in. The entry named example-tailor (or example-product) is used by the site's tests: leave it as it is."
     icon: shopping_bag
     folder: content/photos/products
     extension: yml
@@ -222,13 +218,9 @@ collections:
     fields:
       - name: slug
         label: Product
-        widget: relation
-        collection: lists
-        file: products
-        value_field: "{{products.*.slug}}"
-        display_fields: ["{{products.*.name}} ({{products.*.slug}})"]
-        search_fields: ["{{products.*.name}}", "{{products.*.slug}}"]
-        hint: A product missing here was added after the list was last updated (npm run cms:lists).
+        readonly: true
+        hint: Filled in for you. Open this from the product's page in /admin ("Add photos"), never from the New button here.
+        pattern: ["^[a-z0-9]+(-[a-z0-9]+)*$", "Open this from the product's page in /admin"]
       - name: main
         label: Main photo
         widget: image
@@ -247,37 +239,6 @@ collections:
         hint: One line per gallery picture, in the same order.
         widget: text
         required: false
-
-  - divider: true
-
-  - name: lists
-    label: Lists (read only)
-    label_singular: List
-    description: "Tailors and products from the database, for the dropdowns above. Written by npm run cms:lists: changes made here are replaced the next time it runs."
-    icon: list
-    files:
-      - name: tailors
-        label: Tailors
-        file: content/lists/tailors.yml
-        fields:
-          - name: tailors
-            label: Tailors
-            widget: list
-            summary: "{{name}} ({{slug}})"
-            fields:
-              - { name: slug, label: Slug }
-              - { name: name, label: Name }
-      - name: products
-        label: Products
-        file: content/lists/products.yml
-        fields:
-          - name: products
-            label: Products
-            widget: list
-            summary: "{{name}} ({{slug}})"
-            fields:
-              - { name: slug, label: Slug }
-              - { name: name, label: Name }
 
 singletons:
   - name: site

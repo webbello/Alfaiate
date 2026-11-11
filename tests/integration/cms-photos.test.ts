@@ -55,8 +55,11 @@ describe('tailor photos from the content editor', () => {
     const html = await (await get(`/admin/tailors/${tailorId}`, owner)).text();
     expect(html).toContain('Photos from the content editor');
     expect(html).toContain('<code>example-tailor</code>');
+    expect(html).toContain(
+      'href="/cms/#/collections/tailor_photos/entries/example-tailor"',
+    );
+    expect(html).toContain('Change photos');
     expect(html).toContain('2 photos set');
-    expect(html).toContain('href="/cms/"');
   });
 
   it('never shows them once the tailor is not published', async () => {
@@ -76,6 +79,18 @@ describe('tailor photos from the content editor', () => {
     );
     const profile = await (await get('/tailors/cms-no-entry')).text();
     expect(profile).not.toContain('/photos/tailors/');
+    // staff get a button that opens a new entry with this tailor filled in
+    const id = (await env.DB.prepare(
+      "SELECT id FROM tailor WHERE slug = 'cms-no-entry'",
+    ).first<{ id: number }>())!.id;
+    const admin = await (
+      await get(`/admin/tailors/${id}`, await signIn('owner'))
+    ).text();
+    expect(admin).toContain(
+      'href="/cms/#/collections/tailor_photos/new?slug=cms-no-entry"',
+    );
+    expect(admin).toContain('Add photos');
+    expect(admin).toContain('No photo set yet.');
   });
 });
 
@@ -109,6 +124,9 @@ describe('product photos from the content editor', () => {
       await get(`/admin/products/${productId}`, owner)
     ).text();
     expect(html).toContain('<code>example-product</code>');
+    expect(html).toContain(
+      'href="/cms/#/collections/product_photos/entries/example-product"',
+    );
     expect(html).toContain('1 photo set');
     await run('UPDATE product SET is_published = 0 WHERE id = ?', productId);
     expect((await get('/shop/example-product')).status).toBe(404);

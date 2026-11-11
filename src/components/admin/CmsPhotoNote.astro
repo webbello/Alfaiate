@@ -12,7 +12,12 @@ const { kind, slug } = Astro.props;
 const found =
   kind === 'tailors' ? cmsTailorPhotos(slug) : cmsProductPhotos(slug);
 const count = (found.main ? 1 : 0) + found.gallery.length;
-const collection = kind === 'tailors' ? 'Tailor photos' : 'Product photos';
+const collection = kind === 'tailors' ? 'tailor_photos' : 'product_photos';
+// The editor opens a new entry with the slug filled in, or the existing entry (its address is the slug).
+const href =
+  count > 0
+    ? `/cms/#/collections/${collection}/entries/${slug}`
+    : `/cms/#/collections/${collection}/new?slug=${encodeURIComponent(slug)}`;
 ---
 
 <section class="card">
@@ -23,9 +28,14 @@ const collection = kind === 'tailors' ? 'Tailor photos' : 'Product photos';
       : 'No photo set yet.'}
   </p>
   <p>
-    To add or change them, open the <a href="/cms/">content editor</a>, choose{' '}
-    <strong>{collection}</strong> and use this slug exactly:
-    <code>{slug}</code>
+    <a class="button-link" href={href}>
+      {count > 0 ? 'Change photos' : 'Add photos'}
+    </a>
+  </p>
+  <p class="hint">
+    Opens the content editor with this{' '}
+    {kind === 'tailors' ? 'tailor' : 'product'} filled in (<code>{slug}</code>).
+    A new photo appears on the site a minute or two after you save it there.
   </p>
   <p class="hint">
     Changing the slug of this {kind === 'tailors' ? 'tailor' : 'product'} here

@@ -72,3 +72,15 @@ describe('/cms config', () => {
     );
   });
 });
+
+describe('/cms photo entries', () => {
+  it('take their slug only from the link in /admin: read only, checked, no dropdown list to keep up to date', () => {
+    for (const label of ['Tailor', 'Product'])
+      expect(config).toMatch(
+        new RegExp(
+          `- name: slug\\n\\s+label: ${label}\\n\\s+readonly: true\\n`,
+        ),
+      );
+    expect(config).not.toMatch(/widget: relation\n\s+collection: lists/);
+  });
+});
