@@ -23,6 +23,7 @@
     "test:integration": "npm run build && vitest run --project integration --project integration-en --project integration-staging",
     "deploy:staging": "node scripts/deploy.mjs staging",
     "deploy:production": "node scripts/deploy.mjs production",
+    "cms:lists": "node scripts/cms-lists.mjs",
     "owner:create": "node scripts/owner.mjs create",
     "owner:reset": "node scripts/owner.mjs reset",
     "test:e2e": "npm run build && node e2e/run.mjs",

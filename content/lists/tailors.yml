@@ -1,0 +1,4 @@
+# Written by `npm run cms:lists` from the database. Do not edit: the next run replaces it.
+tailors:
+  - slug: example-tailor
+    name: "Example tailor (used by tests)"

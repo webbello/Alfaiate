@@ -1,0 +1,4 @@
+# Written by `npm run cms:lists` from the database. Do not edit: the next run replaces it.
+products:
+  - slug: example-product
+    name: "Example product (used by tests)"

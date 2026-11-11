@@ -179,9 +179,14 @@ collections:
     public_folder: /photos/tailors
     fields:
       - name: slug
-        label: Tailor slug
-        hint: Copy it from the tailor's address in /admin, for example zeb-tailor. Lower case, numbers and dashes only.
-        pattern: ["^[a-z0-9]+(-[a-z0-9]+)*$", "Use lower case letters, numbers and dashes only"]
+        label: Tailor
+        widget: relation
+        collection: lists
+        file: tailors
+        value_field: "{{tailors.*.slug}}"
+        display_fields: ["{{tailors.*.name}} ({{tailors.*.slug}})"]
+        search_fields: ["{{tailors.*.name}}", "{{tailors.*.slug}}"]
+        hint: A tailor missing here was added after the list was last updated (npm run cms:lists).
       - name: profile
         label: Profile photo
         widget: image
@@ -216,9 +221,14 @@ collections:
     public_folder: /photos/products
     fields:
       - name: slug
-        label: Product slug
-        hint: Copy it from the product's address in /admin. Lower case, numbers and dashes only.
-        pattern: ["^[a-z0-9]+(-[a-z0-9]+)*$", "Use lower case letters, numbers and dashes only"]
+        label: Product
+        widget: relation
+        collection: lists
+        file: products
+        value_field: "{{products.*.slug}}"
+        display_fields: ["{{products.*.name}} ({{products.*.slug}})"]
+        search_fields: ["{{products.*.name}}", "{{products.*.slug}}"]
+        hint: A product missing here was added after the list was last updated (npm run cms:lists).
       - name: main
         label: Main photo
         widget: image
@@ -237,6 +247,37 @@ collections:
         hint: One line per gallery picture, in the same order.
         widget: text
         required: false
+
+  - divider: true
+
+  - name: lists
+    label: Lists (read only)
+    label_singular: List
+    description: "Tailors and products from the database, for the dropdowns above. Written by npm run cms:lists: changes made here are replaced the next time it runs."
+    icon: list
+    files:
+      - name: tailors
+        label: Tailors
+        file: content/lists/tailors.yml
+        fields:
+          - name: tailors
+            label: Tailors
+            widget: list
+            summary: "{{name}} ({{slug}})"
+            fields:
+              - { name: slug, label: Slug }
+              - { name: name, label: Name }
+      - name: products
+        label: Products
+        file: content/lists/products.yml
+        fields:
+          - name: products
+            label: Products
+            widget: list
+            summary: "{{name}} ({{slug}})"
+            fields:
+              - { name: slug, label: Slug }
+              - { name: name, label: Name }
 
 singletons:
   - name: site
